@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-05-01T22:36:11.457Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="iAKIViXGjWg922nAPmQJ" version="24.3.1" type="github" pages="3">
+<mxfile host="app.diagrams.net" modified="2024-05-01T22:46:52.658Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="QknZq4eFf6IiMbMgvifF" version="24.3.1" type="github" pages="3">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
     <mxGraphModel dx="1434" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -17,16 +17,19 @@
           <mxGeometry x="390" y="210" width="110" height="60" as="geometry" />
         </mxCell>
         <mxCell id="RmffrdpQDNAFTX5bSkld-15" value="Mobile GUI" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="560" y="150" width="110" height="60" as="geometry" />
+          <mxGeometry x="670" y="130" width="110" height="60" as="geometry" />
         </mxCell>
         <mxCell id="RmffrdpQDNAFTX5bSkld-16" value="Desktop GUI" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="560" y="280" width="110" height="60" as="geometry" />
+          <mxGeometry x="670" y="340" width="110" height="60" as="geometry" />
         </mxCell>
         <mxCell id="RmffrdpQDNAFTX5bSkld-19" value="Strava APIs" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="40" y="210" width="110" height="60" as="geometry" />
         </mxCell>
         <mxCell id="RmffrdpQDNAFTX5bSkld-21" value="Message Queue" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="200" y="330" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="RmffrdpQDNAFTX5bSkld-27" value="FastAPI" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="210" width="110" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
@@ -57,7 +60,7 @@
         <mxCell id="OpilXaS1zRmoDV6CBxLi-23" value="Components" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="60" y="570" width="170" height="400" as="geometry" />
         </mxCell>
-        <mxCell id="OpilXaS1zRmoDV6CBxLi-24" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;ComponentId (PK)&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;BikeId (FK)&lt;/div&gt;ComponentName&lt;div&gt;ComponentType&lt;/div&gt;&lt;div&gt;ComponentDistance&lt;br&gt;&lt;/div&gt;&lt;div&gt;ComponentMovingTime&lt;br&gt;&lt;/div&gt;&lt;div&gt;InstallationStatus&lt;/div&gt;&lt;div&gt;ServiceInterval&lt;/div&gt;&lt;div&gt;ServiceStatus&lt;/div&gt;&lt;div&gt;ServiceNext&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Updated&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Date&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;UpdateReason&lt;/div&gt;&lt;div&gt;Cost&lt;/div&gt;&lt;div&gt;Notes&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;/div&gt;&lt;div&gt;add_distance_components&lt;/div&gt;&lt;div&gt;update_service_next&lt;/div&gt;&lt;div&gt;update_service_status&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-23" vertex="1">
+        <mxCell id="OpilXaS1zRmoDV6CBxLi-24" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;ComponentId (PK)&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;BikeId (FK)&lt;/div&gt;ComponentName&lt;div&gt;ComponentType&lt;/div&gt;&lt;div&gt;ComponentDistance&lt;br&gt;&lt;/div&gt;&lt;div&gt;ComponentMovingTime&lt;br&gt;&lt;/div&gt;&lt;div&gt;InstallationStatus&lt;/div&gt;&lt;div&gt;ServiceInterval&lt;/div&gt;&lt;div&gt;ServiceStatus&lt;/div&gt;&lt;div&gt;ServiceNext&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Updated&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Date&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;UpdateReason&lt;/div&gt;&lt;div&gt;Cost&lt;/div&gt;&lt;div&gt;Notes&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;/div&gt;&lt;div&gt;add_distance_components&lt;/div&gt;&lt;div&gt;update_service_next&lt;/div&gt;&lt;div&gt;update_service_status&lt;/div&gt;&lt;div&gt;update_component_history&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-23" vertex="1">
           <mxGeometry y="50" width="170" height="350" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-34" value="Services" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
@@ -132,13 +135,13 @@
           <mxGeometry y="50" width="160" height="170" as="geometry" />
         </mxCell>
         <mxCell id="FYLXDRk0VA_Kkk7GIYD0-5" value="InstallationStatuses" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
-          <mxGeometry x="540" y="970" width="150" height="150" as="geometry" />
+          <mxGeometry x="610" y="910" width="150" height="150" as="geometry" />
         </mxCell>
         <mxCell id="FYLXDRk0VA_Kkk7GIYD0-6" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Statustype (PK)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;None&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="FYLXDRk0VA_Kkk7GIYD0-5">
           <mxGeometry y="50" width="150" height="100" as="geometry" />
         </mxCell>
         <mxCell id="FYLXDRk0VA_Kkk7GIYD0-7" value="ComponentTypes" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
-          <mxGeometry x="540" y="790" width="150" height="140" as="geometry" />
+          <mxGeometry x="570" y="740" width="150" height="140" as="geometry" />
         </mxCell>
         <mxCell id="FYLXDRk0VA_Kkk7GIYD0-8" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ComponentType (PK)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;None&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="FYLXDRk0VA_Kkk7GIYD0-7">
           <mxGeometry y="50" width="150" height="90" as="geometry" />
@@ -175,6 +178,12 @@
           <mxGeometry x="-0.0246" y="1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
+        </mxCell>
+        <mxCell id="GRxZacEyFEDHDltRchM_-1" value="ComponentHistory" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="290" y="980" width="150" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="GRxZacEyFEDHDltRchM_-2" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ComponentId (PK)&lt;/div&gt;&lt;div&gt;UpdatedDate&lt;/div&gt;&lt;div&gt;UpdateReason&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;None&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="GRxZacEyFEDHDltRchM_-1">
+          <mxGeometry y="50" width="150" height="110" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
