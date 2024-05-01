@@ -1,47 +1,78 @@
-<mxfile host="app.diagrams.net" modified="2024-05-01T21:51:47.600Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="EnykteWQjAJi1TpSsJun" version="24.3.1" type="github" pages="2">
+<mxfile host="app.diagrams.net" modified="2024-05-01T22:36:11.457Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="iAKIViXGjWg922nAPmQJ" version="24.3.1" type="github" pages="3">
+  <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
+    <mxGraphModel dx="1434" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="RmffrdpQDNAFTX5bSkld-10" value="GUI RDBMS" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="100" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="RmffrdpQDNAFTX5bSkld-11" value="Strava API&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="260" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="RmffrdpQDNAFTX5bSkld-13" value="Batch" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="180" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="RmffrdpQDNAFTX5bSkld-14" value="RDBMS" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="210" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="RmffrdpQDNAFTX5bSkld-15" value="Mobile GUI" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="150" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="RmffrdpQDNAFTX5bSkld-16" value="Desktop GUI" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="280" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="RmffrdpQDNAFTX5bSkld-19" value="Strava APIs" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="210" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="RmffrdpQDNAFTX5bSkld-21" value="Message Queue" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="330" width="110" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
   <diagram name="ER diagram" id="gaYTSJDpXmIPhpLEIALV">
     <mxGraphModel dx="1434" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="OpilXaS1zRmoDV6CBxLi-1" value="A&lt;span style=&quot;background-color: initial;&quot;&gt;thletes&lt;/span&gt;" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="330" y="110" width="160" height="150" as="geometry" />
+          <mxGeometry x="40" y="30" width="90" height="150" as="geometry" />
         </mxCell>
-        <mxCell id="OpilXaS1zRmoDV6CBxLi-2" value="&lt;div&gt;AthleteId (PK)&lt;br&gt;&lt;/div&gt;AthleteName" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-1" vertex="1">
-          <mxGeometry y="50" width="160" height="100" as="geometry" />
+        <mxCell id="OpilXaS1zRmoDV6CBxLi-2" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;AthleteId (PK)&lt;br&gt;&lt;/div&gt;AthleteName&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;None&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-1" vertex="1">
+          <mxGeometry y="50" width="90" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="OpilXaS1zRmoDV6CBxLi-4" value="Rides" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-          <mxGeometry x="470" y="350" width="160" height="190" as="geometry" />
+        <mxCell id="OpilXaS1zRmoDV6CBxLi-4" value="ExtractedRides" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="310" y="180" width="160" height="230" as="geometry" />
         </mxCell>
-        <mxCell id="OpilXaS1zRmoDV6CBxLi-5" value="RideId (PK)&lt;div&gt;BikeId (FK)&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;RecordTime&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;RideName&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;RideDistance&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;RideMovingTime&lt;br&gt;&lt;br&gt;&lt;/div&gt;" style="align=left;strokeColor=#d6b656;fillColor=#fff2cc;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-4" vertex="1">
-          <mxGeometry y="50" width="160" height="140" as="geometry" />
+        <mxCell id="OpilXaS1zRmoDV6CBxLi-5" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;RideId (PK)&lt;div&gt;BikeId (FK)&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;RecordTime&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;RideName&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;RideDistance&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;RideMovingTime&lt;br&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;update_added_rides&lt;/div&gt;&lt;/div&gt;&lt;div&gt;update_components&lt;/div&gt;" style="align=left;strokeColor=#d6b656;fillColor=#fff2cc;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-4" vertex="1">
+          <mxGeometry y="50" width="160" height="180" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-21" value="Bikes" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="190" y="350" width="160" height="190" as="geometry" />
+          <mxGeometry x="80" y="240" width="90" height="220" as="geometry" />
         </mxCell>
-        <mxCell id="OpilXaS1zRmoDV6CBxLi-22" value="BikeId (PK)&lt;div&gt;AthleteId (FK)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;BikeName&lt;/div&gt;&lt;div&gt;BikeStatus&lt;br&gt;&lt;div&gt;TotalDistance&lt;/div&gt;&lt;div&gt;Notes&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-21" vertex="1">
-          <mxGeometry y="50" width="160" height="140" as="geometry" />
+        <mxCell id="OpilXaS1zRmoDV6CBxLi-22" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;BikeId (PK)&lt;div&gt;AthleteId (FK)&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;BikeName&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;BikeStatus&lt;br&gt;&lt;div&gt;TotalDistance&lt;/div&gt;&lt;div&gt;Notes&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;None&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-21" vertex="1">
+          <mxGeometry y="50" width="90" height="170" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-23" value="Components" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="190" y="610" width="160" height="400" as="geometry" />
+          <mxGeometry x="60" y="570" width="170" height="400" as="geometry" />
         </mxCell>
-        <mxCell id="OpilXaS1zRmoDV6CBxLi-24" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;ComponentId (PK)&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;BikeId (FK)&lt;/div&gt;ComponentName&lt;div&gt;ComponentType&lt;/div&gt;&lt;div&gt;ComponentDistance&lt;br&gt;&lt;/div&gt;&lt;div&gt;ComponentMovingTime&lt;br&gt;&lt;/div&gt;&lt;div&gt;InstallationStatus&lt;/div&gt;&lt;div&gt;ServiceInterval&lt;/div&gt;&lt;div&gt;ServiceStatus&lt;/div&gt;&lt;div&gt;ServiceNext&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Updated&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Date&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;UpdateReason&lt;/div&gt;&lt;div&gt;Cost&lt;/div&gt;&lt;div&gt;Notes&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;AddComponents&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;UpdateNextService&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;UpdateServiceStatus&lt;/b&gt;&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-23" vertex="1">
-          <mxGeometry y="50" width="160" height="350" as="geometry" />
+        <mxCell id="OpilXaS1zRmoDV6CBxLi-24" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;ComponentId (PK)&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;BikeId (FK)&lt;/div&gt;ComponentName&lt;div&gt;ComponentType&lt;/div&gt;&lt;div&gt;ComponentDistance&lt;br&gt;&lt;/div&gt;&lt;div&gt;ComponentMovingTime&lt;br&gt;&lt;/div&gt;&lt;div&gt;InstallationStatus&lt;/div&gt;&lt;div&gt;ServiceInterval&lt;/div&gt;&lt;div&gt;ServiceStatus&lt;/div&gt;&lt;div&gt;ServiceNext&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Updated&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Date&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;UpdateReason&lt;/div&gt;&lt;div&gt;Cost&lt;/div&gt;&lt;div&gt;Notes&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;/div&gt;&lt;div&gt;add_distance_components&lt;/div&gt;&lt;div&gt;update_service_next&lt;/div&gt;&lt;div&gt;update_service_status&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-23" vertex="1">
+          <mxGeometry y="50" width="170" height="350" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-34" value="Services" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="470" y="610" width="160" height="290" as="geometry" />
+          <mxGeometry x="540" y="510" width="210" height="200" as="geometry" />
         </mxCell>
-        <mxCell id="OpilXaS1zRmoDV6CBxLi-35" value="&lt;div&gt;ServiceId (PK)&lt;/div&gt;&lt;div&gt;ComponentId (FK)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ServiceName&lt;/div&gt;ServiceDate&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Notes&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-34" vertex="1">
-          <mxGeometry y="50" width="160" height="240" as="geometry" />
+        <mxCell id="OpilXaS1zRmoDV6CBxLi-35" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ServiceId (PK)&lt;/div&gt;&lt;div&gt;ComponentId (FK)&lt;/div&gt;&lt;div&gt;ServiceName&lt;/div&gt;ServiceDate&lt;div&gt;Notes&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;reset_service_next&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="OpilXaS1zRmoDV6CBxLi-34" vertex="1">
+          <mxGeometry y="50" width="210" height="150" as="geometry" />
         </mxCell>
-        <mxCell id="OpilXaS1zRmoDV6CBxLi-37" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" parent="1" source="OpilXaS1zRmoDV6CBxLi-4" target="OpilXaS1zRmoDV6CBxLi-23" edge="1">
+        <mxCell id="OpilXaS1zRmoDV6CBxLi-37" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" parent="1" source="OpilXaS1zRmoDV6CBxLi-5" target="OpilXaS1zRmoDV6CBxLi-23" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
             <mxPoint x="620" y="81" as="sourcePoint" />
             <mxPoint x="470" y="580" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="430" y="493" />
-              <mxPoint x="430" y="570" />
-              <mxPoint x="310" y="570" />
+              <mxPoint x="390" y="530" />
+              <mxPoint x="188" y="530" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -83,19 +114,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ye555hVfQSgsfjbCrjof-1" value="Trigger:&amp;nbsp;&lt;div&gt;On change Rides Update ....&lt;/div&gt;" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="500" y="920" width="120" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="ye555hVfQSgsfjbCrjof-2" value="Trigger: AddComponents" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="10" y="610" width="160" height="70" as="geometry" />
-        </mxCell>
-        <mxCell id="KSmBxJc1Y2LumvWCZjbx-1" value="Retrieve data from activities-api" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="640" y="350" width="120" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="Ze08bTx3dgTv0OYDRQwi-2" value="Retrieve data from gear-api" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="60" y="350" width="120" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="Ze08bTx3dgTv0OYDRQwi-9" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="1" source="OpilXaS1zRmoDV6CBxLi-5">
+        <mxCell id="Ze08bTx3dgTv0OYDRQwi-9" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="OpilXaS1zRmoDV6CBxLi-5" target="OpilXaS1zRmoDV6CBxLi-21">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
             <mxPoint x="280" y="620" as="sourcePoint" />
             <mxPoint x="350" y="435" as="targetPoint" />
@@ -106,11 +125,56 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Ze08bTx3dgTv0OYDRQwi-11" value="Retrieve data from ?&lt;div&gt;Dont use in mvp&lt;/div&gt;" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="200" y="110" width="120" height="90" as="geometry" />
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-3" value="AddedRides" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="590" y="180" width="160" height="220" as="geometry" />
         </mxCell>
-        <mxCell id="-8s649BI-82-__FEODmU-1" value="Trigger: AddComponents" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="10" y="690" width="160" height="70" as="geometry" />
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-4" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;RideId (PK)&lt;div&gt;BikeId (FK)&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;RecordTime&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;RideName&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;RideDistance&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;RideMovingTime&lt;br&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;None&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=#d6b656;fillColor=#fff2cc;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="FYLXDRk0VA_Kkk7GIYD0-3">
+          <mxGeometry y="50" width="160" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-5" value="InstallationStatuses" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="540" y="970" width="150" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-6" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Statustype (PK)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;None&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="FYLXDRk0VA_Kkk7GIYD0-5">
+          <mxGeometry y="50" width="150" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-7" value="ComponentTypes" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="540" y="790" width="150" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-8" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ComponentType (PK)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;b&gt;Triggers:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;None&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=#82b366;fillColor=#d5e8d4;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="FYLXDRk0VA_Kkk7GIYD0-7">
+          <mxGeometry y="50" width="150" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-12" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1.014;exitY=0.344;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="OpilXaS1zRmoDV6CBxLi-5" target="FYLXDRk0VA_Kkk7GIYD0-3">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="550" y="430" as="sourcePoint" />
+            <mxPoint x="530" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-13" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="FYLXDRk0VA_Kkk7GIYD0-12">
+          <mxGeometry x="-0.0246" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-14" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=-0.008;exitY=0.357;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitPerimeter=0;" edge="1" parent="1" source="FYLXDRk0VA_Kkk7GIYD0-7" target="OpilXaS1zRmoDV6CBxLi-24">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="440" y="655" as="sourcePoint" />
+            <mxPoint x="240" y="805" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-15" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="FYLXDRk0VA_Kkk7GIYD0-14">
+          <mxGeometry x="-0.0246" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-18" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=0.992;entryY=0.858;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="FYLXDRk0VA_Kkk7GIYD0-6" target="OpilXaS1zRmoDV6CBxLi-24">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="348" y="850" as="sourcePoint" />
+            <mxPoint x="240" y="893" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FYLXDRk0VA_Kkk7GIYD0-19" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="FYLXDRk0VA_Kkk7GIYD0-18">
+          <mxGeometry x="-0.0246" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
