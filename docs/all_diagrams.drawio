@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-05-04T10:49:41.583Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="uA2hgrwfrhNSknkOCDKK" version="24.3.1" type="github" pages="4">
+<mxfile host="app.diagrams.net" modified="2024-05-04T10:52:07.621Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="YlcIZVVM6vSsF8iNBcDB" version="24.3.1" type="github" pages="4">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
-    <mxGraphModel dx="1434" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1654" math="0" shadow="1">
+    <mxGraphModel dx="2715" dy="1504" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1654" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -276,13 +276,13 @@
         <mxCell id="GRxZacEyFEDHDltRchM_-2" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;component_id (PK)&lt;/div&gt;&lt;div&gt;updated_date&lt;/div&gt;&lt;div&gt;update_reason&lt;/div&gt;" style="align=left;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;rounded=0;" parent="GRxZacEyFEDHDltRchM_-1" vertex="1">
           <mxGeometry y="50" width="220" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="iR8unfrpZBc76lK5Iaur-1" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="1">
+        <mxCell id="iR8unfrpZBc76lK5Iaur-1" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" parent="1" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
             <mxPoint x="1040" y="731" as="sourcePoint" />
             <mxPoint x="900" y="731" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="iR8unfrpZBc76lK5Iaur-2" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rounded=0;" vertex="1" connectable="0" parent="iR8unfrpZBc76lK5Iaur-1">
+        <mxCell id="iR8unfrpZBc76lK5Iaur-2" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rounded=0;" parent="iR8unfrpZBc76lK5Iaur-1" vertex="1" connectable="0">
           <mxGeometry x="-0.0246" y="1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
@@ -291,18 +291,24 @@
     </mxGraphModel>
   </diagram>
   <diagram id="YGc9dI-DZqv5oqem6ccq" name="Desktop GUI">
-    <mxGraphModel dx="1434" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
+    <mxGraphModel dx="2715" dy="1504" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="_swABWhcURi--qinC0dg-1" value="" style="whiteSpace=wrap;html=1;aspect=fixed;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;" parent="1" vertex="1">
-          <mxGeometry x="480" y="200" width="80" height="80" as="geometry" />
+          <mxGeometry x="500" y="160" width="170" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="0LCqYA6VvtY6iAby2jO6-2" value="" style="whiteSpace=wrap;html=1;aspect=fixed;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;" vertex="1" parent="1">
+          <mxGeometry x="770" y="415" width="170" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="0LCqYA6VvtY6iAby2jO6-3" value="" style="whiteSpace=wrap;html=1;aspect=fixed;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;" vertex="1" parent="1">
+          <mxGeometry x="520" y="640" width="170" height="170" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
   <diagram id="rMwMfLDCq5QZSCOKzczj" name="Mobile GUI">
-    <mxGraphModel dx="1434" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
+    <mxGraphModel dx="2715" dy="1504" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
