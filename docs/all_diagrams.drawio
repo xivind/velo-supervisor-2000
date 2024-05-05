@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-05-05T10:42:59.242Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="kj2CDi2TaRmQ1TGplwkl" version="24.3.1" type="github" pages="4">
+<mxfile host="app.diagrams.net" modified="2024-05-05T10:46:06.435Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="73IJUxtflTuqziqRW6hg" version="24.3.1" type="github" pages="4">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
     <mxGraphModel dx="2715" dy="1504" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
@@ -8,21 +8,19 @@
           <mxGeometry x="420" y="470" width="780" height="430" as="geometry" />
         </mxCell>
         <mxCell id="RmffrdpQDNAFTX5bSkld-15" value="Mobile GUI (Bootstrap)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;verticalAlign=middle;textShadow=1;shadow=1;" parent="1" vertex="1">
-          <mxGeometry x="580" y="220" width="110" height="60" as="geometry" />
+          <mxGeometry x="550" y="320" width="110" height="60" as="geometry" />
         </mxCell>
         <mxCell id="TPEgxu9a9AXFGAaxVu-T-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=circle;endFill=0;textShadow=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="RmffrdpQDNAFTX5bSkld-16" target="EPH6YutYgcLWwkJwT0F1-7" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="915" y="360" />
-              <mxPoint x="760" y="360" />
-              <mxPoint x="760" y="430" />
-              <mxPoint x="695" y="430" />
+              <mxPoint x="955" y="400" />
+              <mxPoint x="695" y="400" />
             </Array>
             <mxPoint x="1000" y="230" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="RmffrdpQDNAFTX5bSkld-16" value="Desktop GUI (Bootstrap)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;textShadow=1;shadow=1;" parent="1" vertex="1">
-          <mxGeometry x="860" y="220" width="110" height="60" as="geometry" />
+          <mxGeometry x="900" y="320" width="110" height="60" as="geometry" />
         </mxCell>
         <mxCell id="EPH6YutYgcLWwkJwT0F1-7" value="Backend (FastAPI)" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="450" y="510" width="490" height="340" as="geometry" />
@@ -43,31 +41,10 @@
         <mxCell id="EPH6YutYgcLWwkJwT0F1-10" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;textShadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="610" width="10" height="10" as="geometry" />
         </mxCell>
-        <mxCell id="ADMcqOYKtGjGrvWezob3-1" value="GetGear" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;textShadow=1;" parent="1" vertex="1">
-          <mxGeometry x="1435" y="560" width="60" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="ADMcqOYKtGjGrvWezob3-3" value="AddComponentType" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;textShadow=1;" parent="1" vertex="1">
-          <mxGeometry x="1420" y="640" width="60" height="10" as="geometry" />
-        </mxCell>
-        <mxCell id="ADMcqOYKtGjGrvWezob3-4" value="AddComponent" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;textShadow=1;" parent="1" vertex="1">
-          <mxGeometry x="1420" y="650" width="60" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="ADMcqOYKtGjGrvWezob3-5" value="RegisterService" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;textShadow=1;" parent="1" vertex="1">
-          <mxGeometry x="1420" y="705" width="60" height="30" as="geometry" />
-        </mxCell>
         <mxCell id="ADMcqOYKtGjGrvWezob3-15" value="Rider" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="790" y="60" width="30" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="V73f57zYLoc_UtmQ8Hj4-1" value="DeleteComponent" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;textShadow=1;" parent="1" vertex="1">
-          <mxGeometry x="1420" y="750" width="60" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="V73f57zYLoc_UtmQ8Hj4-2" value="ChangeComponentStatus" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;textShadow=1;" parent="1" vertex="1">
-          <mxGeometry x="1420" y="795" width="60" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="V73f57zYLoc_UtmQ8Hj4-3" value="ModifyComponent" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;textShadow=1;" parent="1" vertex="1">
-          <mxGeometry x="1420" y="835" width="60" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TPEgxu9a9AXFGAaxVu-T-4" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;textShadow=1;shadow=1;" parent="1" vertex="1">
+        <mxCell id="TPEgxu9a9AXFGAaxVu-T-4" value="Get Gear" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="490" y="550" width="100" height="50" as="geometry" />
         </mxCell>
         <mxCell id="TPEgxu9a9AXFGAaxVu-T-5" value="Strava APIs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;textShadow=1;shadow=1;" parent="1" vertex="1">
@@ -83,37 +60,37 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="TPEgxu9a9AXFGAaxVu-T-18" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" parent="1" vertex="1">
+        <mxCell id="TPEgxu9a9AXFGAaxVu-T-18" value="Get Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="645" y="550" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="cnhkPzbbQILTU07u0QST-4" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="cnhkPzbbQILTU07u0QST-4" value="Add Component Type" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="800" y="550" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="cnhkPzbbQILTU07u0QST-6" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="cnhkPzbbQILTU07u0QST-6" value="Add Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="490" y="621" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="cnhkPzbbQILTU07u0QST-7" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="cnhkPzbbQILTU07u0QST-7" value="Register Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="645" y="621" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="cnhkPzbbQILTU07u0QST-8" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="cnhkPzbbQILTU07u0QST-8" value="Delete Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="800" y="621" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="cnhkPzbbQILTU07u0QST-9" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="cnhkPzbbQILTU07u0QST-9" value="Change Component Status" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="490" y="700" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="cnhkPzbbQILTU07u0QST-10" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="cnhkPzbbQILTU07u0QST-10" value="Modify Comopnent" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="645" y="700" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="cnhkPzbbQILTU07u0QST-11" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="cnhkPzbbQILTU07u0QST-11" value="Not defined" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="800" y="700" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="cnhkPzbbQILTU07u0QST-12" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="cnhkPzbbQILTU07u0QST-12" value="Not defined" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="490" y="775" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="cnhkPzbbQILTU07u0QST-13" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="cnhkPzbbQILTU07u0QST-13" value="Not defined" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="645" y="775" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="cnhkPzbbQILTU07u0QST-14" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="cnhkPzbbQILTU07u0QST-14" value="Not defined" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="800" y="775" width="100" height="50" as="geometry" />
         </mxCell>
       </root>
