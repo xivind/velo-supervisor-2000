@@ -5,13 +5,13 @@ from peewee_models import database, Components, Rides
 
 database.connect()
 
-def test():
+def test1():
     """Function to test database connectivity"""
     counter = 0
     try:
         with database.atomic():
-            table = Rides.select()
-            for component in table:
+            table_data = Rides.select().where(Rides.ride_distance > 200)
+            for component in table_data:
                 print(component.ride_name)
                 counter = counter+1
 
@@ -20,7 +20,7 @@ def test():
         print(error)
 
 
-test()
+test1()
 
 
 #app = FastAPI()
