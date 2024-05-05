@@ -1,0 +1,5 @@
+.vscode/settings.json
+.vscode/launch.json
+.mypy_cache/*
+backend/__pycache__/*
+backend/.mypy_cache/*
