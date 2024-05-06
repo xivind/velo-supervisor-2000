@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-05-06T05:16:49.931Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" etag="WY2ZcFtLSp5ibD0f2YAV" version="24.3.1" type="github" pages="4">
+<mxfile host="app.diagrams.net" modified="2024-05-06T05:18:09.209Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" etag="WirMx9XsOpLSt4VzXU_3" version="24.3.1" type="github" pages="4">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
     <mxGraphModel dx="2074" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
@@ -336,7 +336,7 @@
           <mxGeometry x="620" y="260" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="NEpjzj6EHt_ZLhhD0tq0-2" value="Bike 2 status and key info" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;curveFitting=1;jiggle=2;shadow=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-          <mxGeometry x="750" y="260" width="120" height="60" as="geometry" />
+          <mxGeometry x="760" y="260" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="NEpjzj6EHt_ZLhhD0tq0-3" value="Bike n status and key info" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;curveFitting=1;jiggle=2;shadow=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
           <mxGeometry x="620" y="340" width="120" height="60" as="geometry" />
