@@ -33,6 +33,8 @@ class Athletes(BaseModel):
 class Bikes(BaseModel):
     """Model for table: bikes"""
     bike_id = CharField(primary_key=True, unique=True)
+    athlete_id = CharField()
+    total_distance = FloatField() 
 
 
 class Rides(BaseModel):
@@ -50,4 +52,4 @@ class Services(BaseModel):
     service_id = CharField(primary_key=True, unique=True)
 
 
-__all__ = ['database', 'BaseModel', 'Components']
+__all__ = ['database', 'BaseModel', 'Rides', 'Bikes']
