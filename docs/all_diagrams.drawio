@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-05-07T05:33:46.549Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" etag="5fGzPgBmVFvbiNyEBs5B" version="24.3.1" type="github" pages="4">
+<mxfile host="app.diagrams.net" modified="2024-05-07T05:38:47.727Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" etag="f4bjiiDPfENY2pLwwn0G" version="24.3.1" type="github" pages="4">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
     <mxGraphModel dx="2074" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
@@ -54,7 +54,7 @@
           <mxGeometry x="645" y="550" width="100" height="50" as="geometry" />
         </mxCell>
         <mxCell id="cnhkPzbbQILTU07u0QST-4" value="Define Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
-          <mxGeometry x="800" y="550" width="100" height="50" as="geometry" />
+          <mxGeometry x="800" y="700" width="100" height="50" as="geometry" />
         </mxCell>
         <mxCell id="cnhkPzbbQILTU07u0QST-6" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="490" y="621" width="100" height="50" as="geometry" />
@@ -149,6 +149,12 @@
         </mxCell>
         <mxCell id="UtGDf1YQ58yC-rSq7dPw-1" value="Compute Data" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" vertex="1" parent="1">
           <mxGeometry x="490" y="775" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="Lvj3OgpNHGNnnYJrMuCt-1" value="Delete Component Type" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="800" y="550" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="Lvj3OgpNHGNnnYJrMuCt-2" value="Delete Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="800" y="775" width="100" height="50" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
