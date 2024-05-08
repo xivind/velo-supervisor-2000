@@ -2,15 +2,11 @@
 """Module to get activities from Strava and send them on a MQTT broker"""
 
 import json
-import time
 import logging
 from datetime import datetime, timedelta
-import argparse
 from requests_oauthlib import OAuth2Session
-from icecream import ic
-
-# Icecream debug, remove before prod
-ic.enable()
+from peewee_models import database, Rides
+import peewee
 
 # Review all doc strings
 
@@ -21,20 +17,6 @@ CONSOLE_HANDLER.setFormatter(logging.Formatter(
     datefmt="%d-%b-%y %H:%M:%S"))
 logging.getLogger().addHandler(CONSOLE_HANDLER)
 logging.getLogger().setLevel(logging.INFO)
-
-
-def read_parameters():
-    """
-    Function for reading variables for the script,
-    for more on argparse, refer to https://zetcode.com/python/argparse/
-    """
-    parser = argparse.ArgumentParser(
-        description="Configuration parameters")
-    parser.add_argument("--oauth_file", type=str,
-                        help="File with oauth user data", required=True)
-    args = parser.parse_args()
-
-    return args
 
 
 def health_check(status, mode):
@@ -54,6 +36,7 @@ class Strava:
         self.token = {}
         self.extra = {}
         self.json_response = ""
+        self.payload = []
         self.oauth_file = oauth_file
 
     def token_loader(self):
@@ -77,18 +60,16 @@ class Strava:
         secrets_output = self.token
         secrets_output['client_id'] = self.extra["client_id"]
         secrets_output['client_secret'] = self.extra["client_secret"]
-        with open(self.oauth_file,'w', encoding='utf-8') as file:
+        with open(self.oauth_file, 'w', encoding='utf-8') as file:
             file.write(json.dumps(secrets_output))
 
     def get_data(self):
         """Method to authenticate and get data from Strava API"""
+        page = 1
+        raw_response = ""
+        self.payload.clear()
         self.token_loader()
-        before_date_epoch = (datetime.now() + timedelta(days=1)).timestamp()
-        after_date_epoch = (datetime.now() - timedelta(days=3)).timestamp()
         refresh_url = "https://www.strava.com/oauth/token"
-        protected_url = f"https://www.strava.com/api/v3/athlete/activities?page=1&per_page=200"
-
-        #loop here while page is not empty, set page param above
         
         if self.token["expires_at"] < datetime.now().timestamp():
             logging.info(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens')
@@ -105,76 +86,104 @@ class Strava:
                 health_check("error", "executing")
 
         try:
-            logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])}, in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}')
+            logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])},in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}')
             client = OAuth2Session(self.extra["client_id"], token=self.token)
-            raw_response = client.get(protected_url)
-            logging.info(f'API Status: {raw_response.status_code} - {raw_response.reason}')
-            logging.info(f'Fetched Strava activities after {datetime.fromtimestamp(after_date_epoch).strftime("%d.%m.%Y")} and before {datetime.fromtimestamp(before_date_epoch).strftime("%d.%m.%Y")}')
-            self.json_response = ic(raw_response.json())
-            health_check("ok", "executing")
+            while True:
+                protected_url = f"https://www.strava.com/api/v3/athlete/activities?page={page}&per_page=200"
+                raw_response = client.get(protected_url)
+                logging.info(f'API status on request for page {page}: {raw_response.status_code} - {raw_response.reason}')
+                self.json_response = raw_response.json()
+                if (not self.json_response):
+                    logging.info(f'Reached last page. The last page with data was page {page-1}')
+                    break
+
+                logging.info(f'Page contained {len(self.json_response)} Strava activities')
+                page = page+1
+                self.prepare_payload()
+                health_check("ok", "executing")
+
 
         except Exception as error:
             logging.error(f'An error occured during API call: {error}')
             health_check("error", "executing")
-
-
-class DataProcessor():
-    """Class to interact with Mosquitto messagebroker"""
-    def __init__(self):
-        self.payload = {}
-        self.message = ""
-        self.activity_counter = 0
-
+    
     def prepare_payload(self):
         """Method to prepare message to be sent via a Mosquitto message broker"""
         
-        for activities in strava.json_response:
+        for activities in self.json_response:
 
-            try:
-                self.payload.clear()
-                self.payload.update({"id": int(activities["id"])})
-                self.payload.update({"gear_id": str(activities["gear_id"])})
-                self.payload.update({"name": str(activities["name"])})
-                self.payload.update({"type": str(activities["type"])})
-                self.payload.update({"start_date_local": str(activities["start_date_local"]).replace("Z","")})
-                self.payload.update({"moving_time": str(timedelta(seconds=activities["moving_time"]))})
-                self.payload.update({"distance": round(float(activities["distance"]/1000),2)})
-                self.payload.update({"commute": bool(activities["commute"])})
+            if str(activities["type"]) == "Ride":
 
-                self.activity_counter = 1 + activity_counter
+                try:
+                    ride = {}
+                    ride.update({"ride_id": str(activities["id"])})
+                    ride.update({"bike_id": str(activities["gear_id"])})
+                    ride.update({"ride_name": str(activities["name"])})
+                    
+                    ride.update({"record_time": str(activities["start_date_local"]).replace("Z","")})
+                    ride.update({"moving_time": str(timedelta(seconds=activities["moving_time"]))})
+                    ride.update({"ride_distance": round(float(activities["distance"]/1000),2)})
+                    ride.update({"commute": bool(activities["commute"])})
 
-                self.update_payload()
-                logging.info('Updated payload:')
-                logging.info(self.payload)
-                health_check("ok", "executing")
+                    self.payload.append(ride)
+                    logging.info('Ride info:')
+                    logging.info(ride)
+                    health_check("ok", "executing")
 
-            except Exception as error:
-                logging.error('An error ocurred preparing payload:')
-                logging.error(self.payload)
-                logging.error(f'More info about the error: {error}')
-                health_check("error", "executing")
+                except Exception as error:
+                    logging.error('An error ocurred preparing payload:')
+                    logging.error(self.payload)
+                    logging.error(f'More info about the error: {error}')
+                    health_check("error", "executing")
 
-        logging.info(f'Got {len(strava.json_response)} Strava activities')
-        logging.info(f'Sent {activity_counter} Strava activities')
+            else:
+                logging.info("Activity is not of type Ride, skipping...")
+                   
 
-    def update_payload(self):
+class PeeweeConnector():
+    """Class to interact with Mosquitto messagebroker"""
+    def __init__(self):
+        pass
+
+    def commit_data_bulk(self, ride_list):
         """Method to send message via a Mosquitto message broker"""
-        #self.message = update list
+        print(f'There are {len(ride_list)} rides in the list')
+        
+        try:
+            # Open a transaction
+            with database.atomic():
+                # Split the data into batches (adjust batch size as needed)
+                batch_size = 50
+                for i in range(0, len(ride_list), batch_size):
+                    batch = ride_list[i:i + batch_size]
+                    # Convert the batch of dictionaries into a list of tuples
+                    rides_tuples_list = [(d['ride_id'],
+                                          d['bike_id'],
+                                          d['record_time'],
+                                          d['ride_name'],
+                                          d['ride_distance'],
+                                          d['moving_time'],
+                                          d['commute']) for d in batch]
+                    
+                    # Bulk insert/update the batch using IGNORE conflict resolution
+                    Rides.insert_many(rides_tuples_list).on_conflict(
+                        conflict_target=[Rides.ride_id],  # Specify the unique constraint to determine conflicts
+                        action='IGNORE'  # Use IGNORE conflict resolution strategy
+                    ).execute()
 
-    def commit_data(self): #better name
-        """Method to send message via a Mosquitto message broker"""
-        # Commit to database
+                    print("Bikes table updated successfully!")
+        
+        except peewee.OperationalError as error:
+            print("An error occurred while updating the bikes table:", error)
+            
+        
+        
 
 
 
-logging.info('Starting program...')
-PARAMETERS = read_parameters()
-strava = Strava(PARAMETERS.oauth_file)
-datastore = DataStore()
-strava.get_data() #Move all logic into one call here
-datastore.prepare_payload()
-print(len(strava.json_response))
+
+
 
 # must have function to add bike and athlete if non-existent
-
+# Export statement
 # Returns dictionary of data
