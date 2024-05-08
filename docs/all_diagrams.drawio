@@ -1,11 +1,11 @@
-<mxfile host="app.diagrams.net" modified="2024-05-07T05:38:47.727Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" etag="f4bjiiDPfENY2pLwwn0G" version="24.3.1" type="github" pages="4">
+<mxfile host="app.diagrams.net" modified="2024-05-08T22:35:03.050Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="AulR4ZqughrbMkWoKtdH" version="24.3.1" type="github" pages="4">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
-    <mxGraphModel dx="2074" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
+    <mxGraphModel dx="1434" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="cnhkPzbbQILTU07u0QST-2" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Docker container&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;shadow=1;verticalAlign=top;fontSize=14;dashPattern=1 2;" parent="1" vertex="1">
-          <mxGeometry x="420" y="470" width="780" height="410" as="geometry" />
+          <mxGeometry x="420" y="470" width="780" height="500" as="geometry" />
         </mxCell>
         <mxCell id="RmffrdpQDNAFTX5bSkld-15" value="Mobile GUI (Bootstrap)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;verticalAlign=middle;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="451" y="320" width="110" height="60" as="geometry" />
@@ -29,7 +29,7 @@
           <mxGeometry x="830" y="320" width="110" height="60" as="geometry" />
         </mxCell>
         <mxCell id="EPH6YutYgcLWwkJwT0F1-7" value="Backend (FastAPI)" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;textShadow=1;shadow=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;fontSize=14;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="450" y="510" width="490" height="340" as="geometry" />
+          <mxGeometry x="450" y="510" width="490" height="410" as="geometry" />
         </mxCell>
         <mxCell id="EPH6YutYgcLWwkJwT0F1-10" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;textShadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="610" width="10" height="10" as="geometry" />
@@ -111,7 +111,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="EPH6YutYgcLWwkJwT0F1-8" value="SQL Compliant Datastore" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;textShadow=1;shadow=1;" parent="1" vertex="1">
-          <mxGeometry x="1040" y="510" width="130" height="340" as="geometry" />
+          <mxGeometry x="1040" y="510" width="130" height="410" as="geometry" />
         </mxCell>
         <mxCell id="TPEgxu9a9AXFGAaxVu-T-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=circle;endFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=10;entryDy=0;entryPerimeter=0;textShadow=1;" parent="1" source="EPH6YutYgcLWwkJwT0F1-7" target="EPH6YutYgcLWwkJwT0F1-8" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -147,20 +147,23 @@
         <mxCell id="DBjzKuaNJzYYvuGlvYwG-8" value="Included in MVP - In progress" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="1169" y="178" width="200" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="UtGDf1YQ58yC-rSq7dPw-1" value="Compute Data" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="UtGDf1YQ58yC-rSq7dPw-1" value="Compute Data" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="490" y="775" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="Lvj3OgpNHGNnnYJrMuCt-1" value="Delete Component Type" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="Lvj3OgpNHGNnnYJrMuCt-1" value="Delete Component Type" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="800" y="550" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="Lvj3OgpNHGNnnYJrMuCt-2" value="Delete Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="Lvj3OgpNHGNnnYJrMuCt-2" value="Delete Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="800" y="775" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="FCqnb7vlhvMNFJ7lLPsA-1" value="Connect Strava" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="850" width="100" height="50" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
   <diagram name="ER diagram" id="gaYTSJDpXmIPhpLEIALV">
-    <mxGraphModel dx="2074" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
+    <mxGraphModel dx="1434" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -171,10 +174,10 @@
           <mxGeometry y="50" width="220" height="70" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-4" value="rides" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="1" vertex="1">
-          <mxGeometry x="1040" y="190" width="220" height="170" as="geometry" />
+          <mxGeometry x="1040" y="190" width="220" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="OpilXaS1zRmoDV6CBxLi-5" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;ride_id: TEXT&amp;nbsp;(PK)&lt;div&gt;bike_id&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;record_time&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ride_name&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;ride_distance&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;: NUMERIC&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ride_moving_time&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="align=left;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" parent="OpilXaS1zRmoDV6CBxLi-4" vertex="1">
-          <mxGeometry y="50" width="220" height="120" as="geometry" />
+        <mxCell id="OpilXaS1zRmoDV6CBxLi-5" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;ride_id: TEXT&amp;nbsp;(PK)&lt;div&gt;bike_id&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;record_time&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ride_name&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;ride_distance&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;: NUMERIC&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ride_moving_time&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;commute: TEXT&lt;/span&gt;&lt;/div&gt;" style="align=left;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;rounded=0;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="OpilXaS1zRmoDV6CBxLi-4" vertex="1">
+          <mxGeometry y="50" width="220" height="130" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-21" value="bikes" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
           <mxGeometry x="680" y="190" width="220" height="170" as="geometry" />
