@@ -9,7 +9,10 @@ import argparse
 from requests_oauthlib import OAuth2Session
 from icecream import ic
 
+# Icecream debug, remove before prod
 ic.enable()
+
+# Review all doc strings
 
 # Configuration of logging
 CONSOLE_HANDLER = logging.StreamHandler()
@@ -83,8 +86,10 @@ class Strava:
         before_date_epoch = (datetime.now() + timedelta(days=1)).timestamp()
         after_date_epoch = (datetime.now() - timedelta(days=3)).timestamp()
         refresh_url = "https://www.strava.com/oauth/token"
-        protected_url = f"https://www.strava.com/api/v3/athlete/activities?page=20&per_page=200"
+        protected_url = f"https://www.strava.com/api/v3/athlete/activities?page=1&per_page=200"
 
+        #loop here while page is not empty, set page param above
+        
         if self.token["expires_at"] < datetime.now().timestamp():
             logging.info(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens')
 
@@ -113,15 +118,16 @@ class Strava:
             health_check("error", "executing")
 
 
-class DataStore():
+class DataProcessor():
     """Class to interact with Mosquitto messagebroker"""
     def __init__(self):
         self.payload = {}
         self.message = ""
+        self.activity_counter = 0
 
     def prepare_payload(self):
         """Method to prepare message to be sent via a Mosquitto message broker"""
-        activity_counter = 0
+        
         for activities in strava.json_response:
 
             try:
@@ -135,7 +141,7 @@ class DataStore():
                 self.payload.update({"distance": round(float(activities["distance"]/1000),2)})
                 self.payload.update({"commute": bool(activities["commute"])})
 
-                activity_counter = 1 + activity_counter
+                self.activity_counter = 1 + activity_counter
 
                 self.update_payload()
                 logging.info('Updated payload:')
@@ -153,15 +159,21 @@ class DataStore():
 
     def update_payload(self):
         """Method to send message via a Mosquitto message broker"""
-        #self.message = print(strava)
+        #self.message = update list
+
+    def commit_data(self): #better name
+        """Method to send message via a Mosquitto message broker"""
+        # Commit to database
+
 
 
 logging.info('Starting program...')
 PARAMETERS = read_parameters()
 strava = Strava(PARAMETERS.oauth_file)
 datastore = DataStore()
-strava.get_data()
+strava.get_data() #Move all logic into one call here
 datastore.prepare_payload()
+print(len(strava.json_response))
 
 # must have function to add bike and athlete if non-existent
 
