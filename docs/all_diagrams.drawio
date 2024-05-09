@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-05-09T08:31:52.473Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="rQSM7HzLi0WOXoYgnKD-" version="24.3.1" type="github" pages="5">
+<mxfile host="app.diagrams.net" modified="2024-05-09T08:34:28.573Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="_dxeXKFnV4bAhEz0lWFR" version="24.3.1" type="github" pages="5">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
     <mxGraphModel dx="2715" dy="1504" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
@@ -114,8 +114,8 @@
         <mxCell id="DBjzKuaNJzYYvuGlvYwG-8" value="Included in MVP - In progress" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="1169" y="178" width="200" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="qX8qI-lBYtdF9P_CDvGN-1" value="Get Bikes" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="305" y="400" width="124" height="60" as="geometry" />
+        <mxCell id="qX8qI-lBYtdF9P_CDvGN-1" value="Get Bikes" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="510" y="550" width="124" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
@@ -125,46 +125,46 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-1" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;textShadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-1" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;textShadow=1;" parent="1" vertex="1">
           <mxGeometry x="710" y="350" width="10" height="10" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-2" value="Get Bikes" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-2" value="Get Bikes" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="290" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-3" value="Add Component Type" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-3" value="Add Component Type" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="755" y="290" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-4" value="Define Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-4" value="Define Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="910" y="440" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-5" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-5" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="361" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-6" value="Add Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-6" value="Add Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="755" y="361" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-7" value="Register Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-7" value="Register Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="910" y="361" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-8" value="Get All Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-8" value="Get All Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="440" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-9" value="Modify Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-9" value="Modify Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="755" y="440" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-10" value="Delete Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-10" value="Delete Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="755" y="515" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-11" value="Compute Data" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-11" value="Compute Data" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="515" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-12" value="Delete Component Type" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-12" value="Delete Component Type" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="910" y="290" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-13" value="Delete Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-13" value="Delete Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="910" y="515" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-14" value="Connect Strava" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" vertex="1" parent="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-14" value="Connect Strava" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="590" width="100" height="50" as="geometry" />
         </mxCell>
       </root>
