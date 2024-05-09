@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-05-09T08:34:28.573Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="_dxeXKFnV4bAhEz0lWFR" version="24.3.1" type="github" pages="5">
+<mxfile host="app.diagrams.net" modified="2024-05-09T09:33:56.705Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="ErK5PK3fFKdzZ83FnerA" version="24.3.1" type="github" pages="5">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
     <mxGraphModel dx="2715" dy="1504" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
@@ -32,7 +32,7 @@
           <mxGeometry x="680" y="240" width="30" height="60" as="geometry" />
         </mxCell>
         <mxCell id="TPEgxu9a9AXFGAaxVu-T-5" value="Strava APIs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;textShadow=1;shadow=1;verticalAlign=top;" parent="1" vertex="1">
-          <mxGeometry x="160" y="520" width="180" height="210" as="geometry" />
+          <mxGeometry x="73" y="520" width="180" height="210" as="geometry" />
         </mxCell>
         <mxCell id="TPEgxu9a9AXFGAaxVu-T-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=circle;endFill=0;textShadow=1;exitX=0;exitY=0;exitDx=0;exitDy=35;exitPerimeter=0;" parent="1" target="vKa5T7IKAzkrLV_AFxiM-1" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -42,10 +42,10 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="vKa5T7IKAzkrLV_AFxiM-1" value="Get Gear" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;" parent="1" vertex="1">
-          <mxGeometry x="181" y="555" width="124" height="60" as="geometry" />
+          <mxGeometry x="94" y="555" width="124" height="60" as="geometry" />
         </mxCell>
         <mxCell id="vKa5T7IKAzkrLV_AFxiM-3" value="Get Athlete Activities" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;" parent="1" vertex="1">
-          <mxGeometry x="186" y="642" width="124" height="60" as="geometry" />
+          <mxGeometry x="99" y="642" width="124" height="60" as="geometry" />
         </mxCell>
         <mxCell id="vKa5T7IKAzkrLV_AFxiM-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=circle;endFill=0;textShadow=1;exitX=0;exitY=0;exitDx=0;exitDy=15;exitPerimeter=0;" parent="1" target="vKa5T7IKAzkrLV_AFxiM-3" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -114,8 +114,20 @@
         <mxCell id="DBjzKuaNJzYYvuGlvYwG-8" value="Included in MVP - In progress" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="1169" y="178" width="200" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="qX8qI-lBYtdF9P_CDvGN-1" value="Get Bikes" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;" parent="1" vertex="1">
-          <mxGeometry x="510" y="550" width="124" height="60" as="geometry" />
+        <mxCell id="qX8qI-lBYtdF9P_CDvGN-1" value="Get Recent Rides" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="490" y="642" width="124" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fzKTLi9T5yTtbYr0EsDo-1" value="Get Gear?" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="490" y="555" width="124" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fzKTLi9T5yTtbYr0EsDo-4" value="Administration" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;dashed=1;dashPattern=8 8;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;glass=0;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="494" y="790" width="406" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="fzKTLi9T5yTtbYr0EsDo-2" value="Connect Strava" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="509" y="820" width="124" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fzKTLi9T5yTtbYr0EsDo-5" value="Get All Rides" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="490" y="720" width="124" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
