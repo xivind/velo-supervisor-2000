@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-05-09T22:23:49.309Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="5LmItfjIeUCLBKQ1vJwb" version="24.3.1" type="github" pages="5">
+<mxfile host="app.diagrams.net" modified="2024-05-09T22:25:52.282Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="X1WtWhU8Yhjq-NQM8jaQ" version="24.3.1" type="github" pages="5">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
     <mxGraphModel dx="1434" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
@@ -173,17 +173,32 @@
         <mxCell id="ab__0eKPIvS3hXRo3g3Q-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="bwmJhf_p5KY45bq_4t8g-5" target="bwmJhf_p5KY45bq_4t8g-2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="rY95ULiClnDDJ_U-364L-2" value="Import" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];textShadow=1;" vertex="1" connectable="0" parent="ab__0eKPIvS3hXRo3g3Q-10">
+          <mxGeometry x="-0.1355" y="1" relative="1" as="geometry">
+            <mxPoint x="-5" y="-16" as="offset" />
+          </mxGeometry>
+        </mxCell>
         <mxCell id="bwmJhf_p5KY45bq_4t8g-5" value="strava.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="926" y="378" width="160" height="90" as="geometry" />
         </mxCell>
         <mxCell id="ab__0eKPIvS3hXRo3g3Q-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="bwmJhf_p5KY45bq_4t8g-8" target="bwmJhf_p5KY45bq_4t8g-11">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="rY95ULiClnDDJ_U-364L-3" value="Import" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];textShadow=1;" vertex="1" connectable="0" parent="ab__0eKPIvS3hXRo3g3Q-11">
+          <mxGeometry x="0.1333" y="-2" relative="1" as="geometry">
+            <mxPoint x="18" as="offset" />
+          </mxGeometry>
+        </mxCell>
         <mxCell id="bwmJhf_p5KY45bq_4t8g-8" value="peewee_models.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="630" y="528" width="160" height="90" as="geometry" />
         </mxCell>
         <mxCell id="ab__0eKPIvS3hXRo3g3Q-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="bwmJhf_p5KY45bq_4t8g-11" target="bwmJhf_p5KY45bq_4t8g-2">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rY95ULiClnDDJ_U-364L-1" value="Import" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];textShadow=1;" vertex="1" connectable="0" parent="ab__0eKPIvS3hXRo3g3Q-9">
+          <mxGeometry x="0.0802" y="3" relative="1" as="geometry">
+            <mxPoint x="-12" y="-12" as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="bwmJhf_p5KY45bq_4t8g-11" value="peewee_connector.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="630" y="378" width="160" height="90" as="geometry" />
