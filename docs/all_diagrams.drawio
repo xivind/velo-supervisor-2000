@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-05-09T10:06:51.998Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="BDe_EvUn6H2hICy-SGBf" version="24.3.1" type="github" pages="5">
+<mxfile host="app.diagrams.net" modified="2024-05-09T12:23:33.538Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="xUfibvw9geiBhpjaRMIK" version="24.3.1" type="github" pages="5">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
     <mxGraphModel dx="2715" dy="1504" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
@@ -140,7 +140,7 @@
         <mxCell id="bwmJhf_p5KY45bq_4t8g-1" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;textShadow=1;" parent="1" vertex="1">
           <mxGeometry x="710" y="350" width="10" height="10" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-2" value="Get Bikes" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-2" value="main.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="290" width="100" height="50" as="geometry" />
         </mxCell>
         <mxCell id="bwmJhf_p5KY45bq_4t8g-3" value="Add Component Type" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
@@ -149,7 +149,7 @@
         <mxCell id="bwmJhf_p5KY45bq_4t8g-4" value="Define Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="910" y="440" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-5" value="Get Recent Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-5" value="strava.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="361" width="100" height="50" as="geometry" />
         </mxCell>
         <mxCell id="bwmJhf_p5KY45bq_4t8g-6" value="Add Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
@@ -158,7 +158,7 @@
         <mxCell id="bwmJhf_p5KY45bq_4t8g-7" value="Register Service" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="910" y="361" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-8" value="Get All Rides" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-8" value="peewee_models.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="440" width="100" height="50" as="geometry" />
         </mxCell>
         <mxCell id="bwmJhf_p5KY45bq_4t8g-9" value="Modify Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
@@ -167,7 +167,7 @@
         <mxCell id="bwmJhf_p5KY45bq_4t8g-10" value="Delete Component" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="755" y="515" width="100" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-11" value="Compute Data" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
+        <mxCell id="bwmJhf_p5KY45bq_4t8g-11" value="peewee_connector.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="515" width="100" height="50" as="geometry" />
         </mxCell>
         <mxCell id="bwmJhf_p5KY45bq_4t8g-12" value="Delete Component Type" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;textShadow=1;shadow=1;" parent="1" vertex="1">
@@ -188,22 +188,22 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="OpilXaS1zRmoDV6CBxLi-1" value="a&lt;span style=&quot;background-color: initial;&quot;&gt;thletes&lt;/span&gt;" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
-          <mxGeometry x="330" y="190" width="220" height="120" as="geometry" />
+          <mxGeometry x="330" y="134" width="220" height="120" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-2" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ahlete_id: TEXT (PK)&lt;br&gt;&lt;/div&gt;athlete_name: TEXT" style="align=left;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;rounded=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="OpilXaS1zRmoDV6CBxLi-1" vertex="1">
           <mxGeometry y="50" width="220" height="70" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-4" value="rides" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="1" vertex="1">
-          <mxGeometry x="1040" y="189" width="220" height="180" as="geometry" />
+          <mxGeometry x="1040" y="133" width="220" height="180" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-5" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;ride_id: TEXT&amp;nbsp;(PK)&lt;div&gt;bike_id&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;record_time&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ride_name&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;ride_distance&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;: NUMERIC&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;ride_moving_time&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;commute: TEXT&lt;/span&gt;&lt;/div&gt;" style="align=left;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;rounded=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="OpilXaS1zRmoDV6CBxLi-4" vertex="1">
           <mxGeometry y="50" width="220" height="130" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-21" value="bikes" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
-          <mxGeometry x="680" y="190" width="220" height="170" as="geometry" />
+          <mxGeometry x="680" y="134" width="220" height="186" as="geometry" />
         </mxCell>
-        <mxCell id="OpilXaS1zRmoDV6CBxLi-22" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;bike_id: TEXT&amp;nbsp;(PK)&lt;div&gt;athlete_id&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;bike_name&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;bike_status: TEXT&lt;br&gt;&lt;div&gt;total_distance&lt;span style=&quot;background-color: initial;&quot;&gt;: NUMERIC&lt;/span&gt;&lt;/div&gt;&lt;div&gt;notes&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="align=left;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;rounded=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="OpilXaS1zRmoDV6CBxLi-21" vertex="1">
-          <mxGeometry y="50" width="220" height="120" as="geometry" />
+        <mxCell id="OpilXaS1zRmoDV6CBxLi-22" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;bike_id: TEXT&amp;nbsp;(PK)&lt;div&gt;athlete_id&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;bike_name&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;bike_retired: TEXT&lt;/div&gt;&lt;div&gt;service_status: TEXT&lt;br&gt;&lt;div&gt;total_distance&lt;span style=&quot;background-color: initial;&quot;&gt;: NUMERIC&lt;/span&gt;&lt;/div&gt;&lt;div&gt;notes&lt;span style=&quot;background-color: initial;&quot;&gt;: TEXT&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="align=left;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;rounded=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="OpilXaS1zRmoDV6CBxLi-21" vertex="1">
+          <mxGeometry y="50" width="220" height="136" as="geometry" />
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-23" value="components" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
           <mxGeometry x="680" y="491" width="220" height="300" as="geometry" />
@@ -234,8 +234,8 @@
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-38" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.176;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
-            <mxPoint x="680" y="249.5200000000001" as="sourcePoint" />
-            <mxPoint x="550" y="249.60000000000002" as="targetPoint" />
+            <mxPoint x="680" y="193.5200000000001" as="sourcePoint" />
+            <mxPoint x="550" y="193.60000000000002" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="OpilXaS1zRmoDV6CBxLi-39" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rounded=0;" parent="OpilXaS1zRmoDV6CBxLi-38" vertex="1" connectable="0">
@@ -267,8 +267,8 @@
         </mxCell>
         <mxCell id="Ze08bTx3dgTv0OYDRQwi-9" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=-0.016;exitY=0.086;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="OpilXaS1zRmoDV6CBxLi-5" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
-            <mxPoint x="1030" y="250" as="sourcePoint" />
-            <mxPoint x="900" y="249.5" as="targetPoint" />
+            <mxPoint x="1030" y="194" as="sourcePoint" />
+            <mxPoint x="900" y="193.5" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="Ze08bTx3dgTv0OYDRQwi-10" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rounded=0;" parent="Ze08bTx3dgTv0OYDRQwi-9" vertex="1" connectable="0">
