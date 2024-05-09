@@ -18,7 +18,7 @@ class Bikes(BaseModel):
     bike_id = CharField(primary_key=True, unique=True)
     athlete_id = CharField()
     bike_name = CharField()
-    bike_status = CharField()
+    bike_retired = CharField()
     total_distance = FloatField()
     notes = CharField()
 
