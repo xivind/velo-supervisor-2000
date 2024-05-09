@@ -17,7 +17,10 @@ class Bikes(BaseModel):
     """Model for table: bikes"""
     bike_id = CharField(primary_key=True, unique=True)
     athlete_id = CharField()
+    bike_name = CharField()
+    bike_status = CharField()
     total_distance = FloatField()
+    notes = CharField()
 
     class Meta:
         """Extends model with extra attributes"""
