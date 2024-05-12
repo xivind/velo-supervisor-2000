@@ -46,15 +46,20 @@ class Components(BaseModel):
     """Model for table: components"""
     component_id = CharField(primary_key=True, unique=True)
     bike_id = CharField()
-    component_type = CharField()
     component_name = CharField()
+    component_type = CharField()
     component_distance = FloatField()
+    component_moving_time = CharField()
     installation_status = CharField()
     service_interval = IntegerField()
-    service_next = IntegerField()
+    expected_lifetime = IntegerField()
     service_status = CharField()
+    service_next = IntegerField()
     updated_date = CharField()
-
+    update_reason = CharField()
+    cost = IntegerField()
+    notes = CharField()
+    
     class Meta:
         """Extends model with extra attributes"""
         table_name = "components"
