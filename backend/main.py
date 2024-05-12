@@ -42,14 +42,20 @@ peewee_connector = PeeweeConnector()
 
 
 
-# Endpoints get all rides and recent rides
-strava.get_rides("recent") # add separate endpoint with all as param
+# Endpoint get all rides and recent rides
+strava.get_rides("recent")
 peewee_connector.commit_rides_bulk(strava.payload)
 
+# Endpoints get all bikes (triggered by new rides)
 if len(peewee_connector.list_unique_bikes()) > 0:
     strava.get_bikes(peewee_connector.list_unique_bikes())
     peewee_connector.commit_bikes(strava.payload)
 
+# Code to update installed components distance and moving time (not callable as endpoint). Should be trigger by fetching of new rides
+# This method should be called by main, but be loocated in PeeWeeConnector >> rename to PeeweeToolbox
+
+# Code to update misc status fields of components (not callable as endpoint). Should be triggered by updating of installed components
+# This method should be called by main, but be loocated in PeeWeeConnector >> rename to PeeweeToolbox
 
 #app = FastAPI()
 
