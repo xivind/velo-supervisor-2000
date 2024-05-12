@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-05-12T21:56:14.136Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="iHMigZ1OSQ6S3enzHCkN" version="24.3.1" type="github" pages="6">
+<mxfile host="app.diagrams.net" modified="2024-05-12T21:57:40.879Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="Oe0afMMKp-aYYdsK1kc5" version="24.3.1" type="github" pages="6">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="Application architecture">
-    <mxGraphModel dx="2715" dy="1493" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
+    <mxGraphModel dx="1434" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -93,7 +93,7 @@
         <mxCell id="DBjzKuaNJzYYvuGlvYwG-8" value="Included in MVP - In progress" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="1169" y="178" width="200" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="PAN6MGR7lWyU0OjaY2M_-1" value="Endpoints callable by user" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;dashed=1;dashPattern=8 8;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;glass=0;shadow=1;" parent="1" vertex="1">
+        <mxCell id="PAN6MGR7lWyU0OjaY2M_-1" value="..." style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;dashed=1;dashPattern=8 8;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;glass=0;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="420" y="540" width="540" height="290" as="geometry" />
         </mxCell>
         <mxCell id="qX8qI-lBYtdF9P_CDvGN-1" value="Export dataset" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
@@ -105,7 +105,7 @@
         <mxCell id="fzKTLi9T5yTtbYr0EsDo-2" value="Connect Strava" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
           <mxGeometry x="444" y="750" width="124" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="VWTe2yEgSYTS17EeLRTs-1" value="Endpoints triggered automatically" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;dashed=1;dashPattern=8 8;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;glass=0;shadow=1;" parent="1" vertex="1">
+        <mxCell id="VWTe2yEgSYTS17EeLRTs-1" value="See interaction diagram for details... remove this box" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;dashed=1;dashPattern=8 8;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;glass=0;shadow=1;" parent="1" vertex="1">
           <mxGeometry x="420" y="850" width="540" height="110" as="geometry" />
         </mxCell>
         <mxCell id="VWTe2yEgSYTS17EeLRTs-3" value="Get bikes" style="rounded=1;whiteSpace=wrap;html=1;textShadow=1;shadow=1;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
