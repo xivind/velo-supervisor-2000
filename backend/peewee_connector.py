@@ -2,7 +2,8 @@
 """Module to interact with a SQL database through peewee"""
 
 import logging
-from peewee_models import database, Rides, Bikes
+from datetime import datetime
+from peewee_models import database, Rides, Bikes, Components
 import peewee
 
 # Implement health check
@@ -10,7 +11,7 @@ import peewee
 class PeeweeConnector():
     """Class to interact with a SQL database through peewee"""
     def __init__(self):
-        pass
+        pass #Check out this one.. 
 
     def commit_rides_bulk(self, ride_list):
         """Method to commit ride data in bulk to database"""
@@ -75,3 +76,47 @@ class PeeweeConnector():
         except peewee.OperationalError as error:
             logging.error(f"An error occurred while creating list of unique bike_ids: {error}")
             return []
+    
+    
+    def time_to_seconds(self, time_str):
+        h, m, s = map(int, time_str.split(':'))
+        return h * 3600 + m * 60 + s
+    
+    def update_components_distance_time(self):
+        """Method to update component table with distance and time from ride table"""
+        try:
+            with database.atomic():
+                for component in Components.select().where(Components.installation_status == 'Installed'):
+                    if component.updated_date:
+                        updated_date = datetime.strptime(component.updated_date, '%Y-%m-%dT%H:%M:%S')
+                    else:
+                        updated_date = None
+                    
+                    # Check only dates, always 00:00:01, do not specify time. And also, time must be converted to the same format as it originally was
+                    # Also, can not have a function outside, at least it need to be separate module, maybe toolbox.py
+
+                    # Fetch the record_time value from the query result
+                    record_time_query = Rides.select(Rides.record_time).where(Rides.bike_id == component.bike_id)
+                    record_time_value = record_time_query.scalar()  # Get the value from the query result
+                    record_time = datetime.strptime(record_time_value, '%Y-%m-%dT%H:%M:%S') if record_time_value else None
+
+                    # Filter rides based on the condition record_time >= updated_date
+                    matching_rides = Rides.select().where(
+                        (Rides.bike_id == component.bike_id) &
+                        (Rides.record_time >= updated_date)
+                    )
+                    
+                    total_distance = sum(ride.ride_distance for ride in matching_rides)
+                    total_moving_time = sum(self.time_to_seconds(ride.moving_time) for ride in matching_rides)
+                    
+                    
+                    # Update component_distance and component_moving_time only if there are matching rides
+                    if matching_rides.exists() and record_time:
+                        component.component_distance = total_distance
+                        component.component_moving_time = total_moving_time
+                        component.save()
+        
+        except (peewee.OperationalError, ValueError) as error:
+            logging.error(f'An error occurred while updating the components table with distance and time: {error}')
+
+        
