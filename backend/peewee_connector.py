@@ -78,23 +78,17 @@ class PeeweeConnector():
             return []
     
     
-    def time_to_seconds(self, time_str):
-        h, m, s = map(int, time_str.split(':'))
-        return h * 3600 + m * 60 + s
-    
-    def update_components_distance_time(self):
+    def update_components_distance_time(self, delimiter):
         """Method to update component table with distance and time from ride table"""
-        try:
+        try: # Make if statement, to deal with params in delimiter; all, list of bikes, or specific component id
             with database.atomic():
-                for component in Components.select().where(Components.installation_status == 'Installed'):
+                for component in Components.select().where(Components.installation_status == 'Installed'): #bike_id in set?
+                    print("Loop enter")
                     if component.updated_date:
                         updated_date = datetime.strptime(component.updated_date, '%Y-%m-%dT%H:%M:%S')
                     else:
                         updated_date = None
                     
-                    # Check only dates, always 00:00:01, do not specify time. And also, time must be converted to the same format as it originally was
-                    # Also, can not have a function outside, at least it need to be separate module, maybe toolbox.py
-
                     # Fetch the record_time value from the query result
                     record_time_query = Rides.select(Rides.record_time).where(Rides.bike_id == component.bike_id)
                     record_time_value = record_time_query.scalar()  # Get the value from the query result
@@ -106,16 +100,18 @@ class PeeweeConnector():
                         (Rides.record_time >= updated_date)
                     )
                     
-                    total_distance = sum(ride.ride_distance for ride in matching_rides)
-                    total_moving_time = sum(self.time_to_seconds(ride.moving_time) for ride in matching_rides)
+                    distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
+                    total_distance_current = sum(ride.ride_distance for ride in matching_rides)
+                    total_distance = total_distance_current + distance_offset
                     
                     
                     # Update component_distance and component_moving_time only if there are matching rides
                     if matching_rides.exists() and record_time:
                         component.component_distance = total_distance
-                        component.component_moving_time = total_moving_time
                         component.save()
+                        # Call function here to calculate service and so on
         
+        # there is a problem with performance, use bulk instead
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while updating the components table with distance and time: {error}')
 

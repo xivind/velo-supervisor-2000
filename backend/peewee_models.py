@@ -49,7 +49,7 @@ class Components(BaseModel):
     component_name = CharField()
     component_type = CharField()
     component_distance = FloatField()
-    component_moving_time = CharField()
+    component_distance_offset = FloatField()
     installation_status = CharField()
     service_interval = IntegerField()
     expected_lifetime = IntegerField()

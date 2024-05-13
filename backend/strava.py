@@ -26,6 +26,7 @@ class Strava:
         self.extra = {}
         self.json_response = ""
         self.payload = []
+        self.bike_ids_recent_rides = set()
         self.oauth_file = oauth_file
 
     def token_loader(self):
@@ -56,6 +57,7 @@ class Strava:
         """Method to authenticate and get data from Stravas activities API"""
         page = 1
         raw_response = ""
+        self.bike_ids_recent_rides.clear()
         self.payload.clear()
         self.token_loader()
         refresh_url = "https://www.strava.com/oauth/token"
@@ -101,6 +103,12 @@ class Strava:
                 logging.info(f'API status for page {page}: {raw_response.status_code} - {raw_response.reason}')
                 logging.info(f'Page contained {len(self.json_response)} activities')
                 self.prepare_payload_rides()
+                
+                for activity in self.json_response:
+                    if str(activity["type"]) == "Ride" and activity["gear_id"] != None:
+                        self.bike_ids_recent_rides.add(activity["gear_id"])
+                logging.info(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides')
+                
                 health_check("ok", "executing")
 
         except Exception as error:
