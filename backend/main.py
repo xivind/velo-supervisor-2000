@@ -56,7 +56,7 @@ if len(peewee_connector.list_unique_bikes()) > 0:
 # This method should be called by main.
 # Method should create a list of component ids to be submitted as arg to function below. Method should support operating on this list, single ID or all components.
 
-peewee_connector.update_components_distance_time(strava.bike_ids_recent_rides)
+peewee_connector.update_components_distance_time("b1997085")
 
 # Code to update misc status fields of components (not callable as endpoint). Should be triggered by updating of installed components
 # This method should be called by main

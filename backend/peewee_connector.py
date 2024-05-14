@@ -77,42 +77,112 @@ class PeeweeConnector():
             logging.error(f"An error occurred while creating list of unique bike_ids: {error}")
             return []
     
-    
+    def transform_dates(self):
+        """..."""
+        pass #Should process only dates, not time
+
     def update_components_distance_time(self, delimiter):
         """Method to update component table with distance and time from ride table"""
         try: # Make if statement, to deal with params in delimiter; all, list of bikes, or specific component id
-            with database.atomic():
-                for component in Components.select().where(Components.installation_status == 'Installed'): #bike_id in set?
-                    print("Loop enter")
-                    if component.updated_date:
-                        updated_date = datetime.strptime(component.updated_date, '%Y-%m-%dT%H:%M:%S')
-                    else:
-                        updated_date = None
-                    
-                    # Fetch the record_time value from the query result
-                    record_time_query = Rides.select(Rides.record_time).where(Rides.bike_id == component.bike_id)
-                    record_time_value = record_time_query.scalar()  # Get the value from the query result
-                    record_time = datetime.strptime(record_time_value, '%Y-%m-%dT%H:%M:%S') if record_time_value else None
+            
+            if delimiter == "all":
+                with database.atomic():
+                    for component in Components.select().where(Components.installation_status == 'Installed'): #bike_id in set?
+                        print("Loop enter all")
+                        if component.updated_date:
+                            updated_date = datetime.strptime(component.updated_date, '%Y-%m-%dT%H:%M:%S')
+                        else:
+                            updated_date = None
+                        
+                        # Fetch the record_time value from the query result
+                        record_time_query = Rides.select(Rides.record_time).where(Rides.bike_id == component.bike_id)
+                        record_time_value = record_time_query.scalar()  # Get the value from the query result
+                        record_time = datetime.strptime(record_time_value, '%Y-%m-%dT%H:%M:%S') if record_time_value else None
 
-                    # Filter rides based on the condition record_time >= updated_date
-                    matching_rides = Rides.select().where(
-                        (Rides.bike_id == component.bike_id) &
-                        (Rides.record_time >= updated_date)
-                    )
-                    
-                    distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
-                    total_distance_current = sum(ride.ride_distance for ride in matching_rides)
-                    total_distance = total_distance_current + distance_offset
-                    
-                    
-                    # Update component_distance and component_moving_time only if there are matching rides
-                    if matching_rides.exists() and record_time:
-                        component.component_distance = total_distance
-                        component.save()
-                        # Call function here to calculate service and so on
+                        # Filter rides based on the condition record_time >= updated_date
+                        matching_rides = Rides.select().where(
+                            (Rides.bike_id == component.bike_id) &
+                            (Rides.record_time >= updated_date)
+                        )
+                        
+                        distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
+                        total_distance_current = sum(ride.ride_distance for ride in matching_rides)
+                        total_distance = total_distance_current + distance_offset
+                        
+                        
+                        # Update component_distance and component_moving_time only if there are matching rides
+                        if matching_rides.exists() and record_time:
+                            component.component_distance = total_distance
+                            component.save()
+                            # Call function here to calculate service and so on
+            
+            if isinstance(delimiter, set):
+                with database.atomic():
+                    for bike_id in delimiter:
+                        for component in Components.select().where((Components.installation_status == 'Installed') & (Components.bike_id == bike_id)):
+                            print("Loop enter set")
+                            if component.updated_date:
+                                updated_date = datetime.strptime(component.updated_date, '%Y-%m-%dT%H:%M:%S')
+                            else:
+                                updated_date = None
+                            
+                            # Fetch the record_time value from the query result
+                            record_time_query = Rides.select(Rides.record_time).where(Rides.bike_id == component.bike_id)
+                            record_time_value = record_time_query.scalar()  # Get the value from the query result
+                            record_time = datetime.strptime(record_time_value, '%Y-%m-%dT%H:%M:%S') if record_time_value else None
+
+                            # Filter rides based on the condition record_time >= updated_date
+                            matching_rides = Rides.select().where(
+                                (Rides.bike_id == component.bike_id) &
+                                (Rides.record_time >= updated_date)
+                            )
+                            
+                            distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
+                            total_distance_current = sum(ride.ride_distance for ride in matching_rides)
+                            total_distance = total_distance_current + distance_offset
+                            
+                            
+                            # Update component_distance and component_moving_time only if there are matching rides
+                            if matching_rides.exists() and record_time:
+                                component.component_distance = total_distance
+                                component.save()
+                                # Call function here to calculate service and so on
+            
+            if "b" in delimiter:
+                with database.atomic():
+                    for component in Components.select().where((Components.installation_status == 'Installed') & (Components.bike_id == delimiter)):
+                        print("Loop enter single")
+                        if component.updated_date:
+                            updated_date = datetime.strptime(component.updated_date, '%Y-%m-%dT%H:%M:%S')
+                        else:
+                            updated_date = None
+                        
+                        # Fetch the record_time value from the query result
+                        record_time_query = Rides.select(Rides.record_time).where(Rides.bike_id == component.bike_id)
+                        record_time_value = record_time_query.scalar()  # Get the value from the query result
+                        record_time = datetime.strptime(record_time_value, '%Y-%m-%dT%H:%M:%S') if record_time_value else None
+
+                        # Filter rides based on the condition record_time >= updated_date
+                        matching_rides = Rides.select().where(
+                            (Rides.bike_id == component.bike_id) &
+                            (Rides.record_time >= updated_date)
+                        )
+                        
+                        distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
+                        total_distance_current = sum(ride.ride_distance for ride in matching_rides)
+                        total_distance = total_distance_current + distance_offset
+                        
+                        
+                        # Update component_distance and component_moving_time only if there are matching rides
+                        if matching_rides.exists() and record_time:
+                            component.component_distance = total_distance
+                            component.save()
+                            # Call function here to calculate service and so on 
+
         
-        # there is a problem with performance, use bulk instead
+        # there is a problem with performance, use bulk instead, add one except to each if above, and make this one for all
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while updating the components table with distance and time: {error}')
 
         
+# Find a way to handle the offset value, it should not always be added..
