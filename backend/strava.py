@@ -202,7 +202,7 @@ class Strava:
             bike.update({"notes": str(self.json_response["description"])})
 
             self.payload.append(bike)
-            logging.info('Ride data written to list:')
+            logging.info('Bike data written to list:')
             logging.info(bike)
             health_check("ok", "executing")
 
