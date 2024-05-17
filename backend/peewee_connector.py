@@ -33,7 +33,7 @@ class PeeweeConnector():
 
                     Rides.insert_many(rides_tuples_list).on_conflict(
                         conflict_target=[Rides.ride_id],
-                        action='IGNORE'
+                        action='REPLACE' #Should be update?
                     ).execute()
 
                     logging.info("Rides table updated successfully")
@@ -145,13 +145,14 @@ class PeeweeConnector():
                 component.save()
                 logging.info(f"Updated distance for component with id {component.component_id}")
                 
-                self.update_components_service_status(s) #Fix the date strip time thing before dealing with this function
+                self.update_components_service_status("s") #Fix the date strip time thing before dealing with this function
 
         
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while updating component distance for component with id {component.component_id} : {error}')
 
-    def update_components_service_status(self, some_id?):
+    def update_components_service_status(self, some_id):
+        pass
         """Method to update component table with service status"""
 
 
