@@ -13,12 +13,23 @@ class BaseModel(Model):
         database = database
 
 
+class Athletes(BaseModel):
+    """Model for table: athletes"""
+    ahlete_id = CharField(primary_key=True, unique=True)
+    athlete_name = CharField()
+
+    class Meta:
+        """Extends model with extra attributes"""
+        table_name = "athletes"
+
+
 class Bikes(BaseModel):
     """Model for table: bikes"""
     bike_id = CharField(primary_key=True, unique=True)
     athlete_id = CharField()
     bike_name = CharField()
     bike_retired = CharField()
+    service_status = CharField()
     total_distance = FloatField()
     notes = CharField()
 
@@ -42,6 +53,17 @@ class Rides(BaseModel):
         table_name = "rides"
 
 
+class ComponentTypes(BaseModel):
+    """Model for table: component_types"""
+    component_type = CharField(primary_key=True, unique=True)
+    service_interval = IntegerField()
+    expected_lifetime = IntegerField()
+
+    class Meta:
+        """Extends model with extra attributes"""
+        table_name = "component_types"
+
+
 class Components(BaseModel):
     """Model for table: components"""
     component_id = CharField(primary_key=True, unique=True)
@@ -59,28 +81,24 @@ class Components(BaseModel):
     update_reason = CharField()
     cost = IntegerField()
     notes = CharField()
-    
+
     class Meta:
         """Extends model with extra attributes"""
         table_name = "components"
 
 
-class Athletes(BaseModel):
-    """Model for table: athletes"""
-    ahlete_id = CharField(primary_key=True, unique=True)
-
-    class Meta:
-        """Extends model with extra attributes"""
-        table_name = "athletes"
-
-
 class Services(BaseModel):
     """Model for table: services"""
     service_id = CharField(primary_key=True, unique=True)
+    component_id = CharField()
+    service_name = CharField()
+    service_date = CharField()
+    notes = CharField()
+    # Maybe km standing at service?
 
     class Meta:
         """Extends model with extra attributes"""
         table_name = "services"
 
 
-__all__ = ['database', 'BaseModel', 'Rides', 'Bikes']
+__all__ = ['database', 'BaseModel', 'Rides', 'Bikes'] #update this one, and also in import statement of peewee conn
