@@ -87,18 +87,40 @@ class Components(BaseModel):
         table_name = "components"
 
 
+class ComponentHistory(BaseModel):
+    """Model for table: component_history"""
+    history_id = CharField(primary_key=True, unique=True)
+    component_id = CharField()
+    updated_date = CharField()
+    update_reason = CharField()
+    history_km_marker = IntegerField()
+    notes = CharField()
+
+    class Meta:
+        """Extends model with extra attributes"""
+        table_name = "component_history"
+
+
 class Services(BaseModel):
     """Model for table: services"""
     service_id = CharField(primary_key=True, unique=True)
     component_id = CharField()
     service_name = CharField()
     service_date = CharField()
+    service_km_marker = IntegerField()
     notes = CharField()
-    # Maybe km standing at service?
 
     class Meta:
         """Extends model with extra attributes"""
         table_name = "services"
 
 
-__all__ = ['database', 'BaseModel', 'Rides', 'Bikes'] #update this one, and also in import statement of peewee conn
+__all__ = ['database',
+           'BaseModel',
+           'Athletes',
+           'Bikes',
+           'Rides',
+           'ComponentTypes',
+           'Components',
+           'ComponentHistory',
+           'Services']
