@@ -33,7 +33,7 @@ class PeeweeConnector():
 
                     Rides.insert_many(rides_tuples_list).on_conflict(
                         conflict_target=[Rides.ride_id],
-                        action='REPLACE' #Should be update?
+                        action='REPLACE'
                     ).execute()
 
                     logging.info("Rides table updated successfully")
@@ -90,7 +90,7 @@ class PeeweeConnector():
                     logging.info("All installed components selected")
                     with database.atomic():
                         for component in Components.select().where(Components.installation_status == 'Installed'):
-                            self.update_components_distance(component)
+                            self.update_component_distance(component)
             
             except (peewee.OperationalError, ValueError) as error:
                 logging.error(f'An error occurred while selecting all installed components : {error}')
@@ -101,17 +101,17 @@ class PeeweeConnector():
                     with database.atomic():
                         for bike_id in delimiter:
                             for component in Components.select().where((Components.installation_status == 'Installed') & (Components.bike_id == bike_id)):
-                                self.update_components_distance(component)
+                                self.update_component_distance(component)
             
             except (peewee.OperationalError, ValueError) as error:
                 logging.error(f'An error occurred while selecting components on recently used bikes : {error}')
             
             try:
-                if "b" in delimiter:
+                if "b" in delimiter: #This will not work, b will also be in set, find another filter
                     logging.info(f"Components on bike with id {delimiter} selected")
                     with database.atomic():
                         for component in Components.select().where((Components.installation_status == 'Installed') & (Components.bike_id == delimiter)):
-                            self.update_components_distance(component)
+                            self.update_component_distance(component)
 
             except (peewee.OperationalError, ValueError) as error:
                 logging.error(f'An error occurred while selecting components on a single bike : {error}') 
@@ -119,7 +119,7 @@ class PeeweeConnector():
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while selecting which components to update: {error}')
 
-    def update_components_distance(self, component):
+    def update_component_distance(self, component):
         """Method to update component table with distance from ride table"""
         try:
             if component.updated_date:
@@ -136,7 +136,7 @@ class PeeweeConnector():
             
             distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
             total_distance_current = sum(ride.ride_distance for ride in matching_rides)
-            total_distance = total_distance_current + distance_offset
+            total_distance = total_distance_current + distance_offset # More on distance_offset, should not always be used?
             
             
             # Update component_distance and component_moving_time only if there are matching rides
@@ -145,17 +145,47 @@ class PeeweeConnector():
                 component.save()
                 logging.info(f"Updated distance for component with id {component.component_id}")
                 
-                self.update_components_service_status("s") #Fix the date strip time thing before dealing with this function
+                self.update_component_service_status("s") #Fix the date strip time thing before dealing with this function
+                self.update_component_lifetime_status("s")
 
         
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while updating component distance for component with id {component.component_id} : {error}')
 
-    def update_components_service_status(self, some_id):
-        pass
+    def update_component_service_status(self, some_id):
         """Method to update component table with service status"""
+        pass
+        # If component has service_interval:
+            #if component has service:
+                #Sum rides from last service date = sum
+                # if sum > service_interval
+                    #service_status = "Due for service"
+                # elif sum =< service_interval
+                #   service_status = "Service not needed"
+                
+            #   next_service = service_interval - sum
+            
+            #elif: #service not registered
+                #Sum rides from installed_date and add offset date
+                # if sum > service_interval
+                   # service_status = "Due for service"
+                # elif sum =< service_interval
+                #   service_status = "Service not needed"
+                
+            #   next_service = service_interval - sum
+        
+        #elif:
+            # service_status = "No service interval defined"
+            # next_service = "-"
 
 
+    def update_component_lifetime_status(self, some_id):
+        """Method to update component table with service status"""
+        pass
+        # Exceeded lifetime
+        # Approaching lifetime
+        # Within lifetime
 
 
+# Function to create random id, called by different functions. Consider making a toolbox for that and date functions
 # Find a way to handle the offset value, it should not always be added..
