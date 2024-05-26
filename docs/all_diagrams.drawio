@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-05-26T10:55:00.284Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="zPUBa7lTXCPFH21j-PWv" version="24.4.4" type="github" pages="7">
+<mxfile host="app.diagrams.net" modified="2024-05-26T22:31:38.847Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="OEKeFT_zFcyGZXWaGweQ" version="24.4.8" type="github" pages="7">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="System overview">
     <mxGraphModel dx="1434" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
@@ -299,6 +299,9 @@
         </mxCell>
         <mxCell id="ab__0eKPIvS3hXRo3g3Q-8" value="Included in MVP - In progress" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="1219" y="148" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="FYxK8STdY-yG8dCWVJrN-1" value="Only includes user defined modules" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#AB8CFF;" vertex="1" parent="1">
+          <mxGeometry x="210" y="93" width="120" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
