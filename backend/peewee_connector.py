@@ -3,7 +3,7 @@
 
 import logging
 from datetime import datetime
-from peewee_models import database, Rides, Bikes, Components
+from peewee_models import database, Rides, Bikes, Components, Services #Match with export from peewee_models, maybe base_model is not needed since it is inherited?
 import peewee
 
 # Implement health check
@@ -66,16 +66,16 @@ class PeeweeConnector():
         """Method to query database and create list of unique bike ids"""
         try:
             unique_bike_ids = Rides.select(Rides.bike_id).distinct()
-            bike_id_list = [
+            bike_id_set = {
                 ride.bike_id
                 for ride in unique_bike_ids 
-                if ride.bike_id != "None"]
+                if ride.bike_id != "None"}
             
-            return bike_id_list
+            return bike_id_set
 
-        except peewee.OperationalError as error:
+        except (peewee.OperationalError, ValueError) as error:
             logging.error(f"An error occurred while creating list of unique bike_ids: {error}")
-            return []
+            return {}
     
     def transform_dates(self):
         """..."""
@@ -107,7 +107,7 @@ class PeeweeConnector():
                 logging.error(f'An error occurred while selecting components on recently used bikes : {error}')
             
             try:
-                if "b" in delimiter: #This will not work, b will also be in set, find another filter
+                if "b" in delimiter: #This works, but probably only because it evaluates after delimiter set. Consider how to make this more resilient
                     logging.info(f"Components on bike with id {delimiter} selected")
                     with database.atomic():
                         for component in Components.select().where((Components.installation_status == 'Installed') & (Components.bike_id == delimiter)):
@@ -123,7 +123,7 @@ class PeeweeConnector():
         """Method to update component table with distance from ride table"""
         try:
             if component.updated_date:
-                updated_date = datetime.strptime(component.updated_date, '%Y-%m-%dT%H:%M:%S')
+                updated_date = datetime.strptime(component.updated_date, '%Y-%m-%d')
             else:
                 updated_date = None
 
@@ -139,33 +139,60 @@ class PeeweeConnector():
             total_distance = total_distance_current + distance_offset # More on distance_offset, should not always be used?
             
             
-            # Update component_distance and component_moving_time only if there are matching rides
+            # Update component_distance only if there are matching rides
             if matching_rides.exists() and record_time:
                 component.component_distance = total_distance
                 component.save()
                 logging.info(f"Updated distance for component with id {component.component_id}")
                 
-                self.update_component_service_status("s") #Fix the date strip time thing before dealing with this function
+                self.update_component_service_status(component) #Fix the date strip time thing before dealing with this function
                 self.update_component_lifetime_status("s")
 
         
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while updating component distance for component with id {component.component_id} : {error}')
 
-    def update_component_service_status(self, some_id):
+    def update_component_service_status(self, component):
         """Method to update component table with service status"""
-        pass
-        # If component has service_interval:
-            #if component has service:
-                #Sum rides from last service date = sum
+        
+        if component.service_interval:
+            logging.info(f"Component {component.component_name} (id {component.component_id}) has service interval")
+
+            try: #This could be separate function, might be useful also for registering service
+                services = Services.select().where((Services.component_id == component.component_id))
+                service_list = [
+                    service.service_date
+                    for service in services 
+                    if service.service_date != "None"]
+                service_list = sorted(service_list, reverse=True)
+
+                if len(service_list) > 0: #This is when at least one service is registered
+                    newest_service = service_list[0]
+                    distance_marker = "sql-expression to get distance_marker for component id and newest_service"
+                    service_next = "sum rides from date - distance marked" #CHeck logic of this one, where is the interval? See below..
+                    service_status = "calls a function with service_next"
+                    # Expression to update service_status and service_next, might be separate function
+
+                if len(service_list) == 0: #This is when no services are registered
+
+
+            except peewee.OperationalError as error:
+                print(error) #write proper error message
+        
+            
+
+            # if has service:
+                # Get most recent services
+                # Sum distance from rides from recent service
+                # 
                 # if sum > service_interval
                     #service_status = "Due for service"
                 # elif sum =< service_interval
                 #   service_status = "Service not needed"
                 
             #   next_service = service_interval - sum
-            
-            #elif: #service not registered
+
+            # elif: #service not registered
                 #Sum rides from installed_date and add offset date
                 # if sum > service_interval
                    # service_status = "Due for service"
@@ -173,10 +200,14 @@ class PeeweeConnector():
                 #   service_status = "Service not needed"
                 
             #   next_service = service_interval - sum
+
         
-        #elif:
-            # service_status = "No service interval defined"
-            # next_service = "-"
+        else:
+            logging.info(f"Component {component.component_name} (id {component.component_id}) has no service interval")
+    
+            #elif:
+                # service_status = "No service interval defined"
+                # next_service = "-"
 
 
     def update_component_lifetime_status(self, some_id):
@@ -189,3 +220,4 @@ class PeeweeConnector():
 
 # Function to create random id, called by different functions. Consider making a toolbox for that and date functions
 # Find a way to handle the offset value, it should not always be added..
+# Consider all export statement

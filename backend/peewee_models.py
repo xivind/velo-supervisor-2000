@@ -91,9 +91,10 @@ class ComponentHistory(BaseModel):
     """Model for table: component_history"""
     history_id = CharField(primary_key=True, unique=True)
     component_id = CharField()
+    component_name = CharField()
     updated_date = CharField()
     update_reason = CharField()
-    history_km_marker = IntegerField()
+    distance_marker = IntegerField()
     notes = CharField()
 
     class Meta:
@@ -105,9 +106,10 @@ class Services(BaseModel):
     """Model for table: services"""
     service_id = CharField(primary_key=True, unique=True)
     component_id = CharField()
+    component_name = CharField()
     service_name = CharField()
     service_date = CharField()
-    service_km_marker = IntegerField()
+    distance_marker = IntegerField()
     notes = CharField()
 
     class Meta:
