@@ -142,11 +142,11 @@ class PeeweeConnector():
             # Update component_distance only if there are matching rides
             if matching_rides.exists() and record_time:
                 component.component_distance = total_distance
-                component.save()
+                component.save() #Should be with database atomic?
                 logging.info(f"Updated distance for component with id {component.component_id}")
                 
                 self.update_component_service_status(component) #Fix the date strip time thing before dealing with this function
-                self.update_component_lifetime_status("s")
+                self.update_component_lifetime_status(component)
 
         
         except (peewee.OperationalError, ValueError) as error:
@@ -156,9 +156,9 @@ class PeeweeConnector():
         """Method to update component table with service status"""
         
         if component.service_interval:
-            logging.info(f"Component {component.component_name} (id {component.component_id}) has service interval")
+            logging.info(f"Updating service status for component {component.component_name} (id {component.component_id})")
 
-            try: #This could be separate function, might be useful also for registering service
+            try:
                 services = Services.select().where((Services.component_id == component.component_id))
                 service_list = [
                     service.service_date
@@ -166,56 +166,54 @@ class PeeweeConnector():
                     if service.service_date != "None"]
                 service_list = sorted(service_list, reverse=True)
 
-                if len(service_list) > 0: #This is when at least one service is registered
+                if len(service_list) > 0:
                     newest_service = service_list[0]
-                    distance_marker = "sql-expression to get distance_marker for component id and newest_service"
-                    service_next = "sum rides from date - distance marked" #CHeck logic of this one, where is the interval? See below..
-                    service_status = "calls a function with service_next"
-                    # Expression to update service_status and service_next, might be separate function
+                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= newest_service))
+                    
+                elif len(service_list) == 0:
+                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id))    
+                
+                service_next = component.service_interval- sum(ride.ride_distance for ride in matching_rides)
 
-                if len(service_list) == 0: #This is when no services are registered
-
+                with database.atomic():
+                    component.service_next = service_next
+                    component.service_status = self.compute_service_status("service", service_next)
+                    component.save()
 
             except peewee.OperationalError as error:
-                print(error) #write proper error message
-        
-            
-
-            # if has service:
-                # Get most recent services
-                # Sum distance from rides from recent service
-                # 
-                # if sum > service_interval
-                    #service_status = "Due for service"
-                # elif sum =< service_interval
-                #   service_status = "Service not needed"
-                
-            #   next_service = service_interval - sum
-
-            # elif: #service not registered
-                #Sum rides from installed_date and add offset date
-                # if sum > service_interval
-                   # service_status = "Due for service"
-                # elif sum =< service_interval
-                #   service_status = "Service not needed"
-                
-            #   next_service = service_interval - sum
-
+                logging.error(f'An error occurred while updating service status for component with id {component.component_id} : {error}')
         
         else:
             logging.info(f"Component {component.component_name} (id {component.component_id}) has no service interval")
-    
-            #elif:
-                # service_status = "No service interval defined"
-                # next_service = "-"
 
+            with database.atomic(): #Include try / except, with error message as above
+                component.service_next = None
+                component.service_status = "No service defined"
+                component.save()
 
-    def update_component_lifetime_status(self, some_id):
-        """Method to update component table with service status"""
-        pass
+    def update_component_lifetime_status(self, component):
+        """Method to update component table with lifetime status"""
+        
+
+        component.service_status = self.compute_service_status("lifetime", service_next)
         # Exceeded lifetime
         # Approaching lifetime
         # Within lifetime
+
+    def compute_component_status(self, mode, distance_since_service):
+        """Method to compute service status"""
+
+        Adjust function to handle two modes
+
+        if int(distance_since_service) < 0:
+            status = "Service overdue"
+        elif int(distance_since_service) in range(0, 500):
+            status = "Service approaching"
+        elif int(distance_since_service) >= 500:
+            status = "OK"
+        
+        return status
+
 
 
 # Function to create random id, called by different functions. Consider making a toolbox for that and date functions
