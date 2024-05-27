@@ -177,7 +177,7 @@ class PeeweeConnector():
 
                 with database.atomic():
                     component.service_next = service_next
-                    component.service_status = self.compute_service_status("service", service_next)
+                    component.service_status = self.compute_component_status("service", service_next)
                     component.save()
 
             except peewee.OperationalError as error:
@@ -194,8 +194,10 @@ class PeeweeConnector():
     def update_component_lifetime_status(self, component):
         """Method to update component table with lifetime status"""
         
+        #get component distance and compare that with lifetime
+        # Add fault handling for this one somehow, component may have zero km
 
-        component.service_status = self.compute_service_status("lifetime", service_next)
+        component.service_status = self.compute_component_status("lifetime", service_next)
         # Exceeded lifetime
         # Approaching lifetime
         # Within lifetime
