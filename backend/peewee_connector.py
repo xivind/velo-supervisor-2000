@@ -207,13 +207,17 @@ class PeeweeConnector():
 
         Adjust function to handle two modes
 
-        if int(distance_since_service) < 0:
-            status = "Service overdue"
-        elif int(distance_since_service) in range(0, 500):
-            status = "Service approaching"
-        elif int(distance_since_service) >= 500:
-            status = "OK"
+        if mode == "service":
+            if int(distance_since_service) < 0:
+                status = "Service overdue"
+            elif int(distance_since_service) in range(0, 500):
+                status = "Service approaching"
+            elif int(distance_since_service) >= 500:
+                status = "OK"
         
+        if mode == "lifetime":
+            ...
+
         return status
 
 
