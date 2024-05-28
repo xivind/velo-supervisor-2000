@@ -43,21 +43,21 @@ peewee_connector = PeeweeConnector()
 
 
 # Endpoint get all rides and recent rides, make it possible also to call with "all" arg
-#strava.get_rides("recent")
-#peewee_connector.commit_rides_bulk(strava.payload)
+strava.get_rides("recent")
+peewee_connector.commit_rides_bulk(strava.payload)
 
-# Endpoints get all bikes (triggered when new rides are fetched, and should also be able to call manually), can also be called with this as arg strava.bike_ids_recent_rides. Depends on context
-#if len(peewee_connector.list_unique_bikes()) > 0:
-#    strava.get_bikes(peewee_connector.list_unique_bikes())
-#    peewee_connector.commit_bikes(strava.payload)
+# Endpoints get all bikes (triggered when new rides are fetched, and should also be able to call manually), can also be called with this as arg strava.bike_ids_recent_rides or peewee_connector.list_unique_bikes(). Depends on context
+if len(strava.bike_ids_recent_rides) > 0:
+    strava.get_bikes(strava.bike_ids_recent_rides)
+    peewee_connector.commit_bikes(strava.payload)
 
 # Code to update installed components distance and moving time (not callable as endpoint).
 # Should be trigger by fetching of new rides and when components are added, should also be able to trigger manually with all
 # This method should be called by main.
 # Method should create a list of component ids to be submitted as arg to function below. Method should support operating on this list, single ID or all components.
 
-#peewee_connector.update_components_distance_selector(strava.bike_ids_recent_rides)
-peewee_connector.update_components_distance_selector(peewee_connector.list_unique_bikes())
+peewee_connector.update_components_distance_selector(strava.bike_ids_recent_rides)
+#peewee_connector.update_components_distance_selector(peewee_connector.list_unique_bikes())
 
 # Code to update misc status fields of components (not callable as endpoint). Should be triggered by updating of installed components
 # This method should be called by main
