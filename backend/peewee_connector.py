@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-"""Module to interact with a SQL database through peewee"""
+"""Module to interact with a SQL database through Peewee"""
 
 import logging
 from datetime import datetime
-from peewee_models import database, Rides, Bikes, Components, Services #Match with export from peewee_models, maybe base_model is not needed since it is inherited?
 import peewee
+from peewee_models import database, Rides, Bikes, Components, Services #Match with export from peewee_models, maybe base_model is not needed since it is inherited?
+
 
 # Implement health check
 
 class PeeweeConnector():
     """Class to interact with a SQL database through peewee"""
     def __init__(self):
-        pass #Check out this one.. 
+        pass #Check out this one..
 
     def commit_rides_bulk(self, ride_list):
         """Method to commit ride data in bulk to database"""
@@ -68,33 +69,28 @@ class PeeweeConnector():
             unique_bike_ids = Rides.select(Rides.bike_id).distinct()
             bike_id_set = {
                 ride.bike_id
-                for ride in unique_bike_ids 
+                for ride in unique_bike_ids
                 if ride.bike_id != "None"}
-            
+
             return bike_id_set
 
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f"An error occurred while creating list of unique bike_ids: {error}")
             return {}
-    
-    def transform_dates(self):
-        """..."""
-        pass #Should process only dates, not time
 
     def update_components_distance_selector(self, delimiter):
         """Method to select which selection of components to update"""
         try:
-            
             try:
                 if delimiter == "all":
                     logging.info("All installed components selected")
                     with database.atomic():
                         for component in Components.select().where(Components.installation_status == 'Installed'):
                             self.update_component_distance(component)
-            
+
             except (peewee.OperationalError, ValueError) as error:
                 logging.error(f'An error occurred while selecting all installed components : {error}')
-              
+
             try:
                 if isinstance(delimiter, set):
                     logging.info("Components on recently used bikes selected")
@@ -102,10 +98,10 @@ class PeeweeConnector():
                         for bike_id in delimiter:
                             for component in Components.select().where((Components.installation_status == 'Installed') & (Components.bike_id == bike_id)):
                                 self.update_component_distance(component)
-            
+
             except (peewee.OperationalError, ValueError) as error:
                 logging.error(f'An error occurred while selecting components on recently used bikes : {error}')
-            
+
             try:
                 if "b" in delimiter: #This works, but probably only because it evaluates after delimiter set. Consider how to make this more resilient
                     logging.info(f"Components on bike with id {delimiter} selected")
@@ -114,8 +110,8 @@ class PeeweeConnector():
                             self.update_component_distance(component)
 
             except (peewee.OperationalError, ValueError) as error:
-                logging.error(f'An error occurred while selecting components on a single bike : {error}') 
-        
+                logging.error(f'An error occurred while selecting components on a single bike : {error}')
+
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while selecting which components to update: {error}')
 
@@ -133,47 +129,46 @@ class PeeweeConnector():
 
             matching_rides = Rides.select().where(
                 (Rides.bike_id == component.bike_id) & (Rides.record_time >= updated_date))
-            
+
             distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
             total_distance_current = sum(ride.ride_distance for ride in matching_rides)
-            total_distance = total_distance_current + distance_offset # More on distance_offset, should not always be used?
-            
-            
-            # Update component_distance only if there are matching rides
+            total_distance = total_distance_current + distance_offset
+
             if matching_rides.exists() and record_time:
-                component.component_distance = total_distance
-                component.save() #Should be with database atomic?
-                logging.info(f"Updated distance for component with id {component.component_id}")
-                
-                self.update_component_service_status(component) #Fix the date strip time thing before dealing with this function
+                with database.atomic():
+                    component.component_distance = total_distance
+                    component.save()
+
+                logging.info(f"Updated distance for component {component.component_name} (id {component.component_id})")
+
+                self.update_component_service_status(component)
                 self.update_component_lifetime_status(component)
 
-        
         except (peewee.OperationalError, ValueError) as error:
-            logging.error(f'An error occurred while updating component distance for component with id {component.component_id} : {error}')
+            logging.error(f'An error occurred while updating component distance for component {component.component_name} (id {component.component_id}): {error}')
 
     def update_component_service_status(self, component):
         """Method to update component table with service status"""
-        
         if component.service_interval:
-            logging.info(f"Updating service status for component {component.component_name} (id {component.component_id})")
-
             try:
+                logging.info(f"Updating service status for component {component.component_name} (id {component.component_id})")
+
                 services = Services.select().where((Services.component_id == component.component_id))
                 service_list = [
                     service.service_date
-                    for service in services 
+                    for service in services
                     if service.service_date != "None"]
                 service_list = sorted(service_list, reverse=True)
 
                 if len(service_list) > 0:
                     newest_service = service_list[0]
                     matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= newest_service))
-                    
+                    distance_since_service = sum(ride.ride_distance for ride in matching_rides)
+
                 elif len(service_list) == 0:
-                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id))    #Instead here, use just total_distance from table
-                
-                service_next = component.service_interval- sum(ride.ride_distance for ride in matching_rides)
+                    distance_since_service = component.component_distance
+
+                service_next = component.service_interval- distance_since_service
 
                 with database.atomic():
                     component.service_next = service_next
@@ -181,48 +176,68 @@ class PeeweeConnector():
                     component.save()
 
             except peewee.OperationalError as error:
-                logging.error(f'An error occurred while updating service status for component with id {component.component_id} : {error}')
-        
-        else:
-            logging.info(f"Component {component.component_name} (id {component.component_id}) has no service interval")
+                logging.error(f'An error occurred while updating service status for component {component.component_name} (id {component.component_id}): {error}')
 
-            with database.atomic(): #Include try / except, with error message as above
-                component.service_next = None
-                component.service_status = "No service defined"
-                component.save()
+        else:
+            try:
+                logging.info(f"Component {component.component_name} (id {component.component_id}) has no service interval, setting NULL values for service")
+                with database.atomic():
+                    component.service_next = None
+                    component.service_status = "Service not defined"
+                    component.save()
+
+            except peewee.OperationalError as error:
+                logging.error(f'An error occurred while setting blank service status for component {component.component_name} (id {component.component_id}): {error}')
 
     def update_component_lifetime_status(self, component):
         """Method to update component table with lifetime status"""
-        
-        #get component distance and compare that with lifetime
-        # Add fault handling for this one somehow, component may have zero km
-        use just total_distance from table
+        if component.lifetime_expected:
+            try:
+                logging.info(f"Updating lifetime status for component {component.component_name} (id {component.component_id})")
 
-        component.service_status = self.compute_component_status("lifetime", service_next)
-        # Exceeded lifetime
-        # Approaching lifetime
-        # Within lifetime
+                with database.atomic():
+                    component.lifetime_remaining = component.lifetime_expected - component.component_distance
+                    component.lifetime_status = self.compute_component_status("lifetime", component.lifetime_remaining)
+                    component.save()
 
-    def compute_component_status(self, mode, distance_since_service):
+            except peewee.OperationalError as error:
+                logging.error(f'An error occurred while updating lifetime status for component {component.component_name} (id {component.component_id}): {error}')
+
+        else:
+            try:
+                logging.info(f"Component {component.component_name} (id {component.component_id}) has no expected lifetime, setting NULL values for lifetime")
+
+                with database.atomic():
+                    component.lifetime_remaining = None
+                    component.lifetime_status = "Lifetime not defined"
+                    component.save()
+
+            except peewee.OperationalError as error:
+                logging.error(f'An error occurred while setting blank lifetime status for component {component.component_name} (id {component.component_id}): {error}')
+
+    def compute_component_status(self, mode, distance):
         """Method to compute service status"""
 
-        Adjust function to handle two modes
-
         if mode == "service":
-            if int(distance_since_service) < 0:
+            if int(distance) < 0:
                 status = "Service overdue"
-            elif int(distance_since_service) in range(0, 500):
+            elif int(distance) in range(0, 500):
                 status = "Service approaching"
-            elif int(distance_since_service) >= 500:
+            elif int(distance) >= 500:
                 status = "OK"
-        
+
         if mode == "lifetime":
-            ...
+            if int(distance) < 0:
+                status = "Lifetime exceeded"
+            elif int(distance) in range(0, 1000):
+                status = "End of lifetime approaching"
+            elif int(distance) >= 1000:
+                status = "OK"
 
         return status
 
 
 
-# Function to create random id, called by different functions. Consider making a toolbox for that and date functions
+# Function to create random id, called by different functions. Consider making a toolbox for that
 # Find a way to handle the offset value, it should not always be added..
 # Consider all export statement
