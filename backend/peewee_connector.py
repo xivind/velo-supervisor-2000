@@ -171,7 +171,7 @@ class PeeweeConnector():
                     matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= newest_service))
                     
                 elif len(service_list) == 0:
-                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id))    
+                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id))    #Instead here, use just total_distance from table
                 
                 service_next = component.service_interval- sum(ride.ride_distance for ride in matching_rides)
 
@@ -196,6 +196,7 @@ class PeeweeConnector():
         
         #get component distance and compare that with lifetime
         # Add fault handling for this one somehow, component may have zero km
+        use just total_distance from table
 
         component.service_status = self.compute_component_status("lifetime", service_next)
         # Exceeded lifetime
