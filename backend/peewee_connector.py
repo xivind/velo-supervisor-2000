@@ -4,18 +4,41 @@
 import logging
 from datetime import datetime
 import peewee
-from peewee_models import database, Rides, Bikes, Components, Services #Match with export from peewee_models, maybe base_model is not needed since it is inherited?
+import uuid
+import time
+from peewee_models import database, Rides, Bikes, Components, Services, ComponentTypes #Match with export from peewee_models, maybe base_model is not needed since it is inherited?
 
 
 # Implement health check
 
-class PeeweeConnector():
-    """Class to interact with a SQL database through peewee"""
+class ReadTables(): #rename to something else, internal logic or something, might split into separate classes
+    """Class to interact with a SQL database through peewee""" #Modify this description
     def __init__(self):
         pass #Check out this one..
 
-    def commit_rides_bulk(self, ride_list):
-        """Method to commit ride data in bulk to database"""
+    def read_component_types(self):
+        """Method to read content of component_types table"""
+        component_types = ComponentTypes.select()
+        return component_types
+    
+    def read_components(self):
+        """Method to read content of components table"""
+        components = Components.select()
+        return components
+    
+    def read_bikes(self):
+        """Method to read content of bikes table"""
+        bikes = Bikes.select()
+        return bikes
+
+
+class ModifyTables(): #rename to something else, internal logic or something, might split into separate classes
+    """Class to interact with a SQL database through peewee""" #Modify this description
+    def __init__(self):
+        pass #Check out this one..
+
+    def update_rides_bulk(self, ride_list):
+        """Method to create or update ride data in bulk to database"""
         logging.info(f'There are {len(ride_list)} rides in the list')
 
         try:
@@ -42,8 +65,8 @@ class PeeweeConnector():
         except peewee.OperationalError as error:
             logging.error(f"An error occurred while updating the rides table: {error}")
 
-    def commit_bikes(self, bike_list):
-        """Method to commit bike data to the database"""
+    def update_bikes(self, bike_list):
+        """Method to create or update bike data to the database"""
         try:
             with database.atomic():
                 for bike_data in bike_list:
@@ -63,23 +86,9 @@ class PeeweeConnector():
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while updating the bikes table: {error}')
 
-    def list_unique_bikes(self):
-        """Method to query database and create list of unique bike ids"""
-        try:
-            unique_bike_ids = Rides.select(Rides.bike_id).distinct()
-            bike_id_set = {
-                ride.bike_id
-                for ride in unique_bike_ids
-                if ride.bike_id != "None"}
-
-            return bike_id_set
-
-        except (peewee.OperationalError, ValueError) as error:
-            logging.error(f"An error occurred while creating list of unique bike_ids: {error}")
-            return {}
 
     def update_components_distance_selector(self, delimiter):
-        """Method to select which selection of components to update"""
+        """Method to determine which selection of components to update"""
         try:
             try:
                 if delimiter == "all":
@@ -237,7 +246,91 @@ class PeeweeConnector():
         return status
 
 
+class ReadRecords():
+    """Class to interact with a SQL database through peewee""" #Modify this description
+    def __init__(self):
+        pass #Check out this one.
 
-# Function to create random id, called by different functions. Consider making a toolbox for that
-# Find a way to handle the offset value, it should not always be added..
-# Consider all export statement
+
+class ModifyRecords():
+    """Class to interact with a SQL database through peewee""" #Modify this description
+    def __init__(self):
+        pass #Check out this one.
+
+    def update_component_type(self, component_type_data):
+        """Method to create or update component types"""
+    
+        try:
+            logging.info(f"Creating or updating component type {component_type_data['component_type']}")
+            with database.atomic():
+                component_type = ComponentTypes.get_or_none(ComponentTypes.component_type == component_type_data["component_type"])
+
+                if component_type:
+                    component_type.component_type = component_type_data["component_type"]
+                    component_type.service_interval = component_type_data["service_interval"]
+                    component_type.expected_lifetime = component_type_data["expected_lifetime"]
+                    component_type.save()
+            
+                else:
+                    ComponentTypes.create(
+                        component_type = component_type_data["component_type"],
+                        service_interval = component_type_data["service_interval"],
+                        expected_lifetime = component_type_data["expected_lifetime"])
+        
+        except peewee.OperationalError as error:
+                logging.error(f'An error occurred while creating or updating component type {component_type_data["component_type"]}: {error}')
+    
+    def delete_record(self, table_selector, record_id):
+        """Method to delete any record"""
+
+        try:
+            logging.info(f"Deleting record with id {record_id} from table {table_selector}")
+            if table_selector == str("ComponentTypes"):
+                query = ComponentTypes.get_or_none(ComponentTypes.component_type == record_id)
+                table_found = True
+            elif table_selector == str("Services"):
+                query = Services.get_or_none(Services.service_id == record_id)
+                table_found = True
+            else:
+                logging.error(f'Error looking up table for deletion of record, non-existing table: {table_selector}')
+                table_found = False
+        
+            if table_found:
+                with database.atomic():
+                    record = query
+                    if record:
+                        record.delete_instance()
+
+        except peewee.OperationalError as error:
+                logging.error(f'An error occurred while deleting record with id {record_id} from table {table_selector}: {error}')
+
+class MiscMethods():
+    """Class to interact with a SQL database through peewee""" #Modify this description
+    def __init__(self):
+        pass #Check out this one.
+
+    def list_unique_bikes(self):
+        """Method to query database and create list of unique bike ids"""
+        try:
+            unique_bike_ids = Rides.select(Rides.bike_id).distinct()
+            bike_id_set = {
+                ride.bike_id
+                for ride in unique_bike_ids
+                if ride.bike_id != "None"}
+
+            return bike_id_set
+
+        except (peewee.OperationalError, ValueError) as error:
+            logging.error(f"An error occurred while creating list of unique bike_ids: {error}")
+            return {}
+        
+    def generate_unique_id(self):
+        """Function to generates a random and unique ID"""
+        unique_id_part1 = uuid.uuid4()
+        unique_id_part2 = time.time()
+
+        return f'{str(unique_id_part1)[:6]}{str(unique_id_part2)[-4:]}'
+
+# Function to calculate service status in bikes table
+# Find a way to handle the offset value, it should not always be added, but should be saved when a component is uninstalled
+# Consider all export statement, maybe not needed?
