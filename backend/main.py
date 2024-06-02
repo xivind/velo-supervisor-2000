@@ -106,11 +106,6 @@ async def delete_record(
     modify_records.delete_record(table_selector, record_id)
 
 
-# Include pop ups to indicate success or failure 
-#Create a separate template to handle all errors, also 500
-#include excpetion handling, e.g raise HTTPException(status_code=404, detail="Page not found")
-#sorting of tables
-
 # Endpoint get all rides and recent rides, make it possible also to call with "all" arg
 #strava.get_rides("recent")
 #modify_tables.update_rides_bulk(strava.payload)
