@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-06-07T23:57:36.086Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" etag="y5qD8cK69Efl33BYBp2I" version="24.4.13" type="github" pages="7">
+<mxfile host="app.diagrams.net" modified="2024-06-08T12:45:06.143Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" etag="oE7N7Rwg8IHV13WnXZTD" version="24.4.13" type="github" pages="7">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="System overview">
     <mxGraphModel dx="1434" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
@@ -457,7 +457,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="YGc9dI-DZqv5oqem6ccq" name="Desktop GUI">
-    <mxGraphModel dx="1434" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
+    <mxGraphModel dx="2715" dy="1493" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -506,7 +506,7 @@
         <mxCell id="jmgK1kQpbUTn3la-UCsn-7" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=img/clipart/Gear_128x128.png;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
           <mxGeometry x="860" y="440" width="20" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="jmgK1kQpbUTn3la-UCsn-8" value="/config.html" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;curveFitting=1;jiggle=2;verticalAlign=top;fontSize=14;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+        <mxCell id="jmgK1kQpbUTn3la-UCsn-8" value="/component_types.html" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;curveFitting=1;jiggle=2;verticalAlign=top;fontSize=14;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
           <mxGeometry x="110" y="220" width="300" height="310" as="geometry" />
         </mxCell>
         <mxCell id="jmgK1kQpbUTn3la-UCsn-10" value="Component type list" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;curveFitting=1;jiggle=2;shadow=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
