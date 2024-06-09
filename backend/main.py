@@ -8,7 +8,7 @@ import argparse
 import logging
 import uvicorn
 from time import sleep
-from fastapi import FastAPI, HTTPException, Request, Form
+from fastapi import FastAPI, HTTPException, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -49,6 +49,18 @@ templates = Jinja2Templates(directory="../frontend/templates")
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
 #template_dir = Path("../frontend/templates")
 
+# Function to handle errors
+def render_error_page(request: Request, status_code: int, error_message: str):
+    return templates.TemplateResponse("error.html", {
+        "request": request,
+        "status_code": status_code,
+        "error_message": error_message
+    })
+
+
+@app.get("/error", response_class=HTMLResponse)
+async def error_page(request: Request):
+    return render_error_page(request, 500, "Internal Server Error")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -90,14 +102,32 @@ async def modify_component_type(
 async def component_overview(request: Request):
     """Endpoint for components page"""
 
-    components = read_tables.read_components()
-    component_data = [(component.component_type,
-                       component.component_name,
-                       component.component_distance) for component in components]
+    try:
+        components = read_tables.read_components()
+        component_data = [(component.component_type,
+                        component.component_name,
+                        component.installation_status,
+                        component.service_status,
+                        component.bike_id
+                        ,) for component in components] # change bike_id with bikename, must be lookup
 
 
-    template_path = "component_overview.html"
-    return templates.TemplateResponse(template_path, {"request": request, "component_data": component_data})
+        template_path = "component_overview.html"
+        return templates.TemplateResponse(template_path, {"request": request, "component_data": component_data})
+    
+    except Exception as error:
+        # Handle other exceptions does not catch 404, error handling must also print to log / console
+        if isinstance(error, HTTPException):
+            # If the exception is an HTTPException, handle it accordingly
+            if error.status_code == status.HTTP_503_SERVICE_UNAVAILABLE:
+                # Handle 503 Service Unavailable error
+                return render_error_page(request, error.status_code, str(error.detail))
+            else:
+                # Handle other HTTP errors
+                return render_error_page(request, error.status_code, str(error.detail))
+        else:
+            # Handle other exceptions (e.g., internal server errors)
+            return render_error_page(request, 500, str(error))
 
 @app.post("/delete_record", response_class=HTMLResponse)
 async def delete_record(

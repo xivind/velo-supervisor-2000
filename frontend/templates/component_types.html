@@ -10,8 +10,7 @@
     <div class="container mt-5">
         <nav class="navbar">
             <a class="navbar-brand mb-0 h1" href="#">
-                <img src="/static/bicycle.png" width="30" height="24" class="d-inline-block align-text-top">
-                VELO SUPERVISOR 2000
+                <img src="/static/logo.png" width="30" height="24" class="d-inline-block align-text-top" alt="Logo">VELO SUPERVISOR 2000
             </a>
             <ul class="nav nav-tabs">
                 <li class="nav-item">   
@@ -37,19 +36,20 @@
             <div class="card-body">
                 <form id="component_type_form" class="row" action="/component_types_overview/modify" method="post" enctype="application/x-www-form-urlencoded">
                     <div class="col mb-3">
-                        <label for="component_type" class="form-label">Type</label>
+                        <label for="component_type" class="form-label fw-bold">Type</label>
                         <input type="text" class="form-control" id="component_type" name="component_type" required>
                     </div>
                     <div class="col mb-3">
-                        <label for="service_interval" class="form-label">Serivce interval</label>
+                        <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
                         <input type="number" class="form-control" id="service_interval" name="service_interval" oninput="validateInput(this)">
                     </div>
                     <div class="col mb-3">
-                        <label for="expected_lifetime" class="form-label">Expected lifetime</label>
+                        <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
                         <input type="number" class="form-control" id="expected_lifetime" name="expected_lifetime" oninput="validateInput(this)">
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary" form="component_type_form">Submit</button>
+                        <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Submit</button>
+                        <button type="submit" class="btn btn-outline-danger" form="component_type_form" id="clear_form_btn">Clear form</button>
                     </div>
                 </form>
             </div>
@@ -61,19 +61,19 @@
                     <thead>
                         <tr>
                             <th>Type</th>
-                            <th>Service interval</th>
-                            <th>Expected lifetime</th>
+                            <th>Service interval (km)</th>
+                            <th>Expected lifetime (km)</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for component_type, service_interval, expected_lifetime in component_types_data %}
-                        <tr>
+                        <tr data-row-id="{{ loop.index0 }}">
                             <td>{{ component_type }}</td>
                             <td>{{ service_interval }}</td>
                             <td>{{ expected_lifetime }}</td>
                             <td>                    
-                                <button type="button" class="btn btn-outline-success btn-sm modify-record" component_type="{{ component_type }}">✍</button>
+                                <button type="button" class="btn btn-outline-success btn-sm modify-record" component_type="{{ component_type }}" data-row-id="{{ loop.index0 }}">✍</button>
                                 <button type="button" class="btn btn-outline-danger btn-sm delete-record" data-component-type="{{ component_type }}">🗑</button>
                             </td>
                         </tr>
@@ -92,6 +92,36 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
+        // Modify record function: Wait for the page to load before initiating modify button
+        window.addEventListener('DOMContentLoaded', function() {
+            // Modify record function: get all modify record buttons
+            const modifyRecordButtons = document.querySelectorAll('.modify-record');
+
+            // Modify record function: add a click event listener to each button
+            modifyRecordButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const rowId = button.dataset.rowId;
+                    modifyRecord(rowId);
+                });
+            });
+
+            // Modify record function: define the modifyRecord function
+            function modifyRecord(rowId) {
+                const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+                if (row) {
+                    const componentType = row.cells[0].textContent;
+                    const serviceInterval = row.cells[1].textContent;
+                    const expectedLifetime = row.cells[2].textContent;
+
+                    document.getElementById('component_type').value = componentType;
+                    document.getElementById('service_interval').value = serviceInterval;
+                    document.getElementById('expected_lifetime').value = expectedLifetime;
+                } else {
+                    console.error(`Row with ID ${rowId} not found.`);
+                }
+            }
+        });
+        
         // Delete record function: get all delete record buttons
         const deleteRecordButtons = document.querySelectorAll('.delete-record');
 
@@ -129,6 +159,19 @@
             if (input.value <= 0) {
                 input.value = null;
             }
+        }
+
+        // Clear form function: get the clear form button
+        const clearFormBtn = document.getElementById('clear_form_btn');
+
+        // Clear form function: add a click event listener to the button
+        clearFormBtn.addEventListener('click', clearForm);
+
+        // Clear form function: define the clearForm function
+        function clearForm() {
+            document.getElementById('component_type').value = '';
+            document.getElementById('service_interval').value = '';
+            document.getElementById('expected_lifetime').value = '';
         }
     </script>
 </body>

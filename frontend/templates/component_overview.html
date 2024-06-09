@@ -10,8 +10,7 @@
     <div class="container mt-5">
         <nav class="navbar">
             <a class="navbar-brand mb-0 h1" href="#">
-                <img src="/static/bicycle.png" width="30" height="24" class="d-inline-block align-text-top">
-                VELO SUPERVISOR 2000
+                <img src="/static/logo.png" width="30" height="24" class="d-inline-block align-text-top" alt="Logo">VELO SUPERVISOR 2000
             </a>
             <ul class="nav nav-tabs">
                 <li class="nav-item">   
@@ -32,7 +31,7 @@
             </ul>
         </nav>
         <h1 class="display-5 mt-5 text-center">Component overview</h1>
-        <h4 class="mt-5 text-secondary">Available components</h4>
+        <h4 class="mt-5 text-secondary">All components</h4>
         <div class="card shadow mb-3">
             <div class="card-body">
                 <table class="table">
@@ -40,18 +39,42 @@
                         <tr>
                             <th>Type</th>
                             <th>Name</th>
-                            <th>Distance</th>
+                            <th>Installation status</th>
+                            <th>Service status</th>
+                            <th>Bike</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- Directly embed component data here -->
-                        {% for name, type, distance in component_data %}
+                        {% for type, name, installation_status, service_status, bike in component_data %}
                         <tr>
-                            <td>{{ name }}</td>
                             <td>{{ type }}</td>
-                            <td>{{ distance }}</td>
-                            <td><a href="component_details" class="btn btn-outline-info btn-sm">✍</a> <a href="component_details" class="btn btn-outline-danger btn-sm">🗑</a></td>
+                            <td>{{ name }}</td>
+                            <td>
+                                {% if installation_status == "Installed" %}
+                                🚴
+                                {% elif installation_status == "Not installed" %}
+                                💤
+                                {% elif installation_status == "Retired" %}
+                                ⛔
+                                {% endif %}
+                                {{ installation_status }}
+                            </td>
+                            <td>
+                                {% if service_status == "OK" %}
+                                🟢
+                                {% elif service_status == "Service approaching" %}
+                                🟡
+                                {% elif service_status == "Due for service" %}
+                                🔴
+                                {% elif service_status is none %}
+                                ⚪
+                                {% endif %}
+                                {{ service_status }}
+                            </td>
+                            <td>{{ bike }}</td>
+                            <td><a href="/component_details" class="btn btn-outline-info btn-sm">🔍</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>
