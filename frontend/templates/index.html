@@ -30,7 +30,6 @@
                 </li>
             </ul>
         </nav>  
-        
         <h1 class="display-5 mt-5 text-center">Bike overview</h1>
         <div class="row mt-5">
             {% for name, status, service, distance in bike_data %}
@@ -40,8 +39,10 @@
                             <div class="card-header fw-bold text-bg-{% if service == 'Pristine condition' %}success{% elif service == 'Due for service' %}warning{% elif service == 'Breakdown imminent' %}danger{% else %}secondary{% endif %}">{{ name }}</div>
                             <div class="card-body">
                             <h5 class="card-title">{{ service }}</h5>
-                            <p class="card-text">In use | x components | {{ distance }} km</p>
-                            <p><a href="/bike_details" class="btn btn-outline-info btn-sm shadow-lg">🔍</a></p>
+                            <p class="card-text d-flex justify-content-between align-items-center">
+                                <span>🟩 Active 📍{{ distance }} km</span>
+                                <a href="/bike_details" class="btn btn-outline-info btn-sm shadow-lg">🔍</a>
+                            </p>
                         </div>
                     </div>
         </div>

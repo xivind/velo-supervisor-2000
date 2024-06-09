@@ -129,6 +129,17 @@ async def component_overview(request: Request):
             # Handle other exceptions (e.g., internal server errors)
             return render_error_page(request, 500, str(error))
 
+@app.get("/bike_details", response_class=HTMLResponse) #Much work left here..
+async def component_types_overview(request: Request):
+    """Endpoint for component types page"""    
+    component_types = read_tables.read_component_types()
+    component_types_data = [(component_type.component_type,
+                             component_type.service_interval,
+                             component_type.expected_lifetime) for component_type in component_types]
+
+    template_path = "bike_details.html"
+    return templates.TemplateResponse(template_path, {"request": request, "component_types_data": component_types_data})
+
 @app.post("/delete_record", response_class=HTMLResponse)
 async def delete_record(
     record_id: str = Form(...),
