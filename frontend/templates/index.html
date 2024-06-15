@@ -32,7 +32,7 @@
         </nav>  
         <h1 class="display-5 mt-5 text-center">Bike overview</h1>
         <div class="row mt-5">
-            {% for name, status, service, distance in bike_data %}
+            {% for name, bike_id, status, service, distance in bikes_data %}
                 {% if status == "False" %}
                     <div class="col-md-4 mb-3">
                         <div class="card shadow">
@@ -40,8 +40,8 @@
                             <div class="card-body">
                             <h5 class="card-title">{{ service }}</h5>
                             <p class="card-text d-flex justify-content-between align-items-center">
-                                <span>🟩 Active 📍{{ distance }} km</span>
-                                <a href="/bike_details" class="btn btn-outline-info btn-sm shadow-lg">🔍</a>
+                                <span>{% if status == 'False' %}🟩 Active {% elif status == 'True' %}⛔ Retired {% endif %}📍{{ distance }} km</span>
+                                <a href="/bike_details/{{ bike_id }}" id="bike-details-btn" class="btn btn-outline-info btn-sm shadow-lg">🔍</a>
                             </p>
                         </div>
                     </div>

@@ -34,66 +34,133 @@
         <div class="row mt-5">
             <div class="col-md-4">
                 <div class="card shadow mb-4">
+                    <div class="card-header fw-bold text-bg-{% if payload.bike_data['bike_service_status'] == 'Pristine condition' %}success{% elif payload.bike_data['bike_service_status'] == 'Due for service' %}warning{% elif payload.bike_data['bike_service_status'] == 'Breakdown imminent' %}danger{% else %}secondary{% endif %}">{{ payload.bike_data['bike_name'] }}</div>
                     <div class="card-body">
-                        <h5 class="card-title">Same as on bike overview</h5>
-                        <p class="card-text">Same content as bike overview, except magnifier</p>
+                        <h5 class="card-title">{{ payload.bike_data['bike_service_status'] }}</h5>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>{% if payload.bike_data['bike_retired'] == 'False' %}🟩 Active {% elif payload.bike_data['bike_retired'] == 'True' %}🟥 Retired {% endif %}📍{{ payload.bike_data['bike_total_distance'] }} km</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Component summary</h5>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>⚙ Installed:</span><span class="fw-bold">{{ payload.installed_components }}</span>
+                        </p>
+                        <hr/>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🟢 Lifetime OK:</span><span class="fw-bold">{{ payload.count_lifetime_status_green }}</span>
+                        </p>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🟡 Lifetime approaching:</span><span class="fw-bold">{{ payload.count_lifetime_status_yellow }}</span>
+                        </p>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🔴 Lifetime exceeded:</span><span class="fw-bold">{{ payload.count_lifetime_status_red }}</span>
+                        </p>
+                        <hr/>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🟢 Service OK:</span><span class="fw-bold">{{ payload.count_service_status_green }}</span>
+                        </p>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🟡 Service approaching:</span><span class="fw-bold">{{ payload.count_service_status_yellow }}</span>
+                        </p>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🔴 Due for service:</span><span class="fw-bold">{{ payload.count_service_status_red }}</span>
+                        </p>
+                        <hr/>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>💰 Expected cost:</span><span class="fw-bold">{{ payload.count_service_cost }} kr</span>
+                        </p>  
                     </div>
                 </div>
                 <div class="card shadow">
                     <div class="card-body">
-                        <h5 class="card-title">Component summary</h5>
-                        <p class="card-text"></p>
-                        <p class="card-text">⚙ Installed: X</p> counts all the way right
-                        <p class="card-text">🟢 OK:</p>
-                        <p class="card-text">🟡 Service approaching:</p>
-                        <p class="card-text">🔴 Due for service:</p>
-                        <p class="card-text">💰 Expected cost:</p>  
+                        <h5 class="card-title">Notes</h5>
+                        <p class="card-text">{{ payload.bike_data.bike_notes }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-8">
                 <div class="card shadow mb-3">
+                    <div class="card-header fw-bold">Recent Rides</div>
                     <div class="card-body">
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Type</th> Consider what types to include,
+                                    <th>Date</th>
                                     <th>Name</th>
-                                    <th>Installation status</th>
-                                    <th>Service status</th>
-                                    <th>Bike</th>
+                                    <th>Distance</th>
+                                    <th class="text-center">Mode</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <!-- Directly embed component data here -->
-                                {% for type, name, installation_status, service_status, bike in component_data %}
+                                {% for ride_id, date, name, ride_distance, commute in payload.recent_rides %}
+                                <tr>
+                                    <td>{{ date }}</td>
+                                    <td>{{ name }}</td>
+                                    <td>{{ ride_distance }} km</td>
+                                    <td class="text-center">
+                                        {% if commute == "False" %}
+                                        🏁
+                                        {% elif commute == "True" %}
+                                        👔
+                                        {% endif %}
+                                    </td>
+                                    <td><a href="https://www.strava.com/activities/{{ ride_id }}" target="_blank" class="btn btn-outline-info btn-sm">🌎</a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card shadow mb-3">
+                    <div class="card-header fw-bold">Installed components</div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Name</th>
+                                    <th>Distance</th>
+                                    <th class="text-center">Lifetime</th>
+                                    <th class="text-center">Service</th>
+                                    <th>Cost</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Directly embed component data here -->
+                                {% for type, name, component_distance, lifetime_status, service_status, cost in payload.bike_components_data %}
                                 <tr>
                                     <td>{{ type }}</td>
                                     <td>{{ name }}</td>
-                                    <td>
-                                        {% if installation_status == "Installed" %}
-                                        🚴
-                                        {% elif installation_status == "Not installed" %}
-                                        💤
-                                        {% elif installation_status == "Retired" %}
-                                        ⛔
+                                    <td>{{ component_distance }} km</td>
+                                    <td class="text-center">
+                                        {% if lifetime_status == "OK" %}
+                                        🟢
+                                        {% elif lifetime_status == "Lifetime approaching" %}
+                                        🟡
+                                        {% elif lifetime_status == "Lifetime exceeded" %}
+                                        🔴
+                                        {% elif lifetime_status == "Not defined" %}
+                                        ⚪
                                         {% endif %}
-                                        {{ installation_status }}
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         {% if service_status == "OK" %}
                                         🟢
                                         {% elif service_status == "Service approaching" %}
                                         🟡
                                         {% elif service_status == "Due for service" %}
                                         🔴
-                                        {% elif service_status is none %}
+                                        {% elif service_status == "Not defined" %}
                                         ⚪
                                         {% endif %}
-                                        {{ service_status }}
                                     </td>
-                                    <td>{{ bike }}</td>
+                                    <td>{{ cost }} kr</td>
                                     <td><a href="/component_details" class="btn btn-outline-info btn-sm">🔍</a></td>
                                 </tr>
                                 {% endfor %}

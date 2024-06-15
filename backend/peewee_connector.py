@@ -21,10 +21,21 @@ class ReadTables(): #rename to something else, internal logic or something, migh
         component_types = ComponentTypes.select()
         return component_types
     
-    def read_components(self):
+    def read_all_components(self):
         """Method to read content of components table"""
         components = Components.select()
         return components
+    
+    def read_subset_components(self, bike_id):
+        """Method to read components for a specific bike"""
+        components = Components.select().where(Components.bike_id == bike_id)
+        return components
+
+    def read_recent_rides(self, bike_id):
+        """Method to read recent rides for a specific bike"""
+        recent_rides = Rides.select().where(Rides.bike_id == bike_id)
+        recent_rides = (Rides.select().where(Rides.bike_id == bike_id).order_by(Rides.record_time.desc()).limit(5))
+        return recent_rides
     
     def read_bikes(self):
         """Method to read content of bikes table"""
@@ -239,7 +250,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
             if int(distance) < 0:
                 status = "Lifetime exceeded"
             elif int(distance) in range(0, 1000):
-                status = "End of lifetime approaching"
+                status = "Lifetime approaching"
             elif int(distance) >= 1000:
                 status = "OK"
 
@@ -250,6 +261,11 @@ class ReadRecords():
     """Class to interact with a SQL database through peewee""" #Modify this description
     def __init__(self):
         pass #Check out this one.
+
+    def read_bike(self, bike_id):
+        """Method to read info about a specific bike"""
+        bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
+        return bike
 
 
 class ModifyRecords():
@@ -304,6 +320,7 @@ class ModifyRecords():
         except peewee.OperationalError as error:
                 logging.error(f'An error occurred while deleting record with id {record_id} from table {table_selector}: {error}')
 
+
 class MiscMethods():
     """Class to interact with a SQL database through peewee""" #Modify this description
     def __init__(self):
@@ -325,12 +342,37 @@ class MiscMethods():
             return {}
         
     def generate_unique_id(self):
-        """Function to generates a random and unique ID"""
+        """Method to generates a random and unique ID"""
         unique_id_part1 = uuid.uuid4()
         unique_id_part2 = time.time()
 
         return f'{str(unique_id_part1)[:6]}{str(unique_id_part2)[-4:]}'
+    
+    def format_datetime(self, date_str):
+        """Method to reformat a datetime string"""
+        date_obj = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
+        formatted_datetime = date_obj.strftime('%d.%m.%Y %H:%M')
+        
+        return formatted_datetime
+    
+    def format_component_status(self, status):
+        """Method to display user friendly text for None values"""
+        if status is not None:
+            return status
 
+        return "Not defined"
+    
+    def get_bike_name(self, bike_id):
+        """Method to get the name of a bike based on bike id"""
+        bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
+        if bike:
+            if bike.bike_name is not None:
+                return bike.bike_name
+        
+        return "Not assigned"
+        
+
+    
 # Function to calculate service status in bikes table
 # Find a way to handle the offset value, it should not always be added, but should be saved when a component is uninstalled
 # Consider all export statement, maybe not needed?
