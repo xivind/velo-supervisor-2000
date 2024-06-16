@@ -240,7 +240,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
         if mode == "service":
             if int(distance) < 0:
-                status = "Service overdue"
+                status = "Due for service"
             elif int(distance) in range(0, 500):
                 status = "Service approaching"
             elif int(distance) >= 500:
@@ -362,6 +362,13 @@ class MiscMethods():
 
         return "Not defined"
     
+    def format_cost(self, cost):
+        """Method to display user friendly text for None values"""
+        if cost is not None:
+            return cost
+
+        return "No estimate"
+    
     def get_bike_name(self, bike_id):
         """Method to get the name of a bike based on bike id"""
         bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
@@ -370,6 +377,48 @@ class MiscMethods():
                 return bike.bike_name
         
         return "Not assigned"
+    
+    def get_component_statistics(self, component_list):
+        """Method to summarise key data for a set of components"""
+        component_statistics = {"count_installed": 0,
+                                "count_not_installed": 0,
+                                "count_retired": 0,
+                                "count_lifetime_status_green": 0,
+                                "count_lifetime_status_yellow": 0,
+                                "count_lifetime_status_red": 0,
+                                "count_service_status_green": 0,
+                                "count_service_status_yellow": 0,
+                                "count_service_status_red": 0,
+                                "sum_cost": 0,
+                                }
+        
+        for component in component_list:
+            if component[0] == "Installed":
+                component_statistics["count_installed"] += 1
+            if component[0] == "Not installed":
+                component_statistics["count_not_installed"] += 1
+            if component[0] == "Retired":
+                component_statistics["count_retired"] += 1
+            if component[4] == "OK":
+                component_statistics["count_lifetime_status_green"] += 1
+            if component[4] == "Lifetime approaching":
+                component_statistics["count_lifetime_status_yellow"] += 1
+            if component[4] == "Lifetime exceeded":
+                component_statistics["count_lifetime_status_red"] += 1
+            if component[5] == "OK":
+                component_statistics["count_service_status_green"] += 1
+            if component[5] == "Service approaching":
+                component_statistics["count_service_status_yellow"] += 1
+            if component[5] == "Due for service":
+                component_statistics["count_service_status_red"] += 1
+            if component[6] is not None and isinstance(component[6], (int)):
+                component_statistics["sum_cost"] += component[6]
+
+        if component_statistics["sum_cost"] == 0:
+            component_statistics["sum_cost"] = "No estimate"
+            
+        return component_statistics
+
         
 
     

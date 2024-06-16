@@ -147,13 +147,16 @@ async def bike_details(request: Request, bike_id: str):
                     "bike_notes": bike.notes}
         
         bike_components = read_tables.read_subset_components(bike_id)
-        bike_components_data = [(component.component_type,
+        bike_components_data = [(component.installation_status,
+                        component.component_type,
                         component.component_name,
                         int(component.component_distance),
                         misc_methods.format_component_status(component.lifetime_status),
                         misc_methods.format_component_status(component.service_status),
-                        component.cost
+                        misc_methods.format_cost(component.cost)
                         ) for component in bike_components]
+        
+        component_statistics = misc_methods.get_component_statistics(bike_components_data)
         
         recent_rides = read_tables.read_recent_rides(bike_id)
         recent_rides_data = [(ride.ride_id,
@@ -163,22 +166,18 @@ async def bike_details(request: Request, bike_id: str):
                         ride.commute
                         ) for ride in recent_rides]
 
-        if bike is None:
-            raise HTTPException(status_code=404, detail="Bike not found")
-
-        # Prepare the data for the template, cast int for distance
         payload = {
             "recent_rides": recent_rides_data,
             "bike_data": bike_data,
             "bike_components_data": bike_components_data,
-            "installed_components" : len(Counter(bike_components_data)),
-            "count_lifetime_status_green" : sum(1 for tuple in bike_components_data if tuple[3] == 'OK'),
-            "count_lifetime_status_yellow" : sum(1 for tuple in bike_components_data if tuple[3] == 'Lifetime approaching'),
-            "count_lifetime_status_red" : sum(1 for tuple in bike_components_data if tuple[3] == 'Lifetime exceeded'),
-            "count_service_status_green" : sum(1 for tuple in bike_components_data if tuple[4] == 'OK'),
-            "count_service_status_yellow" : sum(1 for tuple in bike_components_data if tuple[4] == 'Service approaching'),
-            "count_service_status_red" : sum(1 for tuple in bike_components_data if tuple[4] == 'Service overdue'),
-            "count_service_cost" : sum(tuple[5] if tuple[5] is not None else 0 for tuple in bike_components_data) 
+            "count_installed" : component_statistics["count_installed"],
+            "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
+            "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
+            "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
+            "count_service_status_green" : component_statistics["count_service_status_green"],
+            "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
+            "count_service_status_red" : component_statistics["count_service_status_red"],
+            "sum_cost" : component_statistics["sum_cost"]
         }
 
         template_path = "bike_details.html"
@@ -225,7 +224,4 @@ async def delete_record(
 # All notes in Strava should be in english
 # Make sure all endpoints have same logic, variable naming conventions..
 # Display banner on all pages if last ride is more than seven days ago
-
-# Create outline for page component details
-# Component overview pages should have card on top with summary
-# Cost must be Not defined, but handle exceptions, count onyly lifetime approach and exceed
+# Should be lifetime reached, not lifetime exceeded, require changes many places
