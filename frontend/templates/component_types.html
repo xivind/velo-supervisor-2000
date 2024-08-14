@@ -40,15 +40,15 @@
                         <input type="text" class="form-control" id="component_type" name="component_type" required>
                     </div>
                     <div class="col mb-3">
-                        <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
-                        <input type="number" class="form-control" id="service_interval" name="service_interval" oninput="validateInput(this)">
-                    </div>
-                    <div class="col mb-3">
                         <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
                         <input type="number" class="form-control" id="expected_lifetime" name="expected_lifetime" oninput="validateInput(this)">
                     </div>
+                    <div class="col mb-3">
+                        <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
+                        <input type="number" class="form-control" id="service_interval" name="service_interval" oninput="validateInput(this)">
+                    </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Submit</button>
+                        <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Save</button>
                         <button type="submit" class="btn btn-outline-danger" form="component_type_form" id="clear_form_btn">Clear form</button>
                     </div>
                 </form>
@@ -61,17 +61,17 @@
                     <thead>
                         <tr>
                             <th>Type</th>
-                            <th>Service interval (km)</th>
                             <th>Expected lifetime (km)</th>
+                            <th>Service interval (km)</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for component_type, service_interval, expected_lifetime in component_types_data %}
+                        {% for component_type, expected_lifetime, service_interval in component_types_data %}
                         <tr data-row-id="{{ loop.index0 }}">
                             <td>{{ component_type }}</td>
-                            <td>{{ service_interval }}</td>
                             <td>{{ expected_lifetime }}</td>
+                            <td>{{ service_interval }}</td>
                             <td>                    
                                 <button type="button" class="btn btn-outline-success btn-sm modify-record" component_type="{{ component_type }}" data-row-id="{{ loop.index0 }}">✍</button>
                                 <button type="button" class="btn btn-outline-danger btn-sm delete-record" data-component-type="{{ component_type }}">🗑</button>
@@ -110,12 +110,12 @@
                 const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
                 if (row) {
                     const componentType = row.cells[0].textContent;
-                    const serviceInterval = row.cells[1].textContent;
-                    const expectedLifetime = row.cells[2].textContent;
+                    const expectedLifetime = row.cells[1].textContent;
+                    const serviceInterval = row.cells[2].textContent;
 
                     document.getElementById('component_type').value = componentType;
-                    document.getElementById('service_interval').value = serviceInterval;
                     document.getElementById('expected_lifetime').value = expectedLifetime;
+                    document.getElementById('service_interval').value = serviceInterval;
                 } else {
                     console.error(`Row with ID ${rowId} not found.`);
                 }

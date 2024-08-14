@@ -97,7 +97,6 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while updating the bikes table: {error}')
 
-
     def update_components_distance_selector(self, delimiter):
         """Method to determine which selection of components to update"""
         try:
@@ -140,6 +139,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         try:
             if component.updated_date:
                 updated_date = datetime.strptime(component.updated_date, '%Y-%m-%d')
+                print(updated_date)
             else:
                 updated_date = None
 
@@ -192,7 +192,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.service_next = service_next
-                    component.service_status = self.compute_component_status("service", service_next)
+                    component.service_status = self.compute_component_status("service", self.calculate_percentage_reached(component.service_interval, service_next))
                     component.save()
 
             except peewee.OperationalError as error:
@@ -203,7 +203,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
                 logging.info(f"Component {component.component_name} (id {component.component_id}) has no service interval, setting NULL values for service")
                 with database.atomic():
                     component.service_next = None
-                    component.service_status = "Service not defined"
+                    component.service_status = "Not defined"
                     component.save()
 
             except peewee.OperationalError as error:
@@ -217,7 +217,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.lifetime_remaining = component.lifetime_expected - component.component_distance
-                    component.lifetime_status = self.compute_component_status("lifetime", component.lifetime_remaining)
+                    component.lifetime_status = self.compute_component_status("lifetime", self.calculate_percentage_reached(component.lifetime_expected, component.lifetime_remaining))
                     component.save()
 
             except peewee.OperationalError as error:
@@ -229,33 +229,39 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.lifetime_remaining = None
-                    component.lifetime_status = "Lifetime not defined"
+                    component.lifetime_status = "Not defined"
                     component.save()
 
             except peewee.OperationalError as error:
                 logging.error(f'An error occurred while setting blank lifetime status for component {component.component_name} (id {component.component_id}): {error}')
 
-    def compute_component_status(self, mode, distance):
+    def compute_component_status(self, mode, reached_distance_percent):
         """Method to compute service status"""
 
         if mode == "service":
-            if int(distance) < 0:
-                status = "Due for service"
-            elif int(distance) in range(0, 500):
-                status = "Service approaching"
-            elif int(distance) >= 500:
+            if int(reached_distance_percent) in range(0, 76):
                 status = "OK"
+            elif int(reached_distance_percent) in range(76, 100):
+                status = "Service approaching"
+            elif int(reached_distance_percent) >= 100:
+                status = "Due for service"
 
         if mode == "lifetime":
-            if int(distance) < 0:
-                status = "Lifetime exceeded"
-            elif int(distance) in range(0, 1000):
-                status = "Lifetime approaching"
-            elif int(distance) >= 1000:
+            if int(reached_distance_percent) in range(0, 76):
                 status = "OK"
+            elif int(reached_distance_percent) in range(76, 100):
+                status = "Lifetime approaching"
+            elif int(reached_distance_percent) >= 100:
+                status = "Lifetime reached"
 
         return status
 
+    def calculate_percentage_reached(self, total, remaining):
+        """Method to calculate remaining service interval or remaining lifetime as percentage"""
+        if isinstance(total, int):
+            return int(((total - remaining) / total) * 100)
+        
+        return 1000
 
 class ReadRecords():
     """Class to interact with a SQL database through peewee""" #Modify this description
@@ -266,6 +272,11 @@ class ReadRecords():
         """Method to read info about a specific bike"""
         bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
         return bike
+    
+    def read_component(self, component_id):
+        """Method to read info about a specific component"""
+        component = Components.get_or_none(Components.component_id == component_id)
+        return component
 
 
 class ModifyRecords():
@@ -286,15 +297,48 @@ class ModifyRecords():
                     component_type.service_interval = component_type_data["service_interval"]
                     component_type.expected_lifetime = component_type_data["expected_lifetime"]
                     component_type.save()
+                    # Missing log statement
             
                 else:
                     ComponentTypes.create(
                         component_type = component_type_data["component_type"],
                         service_interval = component_type_data["service_interval"],
                         expected_lifetime = component_type_data["expected_lifetime"])
+                    # Missing log statement
         
         except peewee.OperationalError as error:
                 logging.error(f'An error occurred while creating or updating component type {component_type_data["component_type"]}: {error}')
+    
+    def update_component_details(self, component_id, new_component_data):
+        """Method to create or update bike data to the database"""
+        try:
+            with database.atomic():
+                component = Components.get_or_none(Components.component_id == component_id)
+
+                if component:
+                    component.installation_status = new_component_data["component_installation_status"]
+                    component.updated_date = new_component_data["component_updated_date"]
+                    component.component_name = new_component_data["component_name"]
+                    component.component_type = new_component_data["component_type"]
+                    component.bike_id = new_component_data["component_bike_id"]
+                    component.lifetime_expected = new_component_data["expected_lifetime"]
+                    component.service_interval = new_component_data["service_interval"]
+                    component.cost = new_component_data["cost"]
+                    component.component_distance_offset = new_component_data["offset"]
+                    component.notes = new_component_data["component_notes"]
+                    component.save()
+                    logging.info(f'Record for component with id {component_id} updated')
+
+                else:
+                    #Components.create(
+                    #    component_type = component_type_data["component_type"],
+                    #    service_interval = component_type_data["service_interval"],
+                    #    expected_lifetime = component_type_data["expected_lifetime"])
+
+                    logging.info(f'Record for component with id {component_id} inserted - NOT IMPLEMENTED')
+
+        except peewee.OperationalError as error:
+            logging.error(f'An error occurred while creating og updating component: {error}')
     
     def delete_record(self, table_selector, record_id):
         """Method to delete any record"""
@@ -403,7 +447,7 @@ class MiscMethods():
                 component_statistics["count_lifetime_status_green"] += 1
             if component[4] == "Lifetime approaching":
                 component_statistics["count_lifetime_status_yellow"] += 1
-            if component[4] == "Lifetime exceeded":
+            if component[4] == "Lifetime reached":
                 component_statistics["count_lifetime_status_red"] += 1
             if component[5] == "OK":
                 component_statistics["count_service_status_green"] += 1

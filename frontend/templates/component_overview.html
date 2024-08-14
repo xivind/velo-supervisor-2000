@@ -49,14 +49,14 @@
                     </thead>
                     <tbody>
                         <!-- Directly embed component data here -->
-                        {% for type, name, component_distance, installation_status, lifetime_status, service_status, bike in component_data %}
+                        {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike in component_data %}
                         <tr>
                             <td>{{ type }}</td>
                             <td>{{ name }}</td>
                             <td>{{ component_distance }} km</td>
                             <td>
                                 {% if installation_status == "Installed" %}
-                                🚴
+                                ⚙
                                 {% elif installation_status == "Not installed" %}
                                 💤
                                 {% elif installation_status == "Retired" %}
@@ -70,7 +70,7 @@
                                 🟢
                                 {% elif lifetime_status == "Lifetime approaching" %}
                                 🟡
-                                {% elif lifetime_status == "Lifetime exceeded" %}
+                                {% elif lifetime_status == "Lifetime reached" %}
                                 🔴
                                 {% elif lifetime_status == "Not defined" %}
                                 ⚪
@@ -89,7 +89,7 @@
                                 {% endif %}
                                 {{ service_status }}
                             </td>
-                            <td><a href="/component_details" class="btn btn-outline-info btn-sm">🔍</a></td>
+                            <td><a href="/component_details/{{ component_id }}" class="btn btn-outline-info btn-sm">🔍</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>
