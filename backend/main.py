@@ -228,60 +228,48 @@ async def bike_details(request: Request, bike_id: str):
 @app.get("/component_details/{component_id}", response_class=HTMLResponse)
 async def component_details(request: Request, component_id: str):
     """Endpoint for component details page"""
-    try:
-        bikes = read_tables.read_bikes()
-        bikes_data = [(bike.bike_name,
-                       bike.bike_id)
-                       for bike in bikes if bike.bike_retired == "False"]
 
-        component_types = read_tables.read_component_types()
-        component_types_data = [(component_type.component_type,
-                             component_type.expected_lifetime,
-                             component_type.service_interval) for component_type in component_types]
-        
-        bike_component = read_records.read_component(component_id)
-        bike_component_data = {"bike_id": bike_component.bike_id,
-                        "component_id": bike_component.component_id,
-                        "updated_date": bike_component.updated_date,
-                        "component_name": bike_component.component_name,
-                        "component_type": bike_component.component_type,
-                        "component_distance": int(bike_component.component_distance),
-                        "installation_status": bike_component.installation_status,
-                        "lifetime_expected": bike_component.lifetime_expected,
-                        "lifetime_remaining": bike_component.lifetime_remaining,
-                        "lifetime_status": misc_methods.format_component_status(bike_component.lifetime_status),
-                        "lifetime_percentage": modify_tables.calculate_percentage_reached(bike_component.lifetime_expected, bike_component.lifetime_remaining),
-                        "service_interval": bike_component.service_interval,
-                        "service_next": bike_component.service_next,
-                        "service_status": misc_methods.format_component_status(bike_component.service_status),
-                        "service_percentage": modify_tables.calculate_percentage_reached(bike_component.service_interval, bike_component.service_next),
-                        "offset": int(bike_component.component_distance_offset),
-                        "component_notes": bike_component.notes,
-                        "cost": misc_methods.format_cost(bike_component.cost)}
-        
-        payload = {
-            "bikes_data": bikes_data,
-            "component_types_data": component_types_data,
-            "bike_component_data": bike_component_data,
-            "bike_name": misc_methods.get_bike_name(bike_component.bike_id),
-            }
+    bikes = read_tables.read_bikes()
+    bikes_data = [(bike.bike_name,
+                    bike.bike_id)
+                    for bike in bikes if bike.bike_retired == "False"]
 
-        template_path = "component_details.html"
-        return templates.TemplateResponse(template_path, {"request": request, "payload": payload})
+    component_types = read_tables.read_component_types()
+    component_types_data = [(component_type.component_type,
+                            component_type.expected_lifetime,
+                            component_type.service_interval) for component_type in component_types]
     
-    except Exception as error:
-        # Handle other exceptions does not catch 404, error handling must also print to log / console
-        if isinstance(error, HTTPException):
-            # If the exception is an HTTPException, handle it accordingly
-            if error.status_code == status.HTTP_503_SERVICE_UNAVAILABLE:
-                # Handle 503 Service Unavailable error
-                return render_error_page(request, error.status_code, str(error.detail))
-            else:
-                # Handle other HTTP errors
-                return render_error_page(request, error.status_code, str(error.detail))
-        else:
-            # Handle other exceptions (e.g., internal server errors)
-            return render_error_page(request, 500, str(error))
+    bike_component = read_records.read_component(component_id)
+    bike_component_data = {"bike_id": bike_component.bike_id,
+                    "component_id": bike_component.component_id,
+                    "updated_date": bike_component.updated_date,
+                    "component_name": bike_component.component_name,
+                    "component_type": bike_component.component_type,
+                    "component_distance": int(bike_component.component_distance),
+                    "installation_status": bike_component.installation_status,
+                    "lifetime_expected": bike_component.lifetime_expected,
+                    "lifetime_remaining": bike_component.lifetime_remaining,
+                    "lifetime_status": misc_methods.format_component_status(bike_component.lifetime_status),
+                    "lifetime_percentage": modify_tables.calculate_percentage_reached(bike_component.lifetime_expected, bike_component.lifetime_remaining),
+                    "service_interval": bike_component.service_interval,
+                    "service_next": bike_component.service_next,
+                    "service_status": misc_methods.format_component_status(bike_component.service_status),
+                    "service_percentage": modify_tables.calculate_percentage_reached(bike_component.service_interval, bike_component.service_next),
+                    "offset": int(bike_component.component_distance_offset),
+                    "component_notes": bike_component.notes,
+                    "cost": misc_methods.format_cost(bike_component.cost)}
+    
+    payload = {
+        "bikes_data": bikes_data,
+        "component_types_data": component_types_data,
+        "bike_component_data": bike_component_data,
+        "bike_name": misc_methods.get_bike_name(bike_component.bike_id),
+        }
+
+    template_path = "component_details.html"
+    return templates.TemplateResponse(template_path, {"request": request, "payload": payload})
+
+
 
 @app.post("/delete_record", response_class=HTMLResponse)
 async def delete_record(
@@ -324,18 +312,25 @@ async def delete_record(
 # Cleanup html in all files
 # Switch to show also retired bikes
 # Must have action to delete component, both from component overview and component detail
-# Component overview page should have summary section and delete button
+# All endpoints must have try / except blocks
 # Component type should specify suggested as prefix for variables
 # Use the same name across endpoints, require change also to html files: bike_components_data
 # Sort endpoints so they appear in a more logical order
 # Add input validation on component details form
+# Function to calculate service status in bikes table
+# Consider all export statement, maybe not needed?
 
-# 2. Modify update of distance to check for date installed
-# 1. Modify installed status based on bike value, almost there, must also handle bike not assigned
+
+# 2. Modify update of distance to check for date installed and check how distance is calculated
+# 1. Fix create history table and logic
+# X. Component overview page should have summary section
+# X. Component overview page should have delete button
+# X. Component detail page should have delete button
 # X. Compute bike status, probably based on components
 # X. Adjust offset based on component history (count uninstalled or retired or something, only installed counts)
 # X. Code to calculate bike status
 # X. Modify percentage bar to state exceeded with...
+
 
 # Bug when date for ride is set further in the future than there is ride data. Dont fix now. 
 

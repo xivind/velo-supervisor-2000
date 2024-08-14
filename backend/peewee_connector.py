@@ -139,7 +139,6 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         try:
             if component.updated_date:
                 updated_date = datetime.strptime(component.updated_date, '%Y-%m-%d')
-                print(updated_date)
             else:
                 updated_date = None
 
@@ -258,7 +257,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
     def calculate_percentage_reached(self, total, remaining):
         """Method to calculate remaining service interval or remaining lifetime as percentage"""
-        if isinstance(total, int):
+        if isinstance(total, int) and isinstance(remaining, int):
             return int(((total - remaining) / total) * 100)
         
         return 1000
@@ -316,11 +315,17 @@ class ModifyRecords():
                 component = Components.get_or_none(Components.component_id == component_id)
 
                 if component:
+                    if component.component_distance is None:
+                        adjusted_component_distance = 0
+                    else:
+                        adjusted_component_distance = component.component_distance
+                    
                     component.installation_status = new_component_data["component_installation_status"]
                     component.updated_date = new_component_data["component_updated_date"]
                     component.component_name = new_component_data["component_name"]
                     component.component_type = new_component_data["component_type"]
                     component.bike_id = new_component_data["component_bike_id"]
+                    component.component_distance = adjusted_component_distance
                     component.lifetime_expected = new_component_data["expected_lifetime"]
                     component.service_interval = new_component_data["service_interval"]
                     component.cost = new_component_data["cost"]
@@ -466,6 +471,4 @@ class MiscMethods():
         
 
     
-# Function to calculate service status in bikes table
-# Find a way to handle the offset value, it should not always be added, but should be saved when a component is uninstalled
-# Consider all export statement, maybe not needed?
+
