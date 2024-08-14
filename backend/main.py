@@ -127,6 +127,7 @@ async def modify_component(
                       "offset": offset,
                       "component_notes": component_notes}
                            
+    
     modify_records.update_component_details(component_id, new_component_data)
     modify_tables.update_component_distance(read_records.read_component(component_id))
     #Match variables with sqlite, see component types for inspiraton. update or create new. Must caluclate before writing to 
@@ -311,33 +312,30 @@ async def delete_record(
 # Code to update misc status fields of components (not callable as endpoint). Should be triggered by updating of installed components
 # This method should be called by main
 
-# todo
+# Todo
 # Add error handling to all endpoints
-# Check consistency all end points
 # All endpoints that writes should print log
-# Clean up HTML code
+# Clean up HTML code and check consistency all end points
 # Velo supervisor logo must be clickable, go to "/about"
 # All notes in Strava should be in english
 # Make sure all endpoints have same logic, variable naming conventions..
 # Display banner on all pages if last ride is more than seven days ago
-# Compute bike status, probably based on components
-# Retired components must also unassign from bike
 # Add favicon
 # Cleanup html in all files
 # Switch to show also retired bikes
-# Must have action to delete component
+# Must have action to delete component, both from component overview and component detail
 # Component overview page should have summary section and delete button
-# Improvement: component type must be defined in order to prefill og component details to work for component type
 # Component type should specify suggested as prefix for variables
 # Use the same name across endpoints, require change also to html files: bike_components_data
 # Sort endpoints so they appear in a more logical order
 # Add input validation on component details form
 
-# 3. Modify update of distance to check for date installed
-# 2. Modify installed status based on bike value
-# 1. Handle offset upon change of installation status
+# 2. Modify update of distance to check for date installed
+# 1. Modify installed status based on bike value, almost there, must also handle bike not assigned
+# X. Compute bike status, probably based on components
+# X. Adjust offset based on component history (count uninstalled or retired or something, only installed counts)
 # X. Code to calculate bike status
-# Modify percentage bar to state exceeded with...
+# X. Modify percentage bar to state exceeded with...
 
 # Bug when date for ride is set further in the future than there is ride data. Dont fix now. 
 

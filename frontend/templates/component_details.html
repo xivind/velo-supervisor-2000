@@ -317,12 +317,38 @@
             // typeSelect.dispatchEvent(new Event('change')); Consider removing this one here
         });
 
+        // Date picker
         flatpickr("#component_updated_date", {
             disableMobile: true,
             theme: "dark", //not needed?
             dateFormat: "Y-m-d", // Adjust the desired date format
             time_24hr: true, // Use 24-hour format
             // defaultDate: "today", // Show today's date on load
+        });
+
+        // Logic to change installation status based on bike assignment and vice versa
+        document.addEventListener('DOMContentLoaded', function() {
+            const bikeSelect = document.getElementById('component_bike_id');
+            const installationSelect = document.getElementById('component_installation_status');
+
+            bikeSelect.addEventListener('change', function() {
+                if (this.value !== "") {
+                    installationSelect.value = "Installed";
+                } else {
+                    installationSelect.value = "Not installed";
+                }
+            });
+
+            installationSelect.addEventListener('change', function() {
+                if (this.value === "Not installed") {
+                    bikeSelect.value = "";
+                }
+            });
+
+            // Initial check on page load
+            if (bikeSelect.value === "") {
+                installationSelect.value = "Not installed";
+            }
         });
     </script>
 </body>
