@@ -16,6 +16,7 @@ from typing import Optional
 from pathlib import Path
 from datetime import datetime
 from collections import Counter
+import traceback
 
 
 #def read_parameters():
@@ -156,18 +157,21 @@ async def component_overview(request: Request):
         return templates.TemplateResponse(template_path, {"request": request, "component_data": component_data})
     
     except Exception as error:
-        # Handle other exceptions does not catch 404, error handling must also print to log / console
+        # Get the full traceback
+        error_traceback = traceback.format_exc()
+        
+        # Log the full traceback
+        logging.error(f"An error occurred:\n{error_traceback}")
+
         if isinstance(error, HTTPException):
-            # If the exception is an HTTPException, handle it accordingly
             if error.status_code == status.HTTP_503_SERVICE_UNAVAILABLE:
-                # Handle 503 Service Unavailable error
                 return render_error_page(request, error.status_code, str(error.detail))
             else:
-                # Handle other HTTP errors
                 return render_error_page(request, error.status_code, str(error.detail))
         else:
-            # Handle other exceptions (e.g., internal server errors)
-            return render_error_page(request, 500, str(error))
+            # For non-HTTP exceptions, include the error message and the last line of the traceback
+            error_lines = error_traceback.split('\n')
+            return render_error_page(request, 500, error_lines)
 
 @app.get("/bike_details/{bike_id}", response_class=HTMLResponse)
 async def bike_details(request: Request, bike_id: str):
