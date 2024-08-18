@@ -116,7 +116,6 @@ async def modify_component(
     component_notes: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
 
-    #Process some of the data here, e.g. component_install status, id if missing.. Could be others
     new_component_data = {"component_installation_status": component_installation_status,
                       "component_updated_date": component_updated_date,
                       "component_name": component_name,
@@ -127,14 +126,14 @@ async def modify_component(
                       "cost": cost,
                       "offset": offset,
                       "component_notes": component_notes}
-                           
-    
+            
     modify_records.update_component_details(component_id, new_component_data)
-    modify_tables.update_component_distance(read_records.read_component(component_id))
-    #Match variables with sqlite, see component types for inspiraton. update or create new. Must caluclate before writing to 
+    modify_records.update_component_history_record(component_id, f'{component_updated_date} {component_id}', misc_methods.get_bike_name(component_bike_id))
+    modify_tables.update_component_distance(read_records.read_component(component_id),
+                                            read_records.read_history_record(f'{component_updated_date} {component_id}'))
+    modify_records.update_component_history_record(component_id, f'{component_updated_date} {component_id}', misc_methods.get_bike_name(component_bike_id))
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-
 
 @app.get("/component_overview", response_class=HTMLResponse)
 async def component_overview(request: Request):
@@ -184,7 +183,8 @@ async def bike_details(request: Request, bike_id: str):
                     "bike_retired": bike.bike_retired,
                     "bike_service_status": bike.service_status,
                     "bike_total_distance": int(bike.total_distance),
-                    "bike_notes": bike.notes}
+                    "bike_notes": bike.notes,
+                    "first_ride": misc_methods.get_first_ride(bike_id)}
         
         bike_components = read_tables.read_subset_components(bike_id)
         bike_components_data = [(component.component_id,
@@ -263,17 +263,25 @@ async def component_details(request: Request, component_id: str):
                     "component_notes": bike_component.notes,
                     "cost": misc_methods.format_cost(bike_component.cost)}
     
+    component_history = read_tables.read_subset_component_history(bike_component.component_id)
+    if component_history is not None:
+        component_history_data = [(installation_record.updated_date,
+                                   installation_record.update_reason,
+                                   installation_record.bike_name,
+                                   installation_record.distance_marker) for installation_record in component_history]
+    else:
+        component_history_data = None
+
+
     payload = {
         "bikes_data": bikes_data,
         "component_types_data": component_types_data,
         "bike_component_data": bike_component_data,
         "bike_name": misc_methods.get_bike_name(bike_component.bike_id),
-        }
+        "component_history_data": component_history_data}
 
     template_path = "component_details.html"
     return templates.TemplateResponse(template_path, {"request": request, "payload": payload})
-
-
 
 @app.post("/delete_record", response_class=HTMLResponse)
 async def delete_record(
@@ -323,10 +331,25 @@ async def delete_record(
 # Add input validation on component details form
 # Function to calculate service status in bikes table
 # Consider all export statement, maybe not needed?
+# Update all diagrams to match code
+# Review all doc strings
+# Implement health check
+# Clean up datatypes to avoid casting in script, most, if not all numbers, should be int
+# Improvement: on bike change automatically uninstall and install, enhancement, not fix now, or some sort of validation
+# Validation in form, cannot be "Not assigned" bike when status is installed
 
+# 1. Modify update of distance to check for date installed and check how distance is calculated
+# 2. Distance must sum pr history record
+# 3. Fix create history table and logic
+# 4. Add to bike info first registered ride, use function from sample, but reverse sort order. Function should return first registered ride
 
-# 2. Modify update of distance to check for date installed and check how distance is calculated
-# 1. Fix create history table and logic
+# X. Page bike details: table should show status for components: retired or installed
+# X. Page bike details: column to the left should only include installed components, not retired.
+# X. Page bike details: estimated cost should only calculate cost for approaching or exceeded
+# X. Page bike detail should have column Name leftmost for components, not type
+# X. Component overview page should have optio to create component, update backend also
+# X. Component overview page should have column Name leftmost, not type
+# X. Create component function must assign proper ID - function already present
 # X. Component overview page should have summary section
 # X. Component overview page should have delete button
 # X. Component detail page should have delete button
@@ -334,7 +357,8 @@ async def delete_record(
 # X. Adjust offset based on component history (count uninstalled or retired or something, only installed counts)
 # X. Code to calculate bike status
 # X. Modify percentage bar to state exceeded with...
+# X. Fix service and corresponding calculations
 
 
-# Bug when date for ride is set further in the future than there is ride data. Dont fix now. 
+# Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing.
 

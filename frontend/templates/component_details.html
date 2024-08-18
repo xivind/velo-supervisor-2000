@@ -87,7 +87,7 @@
                     <div class="card-body">
                         <form id="component_type_form" class="row align-items-center" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
                             <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
-                            <div class="col-md-8 mb-3">
+                            <div class="col-md-7 mb-3">
                                 <div class="row align-items-center">
                                     <div class="col-md-4">
                                     <select class="form-select" id="component_installation_status" name="component_installation_status">
@@ -98,7 +98,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-5 mb-3">
                                 <div class="row align-items-center">
                                     <label for="component_updated_date" class="col-form-label col-auto fw-bold">Updated date</label>
                                         <div class="col">
@@ -234,50 +234,25 @@
                             <tr>
                                 <th>Date</th>
                                 <th>Reason</th>
+                                <th>Bike</th>
                                 <th>Mileage</th>
-                                <th>Notes</th>
-                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Directly embed component data here -->
-                            {% for installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.changethis %}
-                            <tr>
-                                <td>{{ type }}</td>
-                                <td>{{ name }}</td>
-                                <td>{{ component_distance }} km</td>
-                                <td class="text-center">
-                                    {% if lifetime_status == "OK" %}
-                                    🟢
-                                    {% elif lifetime_status == "Lifetime approaching" %}
-                                    🟡
-                                    {% elif lifetime_status == "Lifetime reached" %}
-                                    🔴
-                                    {% elif lifetime_status == "Not defined" %}
-                                    ⚪
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    {% if service_status == "OK" %}
-                                    🟢
-                                    {% elif service_status == "Service approaching" %}
-                                    🟡
-                                    {% elif service_status == "Due for service" %}
-                                    🔴
-                                    {% elif service_status == "Not defined" %}
-                                    ⚪
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if cost == "No estimate" %}
-                                    {{ cost }}
-                                    {% else %}
-                                    {{ cost }} kr
-                                    {% endif %}
-                                </td>
-                                <td><a href="/component_details" class="btn btn-outline-info btn-sm">🔍</a></td>
-                            </tr>
-                            {% endfor %}
+                            {% if payload.component_history_data %}
+                                {% for updated_date, update_reason, bike_name, mileage in payload.component_history_data %}
+                                <tr>
+                                    <td>{{ updated_date }}</td>
+                                    <td>{% if update_reason == "Not installed" %}Uninstalled{% else %}{{ update_reason }}{% endif %}</td>
+                                    <td>{{ bike_name }}</td>
+                                    <td>{{ mileage }} km</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No installation history data available</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -321,21 +296,24 @@
         flatpickr("#component_updated_date", {
             disableMobile: true,
             theme: "dark", //not needed?
-            dateFormat: "Y-m-d", // Adjust the desired date format
+            enableTime: true,
+            dateFormat: "Y-m-d H:i", // Adjust the desired date format
             time_24hr: true, // Use 24-hour format
+            minuteIncrement: 1
             // defaultDate: "today", // Show today's date on load
         });
 
-        // Logic to change installation status based on bike assignment and vice versa
         document.addEventListener('DOMContentLoaded', function() {
             const bikeSelect = document.getElementById('component_bike_id');
             const installationSelect = document.getElementById('component_installation_status');
 
             bikeSelect.addEventListener('change', function() {
-                if (this.value !== "") {
-                    installationSelect.value = "Installed";
-                } else {
-                    installationSelect.value = "Not installed";
+                if (installationSelect.value !== "Retired") {
+                    if (this.value !== "") {
+                        installationSelect.value = "Installed";
+                    } else {
+                        installationSelect.value = "Not installed";
+                    }
                 }
             });
 
@@ -346,7 +324,7 @@
             });
 
             // Initial check on page load
-            if (bikeSelect.value === "") {
+            if (bikeSelect.value === "" && installationSelect.value !== "Retired") {
                 installationSelect.value = "Not installed";
             }
         });

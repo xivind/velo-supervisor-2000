@@ -6,10 +6,8 @@ from datetime import datetime
 import peewee
 import uuid
 import time
-from peewee_models import database, Rides, Bikes, Components, Services, ComponentTypes #Match with export from peewee_models, maybe base_model is not needed since it is inherited?
+from peewee_models import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #Match with export from peewee_models, maybe base_model is not needed since it is inherited?
 
-
-# Implement health check
 
 class ReadTables(): #rename to something else, internal logic or something, might split into separate classes
     """Class to interact with a SQL database through peewee""" #Modify this description
@@ -41,7 +39,15 @@ class ReadTables(): #rename to something else, internal logic or something, migh
         """Method to read content of bikes table"""
         bikes = Bikes.select()
         return bikes
-
+    
+    def read_subset_component_history(self, component_id):
+        """Method to read a subset of receords from the component history table"""
+        component_history = ComponentHistory.select().where(ComponentHistory.component_id == component_id).order_by(ComponentHistory.updated_date.desc())
+        if component_history.exists():
+            return component_history
+        
+        return None
+    
 
 class ModifyTables(): #rename to something else, internal logic or something, might split into separate classes
     """Class to interact with a SQL database through peewee""" #Modify this description
@@ -134,34 +140,36 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while selecting which components to update: {error}')
 
-    def update_component_distance(self, component):
+    def update_component_distance(self, component, history_record):
         """Method to update component table with distance from ride table"""
         try:
-            if component.updated_date:
-                updated_date = datetime.strptime(component.updated_date, '%Y-%m-%d')
-            else:
-                updated_date = None
+            if component.updated_date and component.installation_status == "Installed":
+                query_start_date = datetime.strptime(component.updated_date.split()[0], '%Y-%m-%d')
+            
+                if history_record.update_reason == "Not installed" or history_record.update_reason == "Retired":
+                    query_stop_date = datetime.strptime(history_record.updated_date.split()[0], '%Y-%m-%d')
+                else:
+                    query_stop_date = datetime.today()
 
-            record_time_query = Rides.select(Rides.record_time).where(Rides.bike_id == component.bike_id)
-            record_time_value = record_time_query.scalar()
-            record_time = datetime.strptime(record_time_value, '%Y-%m-%dT%H:%M:%S') if record_time_value else None
+                matching_rides = Rides.select().where(
+                                                    (Rides.bike_id == component.bike_id) & 
+                                                    (Rides.record_time >= query_start_date) &
+                                                    (Rides.record_time <= query_stop_date))
+            
 
-            matching_rides = Rides.select().where(
-                (Rides.bike_id == component.bike_id) & (Rides.record_time >= updated_date))
+                distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
+                total_distance_current = sum(ride.ride_distance for ride in matching_rides)
+                total_distance = total_distance_current + distance_offset
 
-            distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
-            total_distance_current = sum(ride.ride_distance for ride in matching_rides)
-            total_distance = total_distance_current + distance_offset
-
-            if matching_rides.exists() and record_time:
+        
                 with database.atomic():
                     component.component_distance = total_distance
                     component.save()
 
-                logging.info(f"Updated distance for component {component.component_name} (id {component.component_id})")
+                    logging.info(f"Updated distance for component {component.component_name} (id {component.component_id})")
 
-                self.update_component_service_status(component)
-                self.update_component_lifetime_status(component)
+            self.update_component_service_status(component)
+            self.update_component_lifetime_status(component)
 
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while updating component distance for component {component.component_name} (id {component.component_id}): {error}')
@@ -191,7 +199,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.service_next = service_next
-                    component.service_status = self.compute_component_status("service", self.calculate_percentage_reached(component.service_interval, service_next))
+                    component.service_status = self.compute_component_status("service", self.calculate_percentage_reached(int(component.service_interval), int(service_next)))
                     component.save()
 
             except peewee.OperationalError as error:
@@ -216,7 +224,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.lifetime_remaining = component.lifetime_expected - component.component_distance
-                    component.lifetime_status = self.compute_component_status("lifetime", self.calculate_percentage_reached(component.lifetime_expected, component.lifetime_remaining))
+                    component.lifetime_status = self.compute_component_status("lifetime", self.calculate_percentage_reached(int(component.lifetime_expected), int(component.lifetime_remaining)))
                     component.save()
 
             except peewee.OperationalError as error:
@@ -268,17 +276,22 @@ class ReadRecords():
         pass #Check out this one.
 
     def read_bike(self, bike_id):
-        """Method to read info about a specific bike"""
+        """Method to retrieve record for a specific bike"""
         bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
         return bike
     
     def read_component(self, component_id):
-        """Method to read info about a specific component"""
+        """Method to retrieve record for a specific component"""
         component = Components.get_or_none(Components.component_id == component_id)
         return component
+    
+    def read_history_record(self, history_id):
+        """Method to retrieve record for a specific entry in installation log"""
+        history_record = ComponentHistory.get_or_none(ComponentHistory.history_id == history_id)
+        return history_record
 
 
-class ModifyRecords():
+class ModifyRecords(): #Consider merging with modify tables
     """Class to interact with a SQL database through peewee""" #Modify this description
     def __init__(self):
         pass #Check out this one.
@@ -309,7 +322,7 @@ class ModifyRecords():
                 logging.error(f'An error occurred while creating or updating component type {component_type_data["component_type"]}: {error}')
     
     def update_component_details(self, component_id, new_component_data):
-        """Method to create or update bike data to the database"""
+        """Method to create or update component data to the database"""
         try:
             with database.atomic():
                 component = Components.get_or_none(Components.component_id == component_id)
@@ -319,7 +332,7 @@ class ModifyRecords():
                         adjusted_component_distance = 0
                     else:
                         adjusted_component_distance = component.component_distance
-                    
+
                     component.installation_status = new_component_data["component_installation_status"]
                     component.updated_date = new_component_data["component_updated_date"]
                     component.component_name = new_component_data["component_name"]
@@ -335,6 +348,7 @@ class ModifyRecords():
                     logging.info(f'Record for component with id {component_id} updated')
 
                 else:
+                    # Must create ID
                     #Components.create(
                     #    component_type = component_type_data["component_type"],
                     #    service_interval = component_type_data["service_interval"],
@@ -344,6 +358,38 @@ class ModifyRecords():
 
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while creating og updating component: {error}')
+
+    
+    def update_component_history_record(self, component_id, history_id, bike_name):
+        """Method to create or update component history and write to the database"""
+        try:
+            with database.atomic():
+                component = Components.get_or_none(Components.component_id == component_id)
+                latest_component_history_record = ComponentHistory.get_or_none(ComponentHistory.history_id == history_id)
+  
+                if latest_component_history_record:
+                    latest_component_history_record.bike_name = bike_name
+                    latest_component_history_record.updated_date = component.updated_date
+                    latest_component_history_record.update_reason = component.installation_status
+                    latest_component_history_record.distance_marker = component.component_distance #function here
+                    latest_component_history_record.save()
+                    
+                    logging.info(f'Updated record to installtion history with id {history_id} for component with id {component_id}')
+                
+                else:
+                    ComponentHistory.create(history_id = history_id,
+                                        component_id = component_id,
+                                        bike_name = bike_name,
+                                        component_name = component.component_name,
+                                        updated_date = component.updated_date,
+                                        update_reason = component.installation_status,
+                                        distance_marker = component.component_distance) #function here, same as above
+                    
+                    logging.info(f'Created record to installtion history with id {history_id} for component with id {component_id}')
+
+            
+        except peewee.OperationalError as error:
+            logging.error(f'An error occurred while adding or updatering record for installation history for component with id {component_id}: {error}')
     
     def delete_record(self, table_selector, record_id):
         """Method to delete any record"""
@@ -400,7 +446,7 @@ class MiscMethods():
     def format_datetime(self, date_str):
         """Method to reformat a datetime string"""
         date_obj = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
-        formatted_datetime = date_obj.strftime('%d.%m.%Y %H:%M')
+        formatted_datetime = date_obj.strftime('%Y-%m-%d')
         
         return formatted_datetime
     
@@ -426,6 +472,15 @@ class MiscMethods():
                 return bike.bike_name
         
         return "Not assigned"
+    
+    def get_first_ride(self, bike_id):
+        """Method to get the date for the first ride for a given bike"""
+        oldest_ride_record = Rides.select(Rides.record_time).where(Rides.bike_id == bike_id).order_by(Rides.record_time.asc()).first()
+        if oldest_ride_record:
+            first_ride =  oldest_ride_record.record_time.split('T')[0]
+            return first_ride
+        
+        return None
     
     def get_component_statistics(self, component_list):
         """Method to summarise key data for a set of components"""

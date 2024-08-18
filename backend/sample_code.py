@@ -71,3 +71,43 @@ def test_delete_bike(bike_id):
 
 # Call the function to delete a bike with a specific bike_id
 test_delete_bike('b23232')
+
+def read_latest_component_history_record(self, component_id): # This function is no longer used?
+        """Method to read the most recent component history record"""
+        component_history_record = ComponentHistory.select().where(ComponentHistory.component_id == component_id).order_by(ComponentHistory.updated_date.desc()).first()
+        if component_history_record:
+            return component_history_record
+        
+        return None
+
+def update_component_distance(self, component):
+        """Method to update component table with distance from ride table"""
+        try:
+            if component.updated_date and component.installation_status == "Installed":
+                updated_date = datetime.strptime(component.updated_date.split()[0], '%Y-%m-%d')
+            else:
+                updated_date = None
+
+            record_time_query = Rides.select(Rides.record_time).where(Rides.bike_id == component.bike_id)
+            record_time_value = record_time_query.scalar()
+            record_time = datetime.strptime(record_time_value, '%Y-%m-%dT%H:%M:%S') if record_time_value else None
+
+            matching_rides = Rides.select().where(
+                (Rides.bike_id == component.bike_id) & (Rides.record_time >= updated_date))
+
+            distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
+            total_distance_current = sum(ride.ride_distance for ride in matching_rides)
+            total_distance = total_distance_current + distance_offset
+
+        
+            with database.atomic():
+                component.component_distance = total_distance
+                component.save()
+
+                logging.info(f"Updated distance for component {component.component_name} (id {component.component_id})")
+
+                self.update_component_service_status(component)
+                self.update_component_lifetime_status(component)
+
+        except (peewee.OperationalError, ValueError) as error:
+            logging.error(f'An error occurred while updating component distance for component {component.component_name} (id {component.component_id}): {error}')

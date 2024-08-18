@@ -80,7 +80,6 @@ class Components(BaseModel):
     service_status = CharField()
     service_next = IntegerField()
     updated_date = CharField()
-    update_reason = CharField()
     cost = IntegerField()
     notes = CharField()
 
@@ -93,11 +92,11 @@ class ComponentHistory(BaseModel):
     """Model for table: component_history"""
     history_id = CharField(primary_key=True, unique=True)
     component_id = CharField()
+    bike_name = CharField()
     component_name = CharField()
     updated_date = CharField()
     update_reason = CharField()
     distance_marker = IntegerField()
-    notes = CharField()
 
     class Meta:
         """Extends model with extra attributes"""
