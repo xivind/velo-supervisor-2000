@@ -127,11 +127,27 @@ async def modify_component(
                       "offset": offset,
                       "component_notes": component_notes}
             
+    current_historic_record_id = f'{component_updated_date} {component_id}'
+    updated_bike_name = misc_methods.get_bike_name(component_bike_id)
+    old_component_data = read_records.read_component(component_id)
+    latest_history_record = read_records.read_latest_history_record(component_id)
+    
+
+    if latest_history_record is None or old_component_data == "Installed":
+        print("Distance marker set to 0")
+        distance_marker = 0
+
+    else:
+        print(f'Querying these dates: {latest_history_record.updated_date, component_updated_date}')
+        distance_marker = misc_methods.sum_distanse_subset_rides(old_component_data.bike_id, latest_history_record.updated_date, component_updated_date)
+
+        #might need something here to sum distance from historic records
+
+    modify_records.update_component_history_record(old_component_data, latest_history_record, current_historic_record_id, component_id, updated_bike_name, component_installation_status, component_updated_date, distance_marker)
     modify_records.update_component_details(component_id, new_component_data)
-    modify_records.update_component_history_record(component_id, f'{component_updated_date} {component_id}', misc_methods.get_bike_name(component_bike_id))
-    modify_tables.update_component_distance(read_records.read_component(component_id),
-                                            read_records.read_history_record(f'{component_updated_date} {component_id}'))
-    modify_records.update_component_history_record(component_id, f'{component_updated_date} {component_id}', misc_methods.get_bike_name(component_bike_id))
+    
+    #modify_tables.update_component_distance(read_records.read_component(component_id))
+    #modify_records.update_component_history_record(component_id, f'{component_updated_date} {component_id}', misc_methods.get_bike_name(component_bike_id))
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
@@ -337,6 +353,7 @@ async def delete_record(
 # Clean up datatypes to avoid casting in script, most, if not all numbers, should be int
 # Improvement: on bike change automatically uninstall and install, enhancement, not fix now, or some sort of validation
 # Validation in form, cannot be "Not assigned" bike when status is installed
+# Bike details page - summary of lifetime and service should filter out retired components and of course those not installed
 
 # 1. Modify update of distance to check for date installed and check how distance is calculated
 # 2. Distance must sum pr history record

@@ -32,7 +32,7 @@ class ReadTables(): #rename to something else, internal logic or something, migh
     def read_recent_rides(self, bike_id):
         """Method to read recent rides for a specific bike"""
         recent_rides = Rides.select().where(Rides.bike_id == bike_id)
-        recent_rides = (Rides.select().where(Rides.bike_id == bike_id).order_by(Rides.record_time.desc()).limit(5))
+        recent_rides = (Rides.select().where(Rides.bike_id == bike_id).order_by(Rides.record_time.desc()).limit(5)) #Is this a duplicate? Can be merged with statement above?
         return recent_rides
     
     def read_bikes(self):
@@ -47,7 +47,7 @@ class ReadTables(): #rename to something else, internal logic or something, migh
             return component_history
         
         return None
-    
+
 
 class ModifyTables(): #rename to something else, internal logic or something, might split into separate classes
     """Class to interact with a SQL database through peewee""" #Modify this description
@@ -140,16 +140,19 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while selecting which components to update: {error}')
 
-    def update_component_distance(self, component, history_record):
+    def update_component_distance(self, component): # BROKEN
         """Method to update component table with distance from ride table"""
         try:
             if component.updated_date and component.installation_status == "Installed":
                 query_start_date = datetime.strptime(component.updated_date.split()[0], '%Y-%m-%d')
+                print(f'This is the query start date: {query_start_date}')
             
                 if history_record.update_reason == "Not installed" or history_record.update_reason == "Retired":
                     query_stop_date = datetime.strptime(history_record.updated_date.split()[0], '%Y-%m-%d')
+                    print(f'This is the query stop date triggered by delimiter: {query_start_date}')
                 else:
                     query_stop_date = datetime.today()
+                    print(f'This is the query stop date when no delimiter set: {query_stop_date}')
 
                 matching_rides = Rides.select().where(
                                                     (Rides.bike_id == component.bike_id) & 
@@ -242,7 +245,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
             except peewee.OperationalError as error:
                 logging.error(f'An error occurred while setting blank lifetime status for component {component.component_name} (id {component.component_id}): {error}')
 
-    def compute_component_status(self, mode, reached_distance_percent):
+    def compute_component_status(self, mode, reached_distance_percent): #move to misc? Can be others also. Could be possible by calling classes directly
         """Method to compute service status"""
 
         if mode == "service":
@@ -263,7 +266,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
         return status
 
-    def calculate_percentage_reached(self, total, remaining):
+    def calculate_percentage_reached(self, total, remaining): #move to misc?  Can be others also. Could be possible by calling classes directly
         """Method to calculate remaining service interval or remaining lifetime as percentage"""
         if isinstance(total, int) and isinstance(remaining, int):
             return int(((total - remaining) / total) * 100)
@@ -289,6 +292,11 @@ class ReadRecords():
         """Method to retrieve record for a specific entry in installation log"""
         history_record = ComponentHistory.get_or_none(ComponentHistory.history_id == history_id)
         return history_record
+    
+    def read_latest_history_record(self, component_id):
+        """Method to retrieve record for a specific entry in installation log"""
+        latest_history_record = ComponentHistory.select().where(ComponentHistory.component_id == component_id).order_by(ComponentHistory.updated_date.desc()).first()
+        return latest_history_record
 
 
 class ModifyRecords(): #Consider merging with modify tables
@@ -359,33 +367,55 @@ class ModifyRecords(): #Consider merging with modify tables
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while creating og updating component: {error}')
 
-    
-    def update_component_history_record(self, component_id, history_id, bike_name):
+    def update_component_history_record(self, old_component_data, latest_history_record, current_historic_record_id, component_id, updated_bike_name, updated_component_installation_status, component_updated_date, distance_marker):
         """Method to create or update component history and write to the database"""
         try:
-            with database.atomic():
-                component = Components.get_or_none(Components.component_id == component_id)
-                latest_component_history_record = ComponentHistory.get_or_none(ComponentHistory.history_id == history_id)
-  
-                if latest_component_history_record:
-                    latest_component_history_record.bike_name = bike_name
-                    latest_component_history_record.updated_date = component.updated_date
-                    latest_component_history_record.update_reason = component.installation_status
-                    latest_component_history_record.distance_marker = component.component_distance #function here
-                    latest_component_history_record.save()
-                    
-                    logging.info(f'Updated record to installtion history with id {history_id} for component with id {component_id}')
+        # Consider if check is required for existing historic record id or that a first record exist, maybe not needed
+            if latest_history_record is None and updated_component_installation_status != "Installed":
+                print("Warning. Cannot change a component that is not installed. Skipping.. ")
+            
+            elif latest_history_record.update_reason == updated_component_installation_status:
+                print(f"Warning! Component status is already set to: {latest_history_record.update_reason}. Skipping...")
+                        
+            else:
+                if updated_component_installation_status == "Installed":
+                    print("")
                 
-                else:
-                    ComponentHistory.create(history_id = history_id,
+                elif updated_component_installation_status == "Retired":
+                    print("")
+
+                elif updated_component_installation_status == "Not installed":
+                    print("")
+                    
+                    
+
+                    elif component.installation_status == "Not installed" or component.installation_status == "Retired":
+                        print(f"Warning! Component status is already set to: {latest_historic_record.update_reason}. Skipping...")
+
+
+                    
+                    if latest_historic_record is not None and latest_historic_record.update_reason == "Installed":
+                        print("Estimating distance before uninstall")
+                        query_start_date = datetime.strptime(latest_historic_record.updated_date.split()[0], '%Y-%m-%d')
+                        query_stop_date = datetime.strptime(query_stop_date.split()[0], '%Y-%m-%d') #This statements do not seem to have effect? Check this other places also, append .date() to remove trailing zeros
+                        print(query_start_date, query_stop_date)
+
+                        #Move this to separate function, requires bike_id from before update
+                        
+                        bike_name = latest_component_history_record.bike_name
+
+                    else:
+                        
+                with database.atomic():           
+                    ComponentHistory.create(history_id = current_historic_record_id,
                                         component_id = component_id,
                                         bike_name = bike_name,
                                         component_name = component.component_name,
                                         updated_date = component.updated_date,
                                         update_reason = component.installation_status,
-                                        distance_marker = component.component_distance) #function here, same as above
+                                        distance_marker = distance_marker)
                     
-                    logging.info(f'Created record to installtion history with id {history_id} for component with id {component_id}')
+                        logging.info(f'Created record to installtion history with id {history_id} for component with id {component_id}')
 
             
         except peewee.OperationalError as error:
@@ -421,6 +451,18 @@ class MiscMethods():
     def __init__(self):
         pass #Check out this one.
 
+    def sum_distanse_subset_rides(self, bike_id, start_date, stop_date):
+        """Method to sum distance for a given set of rides"""
+
+        matching_rides = Rides.select().where(
+                                            (Rides.bike_id == bike_id) & 
+                                            (Rides.record_time >= start_date) &
+                                            (Rides.record_time <= stop_date))
+        if matching_rides:
+          return sum(ride.ride_distance for ride in matching_rides)
+                   
+        return 0
+    
     def list_unique_bikes(self):
         """Method to query database and create list of unique bike ids"""
         try:
