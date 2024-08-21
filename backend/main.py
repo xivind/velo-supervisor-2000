@@ -101,7 +101,7 @@ async def modify_component_type(
 
     return RedirectResponse(url="/component_types_overview", status_code=303)
 
-@app.post("/component_modify", response_class=HTMLResponse) #WORKING HERE NOW
+@app.post("/component_modify", response_class=HTMLResponse)
 async def modify_component(
     component_id: str = Form(...),
     component_installation_status: str = Form(...),
@@ -127,37 +127,49 @@ async def modify_component(
                       "offset": offset,
                       "component_notes": component_notes}
             
-    current_historic_record_id = f'{component_updated_date} {component_id}'
+    current_history_id = f'{component_updated_date} {component_id}'
     old_component_data = read_records.read_component(component_id)
     updated_bike_name = misc_methods.get_bike_name(component_bike_id)
     previous_bike_name = misc_methods.get_bike_name(old_component_data.bike_id) 
     latest_history_record = read_records.read_latest_history_record(component_id)
     
-
-    if latest_history_record is None:
-        print("Distance marker set to 0")
-        distance_since_install = 0
+    if latest_history_record is not None and latest_history_record.history_id == current_history_id:
+        pass
+        # modify_records.update_component_details(component_id, new_component_data)
+        # modify_tables.update_component_service_status, fix this one, must be possible to change and update service status
+    
     else:
-        print(f'Querying these dates: {latest_history_record.updated_date, component_updated_date}')
-        distance_since_install = misc_methods.sum_distanse_subset_rides(old_component_data.bike_id, latest_history_record.updated_date, component_updated_date)
+        if latest_history_record is None:
+            historic_distance = 0
+            
+        else:
+            if component_installation_status != "Installed":
+                logging.info(f'Timespan for historic distance query (triggered by component update): start date {latest_history_record.updated_date} stop date {component_updated_date}')
+                historic_distance = misc_methods.sum_distanse_subset_rides(old_component_data.bike_id, latest_history_record.updated_date, component_updated_date)
+                historic_distance += latest_history_record.distance_marker
+
+            else:
+                historic_distance = latest_history_record.distance_marker
+
+        halt_update = modify_records.update_component_history_record(old_component_data, latest_history_record, current_history_id, component_id, previous_bike_name, updated_bike_name, component_installation_status, component_updated_date, historic_distance)
         
-    
-        print(latest_history_record.distance_marker, distance_since_install)
-        distance_since_install += latest_history_record.distance_marker
+        if halt_update is False:
+            modify_records.update_component_details(component_id, new_component_data)
+            updated_component_data = read_records.read_component(component_id)
+            latest_history_record = read_records.read_latest_history_record(component_id)
+            
+            if updated_component_data.installation_status == "Installed":
+                logging.info(f'Timespan for current distance query (triggered by component update): start date {updated_component_data.updated_date} stop date {datetime.today()}')
+                current_distance = misc_methods.sum_distanse_subset_rides(updated_component_data.bike_id, updated_component_data.updated_date, datetime.today())
+                current_distance += latest_history_record.distance_marker
+                modify_tables.update_component_distance(component_id, current_distance)
 
-        #might need something here to sum distance from historic records
-        # Must be possible to modify part of details without triggering full update, trigger is updated date
-
-    halt_update = modify_records.update_component_history_record(old_component_data, latest_history_record, current_historic_record_id, component_id, previous_bike_name, updated_bike_name, component_installation_status, component_updated_date, distance_since_install)
-    
-    if halt_update is False:
-        modify_records.update_component_details(component_id, new_component_data)
-    else:
-        logging.warning(f"Update of component with id {component_id} skipped due to exceptions when updating history record")
-    
-    #modify_tables.update_component_distance(read_records.read_component(component_id))
-    #modify_records.update_component_history_record(component_id, f'{component_updated_date} {component_id}', misc_methods.get_bike_name(component_bike_id))
-
+            else:
+                current_distance = latest_history_record.distance_marker
+                modify_tables.update_component_distance(component_id, current_distance)
+        else:
+            logging.warning(f"Update of component with id {component_id} skipped due to exceptions when updating history record")
+        
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
 @app.get("/component_overview", response_class=HTMLResponse)
@@ -318,7 +330,7 @@ async def delete_record(
 
 
 # Endpoint get all rides and recent rides, make it possible also to call with "all" arg
-#strava.get_rides("recent")
+#strava.get_rides("recent") 
 #modify_tables.update_rides_bulk(strava.payload)
 
 # Endpoints get all bikes (triggered when new rides are fetched, and should also be able to call manually), can also be called with this as arg strava.bike_ids_recent_rides or peewee_connector.list_unique_bikes(). Depends on context

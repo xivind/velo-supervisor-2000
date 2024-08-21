@@ -140,36 +140,18 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while selecting which components to update: {error}')
 
-    def update_component_distance(self, component): # BROKEN
+    def update_component_distance(self, component_id, current_distance):
         """Method to update component table with distance from ride table"""
         try:
-            if component.updated_date and component.installation_status == "Installed":
-                query_start_date = datetime.strptime(component.updated_date.split()[0], '%Y-%m-%d')
-                print(f'This is the query start date: {query_start_date}')
-            
-                if history_record.update_reason == "Not installed" or history_record.update_reason == "Retired":
-                    query_stop_date = datetime.strptime(history_record.updated_date.split()[0], '%Y-%m-%d')
-                    print(f'This is the query stop date triggered by delimiter: {query_start_date}')
-                else:
-                    query_stop_date = datetime.today()
-                    print(f'This is the query stop date when no delimiter set: {query_stop_date}')
+            component = Components.get(Components.component_id == component_id)
+            distance_offset = component.component_distance_offset
+            total_distance = current_distance + distance_offset
+    
+            with database.atomic():
+                component.component_distance = total_distance
+                component.save()
 
-                matching_rides = Rides.select().where(
-                                                    (Rides.bike_id == component.bike_id) & 
-                                                    (Rides.record_time >= query_start_date) &
-                                                    (Rides.record_time <= query_stop_date))
-            
-
-                distance_offset = Components.get(Components.component_id == component.component_id).component_distance_offset
-                total_distance_current = sum(ride.ride_distance for ride in matching_rides)
-                total_distance = total_distance_current + distance_offset
-
-        
-                with database.atomic():
-                    component.component_distance = total_distance
-                    component.save()
-
-                    logging.info(f"Updated distance for component {component.component_name} (id {component.component_id})")
+            logging.info(f"Updated distance for component {component.component_name} (id {component.component_id})")
 
             self.update_component_service_status(component)
             self.update_component_lifetime_status(component)
@@ -367,7 +349,7 @@ class ModifyRecords(): #Consider merging with modify tables
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while creating og updating component: {error}')
 
-    def update_component_history_record(self, old_component_data, latest_history_record, current_historic_record_id, component_id, previous_bike_name, updated_bike_name, updated_component_installation_status, component_updated_date, distance_marker):
+    def update_component_history_record(self, old_component_data, latest_history_record, current_history_id, component_id, previous_bike_name, updated_bike_name, updated_component_installation_status, component_updated_date, historic_distance):
         """Method to create or update component history and write to the database"""
         try:
             halt_update = False
@@ -384,12 +366,12 @@ class ModifyRecords(): #Consider merging with modify tables
                     bike_name = updated_bike_name
             
             else:
-                if latest_history_record.history_id == current_historic_record_id:
-                    logging.warning(f"Historic record already exist for component id {component_id} and record id {current_historic_record_id}. Skipping...")
+                if latest_history_record.history_id == current_history_id:
+                    logging.warning(f"Historic record already exist for component id {component_id} and record id {current_history_id}. Skipping...")
                     halt_update = True
                 
                 elif latest_history_record.update_reason == updated_component_installation_status:
-                    print(f"Warning! Component status is already set to: {latest_history_record.update_reason}. Skipping...")
+                    logging.warning(f"Component status is already set to: {latest_history_record.update_reason}. Skipping...")
                     halt_update = True
                             
                 else:
@@ -408,15 +390,15 @@ class ModifyRecords(): #Consider merging with modify tables
                     
             if halt_update is False:
                 with database.atomic():
-                    ComponentHistory.create(history_id = current_historic_record_id,
+                    ComponentHistory.create(history_id = current_history_id,
                                         component_id = component_id,
                                         bike_name = bike_name,
                                         component_name = old_component_data.component_name,
                                         updated_date = component_updated_date,
                                         update_reason = updated_component_installation_status,
-                                        distance_marker = distance_marker)
+                                        distance_marker = historic_distance)
                         
-                    logging.info(f'Added record to installtion history with id {current_historic_record_id} for component with id {component_id}')
+                    logging.info(f'Added record to installtion history with id {current_history_id} for component with id {component_id}')
 
             return halt_update
         
@@ -459,7 +441,7 @@ class MiscMethods():
         """Method to sum distance for a given set of rides"""
 
         matching_rides = Rides.select().where(
-                                            (Rides.bike_id == bike_id) & 
+                                            (Rides.bike_id == bike_id) &
                                             (Rides.record_time >= start_date) &
                                             (Rides.record_time <= stop_date))
         if matching_rides:
