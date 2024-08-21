@@ -128,23 +128,32 @@ async def modify_component(
                       "component_notes": component_notes}
             
     current_historic_record_id = f'{component_updated_date} {component_id}'
-    updated_bike_name = misc_methods.get_bike_name(component_bike_id)
     old_component_data = read_records.read_component(component_id)
+    updated_bike_name = misc_methods.get_bike_name(component_bike_id)
+    previous_bike_name = misc_methods.get_bike_name(old_component_data.bike_id) 
     latest_history_record = read_records.read_latest_history_record(component_id)
     
 
-    if latest_history_record is None or old_component_data == "Installed":
+    if latest_history_record is None:
         print("Distance marker set to 0")
-        distance_marker = 0
-
+        distance_since_install = 0
     else:
         print(f'Querying these dates: {latest_history_record.updated_date, component_updated_date}')
-        distance_marker = misc_methods.sum_distanse_subset_rides(old_component_data.bike_id, latest_history_record.updated_date, component_updated_date)
+        distance_since_install = misc_methods.sum_distanse_subset_rides(old_component_data.bike_id, latest_history_record.updated_date, component_updated_date)
+        
+    
+        print(latest_history_record.distance_marker, distance_since_install)
+        distance_since_install += latest_history_record.distance_marker
 
         #might need something here to sum distance from historic records
+        # Must be possible to modify part of details without triggering full update, trigger is updated date
 
-    modify_records.update_component_history_record(old_component_data, latest_history_record, current_historic_record_id, component_id, updated_bike_name, component_installation_status, component_updated_date, distance_marker)
-    modify_records.update_component_details(component_id, new_component_data)
+    halt_update = modify_records.update_component_history_record(old_component_data, latest_history_record, current_historic_record_id, component_id, previous_bike_name, updated_bike_name, component_installation_status, component_updated_date, distance_since_install)
+    
+    if halt_update is False:
+        modify_records.update_component_details(component_id, new_component_data)
+    else:
+        logging.warning(f"Update of component with id {component_id} skipped due to exceptions when updating history record")
     
     #modify_tables.update_component_distance(read_records.read_component(component_id))
     #modify_records.update_component_history_record(component_id, f'{component_updated_date} {component_id}', misc_methods.get_bike_name(component_bike_id))
@@ -354,6 +363,8 @@ async def delete_record(
 # Improvement: on bike change automatically uninstall and install, enhancement, not fix now, or some sort of validation
 # Validation in form, cannot be "Not assigned" bike when status is installed
 # Bike details page - summary of lifetime and service should filter out retired components and of course those not installed
+# Give warning before selecting "Retired"
+# Make issue for the use of halt_update, can be improved
 
 # 1. Modify update of distance to check for date installed and check how distance is calculated
 # 2. Distance must sum pr history record

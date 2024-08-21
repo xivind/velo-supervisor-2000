@@ -367,59 +367,63 @@ class ModifyRecords(): #Consider merging with modify tables
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while creating og updating component: {error}')
 
-    def update_component_history_record(self, old_component_data, latest_history_record, current_historic_record_id, component_id, updated_bike_name, updated_component_installation_status, component_updated_date, distance_marker):
+    def update_component_history_record(self, old_component_data, latest_history_record, current_historic_record_id, component_id, previous_bike_name, updated_bike_name, updated_component_installation_status, component_updated_date, distance_marker):
         """Method to create or update component history and write to the database"""
         try:
-        # Consider if check is required for existing historic record id or that a first record exist, maybe not needed
+            halt_update = False
+
             if latest_history_record is None and updated_component_installation_status != "Installed":
-                print("Warning. Cannot change a component that is not installed. Skipping.. ")
+                logging.warning(f"Cannot change a component that is not installed, component id {component_id}. Skipping...")
+                halt_update = True
             
-            elif latest_history_record.update_reason == updated_component_installation_status:
-                print(f"Warning! Component status is already set to: {latest_history_record.update_reason}. Skipping...")
-                        
+            elif latest_history_record is None:
+                if updated_bike_name == "Not assigned":
+                    logging.warning(f"Cannot set status to installed without specifying bike, component id {component_id}. Skipping...")
+                    halt_update = True
+                else:
+                    bike_name = updated_bike_name
+            
             else:
-                if updated_component_installation_status == "Installed":
-                    print("")
+                if latest_history_record.history_id == current_historic_record_id:
+                    logging.warning(f"Historic record already exist for component id {component_id} and record id {current_historic_record_id}. Skipping...")
+                    halt_update = True
                 
-                elif updated_component_installation_status == "Retired":
-                    print("")
-
-                elif updated_component_installation_status == "Not installed":
-                    print("")
+                elif latest_history_record.update_reason == updated_component_installation_status:
+                    print(f"Warning! Component status is already set to: {latest_history_record.update_reason}. Skipping...")
+                    halt_update = True
+                            
+                else:
+                    if updated_component_installation_status == "Installed":
+                        if updated_bike_name == "Not assigned":
+                            logging.warning(f"Cannot set status to installed without specifying bike, component id {component_id}. Skipping...")
+                            halt_update = True
+                        else:
+                            bike_name = updated_bike_name
                     
+                    elif updated_component_installation_status == "Retired":
+                        bike_name = updated_bike_name
+
+                    elif updated_component_installation_status == "Not installed":
+                        bike_name = previous_bike_name
                     
-
-                    elif component.installation_status == "Not installed" or component.installation_status == "Retired":
-                        print(f"Warning! Component status is already set to: {latest_historic_record.update_reason}. Skipping...")
-
-
-                    
-                    if latest_historic_record is not None and latest_historic_record.update_reason == "Installed":
-                        print("Estimating distance before uninstall")
-                        query_start_date = datetime.strptime(latest_historic_record.updated_date.split()[0], '%Y-%m-%d')
-                        query_stop_date = datetime.strptime(query_stop_date.split()[0], '%Y-%m-%d') #This statements do not seem to have effect? Check this other places also, append .date() to remove trailing zeros
-                        print(query_start_date, query_stop_date)
-
-                        #Move this to separate function, requires bike_id from before update
-                        
-                        bike_name = latest_component_history_record.bike_name
-
-                    else:
-                        
-                with database.atomic():           
+            if halt_update is False:
+                with database.atomic():
                     ComponentHistory.create(history_id = current_historic_record_id,
                                         component_id = component_id,
                                         bike_name = bike_name,
-                                        component_name = component.component_name,
-                                        updated_date = component.updated_date,
-                                        update_reason = component.installation_status,
+                                        component_name = old_component_data.component_name,
+                                        updated_date = component_updated_date,
+                                        update_reason = updated_component_installation_status,
                                         distance_marker = distance_marker)
-                    
-                        logging.info(f'Created record to installtion history with id {history_id} for component with id {component_id}')
+                        
+                    logging.info(f'Added record to installtion history with id {current_historic_record_id} for component with id {component_id}')
 
-            
+            return halt_update
+        
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while adding or updatering record for installation history for component with id {component_id}: {error}')
+            return True
+
     
     def delete_record(self, table_selector, record_id):
         """Method to delete any record"""

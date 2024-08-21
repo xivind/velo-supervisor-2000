@@ -157,8 +157,8 @@
                                 <textarea class="form-control" id="component_notes" name="component_notes" rows="3">{% if payload.bike_component_data['component_notes'] %}{{ payload.bike_component_data['component_notes'] }}{% else %}{% endif %}</textarea>
                             </div>
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Save</button>
-                                <button type="submit" class="btn btn-outline-danger" form="component_type_form" id="clear_form_btn">Clear form</button>
+                                <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Save</button>
+                                <button type="submit" class="btn btn-outline-danger" form="component_type_form" id="clear_form_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Clear form</button>
                             </div>
                         </form>
                     </div>
