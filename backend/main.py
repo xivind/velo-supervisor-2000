@@ -134,14 +134,19 @@ async def modify_component(
     latest_history_record = read_records.read_latest_history_record(component_id)
     
     if latest_history_record is not None and latest_history_record.history_id == current_history_id:
-        pass
-        # modify_records.update_component_details(component_id, new_component_data)
-        # modify_tables.update_component_service_status, fix this one, must be possible to change and update service status
+        if latest_history_record.update_reason == component_installation_status:
+            logging.info(f"Only updating select component record details and service and lifetime status. Historic record already exist for component id {component_id} and record id {current_history_id}.")
+            modify_records.update_component_details(component_id, new_component_data)
+            updated_component_data = read_records.read_component(component_id)
+            modify_tables.update_component_service_status(updated_component_data)
+            modify_tables.update_component_lifetime_status(updated_component_data)
+        else:
+            logging.warning(f"Cannot change installation status when record date it the same as previous record. Historic record already exist for component id {component_id} and record id {current_history_id}. Skipping...")
     
     else:
         if latest_history_record is None:
             historic_distance = 0
-            
+
         else:
             if component_installation_status != "Installed":
                 logging.info(f'Timespan for historic distance query (triggered by component update): start date {latest_history_record.updated_date} stop date {component_updated_date}')
@@ -377,21 +382,25 @@ async def delete_record(
 # Bike details page - summary of lifetime and service should filter out retired components and of course those not installed
 # Give warning before selecting "Retired"
 # Make issue for the use of halt_update, can be improved
+# old_component_data is only used for old bike_id, refactor to take this into account. 
+# Update historic record should also include new component name
+# 
 
-# 1. Modify update of distance to check for date installed and check how distance is calculated
-# 2. Distance must sum pr history record
-# 3. Fix create history table and logic
-# 4. Add to bike info first registered ride, use function from sample, but reverse sort order. Function should return first registered ride
+# 1. Component overview page should have option to create component, update backend also
+# X. Create component function must assign proper ID - function already present
+# X. Component overview page should have column Name leftmost, not type
+# X. Page bike detail should have column Name leftmost for components, not type
+# X. Component overview page should have summary section
+# X. Component overview page should have delete button
 
 # X. Page bike details: table should show status for components: retired or installed
 # X. Page bike details: column to the left should only include installed components, not retired.
 # X. Page bike details: estimated cost should only calculate cost for approaching or exceeded
-# X. Page bike detail should have column Name leftmost for components, not type
-# X. Component overview page should have optio to create component, update backend also
-# X. Component overview page should have column Name leftmost, not type
-# X. Create component function must assign proper ID - function already present
-# X. Component overview page should have summary section
-# X. Component overview page should have delete button
+
+
+
+
+
 # X. Component detail page should have delete button
 # X. Compute bike status, probably based on components
 # X. Adjust offset based on component history (count uninstalled or retired or something, only installed counts)
