@@ -38,30 +38,16 @@
             <div class="card-body">
                 <form id="component_type_form" class="row align-items-center" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" id="component_id" name="component_id" value="">
-                    <div class="col-md-7 mb-3">
-                        <div class="row align-items-center">
-                            <div class="col-md-4">
-                            <select class="form-select" id="component_installation_status" name="component_installation_status">
-                                <option value="" selected></option>
-                                <option value="Installed">Installed</option>
-                            </select>
-                            </div>
-                        </div>
+                    <input type="hidden" id="component_installation_status" name="component_installation_status" value="Installed">
+                    <div class="col-md-2 mb-3">
+                        <label for="component_updated_date" class="col-form-label col-auto fw-bold">Updated date</label>
+                        <input type="text" class="form-control flatpickr-input" id="component_updated_date" name="component_updated_date" value="" required>    
                     </div>
-                    <div class="col-md-5 mb-3">
-                        <div class="row align-items-center">
-                            <label for="component_updated_date" class="col-form-label col-auto fw-bold">Updated date</label>
-                                <div class="col">
-                                    <input type="text" class="form-control flatpickr-input" id="component_updated_date" name="component_updated_date" value="" required>
-                                </div>
-                        </div>   
-                    </div>
-                        <hr/>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label for="component_name" class="form-label fw-bold">Name</label>
                         <input type="text" class="form-control" id="component_name" name="component_name" value="" required>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-2 mb-3">
                         <label for="component_type" class="form-label fw-bold">Type</label>
                         <select class="form-select" id="component_type" name="component_type" required>
                             <option value="" selected></option>
@@ -74,7 +60,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-2 mb-3">
                         <label for="component_bike_id" class="form-label fw-bold">Bike</label>
                         <select class="form-select" id="component_bike_id" name="component_bike_id">
                             <option value="" selected></option>
@@ -85,23 +71,28 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
-                        <input type="number" class="form-control" id="expected_lifetime" name="expected_lifetime" value="" oninput="validateInput(this)">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
-                        <input type="number" class="form-control" id="service_interval" name="service_interval" value="" oninput="validateInput(this)">
-                    </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-1 mb-3">
                         <label for="cost" class="form-label fw-bold">Cost (kr)</label>
                         <input type="number" class="form-control" id="cost" name="cost" value="">
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-2 mb-3">
                         <label for="offset" class="form-label fw-bold">Offset (km)</label>
                         <input type="number" class="form-control" id="offset" name="offset" value="">
                     </div>
-                    <div class="col-md-12 mb-3">
+                    
+                    
+                    <div class="col-md-2 mb-3">
+                        <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
+                        <input type="number" class="form-control" id="service_interval" name="service_interval" value="" oninput="validateInput(this)">
+                    </div>
+                    
+
+                    <div class="col-md-2 mb-3">
+                        <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
+                        <input type="number" class="form-control" id="expected_lifetime" name="expected_lifetime" value="" oninput="validateInput(this)">
+                    </div>
+
+                    <div class="col-md-8 mb-3">
                         <label for="component_notes" class="form-label fw-bold">Notes</label>
                         <textarea class="form-control" id="component_notes" name="component_notes" rows="1"></textarea>
                     </div>
@@ -213,10 +204,9 @@
             disableMobile: true,
             theme: "dark", //not needed?
             enableTime: true,
-            dateFormat: "Y-m-d H:i", // Adjust the desired date format
-            time_24hr: true, // Use 24-hour format
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true,
             minuteIncrement: 1
-            // defaultDate: "today", // Show today's date on load
         });
     </script>
 </body>
