@@ -79,14 +79,10 @@
                         <label for="offset" class="form-label fw-bold">Offset (km)</label>
                         <input type="number" class="form-control" id="offset" name="offset" value="">
                     </div>
-                    
-                    
                     <div class="col-md-2 mb-3">
                         <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
                         <input type="number" class="form-control" id="service_interval" name="service_interval" value="" oninput="validateInput(this)">
                     </div>
-                    
-
                     <div class="col-md-2 mb-3">
                         <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
                         <input type="number" class="form-control" id="expected_lifetime" name="expected_lifetime" value="" oninput="validateInput(this)">
@@ -162,7 +158,10 @@
                                 {% endif %}
                                 {{ service_status }}
                             </td>
-                            <td><a href="/component_details/{{ component_id }}" class="btn btn-outline-info btn-sm">🔍</a></td>
+                            <td>
+                                <a href="/component_details/{{ component_id }}" class="btn btn-outline-info btn-sm">🔍</a>
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}">🗑</button>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -207,6 +206,26 @@
             dateFormat: "Y-m-d H:i",
             time_24hr: true,
             minuteIncrement: 1
+        });
+
+                document.querySelectorAll('.delete-record').forEach(button => {
+                button.addEventListener('click', () => {
+                const formData = new FormData();
+                formData.append('record_id', button.dataset.componentId);
+                formData.append('table_selector', 'Components');
+
+                fetch('/delete_record', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Backend received data');
+                        window.location.reload();
+                    }
+                })
+                .catch(error => console.error('Backend error:', error));
+            });
         });
     </script>
 </body>
