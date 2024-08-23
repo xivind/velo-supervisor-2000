@@ -290,7 +290,7 @@ class ModifyRecords(): #Consider merging with modify tables
         """Method to create or update component types"""
     
         try:
-            logging.info(f"Creating or updating component type {component_type_data['component_type']}")
+            logging.info(f"Creating or updating component type {component_type_data['component_type']}") #MOve this down to the appropriate section
             with database.atomic():
                 component_type = ComponentTypes.get_or_none(ComponentTypes.component_type == component_type_data["component_type"])
 
@@ -399,6 +399,9 @@ class ModifyRecords(): #Consider merging with modify tables
                 table_found = True
             elif table_selector == str("Services"):
                 query = Services.get_or_none(Services.service_id == record_id)
+                table_found = True
+            elif table_selector == str("Components"):
+                query = Components.get_or_none(Components.component_id == record_id)
                 table_found = True
             else:
                 logging.error(f'Error looking up table for deletion of record, non-existing table: {table_selector}')

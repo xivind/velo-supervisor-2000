@@ -208,23 +208,24 @@
             minuteIncrement: 1
         });
 
-                document.querySelectorAll('.delete-record').forEach(button => {
-                button.addEventListener('click', () => {
-                const formData = new FormData();
-                formData.append('record_id', button.dataset.componentId);
-                formData.append('table_selector', 'Components');
+        // Script to delete records
+        document.querySelectorAll('.delete-record').forEach(button => {
+        button.addEventListener('click', () => {
+        const formData = new FormData();
+        formData.append('record_id', button.dataset.componentId);
+        formData.append('table_selector', 'Components');
 
-                fetch('/delete_record', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Backend received data');
-                        window.location.reload();
-                    }
-                })
-                .catch(error => console.error('Backend error:', error));
+        fetch('/delete_record', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Backend received data');
+                window.location.reload();
+            }
+        })
+        .catch(error => console.error('Backend error:', error));
             });
         });
     </script>

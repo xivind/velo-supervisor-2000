@@ -402,32 +402,27 @@ async def delete_record(
 # Update historic record should also include new component name
 # Bug when offset is changed and record date is the same as newest history, total distance is not updated
 # Consider different icon for installed - the cog is already used in navtab, change all places
+# There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off
+# Updated readme with change log
+# Add installed component count on bike card (bike overview - all bikes)
+# Component detail page should have delete button
+# Input validation on all field in component overview modify
+# Input validation on all field in component detail modify
+# Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing. This is solved already?
 
-# 0. Status installed can be removed and added by default
-# 1. Component overview page should have option to create component, update backend also
-# X. Create component function must assign proper ID - function already present
-# X. Component overview page should have column Name leftmost, not type
-# X. Page bike detail should have column Name leftmost for components, not type
-# X. Component overview page should have summary section
-# X. Component overview page should have delete button
-# X. Input validation on all field in component overview modify
-# X. Input validation on all field in component detail modify
+
+# See open issues
+# 2. Component overview page should have column Name leftmost, not type, remember status also
+# 3. Page bike detail should have column Name leftmost for components, not type, remember status also
+# 4. Fix service and corresponding calculations
+
 
 # X. Page bike details: table should show status for components: retired or installed
 # X. Page bike details: column to the left should only include installed components, not retired.
 # X. Page bike details: estimated cost should only calculate cost for approaching or exceeded
-
-
-
-
-
-# X. Component detail page should have delete button
 # X. Compute bike status, probably based on components
-# X. Adjust offset based on component history (count uninstalled or retired or something, only installed counts)
-# X. Code to calculate bike status
 # X. Modify percentage bar to state exceeded with...
-# X. Fix service and corresponding calculations
 
 
-# Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing.
+
 
