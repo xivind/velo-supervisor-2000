@@ -67,17 +67,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for component_type, expected_lifetime, service_interval in component_types_data %}
-                        <tr data-row-id="{{ loop.index0 }}">
-                            <td>{{ component_type }}</td>
-                            <td>{{ expected_lifetime }}</td>
-                            <td>{{ service_interval }}</td>
-                            <td>                    
-                                <button type="button" class="btn btn-outline-success btn-sm modify-record" component_type="{{ component_type }}" data-row-id="{{ loop.index0 }}">✍</button>
-                                <button type="button" class="btn btn-outline-danger btn-sm delete-record" data-component-type="{{ component_type }}">🗑</button>
-                            </td>
-                        </tr>
-                        {% endfor %}
+                        {% if component_types_data %}
+                            {% for component_type, expected_lifetime, service_interval in component_types_data %}
+                            <tr data-row-id="{{ loop.index0 }}">
+                                <td>{{ component_type }}</td>
+                                <td>{{ expected_lifetime }}</td>
+                                <td>{{ service_interval }}</td>
+                                <td>                    
+                                    <button type="button" class="btn btn-outline-success btn-sm modify-record" component_type="{{ component_type }}" data-row-id="{{ loop.index0 }}">✍</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm delete-record" data-component-type="{{ component_type }}">🗑</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No component types defined</td>
+                                </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
