@@ -286,7 +286,7 @@ class ModifyRecords(): #Consider merging with modify tables
     def __init__(self):
         pass #Check out this one.
 
-    def update_component_type(self, component_type_data):
+    def update_component_type(self, component_type_data): #Improve this one, see update_component method for blueprint
         """Method to create or update component types"""
     
         try:
@@ -316,35 +316,17 @@ class ModifyRecords(): #Consider merging with modify tables
         try:
             with database.atomic():
                 component = Components.get_or_none(Components.component_id == component_id)
-
+                
                 if component:
-                    if component.component_distance is None:
-                        adjusted_component_distance = 0
-                    else:
-                        adjusted_component_distance = component.component_distance
-
-                    component.installation_status = new_component_data["component_installation_status"]
-                    component.updated_date = new_component_data["component_updated_date"]
-                    component.component_name = new_component_data["component_name"]
-                    component.component_type = new_component_data["component_type"]
-                    component.bike_id = new_component_data["component_bike_id"]
-                    component.component_distance = adjusted_component_distance
-                    component.lifetime_expected = new_component_data["expected_lifetime"]
-                    component.service_interval = new_component_data["service_interval"]
-                    component.cost = new_component_data["cost"]
-                    component.component_distance_offset = new_component_data["offset"]
-                    component.notes = new_component_data["component_notes"]
-                    component.save()
+                    Components.update(**new_component_data).where(Components.component_id == component_id).execute()
                     logging.info(f'Record for component with id {component_id} updated')
 
                 else:
-                    # Must create ID
-                    #Components.create(
-                    #    component_type = component_type_data["component_type"],
-                    #    service_interval = component_type_data["service_interval"],
-                    #    expected_lifetime = component_type_data["expected_lifetime"])
+                    new_component_data.update({"component_distance": 0,
+                                               "component_id": component_id})
 
-                    logging.info(f'Record for component with id {component_id} inserted - NOT IMPLEMENTED')
+                    Components.create(**new_component_data)
+                    logging.info(f'Record for component with id {component_id} created')
 
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while creating og updating component: {error}')

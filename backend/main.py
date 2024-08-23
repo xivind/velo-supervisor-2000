@@ -103,7 +103,7 @@ async def modify_component_type(
 
 @app.post("/component_modify", response_class=HTMLResponse)
 async def modify_component(
-    component_id: str = Form(...),
+    component_id: Optional[str] = Form(None),
     component_installation_status: str = Form(...),
     component_updated_date: str = Form(...),
     component_name: str = Form(...),
@@ -116,16 +116,20 @@ async def modify_component(
     component_notes: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
 
-    new_component_data = {"component_installation_status": component_installation_status,
-                      "component_updated_date": component_updated_date,
+    new_component_data = {"installation_status": component_installation_status,
+                      "updated_date": component_updated_date,
                       "component_name": component_name,
                       "component_type": component_type,
-                      "component_bike_id": component_bike_id,
-                      "expected_lifetime": expected_lifetime,
+                      "bike_id": component_bike_id,
+                      "lifetime_expected": expected_lifetime,
                       "service_interval": service_interval,
                       "cost": cost,
-                      "offset": offset,
-                      "component_notes": component_notes}
+                      "component_distance_offset": offset,
+                      "notes": component_notes}
+
+    if component_id is None:
+        component_id = misc_methods.generate_unique_id()
+        modify_records.update_component_details(component_id, new_component_data)
             
     current_history_id = f'{component_updated_date} {component_id}'
     old_component_data = read_records.read_component(component_id)
@@ -192,10 +196,22 @@ async def component_overview(request: Request):
                         misc_methods.format_component_status(component.service_status),
                         misc_methods.get_bike_name(component.bike_id)
                         ) for component in components]
+        
+        bikes = read_tables.read_bikes()
+        bikes_data = [(bike.bike_name,
+                        bike.bike_id)
+                        for bike in bikes if bike.bike_retired == "False"]
 
-
+        component_types = read_tables.read_component_types()
+        component_types_data = [(component_type.component_type,
+                                component_type.expected_lifetime,
+                                component_type.service_interval) for component_type in component_types]
+            
         template_path = "component_overview.html"
-        return templates.TemplateResponse(template_path, {"request": request, "component_data": component_data})
+        return templates.TemplateResponse(template_path, {"request": request,
+                                                          "component_data": component_data,
+                                                          "bikes_data": bikes_data,
+                                                          "component_types_data": component_types_data})
     
     except Exception as error:
         # Get the full traceback
@@ -384,14 +400,18 @@ async def delete_record(
 # Make issue for the use of halt_update, can be improved
 # old_component_data is only used for old bike_id, refactor to take this into account. 
 # Update historic record should also include new component name
-# 
+# Bug when offset is changed and record date is the same as newest history, total distance is not updated
+# Consider different icon for installed - the cog is already used in navtab, change all places
 
+# 0. Status installed can be removed and added by default
 # 1. Component overview page should have option to create component, update backend also
 # X. Create component function must assign proper ID - function already present
 # X. Component overview page should have column Name leftmost, not type
 # X. Page bike detail should have column Name leftmost for components, not type
 # X. Component overview page should have summary section
 # X. Component overview page should have delete button
+# X. Input validation on all field in component overview modify
+# X. Input validation on all field in component detail modify
 
 # X. Page bike details: table should show status for components: retired or installed
 # X. Page bike details: column to the left should only include installed components, not retired.
