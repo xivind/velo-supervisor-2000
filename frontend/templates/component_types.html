@@ -128,38 +128,27 @@
             }
         });
         
-        // Delete record function: get all delete record buttons
-        const deleteRecordButtons = document.querySelectorAll('.delete-record');
+        // Script to delete records
+        document.querySelectorAll('.delete-record').forEach(button => {
+        button.addEventListener('click', () => {
+        const formData = new FormData();
+        formData.append('record_id', button.dataset.componentType);
+        formData.append('table_selector', 'ComponentTypes');
 
-        // Delete record function: add a click event listener to each button
-        deleteRecordButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const componentType = button.dataset.componentType;
-                deleteRecord(componentType);
+        fetch('/delete_record', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Backend received data');
+                window.location.reload();
+            }
+        })
+        .catch(error => console.error('Backend error:', error));
             });
         });
-
-        // Delete record function: define the deleteRecord function
-        function deleteRecord(componentType) {
-            const formData = new FormData();
-            formData.append('record_id', componentType);
-            formData.append('table_selector', 'ComponentTypes');
-
-            fetch('/delete_record', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Backend received data');
-                    window.location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('Backend error:', error);
-            });
-        }
-
+        
         // Input valdation
         function validateInput(input) {
             if (input.value <= 0) {
