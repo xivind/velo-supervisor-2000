@@ -106,13 +106,13 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Type</th>
                             <th>Name</th>
+                            <th>Type</th>
                             <th>Distance</th>
                             <th>Status</th>
-                            <th>Bike</th>
                             <th>Lifetime</th>
                             <th>Service</th>
+                            <th>Bike</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -120,8 +120,8 @@
                         <!-- Directly embed component data here -->
                         {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike in component_data %}
                         <tr>
-                            <td>{{ type }}</td>
                             <td>{{ name }}</td>
+                            <td>{{ type }}</td>
                             <td>{{ component_distance }} km</td>
                             <td>
                                 {% if installation_status == "Installed" %}
@@ -133,7 +133,6 @@
                                 {% endif %}
                                 {{ installation_status }}
                             </td>
-                            <td>{{ bike }}</td>
                             <td>
                                 {% if lifetime_status == "OK" %}
                                 🟢
@@ -157,6 +156,9 @@
                                 ⚪
                                 {% endif %}
                                 {{ service_status }}
+                            </td>
+                            <td>
+                                {{ bike }}
                             </td>
                             <td>
                                 <a href="/component_details/{{ component_id }}" class="btn btn-outline-info btn-sm">🔍</a>

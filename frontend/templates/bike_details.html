@@ -122,9 +122,10 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Type</th>
                                     <th>Name</th>
+                                    <th>Type</th>
                                     <th>Distance</th>
+                                    <th>Status</th>
                                     <th class="text-center">Lifetime</th>
                                     <th class="text-center">Service</th>
                                     <th>Cost</th>
@@ -135,9 +136,19 @@
                                 <!-- Directly embed component data here -->
                                 {% for component_id, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_components_data %}
                                 <tr>
-                                    <td>{{ type }}</td>
                                     <td>{{ name }}</td>
+                                    <td>{{ type }}</td>
                                     <td>{{ component_distance }} km</td>
+                                    <td>
+                                        {% if installation_status == "Installed" %}
+                                        ⚙
+                                        {% elif installation_status == "Not installed" %}
+                                        💤
+                                        {% elif installation_status == "Retired" %}
+                                        ⛔
+                                        {% endif %}
+                                        {{ installation_status }}
+                                    </td>
                                     <td class="text-center">
                                         {% if lifetime_status == "OK" %}
                                         🟢
