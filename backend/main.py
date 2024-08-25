@@ -101,6 +101,35 @@ async def modify_component_type(
 
     return RedirectResponse(url="/component_types_overview", status_code=303)
 
+@app.post("/add_service", response_class=HTMLResponse)
+async def add_service(
+    component_id: str = Form(...),
+    service_date: str = Form(...),
+    service_description: str = Form(...)):
+    """Endpoint to add service"""
+
+    service_id = misc_methods.generate_unique_id()
+    component_data = read_records.read_component(component_id)
+    
+    get last service datetime
+     if no service records, sum distance all rides
+    thats mileage
+    
+    if last service record:
+        sum distance rides from service record
+    thats mileage
+
+
+
+    mileage = 
+
+    service_data = {"component_type": component_type, "service_interval": service_interval, "expected_lifetime": expected_lifetime}
+    modify_records.update_service_history(service_data)
+
+    modify_tables.update_component_service_status(updated_component_data)
+
+    return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
+
 @app.post("/component_modify", response_class=HTMLResponse)
 async def modify_component(
     component_id: Optional[str] = Form(None),
@@ -397,24 +426,20 @@ async def delete_record(
 # Validation in form, cannot be "Not assigned" bike when status is installed
 # Bike details page - summary of lifetime and service should filter out retired components and of course those not installed
 # Give warning before selecting "Retired"
-# Make issue for the use of halt_update, can be improved
+# Make issue for the use of halt_update, can be improved. Return after each statement instead
 # old_component_data is only used for old bike_id, refactor to take this into account. 
-# Update historic record should also include new component name
+# Update historic record should also include new component name. Review this before making issue. Not sure this is really a bug. Historic records should not be updated if no change is made to install status and record date.. Seems to work the way it is
 # Bug when offset is changed and record date is the same as newest history, total distance is not updated
 # Consider different icon for installed - the cog is already used in navtab, change all places
 # There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off
 # Updated readme with change log
 # Add installed component count on bike card (bike overview - all bikes)
 # Component detail page should have delete button
-# Input validation on all field in component overview modify
-# Input validation on all field in component detail modify
+# Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing. This is solved already?
 
 
-# See open issues
-# 2. Component overview page should have column Name leftmost, not type, remember status also
-# 3. Page bike detail should have column Name leftmost for components, not type, remember status also
-# 4. Fix service and corresponding calculations
+
 
 
 # X. Page bike details: table should show status for components: retired or installed

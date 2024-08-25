@@ -159,7 +159,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while updating component distance for component {component.component_name} (id {component.component_id}): {error}')
 
-    def update_component_service_status(self, component):
+    def update_component_service_status(self, component): #Refactor this code
         """Method to update component table with service status"""
         if component.service_interval:
             try:
@@ -331,6 +331,22 @@ class ModifyRecords(): #Consider merging with modify tables
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while creating og updating component: {error}')
 
+    def update_service_history(self, service_data):
+        try:
+
+            maybe some checks..
+
+            Services.create(
+
+
+            )
+
+            logging.info(f'Added record to service history with id {service_id} for component with id {component_id}')
+
+        except peewee.OperationalError as error:
+            logging.error(f'An error occurred while adding service record for component with id {component_id}: {error}')
+
+    
     def update_component_history_record(self, old_component_data, latest_history_record, current_history_id, component_id, previous_bike_name, updated_bike_name, updated_component_installation_status, component_updated_date, historic_distance):
         """Method to create or update component history and write to the database"""
         try:
@@ -385,7 +401,7 @@ class ModifyRecords(): #Consider merging with modify tables
             return halt_update
         
         except peewee.OperationalError as error:
-            logging.error(f'An error occurred while adding or updatering record for installation history for component with id {component_id}: {error}')
+            logging.error(f'An error occurred while adding installation history record for component with id {component_id}: {error}')
             return True
 
     
