@@ -108,10 +108,10 @@ class Services(BaseModel):
     service_id = CharField(primary_key=True, unique=True)
     component_id = CharField()
     component_name = CharField()
-    service_name = CharField()
+    bike_id = CharField()
     service_date = CharField()
     distance_marker = IntegerField()
-    notes = CharField()
+    description = CharField()
 
     class Meta:
         """Extends model with extra attributes"""
