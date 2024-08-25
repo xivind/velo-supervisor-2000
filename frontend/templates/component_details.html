@@ -183,8 +183,8 @@
                             <input type="text" class="form-control" id="service_description" name="service_description" oninput="validateInput(this)">
                         </div>
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary" form="service_form" id="submit_btn_service">Save</button>
-                            <button type="submit" class="btn btn-outline-danger" form="service_form" id="clear_service_form_btn">Clear form</button>
+                            <button type="submit" class="btn btn-primary" form="service_form" id="submit_btn_service" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Save</button>
+                            <button type="submit" class="btn btn-outline-danger" form="service_form" id="clear_service_form_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Clear form</button>
                         </div>
                     </form>
                 </div>
