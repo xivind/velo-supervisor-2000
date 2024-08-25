@@ -276,9 +276,14 @@ class ReadRecords():
         return history_record
     
     def read_latest_history_record(self, component_id):
-        """Method to retrieve record for a specific entry in installation log"""
+        """Method to retrieve the most recent record from the installation log of a given component"""
         latest_history_record = ComponentHistory.select().where(ComponentHistory.component_id == component_id).order_by(ComponentHistory.updated_date.desc()).first()
         return latest_history_record
+
+    def read_latest_service_record(self, component_id):
+        """Method to retrieve the most recent record from the service log of a given component"""
+        latest_service_record = Services.select().where(Services.component_id == component_id).order_by(Services.service_date.desc()).first()
+        return latest_service_record
 
 
 class ModifyRecords(): #Consider merging with modify tables
@@ -333,18 +338,11 @@ class ModifyRecords(): #Consider merging with modify tables
 
     def update_service_history(self, service_data):
         try:
-
-            maybe some checks..
-
-            Services.create(
-
-
-            )
-
-            logging.info(f'Added record to service history with id {service_id} for component with id {component_id}')
+            Services.create(**service_data)
+            logging.info(f'Added record to service history with id {service_data["service_id"]} for component with id {service_data["component_id"]}')
 
         except peewee.OperationalError as error:
-            logging.error(f'An error occurred while adding service record for component with id {component_id}: {error}')
+            logging.error(f'An error occurred while adding service record for component with id {service_data["component_id"]}: {error}')
 
     
     def update_component_history_record(self, old_component_data, latest_history_record, current_history_id, component_id, previous_bike_name, updated_bike_name, updated_component_installation_status, component_updated_date, historic_distance):

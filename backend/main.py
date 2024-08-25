@@ -108,25 +108,37 @@ async def add_service(
     service_description: str = Form(...)):
     """Endpoint to add service"""
 
-    service_id = misc_methods.generate_unique_id()
     component_data = read_records.read_component(component_id)
+    service_id = misc_methods.generate_unique_id()
     
-    get last service datetime
-     if no service records, sum distance all rides
-    thats mileage
+    service_data = {"service_id": service_id,
+                    "component_id": component_id,
+                    "service_date": service_date,
+                    "description": service_description,
+                    "component_name": component_data.component_name,
+                    "bike_id": component_data.bike_id}
     
-    if last service record:
-        sum distance rides from service record
-    thats mileage
+    latest_service_record = read_records.read_latest_service_record(component_id)
 
+    if latest_service_record is None:
+        latest_history_record = read_records.read_latest_history_record(component_id)
+        distance_since_service = latest_history_record.distance_marker
 
+        if latest_history_record.update_reason == "Installed":
+            logging.info(f'Timespan for service distance query (triggered by new service): start date {latest_history_record.updated_date} stop date {service_date}')
+            distance_since_service += misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
+        
+    elif latest_service_record:
+        logging.info(f'Timespan for service distance query (triggered by new service): start date {latest_service_record.service_date} stop date {service_date}')
+        distance_since_service = misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
 
-    mileage = 
-
-    service_data = {"component_type": component_type, "service_interval": service_interval, "expected_lifetime": expected_lifetime}
+    service_data.update({"distance_marker": distance_since_service})
     modify_records.update_service_history(service_data)
 
-    modify_tables.update_component_service_status(updated_component_data)
+    # Check logging statements and exceptions above, might need something more here
+    # Necessary to also call some other methods here, to update component attributes?
+
+
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
@@ -187,7 +199,7 @@ async def modify_component(
                 historic_distance += latest_history_record.distance_marker
 
             else:
-                historic_distance = latest_history_record.distance_marker
+                historic_distance = latest_history_record.distance_marker #This line is probably redundant..? 
 
         halt_update = modify_records.update_component_history_record(old_component_data, latest_history_record, current_history_id, component_id, previous_bike_name, updated_bike_name, component_installation_status, component_updated_date, historic_distance)
         
@@ -203,7 +215,7 @@ async def modify_component(
                 modify_tables.update_component_distance(component_id, current_distance)
 
             else:
-                current_distance = latest_history_record.distance_marker
+                current_distance = latest_history_record.distance_marker #Can this be made redundant by reordering function above?
                 modify_tables.update_component_distance(component_id, current_distance)
         else:
             logging.warning(f"Update of component with id {component_id} skipped due to exceptions when updating history record")
