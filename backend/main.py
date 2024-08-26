@@ -136,6 +136,7 @@ async def add_service(
 
     service_data.update({"distance_marker": distance_since_service})
     modify_records.update_service_history(service_data)
+    modify_tables.update_component_service_status(updated_component_data)
 
     # Check logging statements and exceptions above, might need something more here
     # Necessary to also call some other methods here, to update component attributes?
@@ -462,6 +463,7 @@ async def delete_record(
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing. This is solved already?
 # Table installation history should use id and not name for bike..
+# Check function that writes lifetime and service status, either NULL should be store or "Not defined". Right now its a mix..Applies to component table
 
 
 

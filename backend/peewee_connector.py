@@ -169,6 +169,16 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
     def update_component_service_status(self, component): #Refactor this code
         """Method to update component table with service status"""
+        
+        if component.service_interval:
+                
+        
+                if no service record exist:
+                    
+             
+        
+        
+        
         if component.service_interval:
             try:
                 logging.info(f"Updating service status for component {component.component_name} (id {component.component_id})")
