@@ -120,6 +120,8 @@ async def add_service(
     
     latest_service_record = read_records.read_latest_service_record(component_id)
 
+    # Handle case where bike_id is null / not installed - should not execute code
+
     if latest_service_record is None:
         latest_history_record = read_records.read_latest_history_record(component_id)
         distance_since_service = latest_history_record.distance_marker
@@ -371,13 +373,23 @@ async def component_details(request: Request, component_id: str):
     else:
         component_history_data = None
 
+    service_history = read_tables.read_subset_service_history(bike_component.component_id)
+    if service_history is not None:
+        service_history_data = [(service_record.service_date,
+                                   service_record.description,
+                                   misc_methods.get_bike_name(service_record.bike_id),
+                                   service_record.distance_marker) for service_record in service_history]
+    else:
+        service_history_data = None
+
 
     payload = {
         "bikes_data": bikes_data,
         "component_types_data": component_types_data,
         "bike_component_data": bike_component_data,
         "bike_name": misc_methods.get_bike_name(bike_component.bike_id),
-        "component_history_data": component_history_data}
+        "component_history_data": component_history_data,
+        "service_history_data": service_history_data}
 
     template_path = "component_details.html"
     return templates.TemplateResponse(template_path, {"request": request, "payload": payload})
@@ -449,11 +461,12 @@ async def delete_record(
 # Component detail page should have delete button
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing. This is solved already?
+# Table installation history should use id and not name for bike..
 
 
 
 
-
+# X. There is a bug somewhere in how distance is calculated for component, related to installation history probably..
 # X. Page bike details: table should show status for components: retired or installed
 # X. Page bike details: column to the left should only include installed components, not retired.
 # X. Page bike details: estimated cost should only calculate cost for approaching or exceeded

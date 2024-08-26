@@ -48,6 +48,14 @@ class ReadTables(): #rename to something else, internal logic or something, migh
         
         return None
 
+    def read_subset_service_history(self, component_id):
+        """Method to read a subset of receords from the component history table"""
+        service_history = Services.select().where(Services.component_id == component_id).order_by(Services.service_date.desc())
+        if service_history.exists():
+            return service_history
+        
+        return None
+
 
 class ModifyTables(): #rename to something else, internal logic or something, might split into separate classes
     """Class to interact with a SQL database through peewee""" #Modify this description

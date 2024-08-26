@@ -203,22 +203,20 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Directly embed component data here -->
-                            {% for ride_id, date, name, ride_distance, commute in payload.recent_rides %}
-                            <tr>
-                                <td>{{ date }}</td>
-                                <td>{{ name }}</td>
-                                <td>{{ ride_distance }} km</td>
-                                <td class="text-center">
-                                    {% if commute == "False" %}
-                                    🏁
-                                    {% elif commute == "True" %}
-                                    👔
-                                    {% endif %}
-                                </td>
-                                <td><a href="https://www.strava.com/activities/{{ ride_id }}" target="_blank" class="btn btn-outline-info btn-sm">🌎</a></td>
-                            </tr>
-                            {% endfor %}
+                            {% if payload.service_history_data %}
+                                {% for service_date, description, bike_name, distance_marker in payload.service_history_data %}
+                                <tr>
+                                    <td>{{ service_date }}</td>
+                                    <td>{{ description }}</td>
+                                    <td>{{ bike_name }}</td>
+                                    <td>{{ distance_marker }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No service history data available</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
