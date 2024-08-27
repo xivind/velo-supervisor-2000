@@ -418,23 +418,20 @@ async def delete_record(
 # This method should be called by main
 
 # Todo
-# Add error handling to all endpoints
 # All endpoints that writes should print log
-# Clean up HTML code and check consistency all end points
+# Clean up HTML code and check consistency all end points, applies also to python scripts
 # Velo supervisor logo must be clickable, go to "/about"
 # All notes in Strava should be in english
 # Make sure all endpoints have same logic, variable naming conventions..
 # Display banner on all pages if last ride is more than seven days ago
 # Add favicon
-# Cleanup html in all files
-# Switch to show also retired bikes
-# Must have action to delete component, both from component overview and component detail
-# All endpoints must have try / except blocks
+# Switch to show also retired bikes on bike overview
+# Switch to show different component statuses on component overview
+# Add function to delete associated records if a component is deleted
 # Component type should specify suggested as prefix for variables
 # Use the same name across endpoints, require change also to html files: bike_components_data
 # Sort endpoints so they appear in a more logical order
-# Add input validation on component details form
-# Function to calculate service status in bikes table
+# Add input validation on component details form, should have input validation on all forms
 # Consider all export statement, maybe not needed?
 # Update all diagrams to match code
 # Review all doc strings
@@ -451,21 +448,21 @@ async def delete_record(
 # Consider different icon for installed - the cog is already used in navtab, change all places
 # There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off
 # Updated readme with change log
-# Add installed component count on bike card (bike overview - all bikes)
-# Component detail page should have delete button
+# Component detail page should have delete button, maybe not relevant..
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing. This is solved already?
 # Table installation history should use id and not name for bike..
 # Check what to do if you try to add service status to a component that is not installed to any bike
 
-
-
+# Bug: WARNING - Component Surly Test (id 2712c51234) is not assigned to any bike, defaulting to current component distance. This comes when only updating component detail, without changing date. Its related to this one: def update_component_service_status(self, component):
+# Function to retrieve data from Strava
+# Add installed component count on bike card (bike overview - all bikes)
 # Check function that writes lifetime and service status, either NULL should be store or "Not defined". Right now its a mix..Applies to component table
-# X. There is a bug somewhere in how distance is calculated for component, related to installation history probably..
+# X. There is a bug somewhere in how distance is calculated for component, related to installation history probably.. Is it? This is not confirmed..
 # X. Page bike details: table should show status for components: retired or installed
 # X. Page bike details: column to the left should only include installed components, not retired.
 # X. Page bike details: estimated cost should only calculate cost for approaching or exceeded
-# X. Compute bike status, probably based on components
+# X. Compute bike status, probably based on components, Function to calculate service status in bikes table
 # X. Modify percentage bar to state exceeded with...
 
 

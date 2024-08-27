@@ -174,7 +174,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
             try:
                 latest_service_record = Services.select().where(Services.component_id == component.component_id).order_by(Services.service_date.desc()).first()
                 
-                if latest_service_record and component.installation_status == "Installed":
+                if latest_service_record and component.installation_status == "Installed": #This one is a problem, probably separate for no service record, but is installed. Or not? Maybe ok?
                     matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_service_record.service_date))
                     distance_since_service = sum(ride.ride_distance for ride in matching_rides)
 
@@ -235,20 +235,24 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         """Method to compute service status"""
 
         if mode == "service":
-            if int(reached_distance_percent) in range(0, 76):
+            if int(reached_distance_percent) in range(0, 71):
                 status = "OK"
-            elif int(reached_distance_percent) in range(76, 100):
+            elif int(reached_distance_percent) in range(71, 91):
                 status = "Service approaching"
-            elif int(reached_distance_percent) >= 100:
+            elif int(reached_distance_percent) in range(91, 101):
                 status = "Due for service"
+            elif int(reached_distance_percent) > 100:
+                status = "Service interval exceeded"
 
         if mode == "lifetime":
-            if int(reached_distance_percent) in range(0, 76):
+            if int(reached_distance_percent) in range(0, 71):
                 status = "OK"
-            elif int(reached_distance_percent) in range(76, 100):
-                status = "Lifetime approaching"
-            elif int(reached_distance_percent) >= 100:
-                status = "Lifetime reached"
+            elif int(reached_distance_percent) in range(71, 91):
+                status = "End of life approaching"
+            elif int(reached_distance_percent) in range(91, 101):
+                status = "Due for replacement"
+            elif int(reached_distance_percent) > 100:
+                status = "Lifetime exceeded"
 
         return status
 
