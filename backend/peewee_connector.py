@@ -167,37 +167,23 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while updating component distance for component {component.component_name} (id {component.component_id}): {error}')
 
-    def update_component_service_status(self, component): #Refactor this code
+    def update_component_service_status(self, component):
         """Method to update component table with service status"""
         
         if component.service_interval:
-                
-        
-                if no service record exist:
-                    
-             
-        
-        
-        
-        if component.service_interval:
             try:
-                logging.info(f"Updating service status for component {component.component_name} (id {component.component_id})")
-
-                services = Services.select().where((Services.component_id == component.component_id))
-                service_list = [
-                    service.service_date
-                    for service in services
-                    if service.service_date != "None"]
-                service_list = sorted(service_list, reverse=True)
-
-                if len(service_list) > 0:
-                    newest_service = service_list[0]
-                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= newest_service))
+                latest_service_record = Services.select().where(Services.component_id == component.component_id).order_by(Services.service_date.desc()).first()
+                
+                if latest_service_record and component.installation_status == "Installed":
+                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_service_record.service_date))
                     distance_since_service = sum(ride.ride_distance for ride in matching_rides)
 
-                elif len(service_list) == 0:
+                else:
+                    logging.warning(f"Component {component.component_name} (id {component.component_id}) is not assigned to any bike, defaulting to current component distance.")
                     distance_since_service = component.component_distance
 
+                logging.info(f"Updating service status for component {component.component_name} (id {component.component_id}). New mileage since service: {distance_since_service}")
+                
                 service_next = component.service_interval- distance_since_service
 
                 with database.atomic():

@@ -119,9 +119,7 @@ async def add_service(
                     "bike_id": component_data.bike_id}
     
     latest_service_record = read_records.read_latest_service_record(component_id)
-
-    # Handle case where bike_id is null / not installed - should not execute code
-
+    
     if latest_service_record is None:
         latest_history_record = read_records.read_latest_history_record(component_id)
         distance_since_service = latest_history_record.distance_marker
@@ -136,12 +134,7 @@ async def add_service(
 
     service_data.update({"distance_marker": distance_since_service})
     modify_records.update_service_history(service_data)
-    modify_tables.update_component_service_status(updated_component_data)
-
-    # Check logging statements and exceptions above, might need something more here
-    # Necessary to also call some other methods here, to update component attributes?
-
-
+    modify_tables.update_component_service_status(component_data)
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
@@ -463,11 +456,11 @@ async def delete_record(
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing. This is solved already?
 # Table installation history should use id and not name for bike..
+# Check what to do if you try to add service status to a component that is not installed to any bike
+
+
+
 # Check function that writes lifetime and service status, either NULL should be store or "Not defined". Right now its a mix..Applies to component table
-
-
-
-
 # X. There is a bug somewhere in how distance is calculated for component, related to installation history probably..
 # X. Page bike details: table should show status for components: retired or installed
 # X. Page bike details: column to the left should only include installed components, not retired.
