@@ -234,25 +234,26 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
     def compute_component_status(self, mode, reached_distance_percent): #move to misc? Can be others also. Could be possible by calling classes directly
         """Method to compute service status"""
+        print(reached_distance_percent)
 
         if mode == "service":
-            if int(reached_distance_percent) in range(0, 71):
+            if 0 <= reached_distance_percent <= 70:
                 status = "OK"
-            elif int(reached_distance_percent) in range(71, 91):
+            elif 70 < reached_distance_percent <= 90:
                 status = "Service approaching"
-            elif int(reached_distance_percent) in range(91, 101):
+            elif 90 < reached_distance_percent <= 100:
                 status = "Due for service"
-            elif int(reached_distance_percent) > 100:
+            elif reached_distance_percent > 100:
                 status = "Service interval exceeded"
 
         if mode == "lifetime":
-            if int(reached_distance_percent) in range(0, 71):
+            if 0 <= reached_distance_percent <= 70:
                 status = "OK"
-            elif int(reached_distance_percent) in range(71, 91):
+            elif 70 < reached_distance_percent <= 90:
                 status = "End of life approaching"
-            elif int(reached_distance_percent) in range(91, 101):
+            elif 90 < reached_distance_percent <= 100:
                 status = "Due for replacement"
-            elif int(reached_distance_percent) > 100:
+            elif reached_distance_percent > 100:
                 status = "Lifetime exceeded"
 
         return status
@@ -260,7 +261,8 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
     def calculate_percentage_reached(self, total, remaining): #move to misc?  Can be others also. Could be possible by calling classes directly
         """Method to calculate remaining service interval or remaining lifetime as percentage"""
         if isinstance(total, int) and isinstance(remaining, int):
-            return int(((total - remaining) / total) * 100)
+            print(round(((total - remaining) / total) * 100, 2))
+            return round(((total - remaining) / total) * 100, 2)
         
         return 1000
 

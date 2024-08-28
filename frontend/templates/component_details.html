@@ -9,7 +9,10 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         .bg-purple {
-    background-color: rgb(173, 15, 173) !important;}
+            background-color: rgb(173, 15, 173) !important;}
+        .text-bg-purple {
+            background-color: rgb(173, 15, 173) !important;
+            color: white !important;}
     </style>
 </head>
 <body>
@@ -40,14 +43,14 @@
         <div class="row mt-5">
             <div class="col-md-4">
                 <div class="card shadow mb-4">
-                    <div class="card-header fw-bold text-bg-{% if payload.bike_component_data['lifetime_status'] == 'Not defined' and payload.bike_component_data['service_status'] == 'Not defined' %}secondary{% elif payload.bike_component_data['lifetime_status'] == 'Lifetime reached' or payload.bike_component_data['service_status'] == 'Due for service' %}danger{% elif payload.bike_component_data['lifetime_status'] == 'Lifetime approaching' or payload.bike_component_data['service_status'] == 'Service approaching' %}warning{% else %}success{% endif %}">{{ payload.bike_component_data['component_name'] }}</div>
+                    <div class="card-header fw-bold text-bg-{% if payload.bike_component_data['lifetime_status'] == 'Not defined' and payload.bike_component_data['service_status'] == 'Not defined' %}secondary{% elif payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded' or payload.bike_component_data['service_status'] == 'Service interval exceeded' %}purple{% elif payload.bike_component_data['lifetime_status'] == 'Due for replacement' or payload.bike_component_data['service_status'] == 'Due for service' %}danger{% elif payload.bike_component_data['lifetime_status'] == 'End of life approaching' or payload.bike_component_data['service_status'] == 'Service approaching' %}warning{% else %}success{% endif %}">{{ payload.bike_component_data['component_name'] }}</div>
                     <div class="card-body">
                         <h5 class="card-title">
                             {% if payload.bike_component_data['installation_status'] == 'Installed' %}⚙ {{ payload.bike_component_data['installation_status'] }} at {{ payload['bike_name'] }}{% elif payload.bike_component_data['installation_status'] == 'Not installed' %}💤 {{ payload.bike_component_data['installation_status'] }}{% elif payload.bike_component_data['installation_status'] == 'Retired' %}⛔ {{ payload.bike_component_data['installation_status'] }}{% endif %}</h5>
                         <hr/>
                         <span class="fw-bold">📍 Mileage {{ payload.bike_component_data['component_distance'] }} km</span>
                         <hr/>
-                        <span class="fw-bold">🚳 {% if payload.bike_component_data['lifetime_status'] == 'Not defined' %}Expected lifetime not defined{% else %}Lifetime reached in {{ payload.bike_component_data['lifetime_remaining'] }} km{% endif %}</span>
+                        <span class="fw-bold">🚳 {% if payload.bike_component_data['lifetime_status'] == 'Not defined' %}Expected lifetime not defined{% elif payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded' %}Lifetime exceeded with {{ payload.bike_component_data['lifetime_remaining'] * -1}} km{% else %}Lifetime reached in {{ payload.bike_component_data['lifetime_remaining'] }} km{% endif %}</span>
                         <div class="progress" role="progressbar" aria-label="Lifetime bar" aria-valuemin="0" aria-valuemax="100">
                             <div class="progress-bar progress-bar-striped 
                             {% if payload.bike_component_data['lifetime_status'] == 'Not defined' %}
@@ -65,7 +68,7 @@
                             </div>
                         </div>
                         <hr/>
-                        <span class="fw-bold">🧑‍🔧 {% if payload.bike_component_data['service_status'] == 'Not defined' %}Service interval not defined{% else %}Next service in {{ payload.bike_component_data['service_next'] }} km{% endif %}</span>
+                        <span class="fw-bold">🧑‍🔧 {% if payload.bike_component_data['service_status'] == 'Not defined' %}Service interval not defined{% elif payload.bike_component_data['service_status'] == 'Service interval exceeded' %}Service interval exceeded with {{ payload.bike_component_data['service_next'] * -1}} km{% else %}Next service in {{ payload.bike_component_data['service_next'] }} km{% endif %}</span>
                         <div class="progress" role="progressbar" aria-label="Service bar" aria-valuemin="0" aria-valuemax="100">
                             <div class="progress-bar progress-bar-striped 
                             {% if payload.bike_component_data['service_status'] == 'Not defined' %}
