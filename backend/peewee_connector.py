@@ -234,7 +234,6 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
     def compute_component_status(self, mode, reached_distance_percent): #move to misc? Can be others also. Could be possible by calling classes directly
         """Method to compute service status"""
-        print(reached_distance_percent)
 
         if mode == "service":
             if 0 <= reached_distance_percent <= 70:
@@ -261,7 +260,6 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
     def calculate_percentage_reached(self, total, remaining): #move to misc?  Can be others also. Could be possible by calling classes directly
         """Method to calculate remaining service interval or remaining lifetime as percentage"""
         if isinstance(total, int) and isinstance(remaining, int):
-            print(round(((total - remaining) / total) * 100, 2))
             return round(((total - remaining) / total) * 100, 2)
         
         return 1000
