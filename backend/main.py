@@ -444,7 +444,6 @@ async def delete_record(
 # Make issue for the use of halt_update, can be improved. Return after each statement instead
 # old_component_data is only used for old bike_id, refactor to take this into account. 
 # Update historic record should also include new component name. Review this before making issue. Not sure this is really a bug. Historic records should not be updated if no change is made to install status and record date.. Seems to work the way it is
-# Bug when offset is changed and record date is the same as newest history, total distance is not updated
 # Consider different icon for installed - the cog is already used in navtab, change all places
 # There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off
 # Updated readme with change log
@@ -454,8 +453,11 @@ async def delete_record(
 # Table installation history should use id and not name for bike..
 # Check what to do if you try to add service status to a component that is not installed to any bike
 
+# Fix these first
+# Bug when offset is changed and record date is the same as newest history, total distance is not updated
 # Bug: WARNING - Component Surly Test (id 2712c51234) is not assigned to any bike, defaulting to current component distance. This comes when only updating component detail, without changing date. Its related to this one: def update_component_service_status(self, component):
 # Function to retrieve data from Strava
+# FUnction to delete components and associated data
 # Add installed component count on bike card (bike overview - all bikes)
 # Check function that writes lifetime and service status, either NULL should be store or "Not defined". Right now its a mix..Applies to component table
 # X. There is a bug somewhere in how distance is calculated for component, related to installation history probably.. Is it? This is not confirmed..

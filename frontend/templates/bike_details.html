@@ -152,10 +152,12 @@
                                     <td class="text-center">
                                         {% if lifetime_status == "OK" %}
                                         🟢
-                                        {% elif lifetime_status == "Lifetime approaching" %}
+                                        {% elif lifetime_status == "End of life approaching" %}
                                         🟡
-                                        {% elif lifetime_status == "Lifetime reached" %}
+                                        {% elif lifetime_status == "Due for replacement" %}
                                         🔴
+                                        {% elif lifetime_status == "Lifetime exceeded" %}
+                                        🟣
                                         {% elif lifetime_status == "Not defined" %}
                                         ⚪
                                         {% endif %}
@@ -167,6 +169,8 @@
                                         🟡
                                         {% elif service_status == "Due for service" %}
                                         🔴
+                                        {% elif service_status == "Service interval exceeded" %}
+                                        🟣
                                         {% elif service_status == "Not defined" %}
                                         ⚪
                                         {% endif %}

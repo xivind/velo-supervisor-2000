@@ -172,6 +172,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         
         if component.service_interval:
             try:
+                logging.info(f"Updating service status for component {component.component_name} (id {component.component_id}).")
                 latest_service_record = Services.select().where(Services.component_id == component.component_id).order_by(Services.service_date.desc()).first()
                 
                 if latest_service_record and component.installation_status == "Installed": #This one is a problem, probably separate for no service record, but is installed. Or not? Maybe ok?
@@ -179,10 +180,10 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
                     distance_since_service = sum(ride.ride_distance for ride in matching_rides)
 
                 else:
-                    logging.warning(f"Component {component.component_name} (id {component.component_id}) is not assigned to any bike, defaulting to current component distance.")
+                    logging.warning(f"Component {component.component_name} (id {component.component_id}) is not assigned to any bike, defaulting to current component distance to calculate service.")
                     distance_since_service = component.component_distance
 
-                logging.info(f"Updating service status for component {component.component_name} (id {component.component_id}). New mileage since service: {distance_since_service}")
+                
                 
                 service_next = component.service_interval- distance_since_service
 
