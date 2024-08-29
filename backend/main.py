@@ -119,20 +119,23 @@ async def add_service(
                     "bike_id": component_data.bike_id}
     
     latest_service_record = read_records.read_latest_service_record(component_id)
-    
-    # Do not execute if bike_id is none
+    latest_history_record = read_records.read_latest_history_record(component_id)
 
-    if latest_service_record is None:
-        latest_history_record = read_records.read_latest_history_record(component_id)
+    if component_data.installation_status != "Installed":
+        logging.info(f'Component with id {component_id} has been uninstalled. Setting distance since service to current component distance')
+        distance_since_service = component_data.component_distance #This one should subtract distance from previous service, if existing
+    
+    elif latest_service_record is None:
         distance_since_service = latest_history_record.distance_marker
 
         if latest_history_record.update_reason == "Installed":
-            logging.info(f'Timespan for historic service distance query (triggered by new service): start date {latest_history_record.updated_date} stop date {service_date}')
+            logging.info(f'No service record found. Timespan for historic service distance query (triggered by new service): start date {latest_history_record.updated_date} stop date {service_date}')
             distance_since_service += misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
         
     elif latest_service_record:
-        logging.info(f'Timespan for historic service distance query (triggered by new service): start date {latest_service_record.service_date} stop date {service_date}')
+        logging.info(f'Service record found. Timespan for historic service distance query (triggered by new service): start date {latest_service_record.service_date} stop date {service_date}')
         distance_since_service = misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
+
 
     service_data.update({"distance_marker": distance_since_service})
     modify_records.update_service_history(service_data)
@@ -454,3 +457,4 @@ async def delete_record(
 # Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing. This is solved already?
 # Table installation history should use id and not name for bike..
 # # Add installed component count on bike card (bike overview - all bikes)
+# Field service interval and expected lifetime is in the wrong order on submit form comp overview
