@@ -176,8 +176,12 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
                 latest_service_record = Services.select().where(Services.component_id == component.component_id).order_by(Services.service_date.desc()).first()
                 
                 if latest_service_record and component.installation_status == "Installed": #This one is a problem, probably separate for no service record, but is installed. Or not? Maybe ok?
+                    logging.info(f'Timespan for current service distance query (triggered by other method): start date {latest_service_record.service_date} no stop date')
                     matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_service_record.service_date))
                     distance_since_service = sum(ride.ride_distance for ride in matching_rides)
+
+                    # probably duplicate statement above.. latest_service_record is none and installed:
+                         #query from install date, no stop
 
                 else:
                     logging.warning(f"Component {component.component_name} (id {component.component_id}) is not assigned to any bike, defaulting to current component distance to calculate service.")

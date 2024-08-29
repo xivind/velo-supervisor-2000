@@ -120,16 +120,18 @@ async def add_service(
     
     latest_service_record = read_records.read_latest_service_record(component_id)
     
+    # Do not execute if bike_id is none
+
     if latest_service_record is None:
         latest_history_record = read_records.read_latest_history_record(component_id)
         distance_since_service = latest_history_record.distance_marker
 
         if latest_history_record.update_reason == "Installed":
-            logging.info(f'Timespan for service distance query (triggered by new service): start date {latest_history_record.updated_date} stop date {service_date}')
+            logging.info(f'Timespan for historic service distance query (triggered by new service): start date {latest_history_record.updated_date} stop date {service_date}')
             distance_since_service += misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
         
     elif latest_service_record:
-        logging.info(f'Timespan for service distance query (triggered by new service): start date {latest_service_record.service_date} stop date {service_date}')
+        logging.info(f'Timespan for historic service distance query (triggered by new service): start date {latest_service_record.service_date} stop date {service_date}')
         distance_since_service = misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
 
     service_data.update({"distance_marker": distance_since_service})
@@ -451,23 +453,4 @@ async def delete_record(
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing. This is solved already?
 # Table installation history should use id and not name for bike..
-# Check what to do if you try to add service status to a component that is not installed to any bike
-# Add installed component count on bike card (bike overview - all bikes)
-
-# Fix these first
-# 1. Function to retrieve data from Strava
-# 2. Compute bike status, probably based on components, Function to calculate service status in bikes table
-# 3. FUnction to delete components and associated data
-# X. Bug when offset is changed and record date is the same as newest history, total distance is not updated
-# X. Bug: WARNING - Component Surly Test (id 2712c51234) is not assigned to any bike, defaulting to current component distance. This comes when only updating component detail, without changing date. Its related to this one: def update_component_service_status(self, component):
-# X. Check function that writes lifetime and service status, either NULL should be store or "Not defined". Right now its a mix..Applies to component table
-# X. There is a bug somewhere in how distance is calculated for component, related to installation history probably.. Is it? This is not confirmed..
-# X. Page bike details: table should show status for components: retired or installed
-# X. Page bike details: should also include count of exceeded.. 
-# X. Page bike details: column to the left should only include installed components, not retired.
-# X. Page bike details: estimated cost should only calculate cost for approaching or exceeded
-
-
-
-
-
+# # Add installed component count on bike card (bike overview - all bikes)
