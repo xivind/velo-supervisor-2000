@@ -218,7 +218,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
                 logging.info(f"Component {component.component_name} with component id {component.component_id} has no service interval, setting NULL values for service")
                 with database.atomic():
                     component.service_next = None
-                    component.service_status = "Not defined"
+                    component.service_status = None
                     component.save()
 
             except peewee.OperationalError as error:
@@ -244,7 +244,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.lifetime_remaining = None
-                    component.lifetime_status = "Not defined"
+                    component.lifetime_status = None
                     component.save()
 
             except peewee.OperationalError as error:
@@ -378,7 +378,7 @@ class ModifyRecords(): #Consider merging with modify tables
             halt_update = False
 
             if latest_history_record is None and updated_component_installation_status != "Installed":
-                logging.warning(f"Cannot change a component that is not installed, component id {component_id}. Skipping...")
+                logging.warning(f"Cannot change a component that is not installed, component id {component_id}. Skipping...") #Can use return on these statements instead?
                 halt_update = True
             
             elif latest_history_record is None:

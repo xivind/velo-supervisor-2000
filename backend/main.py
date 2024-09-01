@@ -478,7 +478,3 @@ async def delete_record(
 # Table installation history should use id and not name for bike..
 # Add installed component count on bike card (bike overview - all bikes)
 # Review all log statemens and make them consistent
-
-# Refactor update_component_history_record, see in relation to refactor /modif_component endpoint 
-
-
