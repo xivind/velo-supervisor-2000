@@ -121,21 +121,25 @@ async def add_service(
     latest_service_record = read_records.read_latest_service_record(component_id)
     latest_history_record = read_records.read_latest_history_record(component_id)
 
-    if component_data.installation_status != "Installed":
-        logging.info(f'Component with id {component_id} has been uninstalled. Setting distance since service to current component distance')
-        distance_since_service = component_data.component_distance #This one should subtract distance from previous service, if existing
-    
-    elif latest_service_record is None:
-        distance_since_service = latest_history_record.distance_marker
-
-        if latest_history_record.update_reason == "Installed":
-            logging.info(f'No service record found. Timespan for historic service distance query (triggered by new service): start date {latest_history_record.updated_date} stop date {service_date}')
+    if component_data.installation_status == "Installed":
+        if latest_service_record is None:
+            logging.info(f'No service record found for component with id {component_id}. Using distance from installation log and querying distance from installation date to service date')
+            distance_since_service = latest_history_record.distance_marker
             distance_since_service += misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
-        
-    elif latest_service_record:
-        logging.info(f'Service record found. Timespan for historic service distance query (triggered by new service): start date {latest_service_record.service_date} stop date {service_date}')
-        distance_since_service = misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
+            
+        elif latest_service_record:
+            logging.info(f'Service record found for for component with id {component_id}. Querying distance from previous service date to current service date')
+            distance_since_service = misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
 
+    elif component_data.installation_status != "Installed":
+        if latest_service_record is None:
+            logging.info(f'Component with id {component_id} has been uninstalled and there are no previous services. Setting historic distance since service to distance at the time of uninstallation')
+            distance_since_service = latest_history_record.distance_marker
+        
+        elif latest_service_record:
+            if latest_service_record.service_date > component_data.updated_date:
+                logging.info(f'Component with id {component_id} has been serviced after uninstall. Setting distance since service to 0')
+                distance_since_service = 0
 
     service_data.update({"distance_marker": distance_since_service})
     modify_records.update_service_history(service_data)
@@ -438,7 +442,6 @@ async def delete_record(
 # Sort endpoints so they appear in a more logical order
 # Add input validation on component details form, should have input validation on all forms
 # Consider all export statement, maybe not needed?
-# Update all diagrams to match code
 # Review all doc strings
 # Implement health check
 # Clean up datatypes to avoid casting in script, most, if not all numbers, should be int
@@ -458,3 +461,7 @@ async def delete_record(
 # Table installation history should use id and not name for bike..
 # # Add installed component count on bike card (bike overview - all bikes)
 # Field service interval and expected lifetime is in the wrong order on submit form comp overview
+# Refactor endpoint ("/component_modify
+# Bug in clear form buttons, probably all forms 
+# Add validation: cannot add any records through forms that precedes recent dates
+# Review all log statemens and make them consistent

@@ -173,33 +173,37 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         
         if component.service_interval:
             try:
-                logging.info(f"Updating service status for component {component.component_name} (id {component.component_id}).")
+                logging.info(f"Updating service status for component {component.component_name} with component id {component.component_id}")
                 latest_service_record = Services.select().where(Services.component_id == component.component_id).order_by(Services.service_date.desc()).first()
-                
-                if latest_service_record and component.installation_status == "Installed":
-                    logging.info(f'Service record found. Timespan for current service distance query (triggered by other method): start date {latest_service_record.service_date} no stop date')
-                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_service_record.service_date))
-                    distance_since_service = sum(ride.ride_distance for ride in matching_rides)
-                
-                elif latest_service_record is None and component.installation_status == "Installed":
-                    logging.info(f'No service record found. Timespan for current service distance query (triggered by other method): start date {component.updated_date} no stop date')
-                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= component.updated_date))
-                    distance_since_service = sum(ride.ride_distance for ride in matching_rides)
+                latest_history_record = ComponentHistory.select().where(ComponentHistory.component_id == component.component_id).order_by(ComponentHistory.updated_date.desc()).first()
+
+                if component.installation_status == "Installed":
+                    if latest_service_record is None:
+                        logging.info(f'No service record found for component with id {component.component_id}. Using distance from installation log and querying distance from installation date to today')
+                        distance_since_service = latest_history_record.distance_marker
+                        matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_history_record.updated_date))
+                        distance_since_service += sum(ride.ride_distance for ride in matching_rides)
+                        
+                    elif latest_service_record:
+                        logging.info(f'Service record found for for component with id {component.component_id}. Querying distance from previous service date to today')
+                        matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_service_record.service_date))
+                        distance_since_service = sum(ride.ride_distance for ride in matching_rides)
 
                 elif component.installation_status != "Installed":
-                    if latest_service_record.service_date > component.updated_date:
-                        logging.info(f'Component with id {component.component_id} has been serviced after uninstall. Setting distance since service to 0')
-                        distance_since_service = 0
+                    if latest_service_record is None:
+                        logging.info(f'Component with id {component.component_id} has been uninstalled and there are no previous services. Setting distance since service to distance at the time of uninstallation')
+                        distance_since_service = latest_history_record.distance_marker
                     
-                    elif latest_service_record.service_date < component.updated_date:
-                        logging.info(f'Component with id {component.component_id} has no services after uninstall, but a previous service exist. Setting distance to current component distance minus distance marker last service')
-                        distance_since_service = component.component_distance - latest_service_record.distance_marker
-
-                    elif latest_service_record is None:
-                        logging.info(f'Component with id {component.component_id} has no services. Setting distance to current component distance')
-                        distance_since_service = component.component_distance
-
-                service_next = component.service_interval- distance_since_service
+                    elif latest_service_record:
+                        if latest_service_record.service_date > component.updated_date:
+                            logging.info(f'Component with id {component.component_id} has been serviced after uninstall. Setting distance since service to 0')
+                            distance_since_service = 0
+                    
+                        elif latest_service_record.service_date < component.updated_date:
+                            logging.info(f'Component with id {component.component_id} has no services after uninstall, but a previous service exist. Using already calculated distance to next service')
+                            distance_since_service = component.service_interval + component.service_next*-1
+            
+                service_next = component.service_interval - distance_since_service
 
                 with database.atomic():
                     component.service_next = service_next
@@ -207,18 +211,18 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
                     component.save()
 
             except peewee.OperationalError as error:
-                logging.error(f'An error occurred while updating service status for component {component.component_name} (id {component.component_id}): {error}')
+                logging.error(f'An error occurred while updating service status for component {component.component_name} with component id {component.component_id}: {error}')
 
         else:
             try:
-                logging.info(f"Component {component.component_name} (id {component.component_id}) has no service interval, setting NULL values for service")
+                logging.info(f"Component {component.component_name} with component id {component.component_id} has no service interval, setting NULL values for service")
                 with database.atomic():
                     component.service_next = None
                     component.service_status = "Not defined"
                     component.save()
 
             except peewee.OperationalError as error:
-                logging.error(f'An error occurred while setting blank service status for component {component.component_name} (id {component.component_id}): {error}')
+                logging.error(f'An error occurred while setting blank service status for component {component.component_name} with component id {component.component_id}: {error}')
 
     def update_component_lifetime_status(self, component):
         """Method to update component table with lifetime status"""
