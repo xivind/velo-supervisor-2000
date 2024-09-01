@@ -447,6 +447,7 @@ async def delete_record(
 # Clean up datatypes to avoid casting in script, most, if not all numbers, should be int
 # Improvement: on bike change automatically uninstall and install, enhancement, not fix now, or some sort of validation
 # Validation in form, cannot be "Not assigned" bike when status is installed
+# Validation: should not be possible to add new types when type already exist
 # Bike details page - summary of lifetime and service should filter out retired components and of course those not installed
 # Give warning before selecting "Retired"
 # Make issue for the use of halt_update, can be improved. Return after each statement instead

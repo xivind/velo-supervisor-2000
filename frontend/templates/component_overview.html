@@ -117,59 +117,64 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Directly embed component data here -->
-                        {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike in component_data %}
-                        <tr>
-                            <td>{{ name }}</td>
-                            <td>{{ type }}</td>
-                            <td>{{ component_distance }} km</td>
-                            <td>
-                                {% if installation_status == "Installed" %}
-                                ⚙
-                                {% elif installation_status == "Not installed" %}
-                                💤
-                                {% elif installation_status == "Retired" %}
-                                ⛔
-                                {% endif %}
-                                {{ installation_status }}
-                            </td>
-                            <td>
-                                {% if lifetime_status == "OK" %}
-                                🟢
-                                {% elif lifetime_status == "End of life approaching" %}
-                                🟡
-                                {% elif lifetime_status == "Due for replacement" %}
-                                🔴
-                                {% elif lifetime_status == "Lifetime exceeded" %}
-                                🟣
-                                {% elif lifetime_status == "Not defined" %}
-                                ⚪
-                                {% endif %}
-                                {{ lifetime_status }}
-                            </td>
-                            <td>
-                                {% if service_status == "OK" %}
-                                🟢
-                                {% elif service_status == "Service approaching" %}
-                                🟡
-                                {% elif service_status == "Due for service" %}
-                                🔴
-                                {% elif service_status == "Service interval exceeded" %}
-                                🟣
-                                {% elif service_status == "Not defined" %}
-                                ⚪
-                                {% endif %}
-                                {{ service_status }}
-                            </td>
-                            <td>
-                                {{ bike }}
-                            </td>
-                            <td>
-                                <a href="/component_details/{{ component_id }}" class="btn btn-outline-info btn-sm">🔍</a>
-                                <button type="button" class="btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}">🗑</button>
-                            </td>
-                        </tr>
-                        {% endfor %}
+                        {% if component_data %}
+                            {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike in component_data %}
+                            <tr>
+                                <td>{{ name }}</td>
+                                <td>{{ type }}</td>
+                                <td>{{ component_distance }} km</td>
+                                <td>
+                                    {% if installation_status == "Installed" %}
+                                    ⚙
+                                    {% elif installation_status == "Not installed" %}
+                                    💤
+                                    {% elif installation_status == "Retired" %}
+                                    ⛔
+                                    {% endif %}
+                                    {{ installation_status }}
+                                </td>
+                                <td>
+                                    {% if lifetime_status == "OK" %}
+                                    🟢
+                                    {% elif lifetime_status == "End of life approaching" %}
+                                    🟡
+                                    {% elif lifetime_status == "Due for replacement" %}
+                                    🔴
+                                    {% elif lifetime_status == "Lifetime exceeded" %}
+                                    🟣
+                                    {% elif lifetime_status == "Not defined" %}
+                                    ⚪
+                                    {% endif %}
+                                    {{ lifetime_status }}
+                                </td>
+                                <td>
+                                    {% if service_status == "OK" %}
+                                    🟢
+                                    {% elif service_status == "Service approaching" %}
+                                    🟡
+                                    {% elif service_status == "Due for service" %}
+                                    🔴
+                                    {% elif service_status == "Service interval exceeded" %}
+                                    🟣
+                                    {% elif service_status == "Not defined" %}
+                                    ⚪
+                                    {% endif %}
+                                    {{ service_status }}
+                                </td>
+                                <td>
+                                    {{ bike }}
+                                </td>
+                                <td>
+                                    <a href="/component_details/{{ component_id }}" class="btn btn-outline-info btn-sm">🔍</a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}">🗑</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center">No components registered</td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
