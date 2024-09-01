@@ -230,7 +230,7 @@ async def modify_component(
             latest_history_record = read_records.read_latest_history_record(component_id)
             
             if updated_component_data.installation_status == "Installed":
-                logging.info(f'Timespan for current distance query (triggered by component update): start date {updated_component_data.updated_date} stop date {datetime.today()}') #Improve logging statement, see service
+                logging.info(f'Timespan for current distance query (triggered by component update): start date {updated_component_data.updated_date} stop date {datetime.today()}') #Improve logging statement, see service, also applies to similar above
                 current_distance = misc_methods.sum_distanse_subset_rides(updated_component_data.bike_id, updated_component_data.updated_date, datetime.today())
                 current_distance += latest_history_record.distance_marker
                 modify_tables.update_component_distance(component_id, current_distance)
