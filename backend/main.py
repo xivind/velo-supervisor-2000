@@ -121,6 +121,14 @@ async def add_service(
     latest_service_record = read_records.read_latest_service_record(component_id)
     latest_history_record = read_records.read_latest_history_record(component_id)
 
+    if latest_history_record and service_date < latest_history_record.updated_date:
+        logging.warning(f"Service date {service_date} is before the latest history record for component with id {component_id}. Services must be entered chronologically, skipping...")
+        return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
+        
+    elif latest_service_record and service_date < latest_service_record.service_date:
+        logging.warning(f"Service date {service_date} is before the latest service record for component {component_id}. Services must be entered chronologically, skipping...")
+        return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
+    
     if component_data.installation_status == "Installed":
         if latest_service_record is None:
             logging.info(f'No service record found for component with id {component_id}. Using distance from installation log and querying distance from installation date to service date')
@@ -181,7 +189,16 @@ async def modify_component(
     old_component_data = read_records.read_component(component_id)
     updated_bike_name = misc_methods.get_bike_name(component_bike_id)
     previous_bike_name = misc_methods.get_bike_name(old_component_data.bike_id) 
+    latest_service_record = read_records.read_latest_service_record(component_id)
     latest_history_record = read_records.read_latest_history_record(component_id)
+
+    if latest_history_record and component_updated_date < latest_history_record.updated_date:
+        logging.warning(f"Component update date {component_updated_date} is before the latest history record for component with id {component_id}. Component update dates must be entered chronologically, skipping...")
+        return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
+    
+    elif latest_service_record and component_updated_date < latest_service_record.service_date:
+        logging.warning(f"Component update date {component_updated_date} is before the latest service record for component {component_id}. Component update dates must be entered chronologically, skipping...")
+        return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
     
     if latest_history_record is not None and latest_history_record.history_id == current_history_id:
         if latest_history_record.update_reason == component_installation_status:
@@ -214,7 +231,7 @@ async def modify_component(
             latest_history_record = read_records.read_latest_history_record(component_id)
             
             if updated_component_data.installation_status == "Installed":
-                logging.info(f'Timespan for current distance query (triggered by component update): start date {updated_component_data.updated_date} stop date {datetime.today()}')
+                logging.info(f'Timespan for current distance query (triggered by component update): start date {updated_component_data.updated_date} stop date {datetime.today()}') #Improve logging statement, see service
                 current_distance = misc_methods.sum_distanse_subset_rides(updated_component_data.bike_id, updated_component_data.updated_date, datetime.today())
                 current_distance += latest_history_record.distance_marker
                 modify_tables.update_component_distance(component_id, current_distance)
@@ -458,11 +475,10 @@ async def delete_record(
 # Updated readme with change log
 # Component detail page should have delete button, maybe not relevant..
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
-# Bug when date for ride is set further in the future than there is ride data. Dont fix now. This is not a bug, it simply does nothing. This is solved already?
 # Table installation history should use id and not name for bike..
-# # Add installed component count on bike card (bike overview - all bikes)
-# Field service interval and expected lifetime is in the wrong order on submit form comp overview
-# Refactor endpoint ("/component_modify
-# Bug in clear form buttons, probably all forms 
-# Add validation: cannot add any records through forms that precedes recent dates
+# Add installed component count on bike card (bike overview - all bikes)
 # Review all log statemens and make them consistent
+
+# Refactor update_component_history_record, see in relation to refactor /modif_component endpoint 
+
+
