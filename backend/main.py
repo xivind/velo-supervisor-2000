@@ -191,26 +191,25 @@ async def modify_component(
     previous_bike_name = misc_methods.get_bike_name(old_component_data.bike_id) 
     latest_service_record = read_records.read_latest_service_record(component_id)
     latest_history_record = read_records.read_latest_history_record(component_id)
-
-    if latest_history_record and component_updated_date < latest_history_record.updated_date:
-        logging.warning(f"Component update date {component_updated_date} is before the latest history record for component with id {component_id}. Component update dates must be entered chronologically, skipping...")
-        return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-    
-    elif latest_service_record and component_updated_date < latest_service_record.service_date:
-        logging.warning(f"Component update date {component_updated_date} is before the latest service record for component {component_id}. Component update dates must be entered chronologically, skipping...")
-        return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
     
     if latest_history_record is not None and latest_history_record.history_id == current_history_id:
         if latest_history_record.update_reason == component_installation_status:
             logging.info(f"Only updating select component record details and service and lifetime status. Historic record already exist for component id {component_id} and record id {current_history_id}.")
             modify_records.update_component_details(component_id, new_component_data)
             updated_component_data = read_records.read_component(component_id)
-            modify_tables.update_component_service_status(updated_component_data)
-            modify_tables.update_component_lifetime_status(updated_component_data)
+            modify_tables.update_component_distance(component_id, old_component_data.component_distance - old_component_data.component_distance_offset)
         else:
             logging.warning(f"Cannot change installation status when record date it the same as previous record. Historic record already exist for component id {component_id} and record id {current_history_id}. Skipping...")
     
     else:
+        if latest_history_record and component_updated_date < latest_history_record.updated_date:
+            logging.warning(f"Component update date {component_updated_date} is before the latest history record for component with id {component_id}. Component update dates must be entered chronologically, skipping...")
+            return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
+        
+        elif latest_service_record and component_updated_date < latest_service_record.service_date:
+            logging.warning(f"Component update date {component_updated_date} is before the latest service record for component {component_id}. Component update dates must be entered chronologically, skipping...")
+            return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
+        
         if latest_history_record is None:
             historic_distance = 0
 
