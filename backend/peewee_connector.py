@@ -575,9 +575,10 @@ class MiscMethods():
                 component_statistics["count_service_status_red"] += 1
             if component[5] == "Service interval exceeded" and component[0] == "Installed":
                 component_statistics["count_service_status_purple"] += 1
-            if component[6] is not None and isinstance(component[6], (int)) and component[0] == "Installed":
-                component_statistics["sum_cost"] += component[6]
-# What do the index numbers above mean, why is it zero?
+            if component[6] is not None and isinstance(component[6], int) and component[0] == "Installed":
+                    if (component[4] != "OK" and component[4] is not None) or (component[5] != "OK" and component[5] is not None):
+                        component_statistics["sum_cost"] += component[6]
+
         if component_statistics["sum_cost"] == 0:
             component_statistics["sum_cost"] = "No estimate"
             
