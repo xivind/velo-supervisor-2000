@@ -559,25 +559,25 @@ class MiscMethods():
                 component_statistics["count_not_installed"] += 1
             if component[0] == "Retired":
                 component_statistics["count_retired"] += 1
-            if component[4] == "OK":
+            if component[4] == "OK" and component[0] == "Installed":
                 component_statistics["count_lifetime_status_green"] += 1
-            if component[4] == "End of life approaching":
+            if component[4] == "End of life approaching" and component[0] == "Installed":
                 component_statistics["count_lifetime_status_yellow"] += 1
-            if component[4] == "Due for replacement":
+            if component[4] == "Due for replacement" and component[0] == "Installed":
                 component_statistics["count_lifetime_status_red"] += 1
-            if component[4] == "Lifetime exceeded":
+            if component[4] == "Lifetime exceeded" and component[0] == "Installed":
                 component_statistics["count_lifetime_status_purple"] += 1
-            if component[5] == "OK":
+            if component[5] == "OK" and component[0] == "Installed":
                 component_statistics["count_service_status_green"] += 1
-            if component[5] == "Service approaching":
+            if component[5] == "Service approaching" and component[0] == "Installed":
                 component_statistics["count_service_status_yellow"] += 1
-            if component[5] == "Due for service":
+            if component[5] == "Due for service" and component[0] == "Installed":
                 component_statistics["count_service_status_red"] += 1
-            if component[5] == "Service interval exceeded":
+            if component[5] == "Service interval exceeded" and component[0] == "Installed":
                 component_statistics["count_service_status_purple"] += 1
-            if component[6] is not None and isinstance(component[6], (int)):
+            if component[6] is not None and isinstance(component[6], (int)) and component[0] == "Installed":
                 component_statistics["sum_cost"] += component[6]
-
+# What do the index numbers above mean, why is it zero?
         if component_statistics["sum_cost"] == 0:
             component_statistics["sum_cost"] = "No estimate"
             
