@@ -544,9 +544,11 @@ class MiscMethods():
                                 "count_lifetime_status_green": 0,
                                 "count_lifetime_status_yellow": 0,
                                 "count_lifetime_status_red": 0,
+                                "count_lifetime_status_purple": 0,
                                 "count_service_status_green": 0,
                                 "count_service_status_yellow": 0,
                                 "count_service_status_red": 0,
+                                "count_service_status_purple": 0,
                                 "sum_cost": 0,
                                 }
         
@@ -559,16 +561,20 @@ class MiscMethods():
                 component_statistics["count_retired"] += 1
             if component[4] == "OK":
                 component_statistics["count_lifetime_status_green"] += 1
-            if component[4] == "Lifetime approaching":
+            if component[4] == "End of life approaching":
                 component_statistics["count_lifetime_status_yellow"] += 1
-            if component[4] == "Lifetime reached":
+            if component[4] == "Due for replacement":
                 component_statistics["count_lifetime_status_red"] += 1
+            if component[4] == "Lifetime exceeded":
+                component_statistics["count_lifetime_status_purple"] += 1
             if component[5] == "OK":
                 component_statistics["count_service_status_green"] += 1
             if component[5] == "Service approaching":
                 component_statistics["count_service_status_yellow"] += 1
             if component[5] == "Due for service":
                 component_statistics["count_service_status_red"] += 1
+            if component[5] == "Service interval exceeded":
+                component_statistics["count_service_status_purple"] += 1
             if component[6] is not None and isinstance(component[6], (int)):
                 component_statistics["sum_cost"] += component[6]
 

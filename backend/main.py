@@ -335,9 +335,11 @@ async def bike_details(request: Request, bike_id: str):
             "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
             "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
             "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
+            "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
             "count_service_status_green" : component_statistics["count_service_status_green"],
             "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
             "count_service_status_red" : component_statistics["count_service_status_red"],
+            "count_service_status_purple" : component_statistics["count_service_status_purple"],
             "sum_cost" : component_statistics["sum_cost"]
         }
 

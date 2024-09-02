@@ -53,10 +53,13 @@
                             <span>🟢 Lifetime OK:</span><span class="fw-bold">{{ payload.count_lifetime_status_green }}</span>
                         </p>
                         <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>🟡 Lifetime approaching:</span><span class="fw-bold">{{ payload.count_lifetime_status_yellow }}</span>
+                            <span>🟡 End of life approaching:</span><span class="fw-bold">{{ payload.count_lifetime_status_yellow }}</span>
                         </p>
                         <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>🔴 Lifetime reached:</span><span class="fw-bold">{{ payload.count_lifetime_status_red }}</span>
+                            <span>🔴 Due for replacement</span><span class="fw-bold">{{ payload.count_lifetime_status_red }}</span>
+                        </p>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🟣 Lifetime exceeded</span><span class="fw-bold">{{ payload.count_lifetime_status_purple }}</span>
                         </p>
                         <hr/>
                         <p class="card-text d-flex justify-content-between align-items-center">
@@ -67,6 +70,9 @@
                         </p>
                         <p class="card-text d-flex justify-content-between align-items-center">
                             <span>🔴 Due for service:</span><span class="fw-bold">{{ payload.count_service_status_red }}</span>
+                        </p>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🟣 Service interval exceeded:</span><span class="fw-bold">{{ payload.count_service_status_purple }}</span>
                         </p>
                         <hr/>
                         <p class="card-text d-flex justify-content-between align-items-center">
