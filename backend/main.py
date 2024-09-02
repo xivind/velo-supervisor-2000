@@ -468,8 +468,7 @@ async def delete_record(
 # Validation: should not be possible to add new types when type already exist
 # Bike details page - summary of lifetime and service should filter out retired components and of course those not installed
 # Give warning before selecting "Retired"
-# Make issue for the use of halt_update, can be improved. Return after each statement instead
-# old_component_data is only used for old bike_id, refactor to take this into account. 
+# Old_component_data is only used for old bike_id, refactor to take this into account. 
 # Update historic record should also include new component name. Review this before making issue. Not sure this is really a bug. Historic records should not be updated if no change is made to install status and record date.. Seems to work the way it is
 # Consider different icon for installed - the cog is already used in navtab, change all places
 # There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off
@@ -477,5 +476,4 @@ async def delete_record(
 # Component detail page should have delete button, maybe not relevant..
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Table installation history should use id and not name for bike..
-# Add installed component count on bike card (bike overview - all bikes)
 # Review all log statemens and make them consistent
