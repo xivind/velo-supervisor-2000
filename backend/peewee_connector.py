@@ -250,9 +250,23 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
             except peewee.OperationalError as error:
                 logging.error(f'An error occurred while setting blank lifetime status for component {component.component_name} (id {component.component_id}): {error}')
 
+    def update_bike_status(self, bike_id)
+        """Method to update status for bikes based on component service and lifetime"""
+        bike = get_bike
+        components = components = Components.select().where(Components.bike_id == bike_id)
+
+        Loop through lifetime_status and service_status
+        If any of them is bla __build_class__
+
+        write to database
+
+        #Logg statements
+        #Call this function from endpoints that modifies data, and add to update distance method
+
+
+    
     def compute_component_status(self, mode, reached_distance_percent): #move to misc? Can be others also. Could be possible by calling classes directly
         """Method to compute service status"""
-
         if mode == "service":
             if 0 <= reached_distance_percent <= 70:
                 status = "OK"
