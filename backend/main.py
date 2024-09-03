@@ -152,6 +152,7 @@ async def add_service(
     service_data.update({"distance_marker": distance_since_service})
     modify_records.update_service_history(service_data)
     modify_tables.update_component_service_status(component_data)
+    modify_tables.update_bike_status(component_data.bike_id)
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
@@ -477,3 +478,4 @@ async def delete_record(
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Table installation history should use id and not name for bike..
 # Review all log statemens and make them consistent
+# Run update bike status as non blocking scheduled

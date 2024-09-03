@@ -4,6 +4,7 @@
 import logging
 from datetime import datetime
 import peewee
+import traceback
 import uuid
 import time
 from peewee_models import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #Match with export from peewee_models, maybe base_model is not needed since it is inherited?
@@ -164,6 +165,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
             updated_component = Components.get(Components.component_id == component_id)
             self.update_component_service_status(updated_component)
             self.update_component_lifetime_status(updated_component)
+            self.update_bike_status(updated_component.bike_id)
 
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while updating component distance for component {component.component_name} (id {component.component_id}): {error}')
@@ -250,18 +252,59 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
             except peewee.OperationalError as error:
                 logging.error(f'An error occurred while setting blank lifetime status for component {component.component_name} (id {component.component_id}): {error}')
 
-    def update_bike_status(self, bike_id)
-        """Method to update status for bikes based on component service and lifetime"""
-        bike = get_bike
-        components = components = Components.select().where(Components.bike_id == bike_id)
+    def update_bike_status(self, bike_id):
+        """Method to update status for a given bike based on component service and lifetime status"""
+        
+        if bike_id is None: #wrap the rest in this
+            logging.warning(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}")
+            return # do this more elegantly
+        
+        try:
+            bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
+            components = Components.select().where(Components.bike_id == bike_id)
+            
+            logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}")
+            
+            bike_status = {"breakdown_imminent": 0,
+                        "due_for_action": 0,
+                        "threshold_approaching": 0,
+                        "ok": 0}
 
-        Loop through lifetime_status and service_status
-        If any of them is bla __build_class__
+            if components.exists():
+                for component in components:
+                    if component.installation_status == "Installed":
+                        if component.lifetime_status == "Lifetime exceeded" or component.service_status =="Service interval exceeded":
+                            bike_status["breakdown_imminent"] += 1
+                        elif component.lifetime_status == "Due for replacement" or component.service_status =="Due for service":
+                            bike_status["due_for_action"] += 1
+                        elif component.lifetime_status == "End of life approaching" or component.service_status =="Service approaching":
+                            bike_status["threshold_approaching"] += 1
+                        elif component.lifetime_status == "OK" or component.service_status =="OK":
+                            bike_status["ok"] += 1
 
-        write to database
+                if bike_status["breakdown_imminent"] > 0:
+                    service_status = "Breakdown imminent"
+                elif bike_status["due_for_action"] > 0:
+                    service_status = "Due for action"
+                elif bike_status["threshold_approaching"] > 0:
+                    service_status = "Treshold approaching"
+                elif bike_status["ok"] > 0:
+                    service_status = "Pristine condition"
+                else:
+                    service_status = "Neither lifetime or service tresholds defined"  
+                
+            else:
+                service_status = "No components registered"
+        
+            logging.info(f"New status for bike {bike.bike_name}: {service_status}")
 
-        #Logg statements
-        #Call this function from endpoints that modifies data, and add to update distance method
+            with database.atomic():
+                bike.service_status = service_status
+                bike.save()
+        
+        except Exception as error:
+            logging.error(f'An error occurred while updating bike status for {bike.bike_name} with id {bike.bike_id}): {error} {traceback.format_exc()}')
+
 
 
     
