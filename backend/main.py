@@ -481,4 +481,3 @@ async def delete_record(
 # Old_component_data is only used for old bike_id, refactor to take this into account. 
 # Table installation history should use id and not name for bike, same structure as service history
 # Update historic record should also include new component name. Review this before making issue. Not sure this is really a bug. Historic records should not be updated if no change is made to install status and record date.. Seems to work the way it is
-# Consider different icon for installed - the cog is already used in navtab, change all places

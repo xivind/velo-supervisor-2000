@@ -47,7 +47,7 @@
                             <div class="card-body">
                             <h6 class="card-title">{% if service_lifetime_status == None %}No components registered{% else %}{{ service_lifetime_status }}{% endif %}</h5>
                             <p class="card-text d-flex justify-content-between align-items-center">
-                                <span>{% if bike_status == 'False' %}🟩 Active {% elif bike_status == 'True' %}⛔ Retired {% endif %}📍{{ distance }} km</span>
+                                <span>{% if bike_status == 'False' %}🟩 Active {% elif bike_status == 'True' %}⛔ Retired {% endif %}📍{{ distance }} km ⚡ 0</span>
                                 <a href="/bike_details/{{ bike_id }}" id="bike-details-btn" class="btn btn-outline-info btn-sm shadow-lg">🔍</a>
                             </p>
                         </div>
