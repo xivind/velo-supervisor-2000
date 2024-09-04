@@ -255,58 +255,55 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
     def update_bike_status(self, bike_id):
         """Method to update status for a given bike based on component service and lifetime status"""
         
-        if bike_id is None: #wrap the rest in this
-            logging.warning(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}")
-            return # do this more elegantly
+        if bike_id is None:
+            logging.warning(f"Bike context is missing. Skipping update of bike status...")
         
-        try:
-            bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
-            components = Components.select().where(Components.bike_id == bike_id)
-            
-            logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}")
-            
-            bike_status = {"breakdown_imminent": 0,
-                        "due_for_action": 0,
-                        "threshold_approaching": 0,
-                        "ok": 0}
-
-            if components.exists():
-                for component in components:
-                    if component.installation_status == "Installed":
-                        if component.lifetime_status == "Lifetime exceeded" or component.service_status =="Service interval exceeded":
-                            bike_status["breakdown_imminent"] += 1
-                        elif component.lifetime_status == "Due for replacement" or component.service_status =="Due for service":
-                            bike_status["due_for_action"] += 1
-                        elif component.lifetime_status == "End of life approaching" or component.service_status =="Service approaching":
-                            bike_status["threshold_approaching"] += 1
-                        elif component.lifetime_status == "OK" or component.service_status =="OK":
-                            bike_status["ok"] += 1
-
-                if bike_status["breakdown_imminent"] > 0:
-                    service_status = "Breakdown imminent"
-                elif bike_status["due_for_action"] > 0:
-                    service_status = "Due for action"
-                elif bike_status["threshold_approaching"] > 0:
-                    service_status = "Treshold approaching"
-                elif bike_status["ok"] > 0:
-                    service_status = "Pristine condition"
-                else:
-                    service_status = "Neither lifetime or service tresholds defined"  
+        else:
+            try:
+                bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
+                components = Components.select().where(Components.bike_id == bike_id)
                 
-            else:
-                service_status = "No components registered"
-        
-            logging.info(f"New status for bike {bike.bike_name}: {service_status}")
+                logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}")
+                
+                bike_status = {"breakdown_imminent": 0,
+                            "maintenance_required": 0,
+                            "maintenance_approaching": 0,
+                            "ok": 0}
 
-            with database.atomic():
-                bike.service_status = service_status
-                bike.save()
-        
-        except Exception as error:
-            logging.error(f'An error occurred while updating bike status for {bike.bike_name} with id {bike.bike_id}): {error} {traceback.format_exc()}')
+                if components.exists():
+                    for component in components:
+                        if component.installation_status == "Installed":
+                            if component.lifetime_status == "Lifetime exceeded" or component.service_status =="Service interval exceeded":
+                                bike_status["breakdown_imminent"] += 1
+                            elif component.lifetime_status == "Due for replacement" or component.service_status =="Due for service":
+                                bike_status["maintenance_required"] += 1
+                            elif component.lifetime_status == "End of life approaching" or component.service_status =="Service approaching":
+                                bike_status["maintenance_approaching"] += 1
+                            elif component.lifetime_status == "OK" or component.service_status =="OK":
+                                bike_status["ok"] += 1
 
+                    if bike_status["breakdown_imminent"] > 0:
+                        service_status = "Breakdown imminent"
+                    elif bike_status["maintenance_required"] > 0:
+                        service_status = "Maintenance required"
+                    elif bike_status["maintenance_approaching"] > 0:
+                        service_status = "Maintenance approaching"
+                    elif bike_status["ok"] > 0:
+                        service_status = "Pristine condition"
+                    else:
+                        service_status = "Maintenance not defined"
+                    
+                else:
+                    service_status = None
+            
+                logging.info(f"New status for bike {bike.bike_name}: {service_status}")
 
-
+                with database.atomic():
+                    bike.service_status = service_status
+                    bike.save()
+            
+            except Exception as error:
+                logging.error(f'An error occurred while updating bike status for {bike.bike_name} with id {bike.bike_id}): {error} {traceback.format_exc()}')
     
     def compute_component_status(self, mode, reached_distance_percent): #move to misc? Can be others also. Could be possible by calling classes directly
         """Method to compute service status"""

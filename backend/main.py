@@ -469,13 +469,16 @@ async def delete_record(
 # Validation: should not be possible to add new types when type already exist
 # Bike details page - summary of lifetime and service should filter out retired components and of course those not installed
 # Give warning before selecting "Retired"
-# Old_component_data is only used for old bike_id, refactor to take this into account. 
-# Update historic record should also include new component name. Review this before making issue. Not sure this is really a bug. Historic records should not be updated if no change is made to install status and record date.. Seems to work the way it is
-# Consider different icon for installed - the cog is already used in navtab, change all places
 # There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off
 # Updated readme with change log
-# Component detail page should have delete button, maybe not relevant..
+# Component detail page should have delete button, new feature
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
-# Table installation history should use id and not name for bike..
 # Review all log statemens and make them consistent
 # Run update bike status as non blocking scheduled
+# Run get strava apis as non blocking scheduled
+# Bug, can fix later: If a component is uninstalled, bike status cannot be updated because bike ID is missing
+
+# Old_component_data is only used for old bike_id, refactor to take this into account. 
+# Table installation history should use id and not name for bike, same structure as service history
+# Update historic record should also include new component name. Review this before making issue. Not sure this is really a bug. Historic records should not be updated if no change is made to install status and record date.. Seems to work the way it is
+# Consider different icon for installed - the cog is already used in navtab, change all places
