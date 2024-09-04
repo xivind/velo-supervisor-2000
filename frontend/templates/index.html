@@ -39,7 +39,7 @@
         </nav>  
         <h1 class="display-5 mt-5 text-center">Bike overview</h1>
         <div class="row mt-5">
-            {% for name, bike_id, bike_status, service_lifetime_status, distance in bikes_data %}
+            {% for name, bike_id, bike_status, service_lifetime_status, distance, count_installed in bikes_data %}
                 {% if bike_status == "False" %}
                     <div class="col-md-4 mb-3">
                         <div class="card shadow">
@@ -47,7 +47,7 @@
                             <div class="card-body">
                             <h6 class="card-title">{% if service_lifetime_status == None %}No components registered{% else %}{{ service_lifetime_status }}{% endif %}</h5>
                             <p class="card-text d-flex justify-content-between align-items-center">
-                                <span>{% if bike_status == 'False' %}🟩 Active {% elif bike_status == 'True' %}⛔ Retired {% endif %}📍{{ distance }} km ⚡ 0</span>
+                                <span>{% if bike_status == 'False' %}🟩 Active {% elif bike_status == 'True' %}⛔ Retired {% endif %}📍{{ distance }} km ⚡ {{ count_installed }}</span>
                                 <a href="/bike_details/{{ bike_id }}" id="bike-details-btn" class="btn btn-outline-info btn-sm shadow-lg">🔍</a>
                             </p>
                         </div>
