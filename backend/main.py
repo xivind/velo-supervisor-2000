@@ -74,7 +74,8 @@ async def root(request: Request):
                    bike.bike_retired,
                    bike.service_status,
                    int(bike.total_distance),
-                   sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Installed")) for bike in bikes]
+                   sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Installed"),
+                   sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Retired")) for bike in bikes]
 
     template_path = "index.html"
     return templates.TemplateResponse(template_path, {"request": request, "bikes_data": bikes_data})
@@ -480,7 +481,7 @@ async def delete_record(
 # Bug, can fix later: If a component is uninstalled, bike status cannot be updated because bike ID is missing
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
 
-# When bike has only retired components, status should be No active components
+
 # Old_component_data is only used for old bike_id, refactor to take this into account. 
 # Table installation history should use id and not name for bike, same structure as service history
 # Update historic record should also include new component name. Review this before making issue. Not sure this is really a bug. Historic records should not be updated if no change is made to install status and record date.. Seems to work the way it is
