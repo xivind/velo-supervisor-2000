@@ -225,7 +225,7 @@ async def modify_component(
             else:
                 historic_distance = latest_history_record.distance_marker #This line is probably redundant..? 
 
-        halt_update = modify_records.update_component_history_record(old_component_data, latest_history_record, current_history_id, component_id, previous_bike_name, updated_bike_name, component_installation_status, component_updated_date, historic_distance)
+        halt_update = modify_records.update_component_history_record(old_component_data.component_name, latest_history_record, current_history_id, component_id, previous_bike_name, updated_bike_name, component_installation_status, component_updated_date, historic_distance)
         
         if halt_update is False:
             modify_records.update_component_details(component_id, new_component_data)
@@ -457,7 +457,6 @@ async def delete_record(
 # Add favicon
 # Switch to show also retired bikes on bike overview
 # Switch to show different component statuses on component overview
-# Add function to delete associated records if a component is deleted
 # Component type should specify suggested as prefix for variables
 # Use the same name across endpoints, require change also to html files: bike_components_data
 # Sort endpoints so they appear in a more logical order
@@ -469,19 +468,13 @@ async def delete_record(
 # Improvement: on bike change automatically uninstall and install, enhancement, not fix now, or some sort of validation
 # Validation in form, cannot be "Not assigned" bike when status is installed
 # Validation: should not be possible to add new types when type already exist
-# Bike details page - summary of lifetime and service should filter out retired components and of course those not installed
 # Give warning before selecting "Retired"
+# Give warning before deleting records
 # There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off
 # Updated readme with change log
-# Component detail page should have delete button, new feature
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Review all log statemens and make them consistent
 # Run update bike status as non blocking scheduled
 # Run get strava apis as non blocking scheduled
 # Bug, can fix later: If a component is uninstalled, bike status cannot be updated because bike ID is missing
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
-
-
-# Old_component_data is only used for old bike_id, refactor to take this into account. 
-# Table installation history should use id and not name for bike, same structure as service history
-# Update historic record should also include new component name. Review this before making issue. Not sure this is really a bug. Historic records should not be updated if no change is made to install status and record date.. Seems to work the way it is
