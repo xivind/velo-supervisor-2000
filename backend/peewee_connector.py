@@ -303,7 +303,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
                     bike.save()
             
             except Exception as error:
-                logging.error(f'An error occurred while updating bike status for {bike.bike_name} with id {bike.bike_id}): {error} {traceback.format_exc()}')
+                logging.error(f'An error occurred while updating bike status for {bike.bike_name} with id {bike.bike_id}): {error}')
     
     def compute_component_status(self, mode, reached_distance_percent): #move to misc? Can be others also. Could be possible by calling classes directly
         """Method to compute service status"""
@@ -483,21 +483,17 @@ class ModifyRecords(): #Consider merging with modify tables
             logging.error(f'An error occurred while adding installation history record for component with id {component_id}: {error}')
             return True
 
-    
     def delete_record(self, table_selector, record_id):
-        """Method to delete any record"""
+        """Method to delete a given record and associated records"""
 
         try:
             logging.info(f"Deleting record with id {record_id} from table {table_selector}")
+            table_found = True
+            
             if table_selector == str("ComponentTypes"):
                 query = ComponentTypes.get_or_none(ComponentTypes.component_type == record_id)
-                table_found = True
-            elif table_selector == str("Services"):
-                query = Services.get_or_none(Services.service_id == record_id)
-                table_found = True
             elif table_selector == str("Components"):
                 query = Components.get_or_none(Components.component_id == record_id)
-                table_found = True
             else:
                 logging.error(f'Error looking up table for deletion of record, non-existing table: {table_selector}')
                 table_found = False
@@ -506,12 +502,18 @@ class ModifyRecords(): #Consider merging with modify tables
                 with database.atomic():
                     record = query
                     if record:
+                        if table_selector == str("Components"):
+                            services_deleted = Services.delete().where(Services.component_id == record_id).execute()
+                            history_deleted = ComponentHistory.delete().where(ComponentHistory.component_id == record_id).execute()
+                            logging.info(f"Deleted {services_deleted} service records and {history_deleted} history records for component with id {record_id}")
+                            
                         record.delete_instance()
+                    else:
+                        logging.warning(f"No record found with id {record_id} in table {table_selector}")
 
         except peewee.OperationalError as error:
-                logging.error(f'An error occurred while deleting record with id {record_id} from table {table_selector}: {error}')
-
-
+            logging.error(f'An error occurred while deleting record with id {record_id} from table {table_selector}: {error}')
+        
 class MiscMethods():
     """Class to interact with a SQL database through peewee""" #Modify this description
     def __init__(self):
