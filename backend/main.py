@@ -190,8 +190,8 @@ async def modify_component(
             
     current_history_id = f'{component_updated_date} {component_id}'
     old_component_data = read_records.read_component(component_id)
-    updated_bike_name = misc_methods.get_bike_name(component_bike_id)
-    previous_bike_name = misc_methods.get_bike_name(old_component_data.bike_id) 
+    updated_bike_id = component_bike_id
+    previous_bike_id = old_component_data.bike_id
     latest_service_record = read_records.read_latest_service_record(component_id)
     latest_history_record = read_records.read_latest_history_record(component_id)
     
@@ -225,7 +225,7 @@ async def modify_component(
             else:
                 historic_distance = latest_history_record.distance_marker #This line is probably redundant..? 
 
-        halt_update = modify_records.update_component_history_record(old_component_data.component_name, latest_history_record, current_history_id, component_id, previous_bike_name, updated_bike_name, component_installation_status, component_updated_date, historic_distance)
+        halt_update = modify_records.update_component_history_record(old_component_data.component_name, latest_history_record, current_history_id, component_id, previous_bike_id, updated_bike_id, component_installation_status, component_updated_date, historic_distance)
         
         if halt_update is False:
             modify_records.update_component_details(component_id, new_component_data)
@@ -392,7 +392,7 @@ async def component_details(request: Request, component_id: str):
     if component_history is not None:
         component_history_data = [(installation_record.updated_date,
                                    installation_record.update_reason,
-                                   installation_record.bike_name,
+                                   misc_methods.get_bike_name(installation_record.bike_id),
                                    installation_record.distance_marker) for installation_record in component_history]
     else:
         component_history_data = None

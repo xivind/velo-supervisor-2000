@@ -426,7 +426,7 @@ class ModifyRecords(): #Consider merging with modify tables
             logging.error(f'An error occurred while adding service record for component with id {service_data["component_id"]}: {error}')
 
     
-    def update_component_history_record(self, old_component_name, latest_history_record, current_history_id, component_id, previous_bike_name, updated_bike_name, updated_component_installation_status, component_updated_date, historic_distance):
+    def update_component_history_record(self, old_component_name, latest_history_record, current_history_id, component_id, previous_bike_id, updated_bike_id, updated_component_installation_status, component_updated_date, historic_distance):
         """Method to create or update component history and write to the database"""
         try:
             halt_update = False
@@ -436,11 +436,11 @@ class ModifyRecords(): #Consider merging with modify tables
                 halt_update = True
             
             elif latest_history_record is None:
-                if updated_bike_name == "Not assigned":
+                if updated_bike_id is None:
                     logging.warning(f"Cannot set status to installed without specifying bike, component id {component_id}. Skipping...")
                     halt_update = True
                 else:
-                    bike_name = updated_bike_name
+                    bike_id = updated_bike_id
             
             else:
                 if latest_history_record.history_id == current_history_id:
@@ -453,23 +453,23 @@ class ModifyRecords(): #Consider merging with modify tables
                             
                 else:
                     if updated_component_installation_status == "Installed":
-                        if updated_bike_name == "Not assigned":
+                        if updated_bike_id is None:
                             logging.warning(f"Cannot set status to installed without specifying bike, component id {component_id}. Skipping...")
                             halt_update = True
                         else:
-                            bike_name = updated_bike_name
+                            bike_id = updated_bike_id
                     
                     elif updated_component_installation_status == "Retired":
-                        bike_name = updated_bike_name
+                        bike_id = updated_bike_id
 
                     elif updated_component_installation_status == "Not installed":
-                        bike_name = previous_bike_name
+                        bike_id = previous_bike_id
                     
             if halt_update is False:
                 with database.atomic():
                     ComponentHistory.create(history_id = current_history_id,
                                         component_id = component_id,
-                                        bike_name = bike_name,
+                                        bike_id = bike_id,
                                         component_name = old_component_name,
                                         updated_date = component_updated_date,
                                         update_reason = updated_component_installation_status,

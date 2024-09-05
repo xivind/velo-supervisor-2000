@@ -92,7 +92,7 @@ class ComponentHistory(BaseModel):
     """Model for table: component_history"""
     history_id = CharField(primary_key=True, unique=True)
     component_id = CharField()
-    bike_name = CharField()
+    bike_id = CharField()
     component_name = CharField()
     updated_date = CharField()
     update_reason = CharField()
