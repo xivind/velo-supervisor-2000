@@ -427,6 +427,8 @@ async def delete_record(
     modify_records.delete_record(table_selector, record_id)
 
 
+
+
 # Endpoint get all rides and recent rides, make it possible also to call with "all" arg
 #strava.get_rides("recent") 
 #modify_tables.update_rides_bulk(strava.payload)
@@ -474,7 +476,7 @@ async def delete_record(
 # Updated readme with change log
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Review all log statemens and make them consistent
-# Run update bike status as non blocking scheduled
-# Run get strava apis as non blocking scheduled
+# Run update bike status as non blocking scheduled use asyncio
+# Run get strava apis as non blocking scheduled use asyncio
 # Bug, can fix later: If a component is uninstalled, bike status cannot be updated because bike ID is missing
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
