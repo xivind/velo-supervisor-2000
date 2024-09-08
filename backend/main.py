@@ -413,7 +413,7 @@ async def refresh_all_bikes(request: Request): #Request currently not used, but 
     """Endpoint to manually refresh data for all bikes"""
     
     try:
-        logging.info("Refreshing all bikes from Strava (manually triggered)")
+        logging.info("Refreshing all bikes from Strava (called directly)")
         await strava.get_bikes(misc_methods.get_unique_bikes())
         modify_tables.update_bikes(strava.payload_bikes)
         
@@ -421,44 +421,36 @@ async def refresh_all_bikes(request: Request): #Request currently not used, but 
     
     except Exception as error: #Use this on all exceptions, but first update with ability to display error message to user
         error_traceback = traceback.format_exc()
-        logging.error(f"An error occurred trying to refresh all bikes from Strava (manually triggered): {error} Details:\n{error_traceback}")
+        logging.error(f"An error occurred trying to refresh all bikes from Strava: {error} Details:\n{error_traceback}")
 
 @app.get("/refresh_rides/{mode}", response_class=HTMLResponse)
 async def refresh_rides(request: Request, mode: str): #Request currently not used, but keep it for now. Will be required for error messages later.
     """Endpoint to manually refresh data for a subset or all rides"""
     
     try:
-        logging.info("Refreshing all bikes from Strava (manually triggered)")
-        await strava.get_bikes(misc_methods.get_unique_bikes())
-        modify_tables.update_bikes(strava.payload_bikes)
+        if mode == "all":
+            logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
+            await strava.get_rides(mode) 
+            
+        if mode == "recent":
+            logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
+            await strava.get_rides(mode)
         
+        modify_tables.update_rides_bulk(strava.payload_rides) 
+        
+        if len(strava.bike_ids_recent_rides) > 0: #Is this not working for all?
+            logging.info("Refreshing all bikes from Strava (called by refresh_rides)")
+            await strava.get_bikes(strava.bike_ids_recent_rides)
+            modify_tables.update_bikes(strava.payload_bikes)
 
-        # Endpoint get all rides and recent rides, make it possible also to call with "all" arg
-#strava.get_rides("recent") 
-#modify_tables.update_rides_bulk(strava.payload)
-
-# This one should be triggered by getting rides (all and recent)
-#if len(strava.bike_ids_recent_rides) > 0:
-#            strava.get_bikes(strava.bike_ids_recent_rides)
-#            modify_tables.update_bikes(strava.payload)
-
-# Code to update installed components distance and moving time (not callable as endpoint).
-# Should be trigger by fetching of new rides and when components are added, should also be able to trigger manually with all
-# This method should be called by main.
-# Method should create a list of component ids to be submitted as arg to function below. Method should support operating on this list, single ID or all components.
-
-#modify_tables.update_components_distance_selector(strava.bike_ids_recent_rides)
-#modify_tables.update_components_distance_selector(misc_methods.list_unique_bikes())
-
-# Code to update misc status fields of components (not callable as endpoint). Should be triggered by updating of installed components
-# This method should be called by main
-
-        return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located 
+        modify_tables.update_components_distance_selector(strava.bike_ids_recent_rides) #Change the name of this variable to something more intuitive
+        
+        return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located
     
     except Exception as error: #Use this on all exceptions, but first update with ability to display error message to user
         error_traceback = traceback.format_exc()
-        logging.error(f"An error occurred trying to refresh all bikes from Strava (manually triggered): {error} Details:\n{error_traceback}")
-
+        logging.error(f"An error occurred trying to refresh all bikes from Strava: {error} Details:\n{error_traceback}")
+        
 
 @app.post("/delete_record", response_class=HTMLResponse)
 async def delete_record(
@@ -467,13 +459,6 @@ async def delete_record(
     """Endpoint to delete records"""
 
     modify_records.delete_record(table_selector, record_id)
-
-
-
-
-
-        
-
 
 
 # Todo

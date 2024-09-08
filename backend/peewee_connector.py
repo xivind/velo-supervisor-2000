@@ -112,42 +112,19 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while updating the bikes table: {error}')
 
-    def update_components_distance_selector(self, delimiter):
+    def update_components_distance_selector(self, bike_ids):
         """Method to determine which selection of components to update"""
         try:
-            try:
-                if delimiter == "all":
-                    logging.info("All installed components selected")
-                    with database.atomic():
-                        for component in Components.select().where(Components.installation_status == 'Installed'):
-                            self.update_component_distance(component)
-
-            except (peewee.OperationalError, ValueError) as error:
-                logging.error(f'An error occurred while selecting all installed components : {error}')
-
-            try:
-                if isinstance(delimiter, set):
-                    logging.info("Components on recently used bikes selected")
-                    with database.atomic():
-                        for bike_id in delimiter:
-                            for component in Components.select().where((Components.installation_status == 'Installed') & (Components.bike_id == bike_id)):
-                                self.update_component_distance(component)
-
-            except (peewee.OperationalError, ValueError) as error:
-                logging.error(f'An error occurred while selecting components on recently used bikes : {error}')
-
-            try:
-                if "b" in delimiter: #This works, but probably only because it evaluates after delimiter set. Consider how to make this more resilient
-                    logging.info(f"Components on bike with id {delimiter} selected")
-                    with database.atomic():
-                        for component in Components.select().where((Components.installation_status == 'Installed') & (Components.bike_id == delimiter)):
-                            self.update_component_distance(component)
-
-            except (peewee.OperationalError, ValueError) as error:
-                logging.error(f'An error occurred while selecting components on a single bike : {error}')
+            logging.info(f'Iterating over bikes to find components to update. Received {len(bike_ids)} bikes')
+            for bike_id in bike_ids:
+                for component in Components.select().where(
+                    (Components.installation_status == 'Installed') &
+                    (Components.bike_id == bike_id)):
+                    self.update_component_distance(component.component_id, component.component_distance) #Should be sum from install date + current_component_distance
 
         except (peewee.OperationalError, ValueError) as error:
-            logging.error(f'An error occurred while selecting which components to update: {error}')
+            logging.error(f'An error occurred while iterating over bikes to find components to update: {error}')
+        
 
     def update_component_distance(self, component_id, current_distance):
         """Method to update component table with distance from ride table"""
@@ -163,8 +140,8 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
             logging.info(f"Updated distance for component {component.component_name} (id {component.component_id})")
             
             updated_component = Components.get(Components.component_id == component_id)
-            self.update_component_service_status(updated_component)
             self.update_component_lifetime_status(updated_component)
+            self.update_component_service_status(updated_component)
             self.update_bike_status(updated_component.bike_id)
 
         except (peewee.OperationalError, ValueError) as error:

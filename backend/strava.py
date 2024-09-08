@@ -54,10 +54,11 @@ class Strava:
         with open(self.oauth_file, 'w', encoding='utf-8') as file:
             file.write(json.dumps(secrets_output))
 
-    def get_rides(self, mode):
+    async def get_rides(self, mode):
         """Method to authenticate and get data from Stravas activities API"""
         page = 1
         raw_response = ""
+        self.json_response = {} #This could be a problem..
         self.bike_ids_recent_rides.clear()
         self.payload_rides.clear()
         self.token_loader()
@@ -104,13 +105,12 @@ class Strava:
                 logging.info(f'API status for page {page}: {raw_response.status_code} - {raw_response.reason}')
                 logging.info(f'Page contained {len(self.json_response)} activities')
                 self.prepare_payload_rides()
-                
-                for activity in self.json_response:
-                    if str(activity["type"]) == "Ride" and activity["gear_id"] != None:
-                        self.bike_ids_recent_rides.add(activity["gear_id"])
-                logging.info(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides')
-                
                 health_check("ok", "executing")
+                
+            for activity in self.json_response: #Consider putting this under recent and make something else under all
+                if str(activity["type"]) == "Ride" and activity["gear_id"] != None:
+                    self.bike_ids_recent_rides.add(activity["gear_id"])
+            logging.info(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides')
 
         except Exception as error:
             logging.error(f'An error occured during the API call to fetch rides: {error}')
