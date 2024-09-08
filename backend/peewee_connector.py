@@ -120,6 +120,10 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
                 for component in Components.select().where(
                     (Components.installation_status == 'Installed') &
                     (Components.bike_id == bike_id)):
+                    # Get latest history record
+                    current_component_distance = latest_history_record.distance_marker
+                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_history_record.updated_date))
+                    current_component_distance += sum(ride.ride_distance for ride in matching_rides)
                     self.update_component_distance(component.component_id, component.component_distance) #Should be sum from install date + current_component_distance
 
         except (peewee.OperationalError, ValueError) as error:

@@ -430,7 +430,7 @@ async def refresh_rides(request: Request, mode: str): #Request currently not use
     try:
         if mode == "all":
             logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
-            await strava.get_rides(mode) 
+            await strava.get_rides(mode)
             
         if mode == "recent":
             logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
