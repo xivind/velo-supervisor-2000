@@ -25,7 +25,8 @@ class Strava:
         self.token = {}
         self.extra = {}
         self.json_response = ""
-        self.payload = []
+        self.payload_bikes = []
+        self.payload_rides = []
         self.bike_ids_recent_rides = set()
         self.oauth_file = oauth_file
 
@@ -58,7 +59,7 @@ class Strava:
         page = 1
         raw_response = ""
         self.bike_ids_recent_rides.clear()
-        self.payload.clear()
+        self.payload_rides.clear()
         self.token_loader()
         refresh_url = "https://www.strava.com/oauth/token"
 
@@ -112,13 +113,13 @@ class Strava:
                 health_check("ok", "executing")
 
         except Exception as error:
-            logging.error(f'An error occured during the API call: {error}')
+            logging.error(f'An error occured during the API call to fetch rides: {error}')
             health_check("error", "executing")
 
-    def get_bikes(self, bike_ids):
+    async def get_bikes(self, bike_ids):
         """Method to authenticate and get data from Stravas gear API"""
         raw_response = ""
-        self.payload.clear()
+        self.payload_bikes.clear()
         self.token_loader()
         refresh_url = "https://www.strava.com/oauth/token"
 
@@ -156,7 +157,7 @@ class Strava:
 
 
         except Exception as error:
-            logging.error(f'An error occured during the API call: {error}')
+            logging.error(f'An error occured during the API call to fetch bikes: {error}')
             health_check("error", "executing")
 
     def prepare_payload_rides(self):
@@ -176,14 +177,14 @@ class Strava:
                     ride.update({"ride_distance": round(float(activities["distance"]/1000),2)})
                     ride.update({"commute": bool(activities["commute"])})
 
-                    self.payload.append(ride)
+                    self.payload_rides.append(ride)
                     logging.info('Ride data written to list:')
                     logging.info(ride)
                     health_check("ok", "executing")
 
                 except Exception as error:
                     logging.error('An error ocurred preparing payload for rides:')
-                    logging.error(self.payload)
+                    logging.error(self.payload_rides)
                     logging.error(f'More info about the error: {error}')
                     health_check("error", "executing")
 
@@ -201,14 +202,14 @@ class Strava:
             bike.update({"total_distance": round(int(self.json_response["converted_distance"]))})
             bike.update({"notes": str(self.json_response["description"])})
 
-            self.payload.append(bike)
+            self.payload_bikes.append(bike)
             logging.info('Bike data written to list:')
             logging.info(bike)
             health_check("ok", "executing")
 
         except Exception as error:
             logging.error('An error ocurred preparing payload for bikes')
-            logging.error(self.payload)
+            logging.error(self.payload_bikes)
             logging.error(f'More info about the error: {error}')
             health_check("error", "executing")
 

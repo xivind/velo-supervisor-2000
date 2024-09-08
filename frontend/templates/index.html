@@ -40,7 +40,6 @@
         <h1 class="display-5 mt-5 text-center">Bike overview</h1>
         <div class="row mt-5">
             {% for name, bike_id, bike_status, service_lifetime_status, distance, count_installed, count_retired in bikes_data %}
-                {% if bike_status == "False" %}
                     <div class="col-md-4 mb-3">
                         <div class="card shadow">
                             <div class="card-header fw-bold text-bg-{% if service_lifetime_status == 'Pristine condition' %}success{% elif service_lifetime_status == 'Maintenance approaching' %}warning{% elif service_lifetime_status == 'Maintenance required' %}danger{% elif service_lifetime_status == 'Breakdown imminent' %}purple{% elif service_lifetime_status == 'Maintenance not defined' %}secondary{% else %}light{% endif %}">{{ name }}</div>
@@ -61,7 +60,6 @@
                             </div>
                         </div>
                     </div>
-                {% endif %}
             {% endfor %}
         </div>
         <footer class="bg-primary-subtle rounded text-secondary text-center fw-bold">
@@ -73,6 +71,7 @@
         </footer>
         <a href="/component_overview" class="btn btn-outline-primary">Get new rides</a>
         <a href="/component_overview" class="btn btn-outline-primary">Get all rides</a>
+        <a href="/refresh_all_bikes" class="btn btn-outline-primary">Refesh all bikes</a>
         <a href="index" class="btn btn-outline-success"></a>    
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

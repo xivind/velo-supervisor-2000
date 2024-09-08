@@ -531,9 +531,10 @@ class MiscMethods():
                    
         return 0
     
-    def list_unique_bikes(self):
+    def get_unique_bikes(self):
         """Method to query database and create list of unique bike ids"""
         try:
+            logging.info("Generating list of bikes stored in local database")
             unique_bike_ids = Rides.select(Rides.bike_id).distinct()
             bike_id_set = {
                 ride.bike_id

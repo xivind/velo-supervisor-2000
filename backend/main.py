@@ -7,6 +7,7 @@ from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecord
 import argparse
 import logging
 import uvicorn
+import json
 from time import sleep
 from fastapi import FastAPI, HTTPException, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -17,34 +18,23 @@ from pathlib import Path
 from datetime import datetime
 from collections import Counter
 import traceback
+import os
+
+def read_parameters():
+    with open('config.json') as f:
+        config = json.load(f)
+    return config
 
 
-#def read_parameters():
-#    """
-#    Function for reading variables for the script,
-#    for more on argparse, refer to https://zetcode.com/python/argparse/
-#    """
-#    parser = argparse.ArgumentParser(
-#        description="Configuration parameters")
-#    parser.add_argument("--oauth_file", type=str,
-#                        help="File with oauth user data", required=True)
-#    args = parser.parse_args()
-#    # Include file path to db as argument, also include in git-ignore
+CONFIG = read_parameters() # Include file path to db as argument, and more - include in git-ignore
 
-#    return args
-
-
-
-
-
-#PARAMETERS = read_parameters()
-#strava = Strava(PARAMETERS.oauth_file)
+strava = Strava(CONFIG['strava_tokens'])
 read_tables = ReadTables()
 modify_tables = ModifyTables()
 read_records = ReadRecords()
 modify_records = ModifyRecords()
 misc_methods = MiscMethods()
-#Initiate more classes
+#Initiate more classes, whats missing?
 
 app = FastAPI()
 templates = Jinja2Templates(directory="../frontend/templates")
@@ -353,7 +343,7 @@ async def bike_details(request: Request, bike_id: str):
         # Handle exceptions
         raise HTTPException(status_code=500, detail=str(error))
     
-
+    
 @app.get("/component_details/{component_id}", response_class=HTMLResponse)
 async def component_details(request: Request, component_id: str):
     """Endpoint for component details page"""
@@ -418,25 +408,39 @@ async def component_details(request: Request, component_id: str):
     template_path = "component_details.html"
     return templates.TemplateResponse(template_path, {"request": request, "payload": payload})
 
-@app.post("/delete_record", response_class=HTMLResponse)
-async def delete_record(
-    record_id: str = Form(...),
-    table_selector: str = Form(...)):
-    """Endpoint to delete records"""
+@app.get("/refresh_all_bikes", response_class=HTMLResponse)
+async def refresh_all_bikes(request: Request): #Request currently not used, but keep it for now. Will be required for error messages later.
+    """Endpoint to manually refresh data for all bikes"""
+    
+    try:
+        logging.info("Refreshing all bikes from Strava (manually triggered)")
+        await strava.get_bikes(misc_methods.get_unique_bikes())
+        modify_tables.update_bikes(strava.payload_bikes)
+        
+        return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located 
+    
+    except Exception as error: #Use this on all exceptions, but first update with ability to display error message to user
+        error_traceback = traceback.format_exc()
+        logging.error(f"An error occurred trying to refresh all bikes from Strava (manually triggered): {error} Details:\n{error_traceback}")
 
-    modify_records.delete_record(table_selector, record_id)
+@app.get("/refresh_rides/{mode}", response_class=HTMLResponse)
+async def refresh_rides(request: Request, mode: str): #Request currently not used, but keep it for now. Will be required for error messages later.
+    """Endpoint to manually refresh data for a subset or all rides"""
+    
+    try:
+        logging.info("Refreshing all bikes from Strava (manually triggered)")
+        await strava.get_bikes(misc_methods.get_unique_bikes())
+        modify_tables.update_bikes(strava.payload_bikes)
+        
 
-
-
-
-# Endpoint get all rides and recent rides, make it possible also to call with "all" arg
+        # Endpoint get all rides and recent rides, make it possible also to call with "all" arg
 #strava.get_rides("recent") 
 #modify_tables.update_rides_bulk(strava.payload)
 
-# Endpoints get all bikes (triggered when new rides are fetched, and should also be able to call manually), can also be called with this as arg strava.bike_ids_recent_rides or peewee_connector.list_unique_bikes(). Depends on context
+# This one should be triggered by getting rides (all and recent)
 #if len(strava.bike_ids_recent_rides) > 0:
-#    strava.get_bikes(strava.bike_ids_recent_rides)
-#    modify_tables.update_bikes(strava.payload)
+#            strava.get_bikes(strava.bike_ids_recent_rides)
+#            modify_tables.update_bikes(strava.payload)
 
 # Code to update installed components distance and moving time (not callable as endpoint).
 # Should be trigger by fetching of new rides and when components are added, should also be able to trigger manually with all
@@ -448,6 +452,29 @@ async def delete_record(
 
 # Code to update misc status fields of components (not callable as endpoint). Should be triggered by updating of installed components
 # This method should be called by main
+
+        return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located 
+    
+    except Exception as error: #Use this on all exceptions, but first update with ability to display error message to user
+        error_traceback = traceback.format_exc()
+        logging.error(f"An error occurred trying to refresh all bikes from Strava (manually triggered): {error} Details:\n{error_traceback}")
+
+
+@app.post("/delete_record", response_class=HTMLResponse)
+async def delete_record(
+    record_id: str = Form(...),
+    table_selector: str = Form(...)):
+    """Endpoint to delete records"""
+
+    modify_records.delete_record(table_selector, record_id)
+
+
+
+
+
+        
+
+
 
 # Todo
 # All endpoints that writes should print log
@@ -477,6 +504,7 @@ async def delete_record(
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Review all log statemens and make them consistent
 # Run update bike status as non blocking scheduled use asyncio
-# Run get strava apis as non blocking scheduled use asyncio
+# Run get strava apis as non blocking scheduled use asyncio (both rides and bikes)
 # Bug, can fix later: If a component is uninstalled, bike status cannot be updated because bike ID is missing
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
+# Handle case where a bike registered in a ride is no longer available at Strava
