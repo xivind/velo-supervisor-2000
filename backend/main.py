@@ -396,7 +396,6 @@ async def component_details(request: Request, component_id: str):
     else:
         service_history_data = None
 
-
     payload = {
         "bikes_data": bikes_data,
         "component_types_data": component_types_data,
@@ -425,32 +424,40 @@ async def refresh_all_bikes(request: Request): #Request currently not used, but 
 
 @app.get("/refresh_rides/{mode}", response_class=HTMLResponse)
 async def refresh_rides(request: Request, mode: str): #Request currently not used, but keep it for now. Will be required for error messages later.
-    """Endpoint to manually refresh data for a subset or all rides"""
+    """Endpoint to refresh data for a subset or all rides"""
     
     try:
         if mode == "all":
             logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
             await strava.get_rides(mode)
+            modify_tables.update_rides_bulk(strava.payload_rides)
+            
+            logging.info("Refreshing all bikes from Strava")
+            await strava.get_bikes(misc_methods.get_unique_bikes())
+            modify_tables.update_bikes(strava.payload_bikes)
+            
+            modify_tables.update_components_distance_iterator(misc_methods.get_unique_bikes())
             
         if mode == "recent":
             logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
             await strava.get_rides(mode)
-        
-        modify_tables.update_rides_bulk(strava.payload_rides) 
-        
-        if len(strava.bike_ids_recent_rides) > 0: #Is this not working for all?
-            logging.info("Refreshing all bikes from Strava (called by refresh_rides)")
-            await strava.get_bikes(strava.bike_ids_recent_rides)
-            modify_tables.update_bikes(strava.payload_bikes)
+            modify_tables.update_rides_bulk(strava.payload_rides)
+            
+            if len(strava.bike_ids_recent_rides) > 0:
+                logging.info("Refreshing all bikes from Strava")
+                await strava.get_bikes(strava.bike_ids_recent_rides)
+                modify_tables.update_bikes(strava.payload_bikes)
+                
+                modify_tables.update_components_distance_iterator(strava.bike_ids_recent_rides)
+            
+            else:
+                logging.warning("No bikes found in recent activities")
 
-        modify_tables.update_components_distance_selector(strava.bike_ids_recent_rides) #Change the name of this variable to something more intuitive
-        
         return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located
-    
+
     except Exception as error: #Use this on all exceptions, but first update with ability to display error message to user
         error_traceback = traceback.format_exc()
         logging.error(f"An error occurred trying to refresh all bikes from Strava: {error} Details:\n{error_traceback}")
-        
 
 @app.post("/delete_record", response_class=HTMLResponse)
 async def delete_record(
@@ -493,3 +500,4 @@ async def delete_record(
 # Bug, can fix later: If a component is uninstalled, bike status cannot be updated because bike ID is missing
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
 # Handle case where a bike registered in a ride is no longer available at Strava
+# Add button on component detail: back to bike

@@ -58,7 +58,6 @@ class Strava:
         """Method to authenticate and get data from Stravas activities API"""
         page = 1
         raw_response = ""
-        self.json_response = {} #This could be a problem..
         self.bike_ids_recent_rides.clear()
         self.payload_rides.clear()
         self.token_loader()
@@ -107,10 +106,10 @@ class Strava:
                 self.prepare_payload_rides()
                 health_check("ok", "executing")
                 
-            for activity in self.json_response: #Consider putting this under recent and make something else under all
-                if str(activity["type"]) == "Ride" and activity["gear_id"] != None:
-                    self.bike_ids_recent_rides.add(activity["gear_id"])
-            logging.info(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides')
+                for activity in self.json_response:
+                    if str(activity["type"]) == "Ride" and activity["gear_id"] != None:
+                        self.bike_ids_recent_rides.add(activity["gear_id"])
+                logging.info(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides')
 
         except Exception as error:
             logging.error(f'An error occured during the API call to fetch rides: {error}')

@@ -112,23 +112,23 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while updating the bikes table: {error}')
 
-    def update_components_distance_selector(self, bike_ids):
+    def update_components_distance_iterator(self, bike_ids):
         """Method to determine which selection of components to update"""
         try:
             logging.info(f'Iterating over bikes to find components to update. Received {len(bike_ids)} bikes')
             for bike_id in bike_ids:
                 for component in Components.select().where(
                     (Components.installation_status == 'Installed') &
-                    (Components.bike_id == bike_id)):
-                    # Get latest history record
+                    (Components.bike_id == bike_id)).execute():
+                    
+                    latest_history_record = ComponentHistory.select().where(ComponentHistory.component_id == component.component_id).order_by(ComponentHistory.updated_date.desc()).first()
                     current_component_distance = latest_history_record.distance_marker
                     matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_history_record.updated_date))
                     current_component_distance += sum(ride.ride_distance for ride in matching_rides)
-                    self.update_component_distance(component.component_id, component.component_distance) #Should be sum from install date + current_component_distance
+                    self.update_component_distance(component.component_id, current_component_distance)
 
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while iterating over bikes to find components to update: {error}')
-        
 
     def update_component_distance(self, component_id, current_distance):
         """Method to update component table with distance from ride table"""
@@ -141,7 +141,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
                 component.component_distance = total_distance
                 component.save()
 
-            logging.info(f"Updated distance for component {component.component_name} (id {component.component_id})")
+            logging.info(f"Updated distance for component {component.component_name} (id {component.component_id}). New total distance: {total_distance}")
             
             updated_component = Components.get(Components.component_id == component_id)
             self.update_component_lifetime_status(updated_component)
