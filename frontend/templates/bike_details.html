@@ -41,13 +41,22 @@
         <div class="row mt-5">
             <div class="col-md-4">
                 <div class="card shadow mb-4">
-                    <div class="card-header fw-bold text-bg-{% if payload.bike_data['bike_service_status'] == 'Pristine condition' %}success{% elif payload.bike_data['bike_service_status'] == 'Due for service' %}warning{% elif payload.bike_data['bike_service_status'] == 'Breakdown imminent' %}danger{% else %}secondary{% endif %}">{{ payload.bike_data['bike_name'] }}</div>
-                    
-                    
-                    
-                    
-                    
-                    
+                    <div class="card-header fw-bold text-bg-
+                        {%- if payload.bike_data['bike_service_status'] == 'No components registered' or payload.bike_data['bike_service_status'] == 'No active components' -%}
+                            light
+                        {%- elif payload.bike_data['bike_service_status'] == 'Maintenance not defined' -%}
+                            secondary
+                        {%- elif payload.bike_data['bike_service_status'] == 'Breakdown imminent' -%}
+                            purple
+                        {%- elif payload.bike_data['bike_service_status'] == 'Maintenance required' -%}
+                            danger
+                        {%- elif payload.bike_data['bike_service_status'] == 'Maintenance approaching' -%}
+                            warning
+                        {%- elif payload.bike_data['bike_service_status'] == 'Pristine condition' -%}
+                            success
+                        {%- endif -%}">
+                        {{ payload.bike_data['bike_name'] }}
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title">{{ payload.bike_data['bike_service_status'] }}</h5>
                         <p class="card-text d-flex justify-content-between align-items-center">
