@@ -246,36 +246,45 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
                 
                 logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}")
                 
-                bike_status = {"breakdown_imminent": 0,
+                component_status = {"breakdown_imminent": 0,
                             "maintenance_required": 0,
                             "maintenance_approaching": 0,
                             "ok": 0}
+                
+                count_installed = 0
+                count_retired = 0
 
                 if components.exists():
                     for component in components:
                         if component.installation_status == "Installed":
+                            count_installed += 1
                             if component.lifetime_status == "Lifetime exceeded" or component.service_status =="Service interval exceeded":
-                                bike_status["breakdown_imminent"] += 1
+                                component_status["breakdown_imminent"] += 1
                             elif component.lifetime_status == "Due for replacement" or component.service_status =="Due for service":
-                                bike_status["maintenance_required"] += 1
+                                component_status["maintenance_required"] += 1
                             elif component.lifetime_status == "End of life approaching" or component.service_status =="Service approaching":
-                                bike_status["maintenance_approaching"] += 1
+                                component_status["maintenance_approaching"] += 1
                             elif component.lifetime_status == "OK" or component.service_status =="OK":
-                                bike_status["ok"] += 1
+                                component_status["ok"] += 1
+                        
+                        if component.installation_status == "Retired":
+                            count_retired += 1
 
-                    if bike_status["breakdown_imminent"] > 0:
+                    if component_status["breakdown_imminent"] > 0:
                         service_status = "Breakdown imminent"
-                    elif bike_status["maintenance_required"] > 0:
+                    elif component_status["maintenance_required"] > 0:
                         service_status = "Maintenance required"
-                    elif bike_status["maintenance_approaching"] > 0:
+                    elif component_status["maintenance_approaching"] > 0:
                         service_status = "Maintenance approaching"
-                    elif bike_status["ok"] > 0:
+                    elif component_status["ok"] > 0:
                         service_status = "Pristine condition"
-                    else:
+                    elif all(value == 0 for value in component_status.values()) and count_installed > 0:
                         service_status = "Maintenance not defined"
-                    
+                    elif count_installed == 0 and count_retired > 0:
+                        service_status = "No active components"
+                
                 else:
-                    service_status = None
+                    service_status = "No components registered"
             
                 logging.info(f"New status for bike {bike.bike_name}: {service_status}")
 
