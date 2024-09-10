@@ -58,9 +58,9 @@
                         {{ payload.bike_component_data['component_name'] }}
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">
+                        <h6 class="card-title fw-bold">
                             {% if payload.bike_component_data['installation_status'] == 'Installed' %}⚡ {{ payload.bike_component_data['installation_status'] }} at {{ payload['bike_name'] }}{% elif payload.bike_component_data['installation_status'] == 'Not installed' %}💤 {{ payload.bike_component_data['installation_status'] }}{% elif payload.bike_component_data['installation_status'] == 'Retired' %}⛔ {{ payload.bike_component_data['installation_status'] }}{% endif %}
-                        </h5>
+                        </h6>
                         <hr/>
                         <span class="fw-bold">📍 Mileage {{ payload.bike_component_data['component_distance'] }} km</span>
                         <hr/>
