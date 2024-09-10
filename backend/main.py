@@ -497,7 +497,6 @@ async def delete_record(
 # Review all log statemens and make them consistent
 # Run update bike status as non blocking scheduled use asyncio
 # Run get strava apis as non blocking scheduled use asyncio (both rides and bikes)
-# Bug, can fix later: If a component is uninstalled, bike status cannot be updated because bike ID is missing
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
 # Handle case where a bike registered in a ride is no longer available at Strava
-# Add button on component detail: back to bike
+# Add button on component detail: back to bike, only show if the component is assigned to a bike
