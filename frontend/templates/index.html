@@ -42,7 +42,7 @@
             {% for name, bike_id, bike_status, service_lifetime_status, distance, count_installed, count_retired in bikes_data %}
                     <div class="col-md-4 mb-3">
                         <div class="card shadow">
-                            <div class="card-header fw-bold text-bg-
+                            <div class="card-header h5 fw-bold text-bg-
                                 {%- if service_lifetime_status == 'No components registered' or service_lifetime_status == 'No active components' -%}
                                     light
                                 {%- elif service_lifetime_status == 'Maintenance not defined' -%}

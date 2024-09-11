@@ -592,10 +592,12 @@ class MiscMethods():
                                 "count_lifetime_status_yellow": 0,
                                 "count_lifetime_status_red": 0,
                                 "count_lifetime_status_purple": 0,
+                                "count_lifetime_status_grey": 0,
                                 "count_service_status_green": 0,
                                 "count_service_status_yellow": 0,
                                 "count_service_status_red": 0,
                                 "count_service_status_purple": 0,
+                                "count_service_status_grey": 0,
                                 "sum_cost": 0,
                                 }
         
@@ -614,6 +616,8 @@ class MiscMethods():
                 component_statistics["count_lifetime_status_red"] += 1
             if component[4] == "Lifetime exceeded" and component[0] == "Installed":
                 component_statistics["count_lifetime_status_purple"] += 1
+            if component[4] == "Not defined" and component[0] == "Installed":
+                component_statistics["count_lifetime_status_grey"] += 1                
             if component[5] == "OK" and component[0] == "Installed":
                 component_statistics["count_service_status_green"] += 1
             if component[5] == "Service approaching" and component[0] == "Installed":
@@ -622,6 +626,8 @@ class MiscMethods():
                 component_statistics["count_service_status_red"] += 1
             if component[5] == "Service interval exceeded" and component[0] == "Installed":
                 component_statistics["count_service_status_purple"] += 1
+            if component[5] == "Not defined" and component[0] == "Installed":
+                component_statistics["count_service_status_grey"] += 1
             if component[6] is not None and isinstance(component[6], int) and component[0] == "Installed":
                     if (component[4] != "OK" and component[4] is not None) or (component[5] != "OK" and component[5] is not None):
                         component_statistics["sum_cost"] += component[6]

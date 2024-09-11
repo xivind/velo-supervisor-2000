@@ -41,7 +41,7 @@
         <div class="row mt-5">
             <div class="col-md-4">
                 <div class="card shadow mb-4">
-                    <div class="card-header fw-bold text-bg-
+                    <div class="card-header h5 fw-bold text-bg-
                         {%- if payload.bike_data['bike_service_status'] == 'No components registered' or payload.bike_data['bike_service_status'] == 'No active components' -%}
                             light
                         {%- elif payload.bike_data['bike_service_status'] == 'Maintenance not defined' -%}
@@ -66,16 +66,16 @@
                 </div>
                 <div class="card shadow mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Component summary</h5>
+                        <h5 class="card-title">Summary installed components</h5>
                         <p class="card-text d-flex justify-content-between align-items-center">
                             <span>⚡ Installed:</span><span class="fw-bold">{{ payload.count_installed }}</span>
                         </p>
                         <hr/>
                         <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>🟢 Lifetime OK:</span><span class="fw-bold">{{ payload.count_lifetime_status_green }}</span>
+                            <span>🟢 Lifetime OK</span><span class="fw-bold">{{ payload.count_lifetime_status_green }}</span>
                         </p>
                         <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>🟡 End of life approaching:</span><span class="fw-bold">{{ payload.count_lifetime_status_yellow }}</span>
+                            <span>🟡 End of life approaching</span><span class="fw-bold">{{ payload.count_lifetime_status_yellow }}</span>
                         </p>
                         <p class="card-text d-flex justify-content-between align-items-center">
                             <span>🔴 Due for replacement</span><span class="fw-bold">{{ payload.count_lifetime_status_red }}</span>
@@ -83,22 +83,28 @@
                         <p class="card-text d-flex justify-content-between align-items-center">
                             <span>🟣 Lifetime exceeded</span><span class="fw-bold">{{ payload.count_lifetime_status_purple }}</span>
                         </p>
-                        <hr/>
                         <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>🟢 Service OK:</span><span class="fw-bold">{{ payload.count_service_status_green }}</span>
-                        </p>
-                        <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>🟡 Service approaching:</span><span class="fw-bold">{{ payload.count_service_status_yellow }}</span>
-                        </p>
-                        <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>🔴 Due for service:</span><span class="fw-bold">{{ payload.count_service_status_red }}</span>
-                        </p>
-                        <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>🟣 Service interval exceeded:</span><span class="fw-bold">{{ payload.count_service_status_purple }}</span>
+                            <span>⚪ Lifetime not defined</span><span class="fw-bold">{{ payload.count_lifetime_status_grey }}</span>
                         </p>
                         <hr/>
                         <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>💰 Expected cost:</span><span class="fw-bold">{% if payload.sum_cost == "No estimate" %} {{ payload.sum_cost }} {% else %} {{ payload.sum_cost }} kr{% endif %}</span>
+                            <span>🟢 Service OK</span><span class="fw-bold">{{ payload.count_service_status_green }}</span>
+                        </p>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🟡 Service approaching</span><span class="fw-bold">{{ payload.count_service_status_yellow }}</span>
+                        </p>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🔴 Due for service</span><span class="fw-bold">{{ payload.count_service_status_red }}</span>
+                        </p>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>🟣 Service interval exceeded</span><span class="fw-bold">{{ payload.count_service_status_purple }}</span>
+                        </p>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>⚪ Service interval not defined</span><span class="fw-bold">{{ payload.count_service_status_grey }}</span>
+                        </p>
+                        <hr/>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>💰 Expected cost</span><span class="fw-bold">{% if payload.sum_cost == "No estimate" %} {{ payload.sum_cost }} {% else %} {{ payload.sum_cost }} kr{% endif %}</span>
                         </p>  
                     </div>
                 </div>
@@ -150,7 +156,7 @@
                     </div>
                 </div>
                 <div class="card shadow mb-3">
-                    <div class="card-header fw-bold">Installed components</div>
+                    <div class="card-header fw-bold">Components</div>
                     <div class="card-body">
                         <table class="table">
                             <thead>
