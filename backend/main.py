@@ -415,6 +415,9 @@ async def refresh_all_bikes(request: Request): #Request currently not used, but 
         logging.info("Refreshing all bikes from Strava (called directly)")
         await strava.get_bikes(misc_methods.get_unique_bikes())
         modify_tables.update_bikes(strava.payload_bikes)
+
+        for bike_id in misc_methods.get_unique_bikes():
+            modify_tables.update_bike_status(bike_id)
         
         return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located 
     
