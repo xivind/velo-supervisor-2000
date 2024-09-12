@@ -99,10 +99,24 @@
             </div>
         </div>
         <hr class="mt-5"/>
-        <div class="mt-5 card shadow mb-3">
+        <div class="d-flex justify-content-end mb-3 pe-2">
+            <div class="form-check form-switch me-4">
+                <input class="form-check-input filter-switch" type="checkbox" id="showInstalledComponents" checked>
+                <label class="form-check-label fw-bold" for="showInstalledComponents">Show installed</label>
+            </div>
+            <div class="form-check form-switch me-4">
+                <input class="form-check-input filter-switch" type="checkbox" id="showNotInstalledComponents" checked>
+                <label class="form-check-label fw-bold" for="showNotInstalledComponents">Show not installed</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showRetiredComponents">
+                <label class="form-check-label fw-bold" for="showRetiredComponents">Show retired</label>
+            </div>
+        </div>
+        <div class="card shadow mb-3">
             <div class="card-header fw-bold">All components</div>
             <div class="card-body">
-                <table class="table">
+                <table class="table table-hover">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -118,7 +132,7 @@
                     <tbody>
                         {% if component_data %}
                             {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike in component_data %}
-                            <tr>
+                            <tr data-status="{{ installation_status }}">
                                 <td>{{ name }}</td>
                                 <td>{{ type }}</td>
                                 <td>{{ component_distance }} km</td>
@@ -238,6 +252,38 @@
         .catch(error => console.error('Backend error:', error));
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterSwitches = document.querySelectorAll('.filter-switch');
+            const componentRows = document.querySelectorAll('tbody tr');
+
+            function updateVisibility() {
+                const showInstalled = document.getElementById('showInstalledComponents').checked;
+                const showNotInstalled = document.getElementById('showNotInstalledComponents').checked;
+                const showRetired = document.getElementById('showRetiredComponents').checked;
+
+                componentRows.forEach(row => {
+                    const status = row.dataset.status;
+                    if (
+                        (status === 'Installed' && showInstalled) ||
+                        (status === 'Not installed' && showNotInstalled) ||
+                        (status === 'Retired' && showRetired)
+                    ) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            filterSwitches.forEach(switchElement => {
+                switchElement.addEventListener('change', updateVisibility);
+            });
+
+            // Initial visibility update
+            updateVisibility();
+        });
+
     </script>
 </body>
 </html>

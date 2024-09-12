@@ -38,11 +38,13 @@
             </ul>
         </nav>
         <h1 class="display-5 mt-5 text-center">Bike overview</h1>
-        <div class="row">
-            <div class="form-check form-switch mb-3">
+        <div class="d-flex justify-content-end mb-3 pe-2">
+            <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="showRetiredBikes">
                 <label class="form-check-label fw-bold" for="showRetiredBikes">Show retired bikes</label>
             </div>
+        </div>
+        <div class="row">
             {% for name, bike_id, bike_status, service_lifetime_status, distance, count_installed, count_retired in bikes_data %}
                     <div class="col-md-4 mb-3">
                         <div class="card shadow" data-bike-status="{{ bike_status }}">
