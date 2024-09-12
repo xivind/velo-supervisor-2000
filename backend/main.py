@@ -505,3 +505,5 @@ async def delete_record(
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
 # Handle case where a bike registered in a ride is no longer available at Strava
 # Add button on component detail: back to bike, only show if the component is assigned to a bike
+# Bug total component distance is slightly off, probably has to do with stop dates. Works when called by refresh bikes, but not when called through endpoint /modify_component
+# Bug When deleting components from component overview, sorting and and filters should remain the same
