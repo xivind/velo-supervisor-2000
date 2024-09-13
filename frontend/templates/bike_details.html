@@ -155,6 +155,21 @@
                         </table>
                     </div>
                 </div>
+                <hr class="mt-5"/>
+                <div class="d-flex justify-content-end mb-3 pe-2">
+                    <div class="form-check form-switch me-4">
+                        <input class="form-check-input filter-switch" type="checkbox" id="showInstalledComponents" checked>
+                        <label class="form-check-label fw-bold" for="showInstalledComponents">Show installed</label>
+                    </div>
+                    <div class="form-check form-switch me-4">
+                        <input class="form-check-input filter-switch" type="checkbox" id="showNotInstalledComponents" checked>
+                        <label class="form-check-label fw-bold" for="showNotInstalledComponents">Show not installed</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input filter-switch" type="checkbox" id="showRetiredComponents">
+                        <label class="form-check-label fw-bold" for="showRetiredComponents">Show retired</label>
+                    </div>
+                </div>
                 <div class="card shadow mb-3">
                     <div class="card-header fw-bold">Components</div>
                     <div class="card-body">
@@ -174,7 +189,7 @@
                             <tbody>
                                 {% if payload.bike_components_data %}
                                     {% for component_id, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_components_data %}
-                                    <tr>
+                                    <tr data-status="{{ installation_status }}">
                                         <td>{{ name }}</td>
                                         <td>{{ type }}</td>
                                         <td>{{ component_distance }} km</td>
@@ -244,5 +259,38 @@
         </footer>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        // Script to filter table
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterSwitches = document.querySelectorAll('.filter-switch');
+            const componentRows = document.querySelectorAll('tbody tr');
+
+            function updateVisibility() {
+                const showInstalled = document.getElementById('showInstalledComponents').checked;
+                const showNotInstalled = document.getElementById('showNotInstalledComponents').checked;
+                const showRetired = document.getElementById('showRetiredComponents').checked;
+
+                componentRows.forEach(row => {
+                    const status = row.dataset.status;
+                    if (
+                        (status === 'Installed' && showInstalled) ||
+                        (status === 'Not installed' && showNotInstalled) ||
+                        (status === 'Retired' && showRetired)
+                    ) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            filterSwitches.forEach(switchElement => {
+                switchElement.addEventListener('change', updateVisibility);
+            });
+
+            // Initial visibility update
+            updateVisibility();
+        });
+    </script>
 </body>
 </html>
