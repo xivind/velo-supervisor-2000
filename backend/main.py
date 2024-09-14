@@ -500,7 +500,7 @@ async def delete_record(
 # Implement health check
 
 # Review all log statemens and make them consistent
-# There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off
+# There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off. Services and distance marker is int, should be numeric
 # Clean up datatypes to avoid casting in script, most, if not all numbers, should be int, careful about this one
 # Run update bike status as non blocking scheduled use asyncio
 # Run get strava apis as non blocking scheduled use asyncio (both rides and bikes)

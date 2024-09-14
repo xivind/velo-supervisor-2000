@@ -173,7 +173,7 @@ class Strava:
                     ride.update({"ride_name": str(activities["name"])})
                     ride.update({"record_time": str(activities["start_date_local"]).replace("Z","")})
                     ride.update({"moving_time": str(timedelta(seconds=activities["moving_time"]))})
-                    ride.update({"ride_distance": round(float(activities["distance"]/1000),2)})
+                    ride.update({"ride_distance": float(activities["distance"]/1000)})
                     ride.update({"commute": bool(activities["commute"])})
 
                     self.payload_rides.append(ride)
@@ -198,7 +198,7 @@ class Strava:
             bike.update({"bike_id": str(self.json_response["id"])})
             bike.update({"bike_name": str(self.json_response["name"])})
             bike.update({"bike_retired": bool(self.json_response["retired"])})
-            bike.update({"total_distance": round(int(self.json_response["converted_distance"]))})
+            bike.update({"total_distance": self.json_response["converted_distance"]})
             bike.update({"notes": str(self.json_response["description"])})
 
             self.payload_bikes.append(bike)
