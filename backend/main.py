@@ -481,30 +481,27 @@ async def delete_record(
 # Make sure all endpoints have same logic, variable naming conventions..
 # Display banner on all pages if last ride is more than seven days ago
 # Add favicon
-# Switch to show also retired bikes on bike overview
-# Switch to show different component statuses on component overview
-# Component type should specify suggested as prefix for variables
-# Use the same name across endpoints, require change also to html files: bike_components_data
 # Sort endpoints so they appear in a more logical order
 # Add input validation on component details form, should have input validation on all forms
 # Consider all export statement, maybe not needed?
 # Review all doc strings
-# Implement health check
-# Clean up datatypes to avoid casting in script, most, if not all numbers, should be int
 # Improvement: on bike change automatically uninstall and install, enhancement, not fix now, or some sort of validation
 # Validation in form, cannot be "Not assigned" bike when status is installed
-# Validation: should not be possible to add new types when type already exist
+# Validation: should not be possible to add new types when type already exist. Other validations could also be necessary
 # Give warning before selecting "Retired"
 # Give warning before deleting records
-# There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off
 # Updated readme with change log
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
-# Review all log statemens and make them consistent
-# Run update bike status as non blocking scheduled use asyncio
-# Run get strava apis as non blocking scheduled use asyncio (both rides and bikes)
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
 # Handle case where a bike registered in a ride is no longer available at Strava
-# Add button on component detail: back to bike, only show if the component is assigned to a bike
-# Bug total component distance is slightly off, probably has to do with stop dates. Works when called by refresh bikes, but not when called through endpoint /modify_component. Only happens when the update happens on the day of the last ride, not after
 # Bug When deleting components from component overview, sorting and and filters should remain the same
 # Move all styles to separate css, be careful about bootstrap conflicts
+# Add button on component detail: back to bike, only show if the component is assigned to a bike
+# Implement health check
+
+# Review all log statemens and make them consistent
+# There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off
+# Clean up datatypes to avoid casting in script, most, if not all numbers, should be int, careful about this one
+# Run update bike status as non blocking scheduled use asyncio
+# Run get strava apis as non blocking scheduled use asyncio (both rides and bikes)
+# Bug total component distance is slightly off, probably has to do with stop dates. Works when called by refresh bikes, but not when called through endpoint /modify_component. Only happens when the update happens on the day of the last ride, not after

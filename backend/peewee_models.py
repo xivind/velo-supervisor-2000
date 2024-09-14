@@ -13,20 +13,9 @@ class BaseModel(Model):
         database = database
 
 
-class Athletes(BaseModel):
-    """Model for table: athletes"""
-    ahlete_id = CharField(primary_key=True, unique=True)
-    athlete_name = CharField()
-
-    class Meta:
-        """Extends model with extra attributes"""
-        table_name = "athletes"
-
-
 class Bikes(BaseModel):
     """Model for table: bikes"""
     bike_id = CharField(primary_key=True, unique=True)
-    athlete_id = CharField()
     bike_name = CharField()
     bike_retired = CharField()
     service_status = CharField()
@@ -120,7 +109,6 @@ class Services(BaseModel):
 
 __all__ = ['database',
            'BaseModel',
-           'Athletes',
            'Bikes',
            'Rides',
            'ComponentTypes',
