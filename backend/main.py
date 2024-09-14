@@ -366,17 +366,22 @@ async def component_details(request: Request, component_id: str):
                     "updated_date": bike_component.updated_date,
                     "component_name": bike_component.component_name,
                     "component_type": bike_component.component_type,
-                    "component_distance": int(bike_component.component_distance),
+                    "component_distance": int(bike_component.component_distance) 
+                        if bike_component.component_distance is not None else None,
                     "installation_status": bike_component.installation_status,
                     "lifetime_expected": bike_component.lifetime_expected,
-                    "lifetime_remaining": bike_component.lifetime_remaining,
+                    "lifetime_remaining": int(bike_component.lifetime_remaining)
+                        if bike_component.lifetime_remaining is not None else None,
                     "lifetime_status": misc_methods.format_component_status(bike_component.lifetime_status),
-                    "lifetime_percentage": modify_tables.calculate_percentage_reached(bike_component.lifetime_expected, bike_component.lifetime_remaining),
+                    "lifetime_percentage": modify_tables.calculate_percentage_reached(bike_component.lifetime_expected, int(bike_component.lifetime_remaining))
+                        if bike_component.lifetime_remaining is not None else None,
                     "service_interval": bike_component.service_interval,
-                    "service_next": bike_component.service_next,
+                    "service_next": int(bike_component.service_next)
+                        if bike_component.service_next is not None else None,
                     "service_status": misc_methods.format_component_status(bike_component.service_status),
-                    "service_percentage": modify_tables.calculate_percentage_reached(bike_component.service_interval, bike_component.service_next),
-                    "offset": int(bike_component.component_distance_offset),
+                    "service_percentage": modify_tables.calculate_percentage_reached(bike_component.service_interval, int(bike_component.service_next))
+                        if bike_component.service_next is not None else None,
+                    "offset": bike_component.component_distance_offset,
                     "component_notes": bike_component.notes,
                     "cost": misc_methods.format_cost(bike_component.cost)}
     
@@ -385,7 +390,7 @@ async def component_details(request: Request, component_id: str):
         component_history_data = [(installation_record.updated_date,
                                    installation_record.update_reason,
                                    misc_methods.get_bike_name(installation_record.bike_id),
-                                   installation_record.distance_marker) for installation_record in component_history]
+                                   int(installation_record.distance_marker)) for installation_record in component_history]
     else:
         component_history_data = None
 
@@ -394,7 +399,7 @@ async def component_details(request: Request, component_id: str):
         service_history_data = [(service_record.service_date,
                                    service_record.description,
                                    misc_methods.get_bike_name(service_record.bike_id),
-                                   service_record.distance_marker) for service_record in service_history]
+                                   int(service_record.distance_marker)) for service_record in service_history]
     else:
         service_history_data = None
 
@@ -498,10 +503,11 @@ async def delete_record(
 # Move all styles to separate css, be careful about bootstrap conflicts
 # Add button on component detail: back to bike, only show if the component is assigned to a bike
 # Implement health check
+# Component types in drop down should be sorted alphabetically
+# Component types in table should be sorted alphabetically
 
+# Component types should write null and not "Not defined" when values are empty
 # Review all log statemens and make them consistent
-# There is some kind of rounding issue, probably caused by int somewhere. Causes totals to be slightly off. Services and distance marker is int, should be numeric
-# Clean up datatypes to avoid casting in script, most, if not all numbers, should be int, careful about this one
 # Run update bike status as non blocking scheduled use asyncio
 # Run get strava apis as non blocking scheduled use asyncio (both rides and bikes)
 # Bug total component distance is slightly off, probably has to do with stop dates. Works when called by refresh bikes, but not when called through endpoint /modify_component. Only happens when the update happens on the day of the last ride, not after

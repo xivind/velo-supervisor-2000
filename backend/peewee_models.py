@@ -60,14 +60,14 @@ class Components(BaseModel):
     component_name = CharField()
     component_type = CharField()
     component_distance = FloatField()
-    component_distance_offset = FloatField()
+    component_distance_offset = IntegerField()
     installation_status = CharField()
     service_interval = IntegerField()
     lifetime_expected = IntegerField()
-    lifetime_remaining = IntegerField()
-    lifetime_status = IntegerField()
+    lifetime_remaining = FloatField()
+    lifetime_status = CharField()
     service_status = CharField()
-    service_next = IntegerField()
+    service_next = FloatField()
     updated_date = CharField()
     cost = IntegerField()
     notes = CharField()
@@ -85,7 +85,7 @@ class ComponentHistory(BaseModel):
     component_name = CharField()
     updated_date = CharField()
     update_reason = CharField()
-    distance_marker = IntegerField()
+    distance_marker = FloatField()
 
     class Meta:
         """Extends model with extra attributes"""
@@ -99,7 +99,7 @@ class Services(BaseModel):
     component_name = CharField()
     bike_id = CharField()
     service_date = CharField()
-    distance_marker = IntegerField()
+    distance_marker = FloatField()
     description = CharField()
 
     class Meta:

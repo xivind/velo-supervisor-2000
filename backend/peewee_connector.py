@@ -190,7 +190,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.service_next = service_next
-                    component.service_status = self.compute_component_status("service", self.calculate_percentage_reached(int(component.service_interval), int(service_next)))
+                    component.service_status = self.compute_component_status("service", self.calculate_percentage_reached(component.service_interval, int(service_next)))
                     component.save()
 
             except peewee.OperationalError as error:
@@ -215,7 +215,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.lifetime_remaining = component.lifetime_expected - component.component_distance
-                    component.lifetime_status = self.compute_component_status("lifetime", self.calculate_percentage_reached(int(component.lifetime_expected), int(component.lifetime_remaining)))
+                    component.lifetime_status = self.compute_component_status("lifetime", self.calculate_percentage_reached(component.lifetime_expected, int(component.lifetime_remaining)))
                     component.save()
 
             except peewee.OperationalError as error:
