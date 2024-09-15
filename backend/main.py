@@ -424,7 +424,7 @@ async def refresh_all_bikes(request: Request): #Request currently not used, but 
         modify_tables.update_bikes(strava.payload_bikes)
 
         for bike_id in misc_methods.get_unique_bikes():
-            modify_tables.update_bike_status(bike_id)
+            modify_tables.update_bike_status(bike_id) #Not sure why we need to call this here..?
         
         return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located 
     
@@ -506,7 +506,7 @@ async def delete_record(
 # Must be possible to search for a given component
 # Component types in drop down should be sorted alphabetically
 # Component types in table should be sorted alphabetically
+# Use @classmethod to refactor and simplify code
 
+# Bug when component update date is exactly the same as last service, this is related to how nextservice is calculated, see line 189. Why is this not stopped already by existing controls?
 # Review all log statemens and make them consistent
-# Run update bike status as non blocking scheduled use asyncio
-# Run get strava apis as non blocking scheduled use asyncio (both rides and bikes)
