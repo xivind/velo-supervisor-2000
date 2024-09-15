@@ -223,8 +223,8 @@ async def modify_component(
             latest_history_record = read_records.read_latest_history_record(component_id)
             
             if updated_component_data.installation_status == "Installed":
-                logging.info(f'Timespan for current distance query (triggered by component update): start date {updated_component_data.updated_date} stop date {datetime.today()}') #Improve logging statement, see service, also applies to similar above
-                current_distance = misc_methods.sum_distanse_subset_rides(updated_component_data.bike_id, updated_component_data.updated_date, datetime.today())
+                logging.info(f'Timespan for current distance query (triggered by component update): start date {updated_component_data.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}') #Improve logging statement, see service, also applies to similar above
+                current_distance = misc_methods.sum_distanse_subset_rides(updated_component_data.bike_id, updated_component_data.updated_date, datetime.now().strftime("%Y-%m-%d %H:%M"))
                 current_distance += latest_history_record.distance_marker
                 modify_tables.update_component_distance(component_id, current_distance)
 
@@ -314,7 +314,7 @@ async def bike_details(request: Request, bike_id: str):
         
         recent_rides = read_tables.read_recent_rides(bike_id)
         recent_rides_data = [(ride.ride_id,
-                        misc_methods.format_datetime(ride.record_time),
+                        ride.record_time,
                         ride.ride_name,
                         int(ride.ride_distance),
                         ride.commute
@@ -503,11 +503,10 @@ async def delete_record(
 # Move all styles to separate css, be careful about bootstrap conflicts
 # Add button on component detail: back to bike, only show if the component is assigned to a bike
 # Implement health check
+# Must be possible to search for a given component
 # Component types in drop down should be sorted alphabetically
 # Component types in table should be sorted alphabetically
 
-# Component types should write null and not "Not defined" when values are empty
 # Review all log statemens and make them consistent
 # Run update bike status as non blocking scheduled use asyncio
 # Run get strava apis as non blocking scheduled use asyncio (both rides and bikes)
-# Bug total component distance is slightly off, probably has to do with stop dates. Works when called by refresh bikes, but not when called through endpoint /modify_component. Only happens when the update happens on the day of the last ride, not after

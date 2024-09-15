@@ -171,7 +171,7 @@ class Strava:
                     ride.update({"ride_id": str(activities["id"])})
                     ride.update({"bike_id": str(activities["gear_id"])})
                     ride.update({"ride_name": str(activities["name"])})
-                    ride.update({"record_time": str(activities["start_date_local"]).replace("Z","")})
+                    ride.update({"record_time": datetime.strptime(activities["start_date_local"], "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d %H:%M")})
                     ride.update({"moving_time": str(timedelta(seconds=activities["moving_time"]))})
                     ride.update({"ride_distance": float(activities["distance"]/1000)})
                     ride.update({"commute": bool(activities["commute"])})
