@@ -261,12 +261,29 @@ async def component_overview(request: Request):
         component_types_data = [(component_type.component_type,
                                 component_type.expected_lifetime,
                                 component_type.service_interval) for component_type in component_types]
+
+        print(component_data)
+        component_statistics = misc_methods.get_component_statistics([tuple(component[1:]) for component in component_data])
             
         template_path = "component_overview.html"
         return templates.TemplateResponse(template_path, {"request": request,
                                                           "component_data": component_data,
                                                           "bikes_data": bikes_data,
-                                                          "component_types_data": component_types_data})
+                                                          "component_types_data": component_types_data,
+                                                          "count_installed" : component_statistics["count_installed"],
+                                                          "count_not_installed" : component_statistics["count_not_installed"],
+                                                          "count_retired" : component_statistics["count_retired"],
+                                                          "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
+                                                          "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
+                                                          "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
+                                                          "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
+                                                          "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
+                                                          "count_service_status_green" : component_statistics["count_service_status_green"],
+                                                          "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
+                                                          "count_service_status_red" : component_statistics["count_service_status_red"],
+                                                          "count_service_status_purple" : component_statistics["count_service_status_purple"],
+                                                          "count_service_status_grey" : component_statistics["count_service_status_grey"],
+                                                          "sum_cost" : component_statistics["sum_cost"]})
     
     except Exception as error:
         # Get the full traceback
