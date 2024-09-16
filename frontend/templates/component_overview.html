@@ -124,52 +124,40 @@
                 </form>
             </div>
         </div>
-        
+        <hr class="mt-5"/>
         <div class="card shadow mb-4">
+            <div class="card-header fw-bold">Component statistics</div>
             <div class="card-body">
-                <h5 class="card-title">Summary installed components</h5>
                 <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>⚡ Installed:</span><span class="fw-bold">{{ count_installed }}</span>
+                    <span>⚡ <strong>Installed:</strong> {{ count_installed }}</span>
+                    <span>💤 <strong>Not installed:</strong> {{ count_not_installed }}</span>
+                    <span>⛔ <strong>Retired:</strong> {{ count_retired }}</span>
+                    <span>💰 <strong>Expected cost:</strong> {% if sum_cost == "No estimate" %} {{ sum_cost }} {% else %} {{ sum_cost }} kr{% endif %}</span>
                 </p>
                 <hr/>
+                <p class="card-text text-center">
+                    <span class="fw-bold bg-primary-subtle rounded px-2 d-inline-block">Lifetime statistics installed components</span>
+               </p>
                 <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟢 Lifetime OK</span><span class="fw-bold">{{ count_lifetime_status_green }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟡 End of life approaching</span><span class="fw-bold">{{ count_lifetime_status_yellow }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🔴 Due for replacement</span><span class="fw-bold">{{ count_lifetime_status_red }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟣 Lifetime exceeded</span><span class="fw-bold">{{ count_lifetime_status_purple }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>⚪ Lifetime not defined</span><span class="fw-bold">{{ count_lifetime_status_grey }}</span>
+                    <span>🟢 Lifetime OK: {{ count_lifetime_status_green }}</span>
+                    <span>🟡 End of life approaching: {{ count_lifetime_status_yellow }}</span>
+                    <span>🔴 Due for replacement: {{ count_lifetime_status_red }}</span>
+                    <span>🟣 Lifetime exceeded: {{ count_lifetime_status_purple }}</span>
+                    <span>⚪ Lifetime not defined: {{ count_lifetime_status_grey }}</span>
                 </p>
                 <hr/>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟢 Service OK</span><span class="fw-bold">{{ count_service_status_green }}</span>
+                <p class="card-text text-center">
+                     <span class="fw-bold bg-primary-subtle rounded px-2 d-inline-block">Service statistics installed components</span>
                 </p>
                 <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟡 Service approaching</span><span class="fw-bold">{{ count_service_status_yellow }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🔴 Due for service</span><span class="fw-bold">{{ count_service_status_red }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟣 Service interval exceeded</span><span class="fw-bold">{{ count_service_status_purple }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>⚪ Service interval not defined</span><span class="fw-bold">{{ count_service_status_grey }}</span>
-                </p>
-                <hr/>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>💰 Expected cost</span><span class="fw-bold">{% if sum_cost == "No estimate" %} {{ sum_cost }} {% else %} {{ sum_cost }} kr{% endif %}</span>
+                    <span>🟢 Service OK: {{ count_service_status_green }}</span>
+                    <span>🟡 Service approaching: {{ count_service_status_yellow }}</span>
+                    <span>🔴 Due for service: {{ count_service_status_red }}</span>
+                    <span>🟣 Service interval exceeded: {{ count_service_status_purple }}</span>
+                    <span>⚪ Service interval not defined: {{ count_service_status_grey }}</span>
                 </p>  
             </div>
         </div>
-        
         <hr class="mt-5"/>
         <div class="d-flex justify-content-end mb-3 pe-2">
             <div class="form-check form-switch me-4">
@@ -203,7 +191,7 @@
                     </thead>
                     <tbody>
                         {% if component_data %}
-                            {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike in component_data %}
+                            {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in component_data %}
                             <tr data-status="{{ installation_status }}">
                                 <td>{{ name }}</td>
                                 <td>{{ type }}</td>
