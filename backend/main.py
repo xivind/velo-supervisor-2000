@@ -249,9 +249,22 @@ async def component_overview(request: Request):
                         component.installation_status,
                         misc_methods.format_component_status(component.lifetime_status),
                         misc_methods.format_component_status(component.service_status),
-                        misc_methods.get_bike_name(component.bike_id)
+                        misc_methods.get_bike_name(component.bike_id),
+                        misc_methods.format_cost(component.cost)
                         ) for component in components]
         
+        rearranged_component_data = [(comp[4],
+                                      None,
+                                      None,
+                                      None,
+                                      comp[5],
+                                      comp[6],
+                                      comp[8],
+                                      None,
+                                      comp[7]) for comp in component_data]
+        
+        component_statistics = misc_methods.get_component_statistics(rearranged_component_data)
+
         bikes = read_tables.read_bikes()
         bikes_data = [(bike.bike_name,
                         bike.bike_id)
@@ -261,10 +274,7 @@ async def component_overview(request: Request):
         component_types_data = [(component_type.component_type,
                                 component_type.expected_lifetime,
                                 component_type.service_interval) for component_type in component_types]
-
-        print(component_data)
-        component_statistics = misc_methods.get_component_statistics([tuple(component[1:]) for component in component_data])
-            
+    
         template_path = "component_overview.html"
         return templates.TemplateResponse(template_path, {"request": request,
                                                           "component_data": component_data,
