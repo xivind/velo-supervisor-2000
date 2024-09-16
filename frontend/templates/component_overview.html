@@ -124,6 +124,52 @@
                 </form>
             </div>
         </div>
+        
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Summary installed components</h5>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>⚡ Installed:</span><span class="fw-bold">{{ count_installed }}</span>
+                </p>
+                <hr/>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟢 Lifetime OK</span><span class="fw-bold">{{ count_lifetime_status_green }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟡 End of life approaching</span><span class="fw-bold">{{ count_lifetime_status_yellow }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🔴 Due for replacement</span><span class="fw-bold">{{ count_lifetime_status_red }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟣 Lifetime exceeded</span><span class="fw-bold">{{ count_lifetime_status_purple }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>⚪ Lifetime not defined</span><span class="fw-bold">{{ count_lifetime_status_grey }}</span>
+                </p>
+                <hr/>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟢 Service OK</span><span class="fw-bold">{{ count_service_status_green }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟡 Service approaching</span><span class="fw-bold">{{ count_service_status_yellow }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🔴 Due for service</span><span class="fw-bold">{{ count_service_status_red }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟣 Service interval exceeded</span><span class="fw-bold">{{ count_service_status_purple }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>⚪ Service interval not defined</span><span class="fw-bold">{{ count_service_status_grey }}</span>
+                </p>
+                <hr/>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>💰 Expected cost</span><span class="fw-bold">{% if sum_cost == "No estimate" %} {{ sum_cost }} {% else %} {{ sum_cost }} kr{% endif %}</span>
+                </p>  
+            </div>
+        </div>
+        
         <hr class="mt-5"/>
         <div class="d-flex justify-content-end mb-3 pe-2">
             <div class="form-check form-switch me-4">
