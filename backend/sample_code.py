@@ -111,3 +111,8 @@ def update_component_distance(self, component):
 
         except (peewee.OperationalError, ValueError) as error:
             logging.error(f'An error occurred while updating component distance for component {component.component_name} (id {component.component_id}): {error}')
+
+
+<p class="card-text">
+                    <span class="fw-bold bg-secondary-subtle rounded px-2 d-inline-block">Lifetime statistics installed components</span>
+               </p>
