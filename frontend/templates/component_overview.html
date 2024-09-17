@@ -128,15 +128,17 @@
         <div class="card shadow mb-4">
             <div class="card-header fw-bold">Component statistics</div>
             <div class="card-body">
-                <p class="card-text d-flex justify-content-between align-items-center bg-primary-subtle rounded px-4">
+                <p class="card-text d-flex justify-content-between align-items-center">
                     <span>⚡ <strong>Installed:</strong> {{ count_installed }}</span>
                     <span>💤 <strong>Not installed:</strong> {{ count_not_installed }}</span>
                     <span>⛔ <strong>Retired:</strong> {{ count_retired }}</span>
                     <span>💰 <strong>Expected cost:</strong> {% if sum_cost == "No estimate" %} {{ sum_cost }} {% else %} {{ sum_cost }} kr{% endif %}</span>
                 </p>
                 <hr/>
-
                 <div class="row">
+                    <p class="card-text text-center">
+                        <span class="fw-bold text-secondary">Lifetime statistics installed components</span>
+                   </p>
                     <div class="col"><span>🟢 Lifetime OK: {{ count_lifetime_status_green }}</span></div>
                     <div class="col"><span>🟡 End of life approaching: {{ count_lifetime_status_yellow }}</span></div>
                     <div class="col"><span>🔴 Due for replacement: {{ count_lifetime_status_red }}</span></div>
@@ -145,6 +147,9 @@
                 </div>
                 <hr/>
                 <div class="row">
+                    <p class="card-text text-center">
+                        <span class="fw-bold text-secondary">Service statistics installed components</span>
+                   </p>
                     <div class="col"><span>🟢 Service OK: {{ count_service_status_green }}</span></div>
                     <div class="col"><span>🟡 Service approaching: {{ count_service_status_yellow }}</span></div>
                     <div class="col"><span>🔴 Due for service: {{ count_service_status_red }}</span></div>
