@@ -292,16 +292,16 @@
             const dateInput = document.getElementById('component_updated_date');
             const datePickerToggle = document.getElementById('date-picker-toggle');
 
-            // Initialize Flatpickr
+            // Initialize Flatpickr with strict formatting
             const flatpickrInstance = flatpickr(dateInput, {
-                disableMobile: true,
-                theme: "dark", //not needed?
-                enableTime: true,
                 dateFormat: "Y-m-d H:i",
-                time_24hr: true,
-                minuteIncrement: 1,
                 allowInput: true,
-                clickOpens: false, // Prevents calendar from opening on input click
+                clickOpens: false,
+                enableTime: true,
+                time_24hr: true,
+                onClose: function(selectedDates, dateStr) {
+                    validateDateFormat(dateStr);
+                }
             });
 
             // Open calendar on icon click
@@ -311,31 +311,19 @@
 
             // Validate manual input
             dateInput.addEventListener('blur', function() {
-                const enteredDate = this.value;
-                if (enteredDate && !isValidDate(enteredDate)) {
-                    alert('Please enter a valid date in YYYY-MM-DD format');
-                    this.value = '';
-                }
+                validateDateFormat(this.value);
             });
 
-            // Function to validate date format
-            function isValidDate(dateString) {
-                const regex = /^\d{4}-\d{2}-\d{2}$/;
-                if (!regex.test(dateString)) return false;
-
-                const parts = dateString.split('-');
-                const year = parseInt(parts[0], 10);
-                const month = parseInt(parts[1], 10);
-                const day = parseInt(parts[2], 10);
-
-                if (year < 1000 || year > 3000 || month == 0 || month > 12) return false;
-
-                const monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-                if (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0)) monthLength[1] = 29;
-
-                return day > 0 && day <= monthLength[month - 1];
+            function validateDateFormat(dateStr) {
+                const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+                if (!regex.test(dateStr)) {
+                    alert("Error: Invalid date format. Please use YYYY-MM-DD HH:MM");
+                    dateInput.value = ''; // Clear the invalid input
+                    flatpickrInstance.clear(); // Clear Flatpickr's internal date
+                }
             }
         });
+        
 
         // Script to delete records
         document.querySelectorAll('.delete-record').forEach(button => {
