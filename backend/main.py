@@ -534,6 +534,8 @@ async def delete_record(
 # Component types in drop down should be sorted alphabetically
 # Component types in table should be sorted alphabetically
 # Use @classmethod to refactor and simplify code
+# Bug in table All components: does not display "No components registered", even though no components are registered. Probably related to the filters
+# Review database structure and constraints
 
 # Bug when component update date is exactly the same as last service, this is related to how nextservice is calculated, see line 189. Why is this not stopped already by existing controls?
 # Review all log statemens and make them consistent
