@@ -130,7 +130,7 @@
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}" required>
                                             <div class="input-group-append">
-                                                <span class="input-group-text" id="date-picker-toggle" style="margin-left: 0.5rem">🗓</span>
+                                                <span class="input-group-text" id="date-picker-toggle-updated" style="margin-left: 0.5rem">🗓</span>
                                             </div>
                                         </div>
                                     </div>
@@ -208,7 +208,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="service_date" name="service_date" value="" required>
                                     <div class="input-group-append">
-                                        <span class="input-group-text" id="date-picker-toggle" style="margin-left: 0.5rem">🗓</span>
+                                        <span class="input-group-text" id="date-picker-toggle-service" style="margin-left: 0.5rem">🗓</span>
                                     </div>
                                 </div>
                             </div>
@@ -324,13 +324,46 @@
         });
 
         // Date picker
-        flatpickr("#component_updated_date, #service_date", {
-            disableMobile: true,
-            theme: "dark", //not needed?
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
-            time_24hr: true,
-            minuteIncrement: 1
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInputs = [
+                { input: document.getElementById('component_updated_date'), toggle: document.getElementById('date-picker-toggle-updated') },
+                { input: document.getElementById('service_date'), toggle: document.getElementById('date-picker-toggle-service') }
+            ];
+
+            dateInputs.forEach(({ input, toggle }) => {
+                if (!input || !toggle) return; // Skip if elements are not found
+
+                // Initialize Flatpickr with strict formatting
+                const flatpickrInstance = flatpickr(input, {
+                    dateFormat: "Y-m-d H:i",
+                    allowInput: true,
+                    clickOpens: false,
+                    enableTime: true,
+                    time_24hr: true,
+                    onClose: function(selectedDates, dateStr) {
+                        validateDateFormat(dateStr, input, flatpickrInstance);
+                    }
+                });
+
+                // Open calendar on icon click
+                toggle.addEventListener('click', function() {
+                    flatpickrInstance.open();
+                });
+
+                // Validate manual input
+                input.addEventListener('blur', function() {
+                    validateDateFormat(this.value, input, flatpickrInstance);
+                });
+            });
+
+            function validateDateFormat(dateStr, input, instance) {
+                const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+                if (!regex.test(dateStr)) {
+                    alert("Error: Invalid date format. Please use YYYY-MM-DD HH:MM");
+                    input.value = ''; // Clear the invalid input
+                    instance.clear(); // Clear Flatpickr's internal date
+                }
+            }
         });
 
         // Control bike field - better description here
