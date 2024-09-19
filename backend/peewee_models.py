@@ -3,7 +3,7 @@
 
 from peewee import SqliteDatabase, Model, CharField, FloatField, IntegerField
 
-database = SqliteDatabase('/home/xivind/SQLiteStudio/dev_db.sqlite')  #Move to config
+database = SqliteDatabase('/home/xivind/SQLiteStudio/prod_db.sqlite')  #Move to config
 
 
 class BaseModel(Model):
