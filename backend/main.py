@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Main backend for velo supervisor 2000"""
 
-
 from strava import Strava
 from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
 import argparse
@@ -9,6 +8,7 @@ import logging
 import uvicorn
 import json
 from time import sleep
+from time import time
 from fastapi import FastAPI, HTTPException, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -21,12 +21,12 @@ import traceback
 import os
 
 def read_parameters():
-    with open('config.json') as f:
-        config = json.load(f)
+    """ Function to read configuration file"""
+    with open('config.json', 'r', encoding='utf-8') as file:
+        config = json.load(file)
     return config
 
-
-CONFIG = read_parameters() # Include file path to db as argument, and more - include in git-ignore
+CONFIG = read_parameters()
 
 strava = Strava(CONFIG['strava_tokens'])
 read_tables = ReadTables()
@@ -49,7 +49,6 @@ def render_error_page(request: Request, status_code: int, error_message: str):
         "error_message": error_message
     })
 
-
 @app.get("/error", response_class=HTMLResponse)
 async def error_page(request: Request):
     return render_error_page(request, 500, "Internal Server Error")
@@ -58,6 +57,8 @@ async def error_page(request: Request):
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     """Endpoint for index / landing page"""
+    start_time = time()
+    
     bikes = read_tables.read_bikes()
     bikes_data = [(bike.bike_name,
                    bike.bike_id,
@@ -67,19 +68,31 @@ async def root(request: Request):
                    sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Installed"),
                    sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Retired")) for bike in bikes]
 
+    process_time = time() - start_time
+    
     template_path = "index.html"
-    return templates.TemplateResponse(template_path, {"request": request, "bikes_data": bikes_data})
+    return templates.TemplateResponse(template_path, {"request": request,
+                                                      "bikes_data": bikes_data,
+                                                      "db_path": CONFIG['db_path'],
+                                                      "process_time": f"{process_time:.4f}"})
 
 @app.get("/component_types_overview", response_class=HTMLResponse)
 async def component_types_overview(request: Request):
     """Endpoint for component types page"""    
+    start_time = time()
+
     component_types = read_tables.read_component_types()
     component_types_data = [(component_type.component_type,
                              component_type.expected_lifetime,
                              component_type.service_interval) for component_type in component_types]
+    
+    process_time = time() - start_time
 
     template_path = "component_types.html"
-    return templates.TemplateResponse(template_path, {"request": request, "component_types_data": component_types_data})
+    return templates.TemplateResponse(template_path, {"request": request,
+                                                      "component_types_data": component_types_data,
+                                                      "db_path": CONFIG['db_path'],
+                                                      "process_time": f"{process_time:.4f}"})
 
 @app.post("/component_types_overview/modify", response_class=HTMLResponse)
 async def modify_component_type(
@@ -239,6 +252,7 @@ async def modify_component(
 @app.get("/component_overview", response_class=HTMLResponse)
 async def component_overview(request: Request):
     """Endpoint for components page"""
+    start_time = time()
 
     try:
         components = read_tables.read_all_components()
@@ -274,7 +288,9 @@ async def component_overview(request: Request):
         component_types_data = [(component_type.component_type,
                                 component_type.expected_lifetime,
                                 component_type.service_interval) for component_type in component_types]
-    
+
+        process_time = time() - start_time
+
         template_path = "component_overview.html"
         return templates.TemplateResponse(template_path, {"request": request,
                                                           "component_data": component_data,
@@ -293,7 +309,9 @@ async def component_overview(request: Request):
                                                           "count_service_status_red" : component_statistics["count_service_status_red"],
                                                           "count_service_status_purple" : component_statistics["count_service_status_purple"],
                                                           "count_service_status_grey" : component_statistics["count_service_status_grey"],
-                                                          "sum_cost" : component_statistics["sum_cost"]})
+                                                          "sum_cost" : component_statistics["sum_cost"],
+                                                          "db_path": CONFIG['db_path'],
+                                                          "process_time": f"{process_time:.4f}"})
     
     except Exception as error:
         # Get the full traceback

@@ -2,9 +2,17 @@
 """Module for configuration and mapping of an SQL database"""
 
 from peewee import SqliteDatabase, Model, CharField, FloatField, IntegerField
+import json
 
-database = SqliteDatabase('/home/xivind/SQLiteStudio/dev_db.sqlite')  #Move to config
+def read_parameters():
+    """ Function to read configuration file"""
+    with open('config.json', 'r', encoding='utf-8') as file:
+        config = json.load(file)
+    return config
 
+CONFIG = read_parameters()
+
+database = SqliteDatabase(CONFIG['db_path'])
 
 class BaseModel(Model):
     """Base model for inheritance"""
