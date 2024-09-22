@@ -20,6 +20,13 @@ from collections import Counter
 import traceback
 import os
 
+def get_current_version():
+    try:
+        with open('current_version.txt', 'r', encoding='utf-8') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        return "Version unknown"
+
 def read_parameters():
     """ Function to read configuration file"""
     with open('config.json', 'r', encoding='utf-8') as file:
@@ -34,15 +41,14 @@ modify_tables = ModifyTables()
 read_records = ReadRecords()
 modify_records = ModifyRecords()
 misc_methods = MiscMethods()
-#Initiate more classes, whats missing?
 
 app = FastAPI()
+app.version = get_current_version()
 templates = Jinja2Templates(directory="../frontend/templates")
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
-#template_dir = Path("../frontend/templates")
 
-# Function to handle errors
 def render_error_page(request: Request, status_code: int, error_message: str):
+    """Function to handle errors"""
     return templates.TemplateResponse("error.html", {
         "request": request,
         "status_code": status_code,
@@ -51,8 +57,8 @@ def render_error_page(request: Request, status_code: int, error_message: str):
 
 @app.get("/error", response_class=HTMLResponse)
 async def error_page(request: Request):
+    """Endpoint to handle errors"""
     return render_error_page(request, 500, "Internal Server Error")
-
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
@@ -333,6 +339,8 @@ async def component_overview(request: Request):
 @app.get("/bike_details/{bike_id}", response_class=HTMLResponse)
 async def bike_details(request: Request, bike_id: str):
     """Endpoint for bike details page"""
+    start_time = time()
+    
     try:
         # Fetch bike details based on the bike_id
         bike = read_records.read_bike(bike_id)
@@ -383,8 +391,13 @@ async def bike_details(request: Request, bike_id: str):
             "sum_cost" : component_statistics["sum_cost"]
         }
 
+        process_time = time() - start_time
+
         template_path = "bike_details.html"
-        return templates.TemplateResponse(template_path, {"request": request, "payload": payload})
+        return templates.TemplateResponse(template_path, {"request": request,
+                                                          "payload": payload,
+                                                          "db_path": CONFIG['db_path'],
+                                                          "process_time": f"{process_time:.4f}"})
     
     except Exception as error:
         # Handle exceptions
@@ -394,6 +407,8 @@ async def bike_details(request: Request, bike_id: str):
 @app.get("/component_details/{component_id}", response_class=HTMLResponse)
 async def component_details(request: Request, component_id: str):
     """Endpoint for component details page"""
+
+    start_time = time()
 
     bikes = read_tables.read_bikes()
     bikes_data = [(bike.bike_name,
@@ -456,8 +471,13 @@ async def component_details(request: Request, component_id: str):
         "component_history_data": component_history_data,
         "service_history_data": service_history_data}
 
+    process_time = time() - start_time
+
     template_path = "component_details.html"
-    return templates.TemplateResponse(template_path, {"request": request, "payload": payload})
+    return templates.TemplateResponse(template_path, {"request": request,
+                                                      "payload": payload,
+                                                      "db_path": CONFIG['db_path'],
+                                                      "process_time": f"{process_time:.4f}"})
 
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
 async def refresh_all_bikes(request: Request): #Request currently not used, but keep it for now. Will be required for error messages later.
@@ -562,4 +582,5 @@ async def delete_record(
 # Bug when component update date is exactly the same as last service, this is related to how nextservice is calculated, see line 189. Why is this not stopped already by existing controls?
 # Bug when trying to add a service for a component that is not installed
 
+# Move menu to separate file
 # Review all log statemens and make them consistent
