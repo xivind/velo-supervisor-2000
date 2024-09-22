@@ -577,10 +577,11 @@ async def delete_record(
 # Can js that are identical be pulled from one place?
 # Bug in date validation, in some cases parses dates that are invalid
 # Bug unpredictable behaviour if bike is retired before components are uninstalled, will default to not assigned
+# Update .gitignore
 
 # Bug program crashes when trying to retire a component that has status not installed (bike id is missing..)
 # Bug when component update date is exactly the same as last service, this is related to how nextservice is calculated, see line 189. Why is this not stopped already by existing controls?
 # Bug when trying to add a service for a component that is not installed
 
-# Move menu to separate file
 # Review all log statemens and make them consistent
+
