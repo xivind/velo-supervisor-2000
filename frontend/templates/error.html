@@ -1,3 +1,4 @@
+{% from 'menu.html' import nav_menu %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,28 +9,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        <nav class="navbar">
-            <a class="navbar-brand mb-0 h1" href="#">
-                <img src="/static/logo.png" width="30" height="24" class="d-inline-block align-text-top" alt="Logo">VELO SUPERVISOR 2000
-            </a>
-            <ul class="nav nav-tabs">
-                <li class="nav-item">   
-                    <a class="nav-link link-secondary" href="/">🚴 BIKE OVERVIEW</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-secondary" href="/component_overview">⚙ COMPONENT OVERVIEW</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-secondary" aria-current="page" href="/component_types_overview">📋 COMPONENT TYPES</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-secondary" href="#">🙋 HELP</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-secondary" href="#">📜 ABOUT</a>
-                </li>
-            </ul>
-        </nav>
+        {{ nav_menu(request.url.path) }}
         <h1 class="display-4 mt-5 text-center">Looks like we hit a bit of a speed bump there...</h1>
         <h1 class="display-1 mt-5 text-center fw-bold">Error code {{ status_code }}</h1>
         <h5 class="text-center">{{ error_message }} - Inspect log for more information</h5>

@@ -1,3 +1,4 @@
+{% from 'menu.html' import nav_menu %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,28 +16,7 @@
 </style>
 <body>
     <div class="container mt-5">
-        <nav class="navbar">
-            <a class="navbar-brand mb-0 h1" href="#">
-                <img src="/static/logo.png" width="30" height="24" class="d-inline-block align-text-top" alt="Logo">VELO SUPERVISOR 2000
-            </a>
-            <ul class="nav nav-tabs">
-                <li class="nav-item">   
-                    <a class="nav-link active fw-bold" aria-current="page" href="/">🚴 BIKE OVERVIEW</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-secondary" href="/component_overview">⚙ COMPONENT OVERVIEW</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-secondary" href="/component_types_overview">📋 COMPONENT TYPES</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-secondary" href="#">🙋 HELP</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-secondary" href="#">📜 ABOUT</a>
-                </li>
-            </ul>
-        </nav>
+        {{ nav_menu(request.url.path) }}
         <h1 class="display-5 mt-5 text-center">Bike overview</h1>
         <div class="d-flex justify-content-end mb-3 pe-2">
             <div class="form-check form-switch">
