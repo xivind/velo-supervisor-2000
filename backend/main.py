@@ -566,11 +566,8 @@ async def delete_record(
 # Handle case where a bike registered in a ride is no longer available at Strava
 # Bug When deleting components from component overview, sorting and and filters should remain the same
 # Move all styles to separate css, be careful about bootstrap conflicts
-# Add button on component detail: back to bike, only show if the component is assigned to a bike
 # Implement health check
 # Must be possible to search for a given component
-# Component types in drop down should be sorted alphabetically
-# Component types in table should be sorted alphabetically
 # Use @classmethod to refactor and simplify code
 # Bug in table All components: does not display "No components registered", even though no components are registered. Probably related to the filters
 # Review database structure and constraints
@@ -585,3 +582,6 @@ async def delete_record(
 
 # Review all log statemens and make them consistent
 
+# Add button on component detail: back to bike, only show if the component is assigned to a bike
+# Component types in drop down should be sorted alphabetically
+# Component types in table should be sorted alphabetically
