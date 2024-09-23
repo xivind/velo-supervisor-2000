@@ -575,6 +575,7 @@ async def delete_record(
 # Bug in date validation, in some cases parses dates that are invalid
 # Bug unpredictable behaviour if bike is retired before components are uninstalled, will default to not assigned
 # Update .gitignore
+# Create script to backup database
 
 # Bug program crashes when trying to retire a component that has status not installed (bike id is missing..)
 # Bug when component update date is exactly the same as last service, this is related to how nextservice is calculated, see line 189. Why is this not stopped already by existing controls?

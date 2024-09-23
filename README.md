@@ -17,8 +17,9 @@ Changelog - fix layout
 0.9.x
 Getting data from Strava in the background
 Configuration page
-Improved component detail page (added button etc)
+Improved component detail page (added bacn button and delete button)
 Sorting of component types
+Bugfixes
 
 0.8.x
 Introduced versioning

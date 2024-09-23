@@ -86,11 +86,13 @@
                     </div>
                 </div>
                 {% if payload.bike_component_data['installation_status'] != "Not installed" %}
-                    <div class="mt-3">
-                        <a href="{{ payload.bike_component_data['installation_status'] }}" class="btn btn-info">
-                            View Bike Details
+                <div class="row">
+                    <div class="col-12">
+                        <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-info btn-sm w-100">
+                            View bike details 🔍 
                         </a>
                     </div>
+                </div>
                 {% endif %}
             </div>
             <div class="col-md-8">
