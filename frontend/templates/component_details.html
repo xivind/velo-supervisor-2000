@@ -85,6 +85,13 @@
                         </p>  
                     </div>
                 </div>
+                {% if payload.bike_component_data['installation_status'] != "Not installed" %}
+                    <div class="mt-3">
+                        <a href="{{ payload.bike_component_data['installation_status'] }}" class="btn btn-info">
+                            View Bike Details
+                        </a>
+                    </div>
+                {% endif %}
             </div>
             <div class="col-md-8">
                 <div class="card shadow mb-4">
