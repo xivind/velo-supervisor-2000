@@ -582,6 +582,5 @@ async def delete_record(
 
 # Review all log statemens and make them consistent
 
-# Add button on component detail: back to bike, only show if the component is assigned to a bike
 # Component types in drop down should be sorted alphabetically
 # Component types in table should be sorted alphabetically
