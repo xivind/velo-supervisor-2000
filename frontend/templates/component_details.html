@@ -177,7 +177,7 @@
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Save</button>
-                                <button type="submit" class="btn btn-outline-danger" form="component_type_form" id="clear_form_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Delete component</button>
+                                <button type="submit" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">Delete component</button>                                
                             </div>
                         </form>
                     </div>
@@ -348,6 +348,27 @@
             }
         });
 
+        // Script to delete records
+        document.querySelectorAll('.delete-record').forEach(button => {
+        button.addEventListener('click', () => {
+        const formData = new FormData();
+        formData.append('record_id', button.dataset.componentId);
+        formData.append('table_selector', 'Components');
+
+        fetch('/delete_record', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Backend received data');
+                window.location.reload();
+            }
+        })
+        .catch(error => console.error('Backend error:', error));
+            });
+        });
+        
         // Control bike field - better description here
         document.addEventListener('DOMContentLoaded', function() {
             const bikeSelect = document.getElementById('component_bike_id');

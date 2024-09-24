@@ -567,7 +567,7 @@ async def delete_record(
 # Bug When deleting components from component overview, sorting and and filters should remain the same
 # Move all styles to separate css, be careful about bootstrap conflicts
 # Implement health check
-# Must be possible to search for a given component
+# Must be possible to search for a given component in component overview and maybe also bike details, same code perhaps?
 # Use @classmethod to refactor and simplify code
 # Bug in table All components: does not display "No components registered", even though no components are registered. Probably related to the filters
 # Review database structure and constraints
@@ -576,6 +576,7 @@ async def delete_record(
 # Bug unpredictable behaviour if bike is retired before components are uninstalled, will default to not assigned
 # Update .gitignore
 # Create script to backup database
+# Clear form not working on component overview. Maybe not needed?
 
 # Bug program crashes when trying to retire a component that has status not installed (bike id is missing..)
 # Bug when component update date is exactly the same as last service, this is related to how nextservice is calculated, see line 189. Why is this not stopped already by existing controls?
