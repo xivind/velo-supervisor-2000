@@ -350,22 +350,32 @@
 
         // Script to delete records
         document.querySelectorAll('.delete-record').forEach(button => {
-        button.addEventListener('click', () => {
-        const formData = new FormData();
-        formData.append('record_id', button.dataset.componentId);
-        formData.append('table_selector', 'Components');
+            button.addEventListener('click', (event) => {
+                event.preventDefault(); // Prevent form submission if the button is within a form
 
-        fetch('/delete_record', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log('Backend received data');
-                window.location.reload();
-            }
-        })
-        .catch(error => console.error('Backend error:', error));
+                const formData = new FormData();
+                formData.append('record_id', button.dataset.componentId);
+                formData.append('table_selector', 'Components');
+
+                fetch('/delete_record', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Backend received data');
+                        // Redirect to the component overview page
+                        window.location.href = '/component_overview';
+                    } else {
+                        // Handle error cases
+                        console.error('Error deleting record');
+                        // Optionally, show an error message to the user
+                    }
+                })
+                .catch(error => {
+                    console.error('Backend error:', error);
+                    // Optionally, show an error message to the user
+                });
             });
         });
         

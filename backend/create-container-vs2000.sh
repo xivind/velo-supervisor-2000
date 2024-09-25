@@ -7,8 +7,8 @@ docker container stop send-strava
 docker container rm send-strava
 docker image rm send-strava
 
-# Get latest version number
-Run python script here
+# Get latest code
+Pull github
 
 # Build the image and tag it
 docker build -t send-strava -f send-strava.Dockerfile .

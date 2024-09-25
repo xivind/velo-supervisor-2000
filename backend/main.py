@@ -546,6 +546,7 @@ async def delete_record(
 # Todo
 # All endpoints that writes should print log
 # Clean up HTML code and check consistency all end points, applies also to python scripts
+# Clean up javascripts and check if js that are identical may be pulled from one place?
 # Velo supervisor logo must be clickable, go to "/about"
 # All notes in Strava should be in english
 # Make sure all endpoints have same logic, variable naming conventions..
@@ -560,29 +561,26 @@ async def delete_record(
 # Validation: should not be possible to add new types when type already exist. Other validations could also be necessary
 # Give warning before selecting "Retired"
 # Give warning before deleting records
-# Updated readme with change log
+# Add change log to readme
+# Update readme with general info
 # Input validation on all forms (add component type, add component overview, add component detail, add service history)
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
 # Handle case where a bike registered in a ride is no longer available at Strava
-# Bug When deleting components from component overview, sorting and and filters should remain the same
+
 # Move all styles to separate css, be careful about bootstrap conflicts
 # Implement health check
 # Must be possible to search for a given component in component overview and maybe also bike details, same code perhaps?
 # Use @classmethod to refactor and simplify code
-# Bug in table All components: does not display "No components registered", even though no components are registered. Probably related to the filters
 # Review database structure and constraints
-# Can js that are identical be pulled from one place?
+
+# Update .gitignore
+# Clear form not working on component overview. Maybe not needed?
+# Review all log statemens and make them consistent
+
+# Bug in table All components: does not display "No components registered", even though no components are registered. Probably related to the filters
 # Bug in date validation, in some cases parses dates that are invalid
 # Bug unpredictable behaviour if bike is retired before components are uninstalled, will default to not assigned
-# Update .gitignore
-# Create script to backup database
-# Clear form not working on component overview. Maybe not needed?
-
+# Bug When deleting components from component overview, sorting and and filters should remain the same
 # Bug program crashes when trying to retire a component that has status not installed (bike id is missing..)
 # Bug when component update date is exactly the same as last service, this is related to how nextservice is calculated, see line 189. Why is this not stopped already by existing controls?
 # Bug when trying to add a service for a component that is not installed
-
-# Review all log statemens and make them consistent
-
-# Component types in drop down should be sorted alphabetically
-# Component types in table should be sorted alphabetically
