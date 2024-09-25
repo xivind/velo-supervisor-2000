@@ -13,12 +13,17 @@ Component type must be defined in order to prefill component details to work for
 Use semver for tagging. For exmaple: git tag -a v0.8 -m "Version 0.8"
 Remember to push tags to repo: git push --tags
 
+
 Changelog - fix layout
+0.91.x
+Alphabetical sorting of component types in tables and drop downs
+Configured to run in Docker
+Version now runs as Github action
+
 0.9.x
 Getting data from Strava in the background
 Configuration page
 Improved component detail page (added bacn button and delete button)
-Sorting of component types
 Bugfixes
 
 0.8.x

@@ -10,67 +10,48 @@
 <body>
     <div class="container mt-5">
         {{ nav_menu(request.url.path) }}
-        <h1 class="display-5 mt-5 text-center">Component types</h1>
-        <a href="/refresh_rides/recent" class="btn btn-outline-primary">Get new rides</a>
-        <a href="/refresh_rides/all" class="btn btn-outline-primary">Get all rides</a>
-        <a href="/refresh_all_bikes" class="btn btn-outline-primary">Refesh all bikes</a>
-        <a href="index" class="btn btn-outline-success"></a>
-        
+        <h1 class="display-5 mt-5 text-center">Configuration</h1>        
         <div class="mt-5 card shadow mb-3">
-            <div class="card-header fw-bold">Add or modify component type</div>
+            <div class="card-header fw-bold">Actions</div>
             <div class="card-body">
-                <form id="component_type_form" class="row" action="/component_types_overview/modify" method="post" enctype="application/x-www-form-urlencoded">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-6">
+                    <div class="col">
+                        <a href="/refresh_rides/recent" class="btn btn-primary w-100">Get new rides</a>
+                    </div>
+                    <div class="col">
+                        <a href="/refresh_all_bikes" class="btn btn-info w-100">Refesh all bikes</a>
+                    </div>
+                    <div class="col">
+                        <a href="/refresh_rides/all" class="btn btn-warning w-100">Get all rides</a>
+                    </div>
+                    <div class="col">
+                        <a href="/refresh_all_bikes" class="btn btn-danger w-100">Reset database</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow mb-3">
+            <div class="card-header fw-bold">Settings</div>
+            <div class="card-body">
+                <form id="component_type_form" class="row" action="/config_overview/modify" method="post" enctype="application/x-www-form-urlencoded">
                     <div class="col mb-3">
-                        <label for="component_type" class="form-label fw-bold">Type</label>
-                        <input type="text" class="form-control" id="component_type" name="component_type" required>
+                        <label for="database_path" class="form-label fw-bold">Path to database</label>
+                        <input type="text" class="form-control" id="database_path" name="database_path" required>
                     </div>
                     <div class="col mb-3">
-                        <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
-                        <input type="number" class="form-control" id="expected_lifetime" name="expected_lifetime" oninput="validateInput(this)">
-                    </div>
-                    <div class="col mb-3">
-                        <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
-                        <input type="number" class="form-control" id="service_interval" name="service_interval" oninput="validateInput(this)">
+                        <label for="oauth_path" class="form-label fw-bold">Path to oauth file</label>
+                        <input type="text" class="form-control" id="oauth_path" name="oauth_path" oninput="validateInput(this)">
                     </div>
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Save</button>
-                        <button type="submit" class="btn btn-outline-danger" form="component_type_form" id="clear_form_btn">Clear form</button>
                     </div>
                 </form>
             </div>
         </div>
-        <div class="mt-5 card shadow mb-3">
-            <div class="card-header fw-bold">Available component types</div>
+        <div class="card shadow mb-3">
+            <div class="card-header fw-bold">Latest log entries</div>
             <div class="card-body">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Expected lifetime (km)</th>
-                            <th>Service interval (km)</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if component_types_data %}
-                            {% for component_type, expected_lifetime, service_interval in component_types_data %}
-                            <tr data-row-id="{{ loop.index0 }}">
-                                <td>{{ component_type }}</td>
-                                <td>{{ expected_lifetime }}</td>
-                                <td>{{ service_interval }}</td>
-                                <td>                    
-                                    <button type="button" class="btn btn-outline-success btn-sm modify-record" component_type="{{ component_type }}" data-row-id="{{ loop.index0 }}">✍</button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm delete-record" data-component-type="{{ component_type }}">🗑</button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="4" class="text-center">No component types defined</td>
-                                </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+                Read log entries
             </div>
         </div>
         <div id="footer">
@@ -79,76 +60,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
-        // Modify record function: Wait for the page to load before initiating modify button
-        window.addEventListener('DOMContentLoaded', function() {
-            // Modify record function: get all modify record buttons
-            const modifyRecordButtons = document.querySelectorAll('.modify-record');
-
-            // Modify record function: add a click event listener to each button
-            modifyRecordButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const rowId = button.dataset.rowId;
-                    modifyRecord(rowId);
-                });
-            });
-
-            // Modify record function: define the modifyRecord function
-            function modifyRecord(rowId) {
-                const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
-                if (row) {
-                    const componentType = row.cells[0].textContent;
-                    const expectedLifetime = row.cells[1].textContent;
-                    const serviceInterval = row.cells[2].textContent;
-
-                    document.getElementById('component_type').value = componentType;
-                    document.getElementById('expected_lifetime').value = expectedLifetime;
-                    document.getElementById('service_interval').value = serviceInterval;
-                } else {
-                    console.error(`Row with ID ${rowId} not found.`);
-                }
-            }
-        });
         
-        // Script to delete records
-        document.querySelectorAll('.delete-record').forEach(button => {
-        button.addEventListener('click', () => {
-        const formData = new FormData();
-        formData.append('record_id', button.dataset.componentType);
-        formData.append('table_selector', 'ComponentTypes');
-
-        fetch('/delete_record', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log('Backend received data');
-                window.location.reload();
-            }
-        })
-        .catch(error => console.error('Backend error:', error));
-            });
-        });
-        
-        // Input valdation
-        function validateInput(input) {
-            if (input.value <= 0) {
-                input.value = null;
-            }
-        }
-
-        // Clear form function: get the clear form button
-        const clearFormBtn = document.getElementById('clear_form_btn');
-
-        // Clear form function: add a click event listener to the button
-        clearFormBtn.addEventListener('click', clearForm);
-
-        // Clear form function: define the clearForm function
-        function clearForm() {
-            document.getElementById('component_type').value = '';
-            document.getElementById('service_interval').value = '';
-            document.getElementById('expected_lifetime').value = '';
-        }
     </script>
 </body>
 </html>

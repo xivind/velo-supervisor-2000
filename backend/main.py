@@ -542,6 +542,18 @@ async def delete_record(
 
     modify_records.delete_record(table_selector, record_id)
 
+@app.get("/config_overview", response_class=HTMLResponse)
+async def read_config(request: Request):
+    """Endpoint for component types page"""    
+    start_time = time()
+
+    
+    process_time = time() - start_time
+
+    template_path = "config.html"
+    return templates.TemplateResponse(template_path, {"request": request,
+                                                      "db_path": CONFIG['db_path'],
+                                                      "process_time": f"{process_time:.4f}"})
 
 # Todo
 # All endpoints that writes should print log
@@ -576,7 +588,10 @@ async def delete_record(
 # Update .gitignore
 # Clear form not working on component overview. Maybe not needed?
 # Review all log statemens and make them consistent
+# Create endpoint to reset database
 
+# Bug Expected cost next service also includes components where service or lifetime is not defined, should not be included
+# Bug bike status is not updated when a component is deleted
 # Bug in table All components: does not display "No components registered", even though no components are registered. Probably related to the filters
 # Bug in date validation, in some cases parses dates that are invalid
 # Bug unpredictable behaviour if bike is retired before components are uninstalled, will default to not assigned
