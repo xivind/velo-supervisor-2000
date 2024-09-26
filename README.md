@@ -22,6 +22,7 @@ Version now runs as Github action
 Info on config page when data was last pulled from Strava
 Alphabetical sorting of component types in tables and drop downs
 Configured to run in Docker
+
 Getting data from Strava in the background
 Configuration page
 Improved component detail page (added back button and delete button)
