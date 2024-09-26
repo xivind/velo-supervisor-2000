@@ -600,7 +600,7 @@ async def get_logs():
 # Velo supervisor logo must be clickable, go to "/about"
 # All notes in Strava should be in english
 # Make sure all endpoints have same logic, variable naming conventions..
-# Display banner on all pages if last ride is more than seven days ago, probably in the menu.html
+# Display banner on all pages if last ride is more than seven days ago, probably in the menu.html   
 # Add favicon
 # Sort endpoints so they appear in a more logical order
 # Add input validation on component details form, should have input validation on all forms
