@@ -544,16 +544,54 @@ async def delete_record(
 
 @app.get("/config_overview", response_class=HTMLResponse)
 async def read_config(request: Request):
-    """Endpoint for component types page"""    
-    start_time = time()
-
-    
-    process_time = time() - start_time
+    """Endpoint for component types page"""
 
     template_path = "config.html"
     return templates.TemplateResponse(template_path, {"request": request,
-                                                      "db_path": CONFIG['db_path'],
-                                                      "process_time": f"{process_time:.4f}"})
+                                                      "strava_tokens": CONFIG['strava_tokens'],
+                                                      "db_path": CONFIG['db_path']})
+
+@app.post("/update_config")
+async def update_config(request: Request,
+                        db_path: str = Form(...),
+                        strava_tokens: str = Form(...)):
+    """Endpoint to update config file"""
+    
+    try:
+        CONFIG['db_path'] = db_path
+        CONFIG['strava_tokens'] = strava_tokens
+
+        with open('config.json', 'w', encoding='utf-8') as file:
+            json.dump(CONFIG, file, indent=4)
+
+        logging.warning(f"Configuration updated. New database path is {db_path} and new strava tokens path is {strava_tokens}. Shutting down container...")
+        os._exit(0)
+
+    except Exception as error:
+        logging.error(f"Error updating configuration: {str(error)}")
+        raise HTTPException(status_code=500, detail="Failed to update configuration")
+
+@app.get("/get_filtered_log")
+async def get_logs():
+    """Endpoint to read log and return only business events""" 
+    start_time = time()
+
+    try:
+        with open('/logs/app.log', 'r', encoding='utf-8') as log_file:
+            logs = log_file.readlines()
+        
+        filtered_logs = [log for log in logs if "GET" not in log and "POST" not in log]
+        subset_filtered_logs = filtered_logs[-100:]
+
+        process_time = time() - start_time
+        
+        return {"logs": subset_filtered_logs,
+                "process_time": f"{process_time:.4f}"}
+    
+    except Exception as error:
+        logging.error(f"Error reading log file: {str(error)}")
+        return {"logs": ["Error reading log file"]}
+
 
 # Todo
 # All endpoints that writes should print log
@@ -587,7 +625,8 @@ async def read_config(request: Request):
 
 # Update .gitignore
 # Clear form not working on component overview. Maybe not needed?
-# Review all log statemens and make them consistent
+# Review all log statemens and make them consistent, remember to be precise about info, warning and error
+# Create endpoint to export dataset
 # Create endpoint to reset database
 
 # Bug Expected cost next service also includes components where service or lifetime is not defined, should not be included

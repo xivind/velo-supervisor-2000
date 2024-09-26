@@ -14,18 +14,21 @@
         <div class="mt-5 card shadow mb-3">
             <div class="card-header fw-bold">Actions</div>
             <div class="card-body">
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-6">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-6">
                     <div class="col">
-                        <a href="/refresh_rides/recent" class="btn btn-primary w-100">Get new rides</a>
+                        <a href="/refresh_rides/recent" class="btn btn-secondary w-100">Get new rides</a>
                     </div>
                     <div class="col">
-                        <a href="/refresh_all_bikes" class="btn btn-info w-100">Refesh all bikes</a>
+                        <a href="/refresh_all_bikes" class="btn btn-secondary w-100">Refesh all bikes</a>
                     </div>
                     <div class="col">
-                        <a href="/refresh_rides/all" class="btn btn-warning w-100">Get all rides</a>
+                        <a href="/refresh_rides/all" class="btn btn-secondary w-100">Get all rides</a>
                     </div>
                     <div class="col">
-                        <a href="/refresh_all_bikes" class="btn btn-danger w-100">Reset database</a>
+                        <a href="/#" class="btn btn-secondary w-100">Export dataset</a>
+                    </div>
+                    <div class="col">
+                        <a href="/#" class="btn btn-outline-danger w-100">Reset database</a>
                     </div>
                 </div>
             </div>
@@ -33,17 +36,17 @@
         <div class="card shadow mb-3">
             <div class="card-header fw-bold">Settings</div>
             <div class="card-body">
-                <form id="component_type_form" class="row" action="/config_overview/modify" method="post" enctype="application/x-www-form-urlencoded">
+                <form id="config_form" class="row" action="/update_config" method="post">
                     <div class="col mb-3">
-                        <label for="database_path" class="form-label fw-bold">Path to database</label>
-                        <input type="text" class="form-control" id="database_path" name="database_path" required>
+                        <label for="db_path" class="form-label fw-bold">Path to database</label>
+                        <input type="text" class="form-control" id="db_path" name="db_path" value="{{ db_path }}" required>
                     </div>
                     <div class="col mb-3">
-                        <label for="oauth_path" class="form-label fw-bold">Path to oauth file</label>
-                        <input type="text" class="form-control" id="oauth_path" name="oauth_path" oninput="validateInput(this)">
+                        <label for="strava_tokens" class="form-label fw-bold">Path to oauth file</label>
+                        <input type="text" class="form-control" id="strava_tokens" name="strava_tokens" value="{{ strava_tokens }}">
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Save</button>
+                        <button type="submit" class="btn btn-primary">Save and restart</button>
                     </div>
                 </form>
             </div>
@@ -51,7 +54,11 @@
         <div class="card shadow mb-3">
             <div class="card-header fw-bold">Latest log entries</div>
             <div class="card-body">
-                Read log entries
+                <div id="log-container" style="height: 250px; overflow-y: auto;">
+                    <ul id="log-entries" class="list-group list-group-flush">
+                        <!-- Log entries will be populated here -->
+                    </ul>
+                </div>
             </div>
         </div>
         <div id="footer">
@@ -60,7 +67,31 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
-        
+        function fetchLogs() {
+            fetch('/get_filtered_log')
+                .then(response => response.json())
+                .then(data => {
+                    const logList = document.getElementById('log-entries');
+                    logList.innerHTML = '';  // Clear existing entries
+                    data.logs.reverse().forEach(log => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        if (log.includes('WARNING')) {
+                            li.classList.add('list-group-item-warning');
+                        } else if (log.includes('ERROR')) {
+                            li.classList.add('list-group-item-danger');
+                        } else {
+                            li.classList.add('list-group-item-light');
+                        }
+                        li.textContent = log;
+                        logList.appendChild(li);
+                    });
+                    document.getElementById('log-fetch-time').textContent = data.process_time;
+                })
+                .catch(error => console.error('Error fetching logs:', error));
+        }
+        // Fetch logs on page load
+        fetchLogs();
     </script>
 </body>
 </html>
