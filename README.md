@@ -15,15 +15,15 @@ Remember to push tags to repo: git push --tags
 
 
 Changelog - fix layout
-0.91.x
-Alphabetical sorting of component types in tables and drop downs
-Configured to run in Docker
+1.0.x
 Version now runs as Github action
 
 0.9.x
+Alphabetical sorting of component types in tables and drop downs
+Configured to run in Docker
 Getting data from Strava in the background
 Configuration page
-Improved component detail page (added bacn button and delete button)
+Improved component detail page (added back button and delete button)
 Bugfixes
 
 0.8.x
