@@ -600,7 +600,7 @@ async def get_logs():
 # Velo supervisor logo must be clickable, go to "/about"
 # All notes in Strava should be in english
 # Make sure all endpoints have same logic, variable naming conventions..
-# Display banner on all pages if last ride is more than seven days ago
+# Display banner on all pages if last ride is more than seven days ago, probably in the menu.html
 # Add favicon
 # Sort endpoints so they appear in a more logical order
 # Add input validation on component details form, should have input validation on all forms
@@ -628,6 +628,8 @@ async def get_logs():
 # Review all log statemens and make them consistent, remember to be precise about info, warning and error
 # Create endpoint to export dataset
 # Create endpoint to reset database
+
+# Add last pull from Strava
 
 # Bug Expected cost next service also includes components where service or lifetime is not defined, should not be included
 # Bug bike status is not updated when a component is deleted
