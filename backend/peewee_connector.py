@@ -16,9 +16,16 @@ class ReadTables(): #rename to something else, internal logic or something, migh
         pass #Check out this one..
 
     def read_component_types(self):
-        """Method to read content of component_types table"""
+        """Method to read and sort content of component_types table"""
         component_types = ComponentTypes.select()
-        return component_types
+
+        component_types_data = [(component_type.component_type,
+                             component_type.expected_lifetime,
+                             component_type.service_interval) for component_type in component_types]
+    
+        component_types_data.sort(key=lambda x: x[0])
+        
+        return component_types_data
     
     def read_all_components(self):
         """Method to read content of components table"""

@@ -75,9 +75,7 @@ def render_error_page(request: Request, status_code: int, error_message: str):
     return templates.TemplateResponse("error.html", {
         "request": request,
         "status_code": status_code,
-        "error_message": error_message
-    })
-
+        "error_message": error_message})
 
 @app.get("/error", response_class=HTMLResponse)
 async def error_page(request: Request):
@@ -111,10 +109,7 @@ async def component_types_overview(request: Request):
     """Endpoint for component types page"""    
     start_time = time()
 
-    component_types = read_tables.read_component_types()
-    component_types_data = [(component_type.component_type,
-                             component_type.expected_lifetime,
-                             component_type.service_interval) for component_type in component_types]
+    component_types_data = read_tables.read_component_types()
     
     process_time = time() - start_time
 
@@ -314,10 +309,7 @@ async def component_overview(request: Request):
                         bike.bike_id)
                         for bike in bikes if bike.bike_retired == "False"]
 
-        component_types = read_tables.read_component_types()
-        component_types_data = [(component_type.component_type,
-                                component_type.expected_lifetime,
-                                component_type.service_interval) for component_type in component_types]
+        component_types_data = read_tables.read_component_types()
 
         process_time = time() - start_time
 
