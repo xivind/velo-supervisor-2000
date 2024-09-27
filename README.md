@@ -20,9 +20,10 @@ Version now runs as Github action
 
 0.9.x
 Info on config page when data was last pulled from Strava
-Alphabetical sorting of component types in tables and drop downs
 Configured to run in Docker
 
+Updated code to work with FastAPI 0.115.0
+Alphabetical sorting of component types in tables and drop downs
 Getting data from Strava in the background
 Configuration page
 Improved component detail page (added back button and delete button)

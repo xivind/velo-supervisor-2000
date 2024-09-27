@@ -122,9 +122,12 @@ async def component_types_overview(request: Request):
 @app.post("/component_types_overview/modify", response_class=HTMLResponse)
 async def modify_component_type(
     component_type: str = Form(...),
-    expected_lifetime: Optional[int] = Form("Not defined"),
-    service_interval: Optional[int] = Form("Not defined")):
+    expected_lifetime: Optional[str] = Form(None),
+    service_interval: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
+
+    expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
+    service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
 
     component_type_data = {"component_type": component_type, "service_interval": service_interval, "expected_lifetime": expected_lifetime}
     modify_records.update_component_type(component_type_data)
@@ -194,12 +197,16 @@ async def modify_component(
     component_name: str = Form(...),
     component_type: str = Form(...),
     component_bike_id: Optional[str] = Form(None),
-    expected_lifetime: Optional[int] = Form(None),
-    service_interval: Optional[int] = Form(None),
-    cost: Optional[int] = Form(None),
+    expected_lifetime: Optional[str] = Form(None),
+    service_interval: Optional[str] = Form(None),
+    cost: Optional[str] = Form(None),
     offset: Optional[int] = Form(0),
     component_notes: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
+
+    expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
+    service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
+    cost = int(cost) if cost and cost.isdigit() else None
 
     new_component_data = {"installation_status": component_installation_status,
                       "updated_date": component_updated_date,
@@ -431,10 +438,7 @@ async def component_details(request: Request, component_id: str):
                     bike.bike_id)
                     for bike in bikes if bike.bike_retired == "False"]
 
-    component_types = read_tables.read_component_types()
-    component_types_data = [(component_type.component_type,
-                            component_type.expected_lifetime,
-                            component_type.service_interval) for component_type in component_types]
+    component_types_data = read_tables.read_component_types()
     
     bike_component = read_records.read_component(component_id)
     bike_component_data = {"bike_id": bike_component.bike_id,
@@ -615,8 +619,7 @@ async def get_logs():
 # Clean up javascripts and check if js that are identical may be pulled from one place?
 # Velo supervisor logo must be clickable, go to "/about"
 # All notes in Strava should be in english
-# Make sure all endpoints have same logic, variable naming conventions..
-# Display banner on all pages if last ride is more than seven days ago, probably in the menu.html   
+# Make sure all endpoints have same logic, variable naming conventions..   
 # Add favicon
 # Sort endpoints so they appear in a more logical order
 # Add input validation on component details form, should have input validation on all forms
@@ -646,6 +649,7 @@ async def get_logs():
 # Create endpoint to reset database
 
 # Add last pull from Strava
+# Display banner on all pages if last ride is more than seven days ago, probably in the menu.html
 
 # Bug Expected cost next service also includes components where service or lifetime is not defined, should not be included
 # Bug bike status is not updated when a component is deleted
