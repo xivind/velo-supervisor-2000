@@ -19,6 +19,9 @@ from datetime import datetime
 from collections import Counter
 import traceback
 import os
+import sys
+import asyncio
+import httpx
 
 def get_current_version():
     try:
@@ -47,6 +50,26 @@ app.version = get_current_version()
 templates = Jinja2Templates(directory="../frontend/templates")
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
 
+@app.on_event("startup")
+async def startup_event():
+    """Function to register background tasks"""
+    asyncio.create_task(pull_strava_background("recent"))
+
+async def pull_strava_background(mode):
+    """Function to pull data from Strava in the background"""
+    while True:
+        try:
+            logging.info(f"Retrieving rides from Strava (called by system). Mode set to: {mode}")
+            async with httpx.AsyncClient() as client:
+                pass
+                # await client.get(f"http://localhost:8000/refresh_rides/{mode}") Activate before deploying
+        
+        except Exception as error:
+            logging.error(f"An error occured calling refresh rides endpoint: {error}")
+        
+        logging.info("Next pull from Strava is in two hours")
+        await asyncio.sleep(7200)
+
 def render_error_page(request: Request, status_code: int, error_message: str):
     """Function to handle errors"""
     return templates.TemplateResponse("error.html", {
@@ -54,6 +77,7 @@ def render_error_page(request: Request, status_code: int, error_message: str):
         "status_code": status_code,
         "error_message": error_message
     })
+
 
 @app.get("/error", response_class=HTMLResponse)
 async def error_page(request: Request):
@@ -503,18 +527,18 @@ async def refresh_rides(request: Request, mode: str): #Request currently not use
     
     try:
         if mode == "all":
-            logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
+            logging.info(f"Retrieving rides from Strava (called by user). Mode set to: {mode}")
             await strava.get_rides(mode)
             modify_tables.update_rides_bulk(strava.payload_rides)
             
-            logging.info("Refreshing all bikes from Strava")
+            logging.info("Refreshing all bikes from Strava (called by user)")
             await strava.get_bikes(misc_methods.get_unique_bikes())
             modify_tables.update_bikes(strava.payload_bikes)
             
             modify_tables.update_components_distance_iterator(misc_methods.get_unique_bikes())
             
         if mode == "recent":
-            logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
+            logging.info(f"Retrieving rides from Strava (called by user). Mode set to: {mode}")
             await strava.get_rides(mode)
             modify_tables.update_rides_bulk(strava.payload_rides)
             
@@ -565,7 +589,7 @@ async def update_config(request: Request,
             json.dump(CONFIG, file, indent=4)
 
         logging.warning(f"Configuration updated. New database path is {db_path} and new strava tokens path is {strava_tokens}. Shutting down container...")
-        os._exit(0)
+        sys.exit(0)
 
     except Exception as error:
         logging.error(f"Error updating configuration: {str(error)}")
