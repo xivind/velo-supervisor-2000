@@ -226,7 +226,8 @@ async def modify_component(
     current_history_id = f'{component_updated_date} {component_id}'
     old_component_data = read_records.read_component(component_id)
     updated_bike_id = component_bike_id
-    previous_bike_id = old_component_data.bike_id
+    previous_bike_id = old_component_data.bike_id if old_component_data else None #This is causing problems, all these problems related to fastapi 0.115.0
+    old_component_name = old_component_data.component_name if old_component_data else None #This is causing problems, all these problems related to fastapi 0.115.0
     latest_service_record = read_records.read_latest_service_record(component_id)
     latest_history_record = read_records.read_latest_history_record(component_id)
     
@@ -260,7 +261,7 @@ async def modify_component(
             else:
                 historic_distance = latest_history_record.distance_marker #This line is probably redundant..? 
 
-        halt_update = modify_records.update_component_history_record(old_component_data.component_name, latest_history_record, current_history_id, component_id, previous_bike_id, updated_bike_id, component_installation_status, component_updated_date, historic_distance)
+        halt_update = modify_records.update_component_history_record(old_component_name, latest_history_record, current_history_id, component_id, previous_bike_id, updated_bike_id, component_installation_status, component_updated_date, historic_distance)
         
         if halt_update is False:
             modify_records.update_component_details(component_id, new_component_data)
@@ -648,7 +649,7 @@ async def get_logs():
 # Create endpoint to export dataset
 # Create endpoint to reset database
 
-# Add last pull from Strava
+# Add last pull from Strava to footer
 # Display banner on all pages if last ride is more than seven days ago, probably in the menu.html
 
 # Bug Expected cost next service also includes components where service or lifetime is not defined, should not be included

@@ -17,11 +17,10 @@ Remember to push tags to repo: git push --tags
 Changelog - fix layout
 1.0.x
 Version now runs as Github action
+Banner to display more than seven days since update from Strava
 
 0.9.x
-Info on config page when data was last pulled from Strava
 Configured to run in Docker
-
 Updated code to work with FastAPI 0.115.0
 Alphabetical sorting of component types in tables and drop downs
 Getting data from Strava in the background
