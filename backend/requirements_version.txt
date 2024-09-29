@@ -1,3 +1,0 @@
-# Requirements only for version.py
-
-subprocess
