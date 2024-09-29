@@ -1,0 +1,6 @@
+# This dockerignore file is meant specificallty for building the image for velo supervisor 2000
+
+data
+*.sh
+*.Dockerfile
+.dockerignore
