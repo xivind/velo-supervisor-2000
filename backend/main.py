@@ -219,7 +219,6 @@ async def modify_component(
                       "component_distance_offset": offset,
                       "notes": component_notes}
 
-    print(f'Comp id: {component_id}')
     if component_id is None:
         component_id = misc_methods.generate_unique_id()
         modify_records.update_component_details(component_id, new_component_data)
