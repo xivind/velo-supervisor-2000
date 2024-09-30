@@ -1,27 +1,21 @@
 #!/usr/bin/env python3
 """Main backend for velo supervisor 2000"""
 
-from strava import Strava
-from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
-import argparse
 import logging
-import uvicorn
 import json
-from time import sleep
 from time import time
+from typing import Optional
+from datetime import datetime
+import traceback
+import sys
+import asyncio
 from fastapi import FastAPI, HTTPException, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from typing import Optional
-from pathlib import Path
-from datetime import datetime
-from collections import Counter
-import traceback
-import os
-import sys
-import asyncio
 import httpx
+from strava import Strava
+from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
 
 def get_current_version():
     try:
@@ -63,10 +57,10 @@ async def pull_strava_background(mode):
             async with httpx.AsyncClient() as client:
                 pass #Remove this before deploy
                 # await client.get(f"http://localhost:8000/refresh_rides/{mode}") Activate before deploying
-        
+
         except Exception as error:
             logging.error(f"An error occured calling refresh rides endpoint: {error}")
-        
+
         logging.info("Next pull from Strava is in two hours")
         await asyncio.sleep(7200)
 
@@ -86,7 +80,7 @@ async def error_page(request: Request):
 async def root(request: Request):
     """Endpoint for index / landing page"""
     start_time = time()
-    
+
     bikes = read_tables.read_bikes()
     bikes_data = [(bike.bike_name,
                    bike.bike_id,
@@ -97,7 +91,7 @@ async def root(request: Request):
                    sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Retired")) for bike in bikes]
 
     process_time = time() - start_time
-    
+
     template_path = "index.html"
     return templates.TemplateResponse(template_path, {"request": request,
                                                       "bikes_data": bikes_data,
@@ -110,7 +104,7 @@ async def component_types_overview(request: Request):
     start_time = time()
 
     component_types_data = read_tables.read_component_types()
-    
+
     process_time = time() - start_time
 
     template_path = "component_types.html"
@@ -143,7 +137,7 @@ async def add_service(
 
     component_data = read_records.read_component(component_id)
     service_id = misc_methods.generate_unique_id()
-    
+
     service_data = {"service_id": service_id,
                     "component_id": component_id,
                     "service_date": service_date,
@@ -157,17 +151,17 @@ async def add_service(
     if latest_history_record and service_date < latest_history_record.updated_date:
         logging.warning(f"Service date {service_date} is before the latest history record for component with id {component_id}. Services must be entered chronologically, skipping...")
         return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-        
+
     elif latest_service_record and service_date < latest_service_record.service_date:
         logging.warning(f"Service date {service_date} is before the latest service record for component {component_id}. Services must be entered chronologically, skipping...")
         return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-    
+
     if component_data.installation_status == "Installed":
         if latest_service_record is None:
             logging.info(f'No service record found for component with id {component_id}. Using distance from installation log and querying distance from installation date to service date')
             distance_since_service = latest_history_record.distance_marker
             distance_since_service += misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
-            
+
         elif latest_service_record:
             logging.info(f'Service record found for for component with id {component_id}. Querying distance from previous service date to current service date')
             distance_since_service = misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
@@ -176,7 +170,7 @@ async def add_service(
         if latest_service_record is None:
             logging.info(f'Component with id {component_id} has been uninstalled and there are no previous services. Setting historic distance since service to distance at the time of uninstallation')
             distance_since_service = latest_history_record.distance_marker
-        
+
         elif latest_service_record:
             if latest_service_record.service_date > component_data.updated_date:
                 logging.info(f'Component with id {component_id} has been serviced after uninstall. Setting distance since service to 0')
@@ -222,7 +216,7 @@ async def modify_component(
     if component_id is None:
         component_id = misc_methods.generate_unique_id()
         modify_records.update_component_details(component_id, new_component_data)
-            
+
     current_history_id = f'{component_updated_date} {component_id}'
     old_component_data = read_records.read_component(component_id)
     updated_bike_id = component_bike_id
@@ -230,7 +224,7 @@ async def modify_component(
     old_component_name = old_component_data.component_name if old_component_data else None #This is causing problems, all these problems related to fastapi 0.115.0
     latest_service_record = read_records.read_latest_service_record(component_id)
     latest_history_record = read_records.read_latest_history_record(component_id)
-    
+
     if latest_history_record is not None and latest_history_record.history_id == current_history_id:
         if latest_history_record.update_reason == component_installation_status:
             logging.info(f"Only updating select component record details and service and lifetime status. Historic record already exist for component id {component_id} and record id {current_history_id}.")
@@ -239,16 +233,16 @@ async def modify_component(
             modify_tables.update_component_distance(component_id, old_component_data.component_distance - old_component_data.component_distance_offset)
         else:
             logging.warning(f"Cannot change installation status when record date it the same as previous record. Historic record already exist for component id {component_id} and record id {current_history_id}. Skipping...")
-    
+
     else:
         if latest_history_record and component_updated_date < latest_history_record.updated_date:
             logging.warning(f"Component update date {component_updated_date} is before the latest history record for component with id {component_id}. Component update dates must be entered chronologically, skipping...")
             return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-        
+
         elif latest_service_record and component_updated_date < latest_service_record.service_date:
             logging.warning(f"Component update date {component_updated_date} is before the latest service record for component {component_id}. Component update dates must be entered chronologically, skipping...")
             return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-        
+
         if latest_history_record is None:
             historic_distance = 0
 
@@ -262,12 +256,12 @@ async def modify_component(
                 historic_distance = latest_history_record.distance_marker #This line is probably redundant..? 
 
         halt_update = modify_records.update_component_history_record(old_component_name, latest_history_record, current_history_id, component_id, previous_bike_id, updated_bike_id, component_installation_status, component_updated_date, historic_distance)
-        
+
         if halt_update is False:
             modify_records.update_component_details(component_id, new_component_data)
             updated_component_data = read_records.read_component(component_id)
             latest_history_record = read_records.read_latest_history_record(component_id)
-            
+
             if updated_component_data.installation_status == "Installed":
                 logging.info(f'Timespan for current distance query (triggered by component update): start date {updated_component_data.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}') #Improve logging statement, see service, also applies to similar above
                 current_distance = misc_methods.sum_distanse_subset_rides(updated_component_data.bike_id, updated_component_data.updated_date, datetime.now().strftime("%Y-%m-%d %H:%M"))
@@ -279,7 +273,7 @@ async def modify_component(
                 modify_tables.update_component_distance(component_id, current_distance)
         else:
             logging.warning(f"Update of component with id {component_id} skipped due to exceptions when updating history record")
-        
+
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
 @app.get("/component_overview", response_class=HTMLResponse)
@@ -299,7 +293,7 @@ async def component_overview(request: Request):
                         misc_methods.get_bike_name(component.bike_id),
                         misc_methods.format_cost(component.cost)
                         ) for component in components]
-        
+
         rearranged_component_data = [(comp[4],
                                       None,
                                       None,
@@ -309,7 +303,7 @@ async def component_overview(request: Request):
                                       comp[8],
                                       None,
                                       comp[7]) for comp in component_data]
-        
+
         component_statistics = misc_methods.get_component_statistics(rearranged_component_data)
 
         bikes = read_tables.read_bikes()
@@ -346,7 +340,7 @@ async def component_overview(request: Request):
     except Exception as error:
         # Get the full traceback
         error_traceback = traceback.format_exc()
-        
+
         # Log the full traceback
         logging.error(f"An error occurred:\n{error_traceback}")
 
@@ -364,7 +358,7 @@ async def component_overview(request: Request):
 async def bike_details(request: Request, bike_id: str):
     """Endpoint for bike details page"""
     start_time = time()
-    
+
     try:
         # Fetch bike details based on the bike_id
         bike = read_records.read_bike(bike_id)
@@ -375,7 +369,7 @@ async def bike_details(request: Request, bike_id: str):
                     "bike_total_distance": int(bike.total_distance),
                     "bike_notes": bike.notes,
                     "first_ride": misc_methods.get_first_ride(bike_id)}
-        
+
         bike_components = read_tables.read_subset_components(bike_id)
         bike_components_data = [(component.component_id,
                         component.installation_status,
@@ -388,7 +382,7 @@ async def bike_details(request: Request, bike_id: str):
                         ) for component in bike_components]
 
         component_statistics = misc_methods.get_component_statistics([tuple(component[1:]) for component in bike_components_data])
-        
+
         recent_rides = read_tables.read_recent_rides(bike_id)
         recent_rides_data = [(ride.ride_id,
                         ride.record_time,
@@ -422,12 +416,11 @@ async def bike_details(request: Request, bike_id: str):
                                                           "payload": payload,
                                                           "db_path": CONFIG['db_path'],
                                                           "process_time": f"{process_time:.4f}"})
-    
+
     except Exception as error:
         # Handle exceptions
         raise HTTPException(status_code=500, detail=str(error))
-    
-    
+
 @app.get("/component_details/{component_id}", response_class=HTMLResponse)
 async def component_details(request: Request, component_id: str):
     """Endpoint for component details page"""
@@ -440,7 +433,7 @@ async def component_details(request: Request, component_id: str):
                     for bike in bikes if bike.bike_retired == "False"]
 
     component_types_data = read_tables.read_component_types()
-    
+
     bike_component = read_records.read_component(component_id)
     bike_component_data = {"bike_id": bike_component.bike_id,
                     "component_id": bike_component.component_id,
@@ -465,7 +458,7 @@ async def component_details(request: Request, component_id: str):
                     "offset": bike_component.component_distance_offset,
                     "component_notes": bike_component.notes,
                     "cost": misc_methods.format_cost(bike_component.cost)}
-    
+
     component_history = read_tables.read_subset_component_history(bike_component.component_id)
     if component_history is not None:
         component_history_data = [(installation_record.updated_date,
@@ -503,7 +496,7 @@ async def component_details(request: Request, component_id: str):
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
 async def refresh_all_bikes(request: Request): #Request currently not used, but keep it for now. Will be required for error messages later.
     """Endpoint to manually refresh data for all bikes"""
-    
+
     try:
         logging.info("Refreshing all bikes from Strava (called directly)")
         await strava.get_bikes(misc_methods.get_unique_bikes())
@@ -511,9 +504,9 @@ async def refresh_all_bikes(request: Request): #Request currently not used, but 
 
         for bike_id in misc_methods.get_unique_bikes():
             modify_tables.update_bike_status(bike_id) #Not sure why we need to call this here..?
-        
+
         return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located 
-    
+
     except Exception as error: #Use this on all exceptions, but first update with ability to display error message to user
         error_traceback = traceback.format_exc()
         logging.error(f"An error occurred trying to refresh all bikes from Strava: {error} Details:\n{error_traceback}")
@@ -521,31 +514,31 @@ async def refresh_all_bikes(request: Request): #Request currently not used, but 
 @app.get("/refresh_rides/{mode}", response_class=HTMLResponse)
 async def refresh_rides(request: Request, mode: str): #Request currently not used, but keep it for now. Will be required for error messages later.
     """Endpoint to refresh data for a subset or all rides"""
-    
+
     try:
         if mode == "all":
             logging.info(f"Retrieving rides from Strava (called by user). Mode set to: {mode}")
             await strava.get_rides(mode)
             modify_tables.update_rides_bulk(strava.payload_rides)
-            
+
             logging.info("Refreshing all bikes from Strava (called by user)")
             await strava.get_bikes(misc_methods.get_unique_bikes())
             modify_tables.update_bikes(strava.payload_bikes)
-            
+
             modify_tables.update_components_distance_iterator(misc_methods.get_unique_bikes())
-            
+
         if mode == "recent":
             logging.info(f"Retrieving rides from Strava (called by user). Mode set to: {mode}")
             await strava.get_rides(mode)
             modify_tables.update_rides_bulk(strava.payload_rides)
-            
+
             if len(strava.bike_ids_recent_rides) > 0:
                 logging.info("Refreshing all bikes from Strava")
                 await strava.get_bikes(strava.bike_ids_recent_rides)
                 modify_tables.update_bikes(strava.payload_bikes)
-                
+
                 modify_tables.update_components_distance_iterator(strava.bike_ids_recent_rides)
-            
+
             else:
                 logging.warning("No bikes found in recent activities")
 
@@ -577,7 +570,7 @@ async def update_config(request: Request,
                         db_path: str = Form(...),
                         strava_tokens: str = Form(...)):
     """Endpoint to update config file"""
-    
+
     try:
         CONFIG['db_path'] = db_path
         CONFIG['strava_tokens'] = strava_tokens
@@ -600,15 +593,15 @@ async def get_logs():
     try:
         with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:
             logs = log_file.readlines()
-        
+
         filtered_logs = [log for log in logs if "GET" not in log and "POST" not in log]
         subset_filtered_logs = filtered_logs[-100:]
 
         process_time = time() - start_time
-        
+
         return {"logs": subset_filtered_logs,
                 "process_time": f"{process_time:.4f}"}
-    
+
     except Exception as error:
         logging.error(f"Error reading log file: {str(error)}")
         return {"logs": ["Error reading log file"]}
