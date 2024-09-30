@@ -1,8 +1,7 @@
 # velo-supervisor-2000
-Program to monitor bicycle service intervals
-Some more text
+Program to keep track of lifetime and service intervals of bicycle components, based on activity data from Strava.
 
-> 🙋 Join the work, fork the repo and contribue with PRs!
+> **Join the work, either by forking the repo and contribute with PRs or simply by submitting issues! 🙋**
 
 ## Bugs
 There are currently quite a few bugs scattered around. If you find any, please submit them as an <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issue</a>.
@@ -20,11 +19,11 @@ Velo Supervisor 2000 uses <a href="https://semver.org/" class="text-decoration-n
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.9.2**
+**Planned for v0.2.1**
 - Banner to display more than seven days since update from Strava
 
 **v0.2.0**
-- Configured to run in Docker
+- Configured program to run in Docker
 
 **v0.1.0**
 - Running version of program (bugs are present)
