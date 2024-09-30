@@ -13,7 +13,7 @@ def get_git_version():
         commit_count = subprocess.check_output(['git', 'rev-list', f'{tag}..HEAD', '--count']).decode().strip()
         
         # Subtract 1 from the commit count to adjust for commits by Github actions
-        commit_count = int(commit_count) - 1
+        commit_count = int(commit_count) - 2
         
         # Combine tag and commit count
         version = f"{tag}.{commit_count}"
