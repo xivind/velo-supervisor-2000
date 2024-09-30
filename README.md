@@ -8,7 +8,7 @@ Some more text
 There are currently quite a few bugs scattered around. If you find any, please submit them as an <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issue</a>.
 
 ## Branches and versioning
-> Use semver for tagging. Create a new version each time a pull request is accepted
+> Use semver for tagging: https://semver.org/ Create a new version each time a pull request is accepted
 For exmaple: `git tag -a v0.8 -m "Version 0.8"`
 Remember to push tags to repo: `git push --tags`
 
@@ -20,10 +20,10 @@ Remember to push tags to repo: `git push --tags`
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v1.0.x**
+**Planned for v0.9.2**
 - Banner to display more than seven days since update from Strava
 
-**v0.9.x**
+**v0.9.1**
 - Versioning runs as Github action
 - Configured to run in Docker
 - Updated code to work with FastAPI 0.115.0
@@ -33,7 +33,7 @@ Remember to push tags to repo: `git push --tags`
 - Improved component detail page (added back button and delete button)
 - Bugfixes
 
-**v0.8.x**
+**v0.8.0**
 - Introduced versioning
 - Working program (with some bugs)
 
