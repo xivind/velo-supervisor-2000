@@ -14,22 +14,22 @@ Use semver for tagging. For exmaple: git tag -a v0.8 -m "Version 0.8"
 Remember to push tags to repo: git push --tags
 
 
-Changelog - fix layout
-1.0.x
-Banner to display more than seven days since update from Strava
+## Changelog
+**1.0.x**
+- Banner to display more than seven days since update from Strava
 
 
-0.9.x
-Version now runs as Github action
-Configured to run in Docker
-Updated code to work with FastAPI 0.115.0
-Alphabetical sorting of component types in tables and drop downs
-Getting data from Strava in the background
-Configuration page
-Improved component detail page (added back button and delete button)
-Bugfixes
+**0.9.x**
+- Versioning runs as Github action
+- Configured to run in Docker
+- Updated code to work with FastAPI 0.115.0
+- Alphabetical sorting of component types in tables and drop downs
+- Getting data from Strava in the background
+- Configuration page
+- Improved component detail page (added back button and delete button)
+- Bugfixes
 
-0.8.x
-Introduced versioning
-Working program, with some bugs
+**0.8.x**
+- Introduced versioning
+- Working program, with some bugs
 
