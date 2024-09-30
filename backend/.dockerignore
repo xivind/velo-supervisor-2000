@@ -4,3 +4,5 @@ data
 *.sh
 *.Dockerfile
 .dockerignore
+
+# Add more, githubactions +++
