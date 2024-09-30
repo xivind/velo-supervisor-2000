@@ -2,27 +2,32 @@
 
 set -o xtrace
 
-# Clean up current container and image
-docker container stop send-strava
-docker container rm send-strava
-docker image rm send-strava
+# Cleanup container and image
+docker container stop velo-supervisor-2000
+docker container rm velo-supervisor-2000
+docker image rm velo-supervisor-2000
 
-# Get latest code
-Pull github
+# Build and tag image
+docker build -t velo-supervisor-2000 -f DOCKERFILE .
 
-# Build the image and tag it
-docker build -t send-strava -f send-strava.Dockerfile .
-
-# Create the container
+# Create and run container
 docker run -d \
-  --name=send-strava \
+  --name=velo-supervisor-2000 \
   -e TZ=Europe/Stockholm \
-  -v /home/pi/code/secrets:/secrets \
+  --mount type=volume,source=nodered,target=/data \
+  --mount type=bind,source=/home/pi/code/secrets,target=/secrets \
   --restart unless-stopped \
-  send-strava \
-  ./send_strava.py \
-  --oauth_file /secrets/strava_tokens.json \
-  --mqtt_host messagebroker \
-  --mqtt_port 1883 \
-  --mqtt_topic strava \
-  --mqtt_client_id send-strava
+  -p 8000:8000 \
+  dashboard
+
+
+
+
+
+
+
+
+
+
+
+ 

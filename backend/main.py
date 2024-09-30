@@ -61,7 +61,7 @@ async def pull_strava_background(mode):
         try:
             logging.info(f"Retrieving rides from Strava (called by system). Mode set to: {mode}")
             async with httpx.AsyncClient() as client:
-                pass
+                pass #Remove this before deploy
                 # await client.get(f"http://localhost:8000/refresh_rides/{mode}") Activate before deploying
         
         except Exception as error:
@@ -598,7 +598,7 @@ async def get_logs():
     start_time = time()
 
     try:
-        with open('/logs/app.log', 'r', encoding='utf-8') as log_file:
+        with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:
             logs = log_file.readlines()
         
         filtered_logs = [log for log in logs if "GET" not in log and "POST" not in log]
