@@ -18,6 +18,7 @@ Changelog - fix layout
 1.0.x
 Banner to display more than seven days since update from Strava
 
+
 0.9.x
 Version now runs as Github action
 Configured to run in Docker
