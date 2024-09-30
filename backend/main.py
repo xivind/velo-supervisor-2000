@@ -645,7 +645,7 @@ async def get_logs():
 # Rides deleted from Strava are not deleted in velo supervisor upon sync
 # Data validation happens frontend, so if you use only APIs make your own validation rules
 # Component type must be defined in order to prefill component details to work for component type
-
+# Create new branch for dev
 
 # Update .gitignore
 # Clear form not working on component overview. Maybe not needed?

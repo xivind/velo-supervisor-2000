@@ -8,9 +8,9 @@ Some more text
 There are currently quite a few bugs scattered around. If you find any, please submit them as an <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issue</a>.
 
 ## Branches and versioning
-> Use semver for tagging: https://semver.org/ Create a new version each time a pull request is accepted
-For exmaple: `git tag -a v0.8 -m "Version 0.8"`
-Remember to push tags to repo: `git push --tags`
+Velo Supervisor 2000 uses <a href="https://semver.org/" class="text-decoration-none">Semantic Versioning Specification (SemVer)</a> as versioning scheme. Versions are expressed as tags. A Github action runs each time the repository receives a commit or a pull request is accepted, and writes the current version to `current_version.txt`. Use these commands to create new tags:
+- `git tag -a vX.Y.Z -m "Version X.Y.Z"`
+- `git push --tags`
 
 ## Changelog
 
@@ -23,17 +23,9 @@ Remember to push tags to repo: `git push --tags`
 **Planned for v0.9.2**
 - Banner to display more than seven days since update from Strava
 
-**v0.9.1**
-- Versioning runs as Github action
+**v0.2.0**
 - Configured to run in Docker
-- Updated code to work with FastAPI 0.115.0
-- Alphabetical sorting of component types in tables and drop downs
-- Getting data from Strava in the background
-- Configuration page
-- Improved component detail page (added back button and delete button)
-- Bugfixes
 
-**v0.8.0**
-- Introduced versioning
-- Working program (with some bugs)
-
+**v0.1.0**
+- Running version of program (bugs are present)
+- Code updated to work with FastAPI 0.115.0
