@@ -22,7 +22,7 @@ def get_git_version():
     return version
 
 # Write version to a file
-with open('current_version.txt', 'w', encoding='utf-8') as file:
+with open('backend/current_version.txt', 'w', encoding='utf-8') as file:
     file.write(get_git_version())
 
 print(f"Current version: {get_git_version()}")

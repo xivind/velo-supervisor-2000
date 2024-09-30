@@ -34,7 +34,7 @@ jobs:
 
       - name: Commit current_version.txt
         run: |
-          git add current_version.txt
+          git add backend/current_version.txt
           git commit -m "Update version number [skip ci]" || echo "No changes to commit"
 
       - name: Push changes
