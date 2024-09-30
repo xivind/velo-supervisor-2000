@@ -642,6 +642,9 @@ async def get_logs():
 # Must be possible to search for a given component in component overview and maybe also bike details, same code perhaps?
 # Use @classmethod to refactor and simplify code
 # Review database structure and constraints
+# Rides deleted from Strava are not deleted in velo supervisor upon sync
+# Data validation happens frontend, so if you use only APIs make your own validation rules
+# Component type must be defined in order to prefill component details to work for component type
 
 
 # Update .gitignore
