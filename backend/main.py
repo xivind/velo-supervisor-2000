@@ -643,6 +643,7 @@ async def get_logs():
 # Use @classmethod to refactor and simplify code
 # Review database structure and constraints
 
+
 # Update .gitignore
 # Clear form not working on component overview. Maybe not needed?
 # Review all log statemens and make them consistent, remember to be precise about info, warning and error
