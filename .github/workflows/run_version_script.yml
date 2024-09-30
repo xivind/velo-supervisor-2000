@@ -29,8 +29,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config --local user.name "GitHub Action"
-          git config --local user.email "action@github.com"
+          git config --local user.name "Xivind"
+          git config --local user.email "oivind.langeland@gmail.com"
 
       - name: Commit current_version.txt
         run: |
