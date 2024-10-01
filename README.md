@@ -22,10 +22,11 @@ As a principle, development is to be done in dev-branches and will be merged int
 - ... and much more
 
 **Planned for v0.3.0**
-- Banner to display more than seven days since update from Strava
+
 
 **v0.2.0**
 - Configured program to run in Docker
+- Display banner if last pull from Strava hasnt happened in a while
 
 **v0.1.0**
 - Running version of program (bugs are present)

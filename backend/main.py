@@ -30,6 +30,20 @@ def read_parameters():
         config = json.load(file)
     return config
 
+def get_time_last_pull_strava():
+    if LAST_PULL_STRAVA: # Add this to endpoint (must write LAST_PULL_STRAVA)
+        last_refresh = datetime.strptime(LAST_PULL_STRAVA, "%Y-%m-%d %H:%M")
+        days_since = (datetime.now() - last_refresh).days
+        return {
+            "last_refresh_time": last_refresh,
+            "days_since": days_since
+        }
+    return {
+        "last_refresh_time": "Never",
+        "days_since": None
+    }
+# Add this to endpoint: last_refresh_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+
 CONFIG = read_parameters()
 
 strava = Strava(CONFIG['strava_tokens'])
@@ -43,6 +57,8 @@ app = FastAPI()
 app.version = get_current_version()
 templates = Jinja2Templates(directory="../frontend/templates")
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
+
+LAST_PULL_STRAVA = None
 
 @app.on_event("startup")
 async def startup_event():
@@ -608,46 +624,36 @@ async def get_logs():
 
 
 # Todo
-# All endpoints that writes should print log
 # Clean up HTML code and check consistency all end points, applies also to python scripts
 # Clean up javascripts and check if js that are identical may be pulled from one place?
-# Velo supervisor logo must be clickable, go to "/about"
-# All notes in Strava should be in english
-# Make sure all endpoints have same logic, variable naming conventions..   
-# Add favicon
-# Sort endpoints so they appear in a more logical order
-# Add input validation on component details form, should have input validation on all forms
-# Consider all export statement, maybe not needed?
-# Review all doc strings
-# Improvement: on bike change automatically uninstall and install, enhancement, not fix now, or some sort of validation
-# Validation in form, cannot be "Not assigned" bike when status is installed
-# Validation: should not be possible to add new types when type already exist. Other validations could also be necessary
-# Give warning before selecting "Retired"
-# Give warning before deleting records
-# Add change log to readme
-# Update readme with general info
-# Input validation on all forms (add component type, add component overview, add component detail, add service history)
-# Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
-# Handle case where a bike registered in a ride is no longer available at Strava
-
-# Move all styles to separate css, be careful about bootstrap conflicts
-# Implement health check
-# Must be possible to search for a given component in component overview and maybe also bike details, same code perhaps?
-# Use @classmethod to refactor and simplify code
-# Review database structure and constraints
-# Rides deleted from Strava are not deleted in velo supervisor upon sync
-# Data validation happens frontend, so if you use only APIs make your own validation rules
-# Component type must be defined in order to prefill component details to work for component type
-# Create new branch for dev
-
-# Update .gitignore
-# Clear form not working on component overview. Maybe not needed?
 # Review all log statemens and make them consistent, remember to be precise about info, warning and error
+# Review all doc strings
+# Move all styles to separate css, be careful about bootstrap conflicts
+# Review database structure and constraints
+# Implement health check
+# Use @classmethod to refactor and simplify code
+# Consider all export statement, maybe some of them are not needed?
+# Make sure all endpoints have same logic, variable naming conventions..   
+# Sort endpoints so they appear in a more logical order
+
+# Must be possible to search for a given component in component overview and maybe also bike details, same code perhaps?
+# Improvement: on bike change automatically uninstall and install, enhancement, not fix now, or some sort of validation
 # Create endpoint to export dataset
 # Create endpoint to reset database
 
-# Add last pull from Strava to footer
-# Display banner on all pages if last ride is more than seven days ago, probably in the menu.html
+# Velo supervisor logo must be clickable, go to "/about"
+# Add favicon
+
+# Add input validation on component details form, should have input validation on all forms
+# Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
+# Give warning before selecting "Retired"
+# Give warning before deleting records
+# Validation in form, cannot be "Not assigned" bike when status is installed
+# Validation: should not be possible to add new types when type already exist. Other validations could also be necessary
+# Input validation on all forms (add component type, add component overview, add component detail, add service history)
+# Component type must be defined in order to prefill component details to work for component type. What does this mean?
+# Create new branch for dev
+# Clear form not working on component overview. Maybe not needed?
 
 # Bug Expected cost next service also includes components where service or lifetime is not defined, should not be included
 # Bug bike status is not updated when a component is deleted
@@ -657,4 +663,9 @@ async def get_logs():
 # Bug When deleting components from component overview, sorting and and filters should remain the same
 # Bug program crashes when trying to retire a component that has status not installed (bike id is missing..)
 # Bug when component update date is exactly the same as last service, this is related to how nextservice is calculated, see line 189. Why is this not stopped already by existing controls?
-# Bug when trying to add a service for a component that is not installed
+# Bug when trying to add a service for a component that is not installed#
+# Bug Rides deleted from Strava are not deleted in velo supervisor upon sync
+# Bug Handle case where a bike registered in a ride is no longer available at Strava
+
+# Add last pull from Strava to footer
+
