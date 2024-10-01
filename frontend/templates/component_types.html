@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        {{ nav_menu(request.url.path) }}
+        {{ nav_menu(request.url.path, last_pull_strava) }}
         <h1 class="display-5 mt-5 text-center">Component types</h1>
         <div class="mt-5 card shadow mb-3">
             <div class="card-header fw-bold">Add or modify component type</div>

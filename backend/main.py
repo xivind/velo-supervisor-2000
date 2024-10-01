@@ -41,10 +41,9 @@ def get_time_last_pull_strava():
             "days_since": days_since
         }
     return {
-        "last_pull": "Never",
+        "last_pull": "never",
         "days_since": None
     }
-
 
 CONFIG = read_parameters()
 LAST_PULL_STRAVA = None

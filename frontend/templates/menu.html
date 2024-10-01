@@ -1,22 +1,28 @@
-{% macro nav_menu(current_page) %}
-<nav class="navbar">
-    <a class="navbar-brand mb-0 h1" href="#">
-        <img src="/static/logo.png" width="30" height="24" class="d-inline-block align-text-top" alt="Logo">VELO SUPERVISOR 2000
-    </a>
-    <ul class="nav nav-tabs">
-        {% set menu_items = [
-            ('/', '🚴 BIKE OVERVIEW'),
-            ('/component_overview', '⚙ COMPONENT OVERVIEW'),
-            ('/component_types_overview', '📋 COMPONENT TYPES'),
-            ('#', '💥 INCIDENTS'),
-            ('/config_overview', '🎛 CONFIG'),
-            ('#', '🙋 HELP')
-        ] %}
-        {% for href, caption in menu_items %}
-            <li class="nav-item">
-                <a class="nav-link {% if current_page == href %}active fw-bold{% else %}link-secondary{% endif %}" href="{{ href }}">{{ caption }}</a>
-            </li>
-        {% endfor %}
-    </ul>
-</nav>
+{% macro nav_menu(current_page, last_pull_strava) %}
+    <nav class="navbar">
+        <a class="navbar-brand mb-0 h1" href="#">
+            <img src="/static/logo.png" width="30" height="24" class="d-inline-block align-text-top" alt="Logo">VELO SUPERVISOR 2000
+        </a>
+        <ul class="nav nav-tabs">
+            {% set menu_items = [
+                ('/', '🚴 BIKE OVERVIEW'),
+                ('/component_overview', '⚙ COMPONENT OVERVIEW'),
+                ('/component_types_overview', '📋 COMPONENT TYPES'),
+                ('#', '💥 INCIDENTS'),
+                ('/config_overview', '🎛 CONFIG'),
+                ('#', '🙋 HELP')
+            ] %}
+            {% for href, caption in menu_items %}
+                <li class="nav-item">
+                    <a class="nav-link {% if current_page == href %}active fw-bold{% else %}link-secondary{% endif %}" href="{{ href }}">{{ caption }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
+
+    {% if last_pull_strava["days_since"] is none or last_pull_strava["days_since"] > 3 %}
+        <div class="alert alert-warning text-center fw-bold" role="alert">
+            ⚠ Data from Strava has not been updated recently. Last update: {{ last_pull_strava["last_pull"] }} ⚠
+        </div>
+    {% endif %}
 {% endmacro %}
