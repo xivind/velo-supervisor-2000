@@ -17,7 +17,9 @@ import httpx
 from strava import Strava
 from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
 
+
 def get_current_version():
+    """Function to get current program version"""
     try:
         with open('current_version.txt', 'r', encoding='utf-8') as file:
             return file.read().strip()
@@ -25,26 +27,27 @@ def get_current_version():
         return "Version unknown"
 
 def read_parameters():
-    """ Function to read configuration file"""
+    """Function to read configuration file"""
     with open('config.json', 'r', encoding='utf-8') as file:
         config = json.load(file)
     return config
 
 def get_time_last_pull_strava():
-    if LAST_PULL_STRAVA: # Add this to endpoint (must write LAST_PULL_STRAVA)
-        last_refresh = datetime.strptime(LAST_PULL_STRAVA, "%Y-%m-%d %H:%M")
-        days_since = (datetime.now() - last_refresh).days
+    """Function to get date for last pull from Strava"""
+    if LAST_PULL_STRAVA:
+        days_since = (datetime.now() - LAST_PULL_STRAVA).days
         return {
-            "last_refresh_time": last_refresh,
+            "last_pull": LAST_PULL_STRAVA.strftime("%Y-%m-%d %H:%M"),
             "days_since": days_since
         }
     return {
-        "last_refresh_time": "Never",
+        "last_pull": "Never",
         "days_since": None
     }
-# Add this to endpoint: last_refresh_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+
 
 CONFIG = read_parameters()
+LAST_PULL_STRAVA = None
 
 strava = Strava(CONFIG['strava_tokens'])
 read_tables = ReadTables()
@@ -58,8 +61,6 @@ app.version = get_current_version()
 templates = Jinja2Templates(directory="../frontend/templates")
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
 
-LAST_PULL_STRAVA = None
-
 @app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
@@ -69,7 +70,7 @@ async def pull_strava_background(mode):
     """Function to pull data from Strava in the background"""
     while True:
         try:
-            logging.info(f"Retrieving rides from Strava (called by system). Mode set to: {mode}")
+            logging.info(f"Retrieving rides from Strava as background task. Mode set to: {mode}")
             async with httpx.AsyncClient() as client:
                 pass #Remove this before deploy
                 # await client.get(f"http://localhost:8000/refresh_rides/{mode}") Activate before deploying
@@ -112,7 +113,8 @@ async def root(request: Request):
     return templates.TemplateResponse(template_path, {"request": request,
                                                       "bikes_data": bikes_data,
                                                       "db_path": CONFIG['db_path'],
-                                                      "process_time": f"{process_time:.4f}"})
+                                                      "process_time": f"{process_time:.4f}",
+                                                      "last_pull_strava": get_time_last_pull_strava()})
 
 @app.get("/component_types_overview", response_class=HTMLResponse)
 async def component_types_overview(request: Request):
@@ -127,7 +129,8 @@ async def component_types_overview(request: Request):
     return templates.TemplateResponse(template_path, {"request": request,
                                                       "component_types_data": component_types_data,
                                                       "db_path": CONFIG['db_path'],
-                                                      "process_time": f"{process_time:.4f}"})
+                                                      "process_time": f"{process_time:.4f}",
+                                                      "last_pull_strava": get_time_last_pull_strava()})
 
 @app.post("/component_types_overview/modify", response_class=HTMLResponse)
 async def modify_component_type(
@@ -351,7 +354,8 @@ async def component_overview(request: Request):
                                                           "count_service_status_grey" : component_statistics["count_service_status_grey"],
                                                           "sum_cost" : component_statistics["sum_cost"],
                                                           "db_path": CONFIG['db_path'],
-                                                          "process_time": f"{process_time:.4f}"})
+                                                          "process_time": f"{process_time:.4f}",
+                                                          "last_pull_strava": get_time_last_pull_strava()})
     
     except Exception as error:
         # Get the full traceback
@@ -431,7 +435,8 @@ async def bike_details(request: Request, bike_id: str):
         return templates.TemplateResponse(template_path, {"request": request,
                                                           "payload": payload,
                                                           "db_path": CONFIG['db_path'],
-                                                          "process_time": f"{process_time:.4f}"})
+                                                          "process_time": f"{process_time:.4f}",
+                                                          "last_pull_strava": get_time_last_pull_strava()})
 
     except Exception as error:
         # Handle exceptions
@@ -507,7 +512,8 @@ async def component_details(request: Request, component_id: str):
     return templates.TemplateResponse(template_path, {"request": request,
                                                       "payload": payload,
                                                       "db_path": CONFIG['db_path'],
-                                                      "process_time": f"{process_time:.4f}"})
+                                                      "process_time": f"{process_time:.4f}",
+                                                      "last_pull_strava": get_time_last_pull_strava()})
 
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
 async def refresh_all_bikes(request: Request): #Request currently not used, but keep it for now. Will be required for error messages later.
@@ -533,20 +539,22 @@ async def refresh_rides(request: Request, mode: str): #Request currently not use
 
     try:
         if mode == "all":
-            logging.info(f"Retrieving rides from Strava (called by user). Mode set to: {mode}")
+            logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
             await strava.get_rides(mode)
             modify_tables.update_rides_bulk(strava.payload_rides)
+            LAST_PULL_STRAVA = datetime.now()
 
-            logging.info("Refreshing all bikes from Strava (called by user)")
+            logging.info("Refreshing all bikes from Strava")
             await strava.get_bikes(misc_methods.get_unique_bikes())
             modify_tables.update_bikes(strava.payload_bikes)
 
             modify_tables.update_components_distance_iterator(misc_methods.get_unique_bikes())
 
         if mode == "recent":
-            logging.info(f"Retrieving rides from Strava (called by user). Mode set to: {mode}")
+            logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
             await strava.get_rides(mode)
             modify_tables.update_rides_bulk(strava.payload_rides)
+            LAST_PULL_STRAVA = datetime.now()
 
             if len(strava.bike_ids_recent_rides) > 0:
                 logging.info("Refreshing all bikes from Strava")
@@ -579,7 +587,8 @@ async def read_config(request: Request):
     template_path = "config.html"
     return templates.TemplateResponse(template_path, {"request": request,
                                                       "strava_tokens": CONFIG['strava_tokens'],
-                                                      "db_path": CONFIG['db_path']})
+                                                      "db_path": CONFIG['db_path'],
+                                                      "last_pull_strava": get_time_last_pull_strava()})
 
 @app.post("/update_config")
 async def update_config(request: Request,
