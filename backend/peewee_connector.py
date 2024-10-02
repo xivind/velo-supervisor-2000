@@ -365,6 +365,11 @@ class ReadRecords():
         """Method to retrieve the most recent record from the service log of a given component"""
         latest_service_record = Services.select().where(Services.component_id == component_id).order_by(Services.service_date.desc()).first()
         return latest_service_record
+    
+    def read_latest_ride_record(self):
+        """Method to retrieve the most recent ride"""
+        latest_ride_record = Rides.select().order_by(Rides.record_time.desc()).first()
+        return latest_ride_record
 
 
 class ModifyRecords(): #Consider merging with modify tables

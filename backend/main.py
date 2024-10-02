@@ -34,19 +34,24 @@ def read_parameters():
 
 def get_time_last_pull_strava():
     """Function to get date for last pull from Strava"""
-    if LAST_PULL_STRAVA:
-        days_since = (datetime.now() - LAST_PULL_STRAVA).days
+    if app.state.last_pull_strava:
+        days_since = (datetime.now() - app.state.last_pull_strava).days
         return {
-            "last_pull": LAST_PULL_STRAVA.strftime("%Y-%m-%d %H:%M"),
-            "days_since": days_since
-        }
+            "last_pull": app.state.last_pull_strava.strftime("%Y-%m-%d %H:%M"),
+            "days_since": days_since}
+    
+    elif app.state.last_pull_strava is None and read_records.read_latest_ride_record():
+        last_pull = datetime.strptime(read_records.read_latest_ride_record().record_time, "%Y-%m-%d %H:%M")
+        days_since = (datetime.now() - last_pull).days
+        return {
+            "last_pull": last_pull.strftime("%Y-%m-%d %H:%M"),
+            "days_since": days_since}
+
     return {
         "last_pull": "never",
-        "days_since": None
-    }
+        "days_since": None}
 
 CONFIG = read_parameters()
-LAST_PULL_STRAVA = None
 
 strava = Strava(CONFIG['strava_tokens'])
 read_tables = ReadTables()
@@ -59,6 +64,7 @@ app = FastAPI()
 app.version = get_current_version()
 templates = Jinja2Templates(directory="../frontend/templates")
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
+app.state.last_pull_strava = None
 
 @app.on_event("startup")
 async def startup_event():
@@ -541,7 +547,7 @@ async def refresh_rides(request: Request, mode: str): #Request currently not use
             logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
             await strava.get_rides(mode)
             modify_tables.update_rides_bulk(strava.payload_rides)
-            LAST_PULL_STRAVA = datetime.now()
+            app.state.last_pull_strava = datetime.now()
 
             logging.info("Refreshing all bikes from Strava")
             await strava.get_bikes(misc_methods.get_unique_bikes())
@@ -553,7 +559,7 @@ async def refresh_rides(request: Request, mode: str): #Request currently not use
             logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
             await strava.get_rides(mode)
             modify_tables.update_rides_bulk(strava.payload_rides)
-            LAST_PULL_STRAVA = datetime.now()
+            app.state.last_pull_strava = datetime.now()
 
             if len(strava.bike_ids_recent_rides) > 0:
                 logging.info("Refreshing all bikes from Strava")
@@ -674,6 +680,4 @@ async def get_logs():
 # Bug when trying to add a service for a component that is not installed#
 # Bug Rides deleted from Strava are not deleted in velo supervisor upon sync
 # Bug Handle case where a bike registered in a ride is no longer available at Strava
-
-# Add last pull from Strava to footer
 

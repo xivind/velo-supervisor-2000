@@ -19,9 +19,8 @@
             {% endfor %}
         </ul>
     </nav>
-
     {% if last_pull_strava["days_since"] is none or last_pull_strava["days_since"] > 3 %}
-        <div class="alert alert-warning text-center fw-bold" role="alert">
+        <div class="alert alert-warning text-center fw-bold mt-3" role="alert">
             ⚠ Data from Strava has not been updated recently. Last update: {{ last_pull_strava["last_pull"] }} ⚠
         </div>
     {% endif %}
