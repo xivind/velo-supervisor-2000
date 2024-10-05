@@ -656,7 +656,6 @@ async def get_logs():
 # Create endpoint to reset database
 
 # Velo supervisor logo must be clickable, go to "/about"
-# Add favicon
 
 # Add input validation on component details form, should have input validation on all forms
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
