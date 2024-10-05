@@ -11,7 +11,7 @@ Velo Supervisor 2000 uses <a href="https://semver.org/" class="text-decoration-n
 - `git tag -a vX.Y.Z -m "Version X.Y.Z"`
 - `git push --tags`
 
-As a principle, development is to be done in dev-branches and will be merged into the master branch as needed.
+As a principle, development is to be done in dev-branches and will be merged into the master branch as needed. Review the changes in the PR and create a new version tag accordingly before merging.
 
 ## Changelog
 
@@ -27,6 +27,7 @@ As a principle, development is to be done in dev-branches and will be merged int
 **v0.2.0**
 - Configured program to run in Docker
 - Display banner if last pull from Strava hasnt happened in a while
+- Misc bugfixes and minor improvements
 
 **v0.1.0**
 - Running version of program (bugs are present)

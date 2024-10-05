@@ -1,6 +1,6 @@
 {% macro nav_menu(current_page, last_pull_strava) %}
     <nav class="navbar">
-        <a class="navbar-brand mb-0 h1" href="#">
+        <a class="navbar-brand mb-0 h1" href="/help">
             <img src="/static/logo.png" width="60" height="60" class="d-inline-block" alt="Logo">VELO SUPERVISOR 2000
         </a>
         <ul class="nav nav-tabs">
@@ -10,7 +10,7 @@
                 ('/component_types_overview', '📋 COMPONENT TYPES'),
                 ('#', '💥 INCIDENTS'),
                 ('/config_overview', '🎛 CONFIG'),
-                ('#', '🙋 HELP')
+                ('/help', '🙋 HELP')
             ] %}
             {% for href, caption in menu_items %}
                 <li class="nav-item">

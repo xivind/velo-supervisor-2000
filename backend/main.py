@@ -638,7 +638,7 @@ async def get_logs():
 
 
 # Todo
-# Clean up HTML code and check consistency all end points, applies also to python scripts
+# Clean up HTML code and check consistency all end points, applies also to python scripts, style and head is mixed up on some pages
 # Clean up javascripts and check if js that are identical may be pulled from one place?
 # Review all log statemens and make them consistent, remember to be precise about info, warning and error
 # Review all doc strings
@@ -655,7 +655,7 @@ async def get_logs():
 # Create endpoint to export dataset
 # Create endpoint to reset database
 
-# Velo supervisor logo must be clickable, go to "/about"
+
 
 # Add input validation on component details form, should have input validation on all forms
 # Enhancement: updated date in form should always be preselected with the latest date available, either from history or from service history
