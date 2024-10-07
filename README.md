@@ -22,7 +22,7 @@ As a principle, development is to be done in dev-branches and will be merged int
 - ... and much more
 
 **Planned for v0.3.0**
-
+- ...
 
 **v0.2.0**
 - Configured program to run in Docker
