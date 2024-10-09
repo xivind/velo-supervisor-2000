@@ -86,17 +86,39 @@ async def pull_strava_background(mode):
         logging.info("Next pull from Strava is in two hours")
         await asyncio.sleep(7200)
 
-def render_error_page(request: Request, status_code: int, error_message: str):
-    """Function to handle errors"""
+@app.middleware("http")
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        response = await call_next(request)
+        # Ensure 404 or 40x errors that are not raised as exceptions are handled
+        if response.status_code >= 400:
+            return await render_error_page(request, response.status_code, response.body.decode())
+        return response
+    except Exception as e:
+        logging.error(f"Unhandled exception: {e}")
+        return await render_error_page(request, status.HTTP_500_INTERNAL_SERVER_ERROR, "An unexpected error occurred.")
+
+# Custom exception handler for HTTPException
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    logging.error(f"HTTP Exception: {exc.detail}")
+    return await render_error_page(request, exc.status_code, exc.detail)
+
+# Fallback handler for other exceptions
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    error_traceback = traceback.format_exc()
+    logging.error(f"Unexpected error: {exc}\nDetails: {error_traceback}")
+    return await render_error_page(request, status.HTTP_500_INTERNAL_SERVER_ERROR, "An internal server error occurred.")
+
+# Custom function to render an error page
+async def render_error_page(request: Request, status_code: int, error_message: str):
     return templates.TemplateResponse("error.html", {
         "request": request,
         "status_code": status_code,
-        "error_message": error_message})
-
-@app.get("/error", response_class=HTMLResponse)
-async def error_page(request: Request):
-    """Endpoint to handle errors"""
-    return render_error_page(request, 500, "Internal Server Error")
+        "error_message": error_message,
+        "last_pull_strava": get_time_last_pull_strava()
+    })
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
