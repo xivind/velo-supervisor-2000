@@ -1,4 +1,3 @@
-{% from 'menu.html' import nav_menu %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,16 +9,20 @@
 </head>
 <body>
     <div class="container mt-5">
-        {{ nav_menu(request.url.path, last_pull_strava) }}
         <h1 class="display-4 mt-5 text-center">Looks like we hit a bit of a speed bump there...</h1>
         <h1 class="display-1 mt-5 text-center fw-bold">Error code {{ status_code }}</h1>
-        <h5 class="text-center">{{ error_message }} - Inspect log for more information</h5>
-        <div class="text-center mt-5">
-            <img src="/static/broken_computer.png" class="rounded" style="width: 400px; height: 400px" alt="Computer with smoke">
+        <p class="text-center mt-3"><span class="fw-bold">Error message: </span>{{ error_message }}</p>
+        <p class="text-center mt-3"><a href="/config_overview" class="text-decoration-none fw-bold">Inspect the log for more information</a></p>
+        <div class="text-center mt-3">
+            <img src="/static/error.png" class="rounded" style="width: 400px; height: 400px" alt="Computer with smoke">
         </div>
-    </div>
-    <div id="footer">
-        {% include 'footer.html' %}
+        <div class="alert alert-danger text-center text-dark mt-3">
+            <strong>
+                Please report this error as an issue at the
+                <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">Velo Supervisor 2000 repository on Github.</a>
+                Remember to include the error message above.
+            </a></strong>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

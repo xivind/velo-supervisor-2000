@@ -20,32 +20,29 @@ from strava import Strava
 from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
 
 
-class ErrorHandlingMiddleware(BaseHTTPMiddleware):
+class ErrorHandlingMiddleware(BaseHTTPMiddleware): #Add docstring and cleanup code, also the raising exc handler
     async def dispatch(self, request: Request, call_next):
         try:
             response = await call_next(request)
             return response
-        except Exception as e:
-            # Log all exceptions
+        except Exception as error:
             logging.exception("An error occurred")
-            return self.handle_exception(e, request)
+            return await self.handle_exception(error, request)
 
-    def handle_exception(self, exc: Exception, request: Request):
-        if isinstance(exc, HTTPException):
-            # Handle HTTP exceptions (including 400 errors)
-            return templates.TemplateResponse("error.html", {
-                "request": request,
-                "status_code": exc.status_code,
-                "error_message": exc.detail
-            }, status_code=exc.status_code)
+    async def handle_exception(self, exc: Exception, request: Request):
+        if isinstance(exc, (HTTPException, StarletteHTTPException)):
+            status_code = exc.status_code
+            error_message = str(exc.detail)
+        else:
+            status_code = 500
+            truncated_traceback = "\n".join(traceback.format_exc().splitlines()[-6:])
+            error_message = f"An unexpected error occurred: {truncated_traceback}"
 
-        # Handle general exceptions (500)
         return templates.TemplateResponse("error.html", {
             "request": request,
-            "status_code": 500,
-            "error_message": "Internal Server Error",
-            "last_pull_strava": get_time_last_pull_strava()
-        }, status_code=500)
+            "status_code": status_code,
+            "error_message": error_message,
+        }, status_code=status_code)
     
 def get_current_version():
     """Function to get current program version"""
@@ -91,9 +88,9 @@ misc_methods = MiscMethods()
 
 app = FastAPI()
 
-@app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request, exc):
-    raise exc
+@app.exception_handler(StarletteHTTPException) #Add docstring
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return await ErrorHandlingMiddleware(app).handle_exception(exc, request)
 
 app.add_middleware(ErrorHandlingMiddleware)
 app.version = get_current_version()
