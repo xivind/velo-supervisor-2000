@@ -13,11 +13,40 @@ from fastapi import FastAPI, HTTPException, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 import httpx
 from strava import Strava
 from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
 
 
+class ErrorHandlingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        try:
+            response = await call_next(request)
+            return response
+        except Exception as e:
+            # Log all exceptions
+            logging.exception("An error occurred")
+            return self.handle_exception(e, request)
+
+    def handle_exception(self, exc: Exception, request: Request):
+        if isinstance(exc, HTTPException):
+            # Handle HTTP exceptions (including 400 errors)
+            return templates.TemplateResponse("error.html", {
+                "request": request,
+                "status_code": exc.status_code,
+                "error_message": exc.detail
+            }, status_code=exc.status_code)
+
+        # Handle general exceptions (500)
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "status_code": 500,
+            "error_message": "Internal Server Error",
+            "last_pull_strava": get_time_last_pull_strava()
+        }, status_code=500)
+    
 def get_current_version():
     """Function to get current program version"""
     try:
@@ -61,6 +90,12 @@ modify_records = ModifyRecords()
 misc_methods = MiscMethods()
 
 app = FastAPI()
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    raise exc
+
+app.add_middleware(ErrorHandlingMiddleware)
 app.version = get_current_version()
 templates = Jinja2Templates(directory="../frontend/templates")
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
@@ -85,40 +120,6 @@ async def pull_strava_background(mode):
 
         logging.info("Next pull from Strava is in two hours")
         await asyncio.sleep(7200)
-
-@app.middleware("http")
-async def catch_exceptions_middleware(request: Request, call_next):
-    try:
-        response = await call_next(request)
-        # Ensure 404 or 40x errors that are not raised as exceptions are handled
-        if response.status_code >= 400:
-            return await render_error_page(request, response.status_code, response.body.decode())
-        return response
-    except Exception as e:
-        logging.error(f"Unhandled exception: {e}")
-        return await render_error_page(request, status.HTTP_500_INTERNAL_SERVER_ERROR, "An unexpected error occurred.")
-
-# Custom exception handler for HTTPException
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    logging.error(f"HTTP Exception: {exc.detail}")
-    return await render_error_page(request, exc.status_code, exc.detail)
-
-# Fallback handler for other exceptions
-@app.exception_handler(Exception)
-async def generic_exception_handler(request: Request, exc: Exception):
-    error_traceback = traceback.format_exc()
-    logging.error(f"Unexpected error: {exc}\nDetails: {error_traceback}")
-    return await render_error_page(request, status.HTTP_500_INTERNAL_SERVER_ERROR, "An internal server error occurred.")
-
-# Custom function to render an error page
-async def render_error_page(request: Request, status_code: int, error_message: str):
-    return templates.TemplateResponse("error.html", {
-        "request": request,
-        "status_code": status_code,
-        "error_message": error_message,
-        "last_pull_strava": get_time_last_pull_strava()
-    })
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
