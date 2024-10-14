@@ -26,6 +26,7 @@ As a principle, development is to be done in dev-branches and will be merged int
 
 **v0.2.0**
 - Configured program to run in Docker
+- Improved error handling and more informative error page
 - Display banner if last pull from Strava hasnt happened in a while
 - Misc bugfixes and minor improvements
 
