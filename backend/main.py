@@ -23,8 +23,15 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware): #Can this be imported instead
     """Class to handle exceptions that breaks the program and should be shown to the user"""
     async def dispatch(self, request: Request, call_next):
         """Method to dispatch intercepted requests"""
+        start_time = time()
         try:
             response = await call_next(request)
+            process_time = time() - start_time
+            #response.headers["X-Process-Time"] = f"{process_time:.4f}"
+            request.state.process_time = f"{process_time:.4f}"
+            print(process_time)
+            print(request.headers.get("X-Process-Time"))
+            print(request.state.process_time)
             return response
         except Exception as error:
             logging.exception("An error occurred")
@@ -124,7 +131,6 @@ async def pull_strava_background(mode):
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     """Endpoint for index / landing page"""
-    start_time = time()
 
     bikes = read_tables.read_bikes()
     bikes_data = [(bike.bike_name,
@@ -135,13 +141,11 @@ async def root(request: Request):
                    sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Installed"),
                    sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Retired")) for bike in bikes]
 
-    process_time = time() - start_time
-
     template_path = "index.html"
     return templates.TemplateResponse(template_path, {"request": request,
                                                       "bikes_data": bikes_data,
                                                       "db_path": CONFIG['db_path'],
-                                                      "process_time": f"{process_time:.4f}",
+                                                      "process_time": request.state.process_time,
                                                       "last_pull_strava": get_time_last_pull_strava()})
 
 @app.get("/component_types_overview", response_class=HTMLResponse)
