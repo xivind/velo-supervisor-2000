@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Module to interact with a SQL database through Peewee"""
-
+"""Module for middleware"""
 
 from fastapi import HTTPException, Request
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
 import traceback
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 class Middleware(BaseHTTPMiddleware):
     """Class to handle exceptions that breaks the program and should be shown to the user"""

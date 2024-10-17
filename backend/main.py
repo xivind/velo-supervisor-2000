@@ -19,40 +19,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 import httpx
 from strava import Strava
 from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
-
-    
-def get_current_version():
-    """Function to get current program version"""
-    try:
-        with open('current_version.txt', 'r', encoding='utf-8') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        return "Version unknown"
-
-def read_parameters():
-    """Function to read configuration file"""
-    with open('config.json', 'r', encoding='utf-8') as file:
-        config = json.load(file)
-    return config
-
-def get_time_last_pull_strava():
-    """Function to get date for last pull from Strava"""
-    if app.state.last_pull_strava:
-        days_since = (datetime.now() - app.state.last_pull_strava).days
-        return {
-            "last_pull": app.state.last_pull_strava.strftime("%Y-%m-%d %H:%M"),
-            "days_since": days_since}
-    
-    elif app.state.last_pull_strava is None and read_records.read_latest_ride_record():
-        last_pull = datetime.strptime(read_records.read_latest_ride_record().record_time, "%Y-%m-%d %H:%M")
-        days_since = (datetime.now() - last_pull).days
-        return {
-            "last_pull": last_pull.strftime("%Y-%m-%d %H:%M"),
-            "days_since": days_since}
-
-    return {
-        "last_pull": "never",
-        "days_since": None}
+from utils import get_current_version, read_parameters, set_time_strava_last_pull
 
 CONFIG = read_parameters()
 
@@ -64,18 +31,18 @@ modify_records = ModifyRecords()
 misc_methods = MiscMethods()
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
 templates = Jinja2Templates(directory="../frontend/templates")
 app.add_middleware(Middleware, templates=templates)
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     """Function to catch http errors from Uvicorn and return them to the middleware"""
     return await Middleware(app, templates=templates).handle_exception(exc, request)
-
-
 app.version = get_current_version()
-
-app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
-app.state.last_pull_strava = None
+app.state.db_path = CONFIG['db_path']
+app.state.strava_last_pull = None
+app.state.strava_days_since_last_pull = None
+set_time_strava_last_pull(app, read_records)
 
 @app.on_event("startup")
 async def startup_event():
@@ -112,10 +79,7 @@ async def root(request: Request):
 
     return templates.TemplateResponse("index.html",
                                         {"request": request,
-                                         "bikes_data": bikes_data,
-                                         "db_path": CONFIG['db_path'],
-                                         "last_pull_strava": get_time_last_pull_strava()
-                                        })
+                                         "bikes_data": bikes_data})
 
 @app.get("/component_types_overview", response_class=HTMLResponse)
 async def component_types_overview(request: Request):
@@ -124,10 +88,9 @@ async def component_types_overview(request: Request):
     component_types_data = read_tables.read_component_types()
 
     template_path = "component_types.html"
-    return templates.TemplateResponse(template_path, {"request": request,
-                                                      "component_types_data": component_types_data,
-                                                      "db_path": CONFIG['db_path'],
-                                                      "last_pull_strava": get_time_last_pull_strava()})
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "component_types_data": component_types_data})
 
 @app.post("/component_types_overview/modify", response_class=HTMLResponse)
 async def modify_component_type(
@@ -328,26 +291,25 @@ async def component_overview(request: Request):
 
 
     template_path = "component_overview.html"
-    return templates.TemplateResponse(template_path, {"request": request,
-                                                        "component_data": component_data,
-                                                        "bikes_data": bikes_data,
-                                                        "component_types_data": component_types_data,
-                                                        "count_installed" : component_statistics["count_installed"],
-                                                        "count_not_installed" : component_statistics["count_not_installed"],
-                                                        "count_retired" : component_statistics["count_retired"],
-                                                        "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
-                                                        "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
-                                                        "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
-                                                        "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
-                                                        "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
-                                                        "count_service_status_green" : component_statistics["count_service_status_green"],
-                                                        "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
-                                                        "count_service_status_red" : component_statistics["count_service_status_red"],
-                                                        "count_service_status_purple" : component_statistics["count_service_status_purple"],
-                                                        "count_service_status_grey" : component_statistics["count_service_status_grey"],
-                                                        "sum_cost" : component_statistics["sum_cost"],
-                                                        "db_path": CONFIG['db_path'],
-                                                        "last_pull_strava": get_time_last_pull_strava()})
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                        "component_data": component_data,
+                                        "bikes_data": bikes_data,
+                                        "component_types_data": component_types_data,
+                                        "count_installed" : component_statistics["count_installed"],
+                                        "count_not_installed" : component_statistics["count_not_installed"],
+                                        "count_retired" : component_statistics["count_retired"],
+                                        "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
+                                        "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
+                                        "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
+                                        "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
+                                        "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
+                                        "count_service_status_green" : component_statistics["count_service_status_green"],
+                                        "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
+                                        "count_service_status_red" : component_statistics["count_service_status_red"],
+                                        "count_service_status_purple" : component_statistics["count_service_status_purple"],
+                                        "count_service_status_grey" : component_statistics["count_service_status_grey"],
+                                        "sum_cost" : component_statistics["sum_cost"]})
 
 @app.get("/bike_details/{bike_id}", response_class=HTMLResponse)
 async def bike_details(request: Request, bike_id: str):
@@ -381,7 +343,8 @@ async def bike_details(request: Request, bike_id: str):
                     int(ride.ride_distance),
                     ride.commute
                     ) for ride in recent_rides]
-
+# be more consisten here, either you use payload or you dont, better to do it
+# and also specify template_path for all
     payload = {
         "recent_rides": recent_rides_data,
         "bike_data": bike_data,
@@ -397,14 +360,11 @@ async def bike_details(request: Request, bike_id: str):
         "count_service_status_red" : component_statistics["count_service_status_red"],
         "count_service_status_purple" : component_statistics["count_service_status_purple"],
         "count_service_status_grey" : component_statistics["count_service_status_grey"],
-        "sum_cost" : component_statistics["sum_cost"]
-    }
+        "sum_cost" : component_statistics["sum_cost"]}
 
     template_path = "bike_details.html"
     return templates.TemplateResponse(template_path, {"request": request,
-                                                        "payload": payload,
-                                                        "db_path": CONFIG['db_path'],
-                                                        "last_pull_strava": get_time_last_pull_strava()})
+                                                        "payload": payload})
 
 
 @app.get("/component_details/{component_id}", response_class=HTMLResponse)
@@ -471,12 +431,10 @@ async def component_details(request: Request, component_id: str):
 
     template_path = "component_details.html"
     return templates.TemplateResponse(template_path, {"request": request,
-                                                      "payload": payload,
-                                                      "db_path": CONFIG['db_path'],
-                                                      "last_pull_strava": get_time_last_pull_strava()})
+                                                      "payload": payload})
 
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
-async def refresh_all_bikes(request: Request): #Request currently not used, but keep it for now. Will be required for error messages later.
+async def refresh_all_bikes(request: Request):
     """Endpoint to manually refresh data for all bikes"""
 
     try:
@@ -502,7 +460,8 @@ async def refresh_rides(request: Request, mode: str): #Request currently not use
             logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
             await strava.get_rides(mode)
             modify_tables.update_rides_bulk(strava.payload_rides)
-            app.state.last_pull_strava = datetime.now()
+            app.state.strava_last_pull = datetime.now()
+            set_time_strava_last_pull(app, read_records)
 
             logging.info("Refreshing all bikes from Strava")
             await strava.get_bikes(misc_methods.get_unique_bikes())
@@ -514,7 +473,8 @@ async def refresh_rides(request: Request, mode: str): #Request currently not use
             logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
             await strava.get_rides(mode)
             modify_tables.update_rides_bulk(strava.payload_rides)
-            app.state.last_pull_strava = datetime.now()
+            app.state.strava_last_pull = datetime.now()
+            set_time_strava_last_pull(app, read_records)
 
             if len(strava.bike_ids_recent_rides) > 0:
                 logging.info("Refreshing all bikes from Strava")
@@ -546,16 +506,13 @@ async def read_config(request: Request):
 
     template_path = "config.html"
     return templates.TemplateResponse(template_path, {"request": request,
-                                                      "strava_tokens": CONFIG['strava_tokens'],
-                                                      "db_path": CONFIG['db_path'],
-                                                      "last_pull_strava": get_time_last_pull_strava()})
+                                                      "strava_tokens": CONFIG['strava_tokens']})
 
 @app.post("/update_config")
 async def update_config(request: Request,
                         db_path: str = Form(...),
                         strava_tokens: str = Form(...)):
     """Endpoint to update config file"""
-
     try:
         CONFIG['db_path'] = db_path
         CONFIG['strava_tokens'] = strava_tokens
@@ -572,8 +529,6 @@ async def update_config(request: Request,
 @app.get("/get_filtered_log")
 async def get_logs():
     """Endpoint to read log and return only business events""" 
-    
-
     try:
         with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:
             logs = log_file.readlines()

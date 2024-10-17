@@ -1,4 +1,4 @@
-{% macro nav_menu(current_page, last_pull_strava) %}
+{% macro nav_menu(request) %}
     <nav class="navbar">
         <a class="navbar-brand mb-0 h1" href="/help">
             <img src="/static/logo.png" width="60" height="60" class="d-inline-block" alt="Logo">VELO SUPERVISOR 2000
@@ -14,14 +14,14 @@
             ] %}
             {% for href, caption in menu_items %}
                 <li class="nav-item">
-                    <a class="nav-link {% if current_page == href %}active fw-bold{% else %}link-secondary{% endif %}" href="{{ href }}">{{ caption }}</a>
+                    <a class="nav-link {% if request.url.path == href %}active fw-bold{% else %}link-secondary{% endif %}" href="{{ href }}">{{ caption }}</a>
                 </li>
             {% endfor %}
         </ul>
     </nav>
-    {% if last_pull_strava["days_since"] is none or last_pull_strava["days_since"] > 3 %}
+    {% if request.app.state.strava_days_since_last_pull is none or request.app.state.strava_days_since_last_pull > 3 %}
         <div class="alert alert-warning text-center fw-bold mt-3" role="alert">
-            ⚠ Data from Strava has not been updated recently. Last update: {{ last_pull_strava["last_pull"] }} ⚠
+            ⚠ Data from Strava has not been updated recently. Last update: {{ request.app.state.strava_last_pull }} ⚠
         </div>
     {% endif %}
 {% endmacro %}
