@@ -87,7 +87,6 @@
                         li.textContent = log;
                         logList.appendChild(li);
                     });
-                    document.getElementById('log-fetch-time').textContent = data.process_time;
                 })
                 .catch(error => console.error('Error fetching logs:', error));
         }

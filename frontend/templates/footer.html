@@ -3,9 +3,20 @@
         <div class="d-flex justify-content-between align-items-center py-1">
             <span>🧮 <strong>Version:</strong> {{ request.app.version }}</span>
             <span>🗂 <strong>Database:</strong> {{ db_path }}</span> 
-            <span>⏱ <strong>Page load time:</strong> <span id="log-fetch-time">{{ process_time }}</span> seconds</span>
+            <span>⏱ <strong>Page load time:</strong> <span id="log-fetch-time"></span> seconds</span>
             <span>📡 <strong>Last pull from Strava:</strong> {{ last_pull_strava["last_pull"] }}</span> 
             <span>🐛 <strong><a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">Submit issue</a></strong></span>
         </div>
     </div>
 </footer>
+<script>
+    // Update footer with processing time
+        document.addEventListener('DOMContentLoaded', (event) => {
+        const start = performance.now();
+        window.addEventListener('load', () => {
+            const end = performance.now();
+            const processTime = (end - start) / 1000; // Convert to seconds
+            document.getElementById('log-fetch-time').textContent = processTime.toFixed(4);
+            });
+        });
+</script>

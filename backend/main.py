@@ -9,7 +9,7 @@ from datetime import datetime
 import traceback
 import sys
 import asyncio
-from fastapi import FastAPI, HTTPException, Request, Form, status
+from fastapi import FastAPI, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -21,22 +21,17 @@ from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecord
 
 class ErrorHandlingMiddleware(BaseHTTPMiddleware): #Can this be imported instead?
     """Class to handle exceptions that breaks the program and should be shown to the user"""
+          
     async def dispatch(self, request: Request, call_next):
         """Method to dispatch intercepted requests"""
-        start_time = time()
         try:
             response = await call_next(request)
-            process_time = time() - start_time
-            #response.headers["X-Process-Time"] = f"{process_time:.4f}"
-            request.state.process_time = f"{process_time:.4f}"
-            print(process_time)
-            print(request.headers.get("X-Process-Time"))
-            print(request.state.process_time)
             return response
+        
         except Exception as error:
             logging.exception("An error occurred")
             return await self.handle_exception(error, request)
-
+          
     async def handle_exception(self, exc: Exception, request: Request):
         """Method to catch and handle exceptions"""
         if isinstance(exc, (HTTPException, StarletteHTTPException)):
@@ -96,15 +91,16 @@ modify_records = ModifyRecords()
 misc_methods = MiscMethods()
 
 app = FastAPI()
-
+templates = Jinja2Templates(directory="../frontend/templates")
+app.add_middleware(ErrorHandlingMiddleware)
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     """Function to catch http errors from Uvicorn and return them to the middleware"""
     return await ErrorHandlingMiddleware(app).handle_exception(exc, request)
 
-app.add_middleware(ErrorHandlingMiddleware)
+
 app.version = get_current_version()
-templates = Jinja2Templates(directory="../frontend/templates")
+
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
 app.state.last_pull_strava = None
 
@@ -141,27 +137,23 @@ async def root(request: Request):
                    sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Installed"),
                    sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Retired")) for bike in bikes]
 
-    template_path = "index.html"
-    return templates.TemplateResponse(template_path, {"request": request,
-                                                      "bikes_data": bikes_data,
-                                                      "db_path": CONFIG['db_path'],
-                                                      "process_time": request.state.process_time,
-                                                      "last_pull_strava": get_time_last_pull_strava()})
+    return templates.TemplateResponse("index.html",
+                                        {"request": request,
+                                         "bikes_data": bikes_data,
+                                         "db_path": CONFIG['db_path'],
+                                         "last_pull_strava": get_time_last_pull_strava()
+                                        })
 
 @app.get("/component_types_overview", response_class=HTMLResponse)
 async def component_types_overview(request: Request):
     """Endpoint for component types page"""    
-    start_time = time()
 
     component_types_data = read_tables.read_component_types()
-
-    process_time = time() - start_time
 
     template_path = "component_types.html"
     return templates.TemplateResponse(template_path, {"request": request,
                                                       "component_types_data": component_types_data,
                                                       "db_path": CONFIG['db_path'],
-                                                      "process_time": f"{process_time:.4f}",
                                                       "last_pull_strava": get_time_last_pull_strava()})
 
 @app.post("/component_types_overview/modify", response_class=HTMLResponse)
@@ -330,8 +322,6 @@ async def modify_component(
 @app.get("/component_overview", response_class=HTMLResponse)
 async def component_overview(request: Request):
     """Endpoint for components page"""
-    start_time = time()
-
     components = read_tables.read_all_components()
     component_data = [(component.component_id,
                     component.component_type,
@@ -363,7 +353,6 @@ async def component_overview(request: Request):
 
     component_types_data = read_tables.read_component_types()
 
-    process_time = time() - start_time
 
     template_path = "component_overview.html"
     return templates.TemplateResponse(template_path, {"request": request,
@@ -385,14 +374,11 @@ async def component_overview(request: Request):
                                                         "count_service_status_grey" : component_statistics["count_service_status_grey"],
                                                         "sum_cost" : component_statistics["sum_cost"],
                                                         "db_path": CONFIG['db_path'],
-                                                        "process_time": f"{process_time:.4f}",
                                                         "last_pull_strava": get_time_last_pull_strava()})
 
 @app.get("/bike_details/{bike_id}", response_class=HTMLResponse)
 async def bike_details(request: Request, bike_id: str):
     """Endpoint for bike details page"""
-    start_time = time()
-
     bike = read_records.read_bike(bike_id)
     bike_data = {"bike_name": bike.bike_name,
                 "bike_id": bike.bike_id,
@@ -441,21 +427,16 @@ async def bike_details(request: Request, bike_id: str):
         "sum_cost" : component_statistics["sum_cost"]
     }
 
-    process_time = time() - start_time
-
     template_path = "bike_details.html"
     return templates.TemplateResponse(template_path, {"request": request,
                                                         "payload": payload,
                                                         "db_path": CONFIG['db_path'],
-                                                        "process_time": f"{process_time:.4f}",
                                                         "last_pull_strava": get_time_last_pull_strava()})
 
 
 @app.get("/component_details/{component_id}", response_class=HTMLResponse)
 async def component_details(request: Request, component_id: str):
     """Endpoint for component details page"""
-
-    start_time = time()
 
     bikes = read_tables.read_bikes()
     bikes_data = [(bike.bike_name,
@@ -515,13 +496,10 @@ async def component_details(request: Request, component_id: str):
         "component_history_data": component_history_data,
         "service_history_data": service_history_data}
 
-    process_time = time() - start_time
-
     template_path = "component_details.html"
     return templates.TemplateResponse(template_path, {"request": request,
                                                       "payload": payload,
                                                       "db_path": CONFIG['db_path'],
-                                                      "process_time": f"{process_time:.4f}",
                                                       "last_pull_strava": get_time_last_pull_strava()})
 
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
@@ -621,7 +599,7 @@ async def update_config(request: Request,
 @app.get("/get_filtered_log")
 async def get_logs():
     """Endpoint to read log and return only business events""" 
-    start_time = time()
+    
 
     try:
         with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:
@@ -630,10 +608,7 @@ async def get_logs():
         filtered_logs = [log for log in logs if "GET" not in log and "POST" not in log]
         subset_filtered_logs = filtered_logs[-100:]
 
-        process_time = time() - start_time
-
-        return {"logs": subset_filtered_logs,
-                "process_time": f"{process_time:.4f}"}
+        return {"logs": subset_filtered_logs}
 
     except Exception as error:
         logging.error(f"Error reading log file: {str(error)}")
