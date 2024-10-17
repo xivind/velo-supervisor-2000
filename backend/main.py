@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Main backend for velo supervisor 2000"""
 
+from middleware import Middleware
 import logging
 import json
 from time import time
@@ -19,34 +20,6 @@ import httpx
 from strava import Strava
 from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
 
-class Middleware(BaseHTTPMiddleware):
-    """Class to handle exceptions that breaks the program and should be shown to the user"""
-          
-    async def dispatch(self, request: Request, call_next):
-        """Method to dispatch intercepted requests"""
-        try:
-            response = await call_next(request)
-            return response
-        
-        except Exception as error:
-            logging.exception("An error occurred")
-            return await self.handle_exception(error, request)
-          
-    async def handle_exception(self, exc: Exception, request: Request):
-        """Method to catch and handle exceptions"""
-        if isinstance(exc, (HTTPException, StarletteHTTPException)):
-            status_code = exc.status_code
-            error_message = str(exc.detail)
-        else:
-            status_code = 500
-            truncated_traceback = "\n".join(traceback.format_exc().splitlines()[-6:])
-            error_message = f"An unexpected error occurred: {truncated_traceback}"
-
-        return templates.TemplateResponse("error.html", {
-            "request": request,
-            "status_code": status_code,
-            "error_message": error_message,
-        }, status_code=status_code)
     
 def get_current_version():
     """Function to get current program version"""
@@ -92,11 +65,11 @@ misc_methods = MiscMethods()
 
 app = FastAPI()
 templates = Jinja2Templates(directory="../frontend/templates")
-app.add_middleware(Middleware)
+app.add_middleware(Middleware, templates=templates)
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     """Function to catch http errors from Uvicorn and return them to the middleware"""
-    return await Middleware(app).handle_exception(exc, request)
+    return await Middleware(app, templates=templates).handle_exception(exc, request)
 
 
 app.version = get_current_version()
