@@ -19,7 +19,7 @@ import httpx
 from strava import Strava
 from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
 
-class ErrorHandlingMiddleware(BaseHTTPMiddleware): #Can this be imported instead?
+class Middleware(BaseHTTPMiddleware):
     """Class to handle exceptions that breaks the program and should be shown to the user"""
           
     async def dispatch(self, request: Request, call_next):
@@ -92,11 +92,11 @@ misc_methods = MiscMethods()
 
 app = FastAPI()
 templates = Jinja2Templates(directory="../frontend/templates")
-app.add_middleware(ErrorHandlingMiddleware)
+app.add_middleware(Middleware)
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     """Function to catch http errors from Uvicorn and return them to the middleware"""
-    return await ErrorHandlingMiddleware(app).handle_exception(exc, request)
+    return await Middleware(app).handle_exception(exc, request)
 
 
 app.version = get_current_version()
