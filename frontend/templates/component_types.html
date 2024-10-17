@@ -30,7 +30,6 @@
                     </div>
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Save</button>
-                        <button type="submit" class="btn btn-outline-danger" form="component_type_form" id="clear_form_btn">Clear form</button>
                     </div>
                 </form>
             </div>
@@ -131,19 +130,6 @@
             if (input.value <= 0) {
                 input.value = null;
             }
-        }
-
-        // Clear form function: get the clear form button
-        const clearFormBtn = document.getElementById('clear_form_btn');
-
-        // Clear form function: add a click event listener to the button
-        clearFormBtn.addEventListener('click', clearForm);
-
-        // Clear form function: define the clearForm function
-        function clearForm() {
-            document.getElementById('component_type').value = '';
-            document.getElementById('service_interval').value = '';
-            document.getElementById('expected_lifetime').value = '';
         }
     </script>
 </body>
