@@ -5,10 +5,8 @@ import json
 import logging
 from datetime import datetime, timedelta
 from requests_oauthlib import OAuth2Session
-from icecream import ic #remove before finalizing
 
-
-def health_check(status, mode):
+def health_check(status, mode): #move to separate module
     """Function to write healthcheck data"""
     if mode == "reset":
         with open("status.txt", "w", encoding='utf-8') as file:
@@ -17,7 +15,6 @@ def health_check(status, mode):
     if mode == "executing":
         with open("status.txt", "a", encoding='utf-8') as file:
             file.write(status + "\n")
-
 
 class Strava:
     """Class to interact with Strava API"""
@@ -211,6 +208,3 @@ class Strava:
             logging.error(self.payload_bikes)
             logging.error(f'More info about the error: {error}')
             health_check("error", "executing")
-
-
-__all__ = ['Strava']

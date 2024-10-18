@@ -4,70 +4,67 @@
 from middleware import Middleware
 import logging
 import json
-from time import time
 from typing import Optional
 from datetime import datetime
 import traceback
 import sys
 import asyncio
-from fastapi import FastAPI, HTTPException, Request, Form
+from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
-import httpx
 from strava import Strava
 from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
-from utils import get_current_version, read_parameters, set_time_strava_last_pull
+from utils import get_current_version, read_parameters, set_time_strava_last_pull, pull_strava_background
 
+# Load configuration
 CONFIG = read_parameters()
 
-strava = Strava(CONFIG['strava_tokens'])
+# Initialize database
 read_tables = ReadTables()
 modify_tables = ModifyTables()
 read_records = ReadRecords()
 modify_records = ModifyRecords()
 misc_methods = MiscMethods()
 
+# Initialize Strava API
+strava = Strava(CONFIG['strava_tokens'])
+
+# Create application
 app = FastAPI()
+
+# Setup static files and templates
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
 templates = Jinja2Templates(directory="../frontend/templates")
+
+# Add middleware
 app.add_middleware(Middleware, templates=templates)
-@app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-    """Function to catch http errors from Uvicorn and return them to the middleware"""
-    return await Middleware(app, templates=templates).handle_exception(exc, request)
+
+# Configure application state
 app.version = get_current_version()
 app.state.db_path = CONFIG['db_path']
 app.state.strava_last_pull = None
 app.state.strava_days_since_last_pull = None
 set_time_strava_last_pull(app, read_records)
 
-@app.on_event("startup")
+# Exception handler
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """Function to catch http errors from Uvicorn and return them to the middleware"""
+    return await Middleware(app, templates=templates).handle_exception(exc, request)
+
+#Startup event
+@app.on_event("startup") #solve this one
 async def startup_event():
     """Function to register background tasks"""
     asyncio.create_task(pull_strava_background("recent"))
 
-async def pull_strava_background(mode):
-    """Function to pull data from Strava in the background"""
-    while True:
-        try:
-            logging.info(f"Retrieving rides from Strava as background task. Mode set to: {mode}")
-            async with httpx.AsyncClient() as client:
-                pass #Remove this before deploy
-                # await client.get(f"http://localhost:8000/refresh_rides/{mode}") Activate before deploying
-
-        except Exception as error:
-            logging.error(f"An error occured calling refresh rides endpoint: {error}")
-
-        logging.info("Next pull from Strava is in two hours")
-        await asyncio.sleep(7200)
-
+# Route handlers
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     """Endpoint for index / landing page"""
-
+    
     bikes = read_tables.read_bikes()
     bikes_data = [(bike.bike_name,
                    bike.bike_id,
@@ -77,20 +74,22 @@ async def root(request: Request):
                    sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Installed"),
                    sum(1 for component in read_tables.read_subset_components(bike.bike_id) if component.installation_status == "Retired")) for bike in bikes]
 
-    return templates.TemplateResponse("index.html",
-                                        {"request": request,
-                                         "bikes_data": bikes_data})
+    payload = {"bikes_data": bikes_data}
+    template_path = "index.html"
+    
+    return templates.TemplateResponse(template_path, {"request": request,
+                                                      "payload": payload})
 
 @app.get("/component_types_overview", response_class=HTMLResponse)
 async def component_types_overview(request: Request):
     """Endpoint for component types page"""    
-
-    component_types_data = read_tables.read_component_types()
-
+    
+    payload = {"component_types": read_tables.read_component_types()}
     template_path = "component_types.html"
-    return templates.TemplateResponse(template_path,
-                                      {"request": request,
-                                       "component_types_data": component_types_data})
+    
+    return templates.TemplateResponse(template_path, {"request": request,
+                                                      "payload": payload})
+
 
 @app.post("/component_types_overview/modify", response_class=HTMLResponse)
 async def modify_component_type(
@@ -98,7 +97,7 @@ async def modify_component_type(
     expected_lifetime: Optional[str] = Form(None),
     service_interval: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
-
+    
     expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
     service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
 
@@ -106,6 +105,7 @@ async def modify_component_type(
     modify_records.update_component_type(component_type_data)
 
     return RedirectResponse(url="/component_types_overview", status_code=303)
+
 
 @app.post("/add_service", response_class=HTMLResponse)
 async def add_service(
@@ -162,6 +162,7 @@ async def add_service(
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
+
 @app.post("/component_modify", response_class=HTMLResponse)
 async def modify_component(
     component_id: Optional[str] = Form(None),
@@ -199,8 +200,8 @@ async def modify_component(
     current_history_id = f'{component_updated_date} {component_id}'
     old_component_data = read_records.read_component(component_id)
     updated_bike_id = component_bike_id
-    previous_bike_id = old_component_data.bike_id if old_component_data else None #This is causing problems, all these problems related to fastapi 0.115.0
-    old_component_name = old_component_data.component_name if old_component_data else None #This is causing problems, all these problems related to fastapi 0.115.0
+    previous_bike_id = old_component_data.bike_id if old_component_data else None
+    old_component_name = old_component_data.component_name if old_component_data else None
     latest_service_record = read_records.read_latest_service_record(component_id)
     latest_history_record = read_records.read_latest_history_record(component_id)
 
@@ -255,9 +256,11 @@ async def modify_component(
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
+
 @app.get("/component_overview", response_class=HTMLResponse)
 async def component_overview(request: Request):
     """Endpoint for components page"""
+    
     components = read_tables.read_all_components()
     component_data = [(component.component_id,
                     component.component_type,
@@ -289,31 +292,34 @@ async def component_overview(request: Request):
 
     component_types_data = read_tables.read_component_types()
 
-
+    payload = {"request": request,
+               "component_data": component_data,
+               "bikes_data": bikes_data,
+               "component_types_data": component_types_data,
+               "count_installed" : component_statistics["count_installed"],
+               "count_not_installed" : component_statistics["count_not_installed"],
+               "count_retired" : component_statistics["count_retired"],
+               "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
+               "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
+               "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
+               "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
+               "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
+               "count_service_status_green" : component_statistics["count_service_status_green"],
+               "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
+               "count_service_status_red" : component_statistics["count_service_status_red"],
+               "count_service_status_purple" : component_statistics["count_service_status_purple"],
+               "count_service_status_grey" : component_statistics["count_service_status_grey"],
+               "sum_cost" : component_statistics["sum_cost"]}
     template_path = "component_overview.html"
-    return templates.TemplateResponse(template_path,
-                                      {"request": request,
-                                        "component_data": component_data,
-                                        "bikes_data": bikes_data,
-                                        "component_types_data": component_types_data,
-                                        "count_installed" : component_statistics["count_installed"],
-                                        "count_not_installed" : component_statistics["count_not_installed"],
-                                        "count_retired" : component_statistics["count_retired"],
-                                        "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
-                                        "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
-                                        "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
-                                        "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
-                                        "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
-                                        "count_service_status_green" : component_statistics["count_service_status_green"],
-                                        "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
-                                        "count_service_status_red" : component_statistics["count_service_status_red"],
-                                        "count_service_status_purple" : component_statistics["count_service_status_purple"],
-                                        "count_service_status_grey" : component_statistics["count_service_status_grey"],
-                                        "sum_cost" : component_statistics["sum_cost"]})
+    
+    return templates.TemplateResponse(template_path, {"request": request,
+                                                      "payload": payload})
+
 
 @app.get("/bike_details/{bike_id}", response_class=HTMLResponse)
 async def bike_details(request: Request, bike_id: str):
     """Endpoint for bike details page"""
+    
     bike = read_records.read_bike(bike_id)
     bike_data = {"bike_name": bike.bike_name,
                 "bike_id": bike.bike_id,
@@ -343,28 +349,26 @@ async def bike_details(request: Request, bike_id: str):
                     int(ride.ride_distance),
                     ride.commute
                     ) for ride in recent_rides]
-# be more consisten here, either you use payload or you dont, better to do it
-# and also specify template_path for all
-    payload = {
-        "recent_rides": recent_rides_data,
-        "bike_data": bike_data,
-        "bike_components_data": bike_components_data,
-        "count_installed" : component_statistics["count_installed"],
-        "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
-        "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
-        "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
-        "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
-        "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
-        "count_service_status_green" : component_statistics["count_service_status_green"],
-        "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
-        "count_service_status_red" : component_statistics["count_service_status_red"],
-        "count_service_status_purple" : component_statistics["count_service_status_purple"],
-        "count_service_status_grey" : component_statistics["count_service_status_grey"],
-        "sum_cost" : component_statistics["sum_cost"]}
 
+    payload = {"recent_rides": recent_rides_data,
+               "bike_data": bike_data,
+               "bike_components_data": bike_components_data,
+               "count_installed" : component_statistics["count_installed"],
+               "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
+               "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
+               "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
+               "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
+               "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
+               "count_service_status_green" : component_statistics["count_service_status_green"],
+               "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
+               "count_service_status_red" : component_statistics["count_service_status_red"],
+               "count_service_status_purple" : component_statistics["count_service_status_purple"],
+               "count_service_status_grey" : component_statistics["count_service_status_grey"],
+               "sum_cost" : component_statistics["sum_cost"]}
     template_path = "bike_details.html"
+    
     return templates.TemplateResponse(template_path, {"request": request,
-                                                        "payload": payload})
+                                                      "payload": payload})
 
 
 @app.get("/component_details/{component_id}", response_class=HTMLResponse)
@@ -375,9 +379,9 @@ async def component_details(request: Request, component_id: str):
     bikes_data = [(bike.bike_name,
                     bike.bike_id)
                     for bike in bikes if bike.bike_retired == "False"]
-
+    
     component_types_data = read_tables.read_component_types()
-
+    
     bike_component = read_records.read_component(component_id)
     bike_component_data = {"bike_id": bike_component.bike_id,
                     "component_id": bike_component.component_id,
@@ -421,76 +425,68 @@ async def component_details(request: Request, component_id: str):
     else:
         service_history_data = None
 
-    payload = {
-        "bikes_data": bikes_data,
-        "component_types_data": component_types_data,
-        "bike_component_data": bike_component_data,
-        "bike_name": misc_methods.get_bike_name(bike_component.bike_id),
-        "component_history_data": component_history_data,
-        "service_history_data": service_history_data}
-
+    payload = {"bikes_data": bikes_data,
+               "component_types_data": component_types_data,
+               "bike_component_data": bike_component_data,
+               "bike_name": misc_methods.get_bike_name(bike_component.bike_id),
+               "component_history_data": component_history_data,
+               "service_history_data": service_history_data}
     template_path = "component_details.html"
+
     return templates.TemplateResponse(template_path, {"request": request,
                                                       "payload": payload})
+
 
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
 async def refresh_all_bikes(request: Request):
     """Endpoint to manually refresh data for all bikes"""
 
-    try:
-        logging.info("Refreshing all bikes from Strava (called directly)")
+    logging.info("Refreshing all bikes from Strava (called directly)")
+    await strava.get_bikes(misc_methods.get_unique_bikes())
+    modify_tables.update_bikes(strava.payload_bikes)
+
+    for bike_id in misc_methods.get_unique_bikes():
+        modify_tables.update_bike_status(bike_id) #Not sure why we need to call this here..?
+
+    return RedirectResponse(url="/", status_code=303)
+
+
+@app.get("/refresh_rides/{mode}", response_class=HTMLResponse)
+async def refresh_rides(request: Request, mode: str):
+    """Endpoint to refresh data for a subset or all rides"""
+
+    if mode == "all":
+        logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
+        await strava.get_rides(mode)
+        modify_tables.update_rides_bulk(strava.payload_rides)
+        app.state.strava_last_pull = datetime.now()
+        set_time_strava_last_pull(app, read_records)
+
+        logging.info("Refreshing all bikes from Strava")
         await strava.get_bikes(misc_methods.get_unique_bikes())
         modify_tables.update_bikes(strava.payload_bikes)
 
-        for bike_id in misc_methods.get_unique_bikes():
-            modify_tables.update_bike_status(bike_id) #Not sure why we need to call this here..?
+        modify_tables.update_components_distance_iterator(misc_methods.get_unique_bikes())
 
-        return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located 
+    if mode == "recent":
+        logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
+        await strava.get_rides(mode)
+        modify_tables.update_rides_bulk(strava.payload_rides)
+        app.state.strava_last_pull = datetime.now()
+        set_time_strava_last_pull(app, read_records)
 
-    except Exception as error: #Use this on all exceptions, but first update with ability to display error message to user
-        error_traceback = traceback.format_exc()
-        logging.error(f"An error occurred trying to refresh all bikes from Strava: {error} Details:\n{error_traceback}")
-
-@app.get("/refresh_rides/{mode}", response_class=HTMLResponse)
-async def refresh_rides(request: Request, mode: str): #Request currently not used, but keep it for now. Will be required for error messages later.
-    """Endpoint to refresh data for a subset or all rides"""
-
-    try:
-        if mode == "all":
-            logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
-            await strava.get_rides(mode)
-            modify_tables.update_rides_bulk(strava.payload_rides)
-            app.state.strava_last_pull = datetime.now()
-            set_time_strava_last_pull(app, read_records)
-
+        if len(strava.bike_ids_recent_rides) > 0:
             logging.info("Refreshing all bikes from Strava")
-            await strava.get_bikes(misc_methods.get_unique_bikes())
+            await strava.get_bikes(strava.bike_ids_recent_rides)
             modify_tables.update_bikes(strava.payload_bikes)
 
-            modify_tables.update_components_distance_iterator(misc_methods.get_unique_bikes())
+            modify_tables.update_components_distance_iterator(strava.bike_ids_recent_rides)
 
-        if mode == "recent":
-            logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
-            await strava.get_rides(mode)
-            modify_tables.update_rides_bulk(strava.payload_rides)
-            app.state.strava_last_pull = datetime.now()
-            set_time_strava_last_pull(app, read_records)
+        else:
+            logging.warning("No bikes found in recent activities")
 
-            if len(strava.bike_ids_recent_rides) > 0:
-                logging.info("Refreshing all bikes from Strava")
-                await strava.get_bikes(strava.bike_ids_recent_rides)
-                modify_tables.update_bikes(strava.payload_bikes)
+    return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located
 
-                modify_tables.update_components_distance_iterator(strava.bike_ids_recent_rides)
-
-            else:
-                logging.warning("No bikes found in recent activities")
-
-        return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located
-
-    except Exception as error:
-        error_traceback = traceback.format_exc()
-        logging.error(f"An error occurred trying to refresh all bikes from Strava: {error} Details:\n{error_traceback}")
 
 @app.post("/delete_record", response_class=HTMLResponse)
 async def delete_record(
@@ -500,45 +496,43 @@ async def delete_record(
 
     modify_records.delete_record(table_selector, record_id)
 
+
 @app.get("/config_overview", response_class=HTMLResponse)
 async def read_config(request: Request):
     """Endpoint for component types page"""
 
+    payload = {"strava_tokens": CONFIG['strava_tokens'],
+               "db_path": CONFIG['strava_tokens']}
     template_path = "config.html"
+
     return templates.TemplateResponse(template_path, {"request": request,
-                                                      "strava_tokens": CONFIG['strava_tokens']})
+                                                      "payload": payload})
+
 
 @app.post("/update_config")
 async def update_config(request: Request,
                         db_path: str = Form(...),
                         strava_tokens: str = Form(...)):
     """Endpoint to update config file"""
-    try:
-        CONFIG['db_path'] = db_path
-        CONFIG['strava_tokens'] = strava_tokens
 
-        with open('config.json', 'w', encoding='utf-8') as file:
-            json.dump(CONFIG, file, indent=4)
+    CONFIG['db_path'] = db_path
+    CONFIG['strava_tokens'] = strava_tokens
 
-        logging.warning(f"Configuration updated. New database path is {db_path} and new strava tokens path is {strava_tokens}. Shutting down container...")
-        sys.exit(0)
+    with open('config.json', 'w', encoding='utf-8') as file:
+        json.dump(CONFIG, file, indent=4)
 
-    except Exception as error:
-        logging.error(f"Error updating configuration: {str(error)}")
+    logging.warning(f"Configuration updated. New database path is {db_path} and new strava tokens path is {strava_tokens}. Shutting down container...")
+    sys.exit(0)
+
 
 @app.get("/get_filtered_log")
 async def get_logs():
     """Endpoint to read log and return only business events""" 
-    try:
-        with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:
-            logs = log_file.readlines()
 
-        filtered_logs = [log for log in logs if "GET" not in log and "POST" not in log]
-        subset_filtered_logs = filtered_logs[-100:]
+    with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:
+        logs = log_file.readlines()
 
-        return {"logs": subset_filtered_logs}
+    filtered_logs = [log for log in logs if "GET" not in log and "POST" not in log]
+    subset_filtered_logs = filtered_logs[-100:]
 
-    except Exception as error:
-        logging.error(f"Error reading log file: {str(error)}")
-        return {"logs": ["Error reading log file"]}
-
+    return {"logs": subset_filtered_logs}

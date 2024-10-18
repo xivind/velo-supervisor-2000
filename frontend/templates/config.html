@@ -40,11 +40,11 @@
                 <form id="config_form" class="row" action="/update_config" method="post">
                     <div class="col mb-3">
                         <label for="db_path" class="form-label fw-bold">Path to database</label>
-                        <input type="text" class="form-control" id="db_path" name="db_path" value="{{ db_path }}" required>
+                        <input type="text" class="form-control" id="db_path" name="db_path" value="{{ payload.db_path }}" required>
                     </div>
                     <div class="col mb-3">
                         <label for="strava_tokens" class="form-label fw-bold">Path to oauth file</label>
-                        <input type="text" class="form-control" id="strava_tokens" name="strava_tokens" value="{{ strava_tokens }}">
+                        <input type="text" class="form-control" id="strava_tokens" name="strava_tokens" value="{{ payload.strava_tokens }}">
                     </div>
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">Save and restart</button>

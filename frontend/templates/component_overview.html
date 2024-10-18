@@ -62,7 +62,7 @@
                         <label for="component_type" class="form-label fw-bold">Type</label>
                         <select class="form-select" id="component_type" name="component_type" required>
                             <option value="" selected></option>
-                            {% for component_type, suggested_lifetime_expected, suggested_service_interval in component_types_data %}
+                            {% for component_type, suggested_lifetime_expected, suggested_service_interval in payload.component_types_data %}
                                 <option value="{{ component_type }}"
                                     expected_lifetime="{{ suggested_lifetime_expected }}"
                                     service_interval="{{ suggested_service_interval }}">
@@ -75,7 +75,7 @@
                         <label for="component_bike_id" class="form-label fw-bold">Bike</label>
                         <select class="form-select" id="component_bike_id" name="component_bike_id">
                             <option value="" selected></option>
-                            {% for bike_name, bike_id in bikes_data %}
+                            {% for bike_name, bike_id in payload.bikes_data %}
                                 <option value="{{ bike_id }}">
                                 {{ bike_name }}
                                 </option>
@@ -114,32 +114,32 @@
             <div class="card-header fw-bold">Component statistics</div>
             <div class="card-body">
                 <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>⚡ <strong>Installed:</strong> {{ count_installed }}</span>
-                    <span>💤 <strong>Not installed:</strong> {{ count_not_installed }}</span>
-                    <span>⛔ <strong>Retired:</strong> {{ count_retired }}</span>
-                    <span>💰 <strong>Expected cost:</strong> {% if sum_cost == "No estimate" %} {{ sum_cost }} {% else %} {{ sum_cost }} kr{% endif %}</span>
+                    <span>⚡ <strong>Installed:</strong> {{ payload.count_installed }}</span>
+                    <span>💤 <strong>Not installed:</strong> {{ payload.count_not_installed }}</span>
+                    <span>⛔ <strong>Retired:</strong> {{ payload.count_retired }}</span>
+                    <span>💰 <strong>Expected cost:</strong> {% if payload.sum_cost == "No estimate" %} {{ payload.sum_cost }} {% else %} {{ payload.sum_cost }} kr{% endif %}</span>
                 </p>
                 <hr/>
                 <div class="row">
                     <p class="card-text text-center">
                         <span class="fw-bold text-secondary">Lifetime statistics installed components</span>
                    </p>
-                    <div class="col"><span>🟢 Lifetime OK: {{ count_lifetime_status_green }}</span></div>
-                    <div class="col"><span>🟡 End of life approaching: {{ count_lifetime_status_yellow }}</span></div>
-                    <div class="col"><span>🔴 Due for replacement: {{ count_lifetime_status_red }}</span></div>
-                    <div class="col"><span>🟣 Lifetime exceeded: {{ count_lifetime_status_purple }}</span></div>
-                    <div class="col"><span>⚪ Lifetime not defined: {{ count_lifetime_status_grey }}</span></div>
+                    <div class="col"><span>🟢 Lifetime OK: {{ payload.count_lifetime_status_green }}</span></div>
+                    <div class="col"><span>🟡 End of life approaching: {{ payload.count_lifetime_status_yellow }}</span></div>
+                    <div class="col"><span>🔴 Due for replacement: {{ payload.count_lifetime_status_red }}</span></div>
+                    <div class="col"><span>🟣 Lifetime exceeded: {{ payload.count_lifetime_status_purple }}</span></div>
+                    <div class="col"><span>⚪ Lifetime not defined: {{ payload.count_lifetime_status_grey }}</span></div>
                 </div>
                 <hr/>
                 <div class="row">
                     <p class="card-text text-center">
                         <span class="fw-bold text-secondary">Service statistics installed components</span>
                    </p>
-                    <div class="col"><span>🟢 Service OK: {{ count_service_status_green }}</span></div>
-                    <div class="col"><span>🟡 Service approaching: {{ count_service_status_yellow }}</span></div>
-                    <div class="col"><span>🔴 Due for service: {{ count_service_status_red }}</span></div>
-                    <div class="col"><span>🟣 Service int. exceeded: {{ count_service_status_purple }}</span></div>
-                    <div class="col"><span>⚪ Service int. not defined: {{ count_service_status_grey }}</span></div>
+                    <div class="col"><span>🟢 Service OK: {{ payload.count_service_status_green }}</span></div>
+                    <div class="col"><span>🟡 Service approaching: {{ payload.count_service_status_yellow }}</span></div>
+                    <div class="col"><span>🔴 Due for service: {{ payload.count_service_status_red }}</span></div>
+                    <div class="col"><span>🟣 Service int. exceeded: {{ payload.count_service_status_purple }}</span></div>
+                    <div class="col"><span>⚪ Service int. not defined: {{ payload.count_service_status_grey }}</span></div>
                 </div>  
             </div>
         </div>
@@ -175,8 +175,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% if component_data %}
-                            {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in component_data %}
+                        {% if payload.component_data %}
+                            {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.component_data %}
                             <tr data-status="{{ installation_status }}">
                                 <td>{{ name }}</td>
                                 <td>{{ type }}</td>

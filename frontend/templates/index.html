@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="row">
-            {% for name, bike_id, bike_status, service_lifetime_status, distance, count_installed, count_retired in bikes_data %}
+            {% for name, bike_id, bike_status, service_lifetime_status, distance, count_installed, count_retired in payload.bikes_data %}
                     <div class="col-md-4 mb-3">
                         <div class="card shadow" data-bike-status="{{ bike_status }}">
                             <div class="card-header h5 fw-bold text-bg-

@@ -559,13 +559,6 @@ class MiscMethods():
 
         return f'{str(unique_id_part1)[:6]}{str(unique_id_part2)[-4:]}'
     
-    def format_datetime(self, date_str): #No longer in use, can be deleted
-        """Method to reformat a datetime string"""
-        date_obj = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
-        formatted_datetime = date_obj.strftime('%Y-%m-%d')
-        
-        return formatted_datetime
-    
     def format_component_status(self, status):
         """Method to display user friendly text for None values"""
         if status is not None:
@@ -651,8 +644,3 @@ class MiscMethods():
             component_statistics["sum_cost"] = "No estimate"
             
         return component_statistics
-
-        
-
-    
-

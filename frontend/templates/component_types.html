@@ -47,8 +47,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% if component_types_data %}
-                            {% for component_type, expected_lifetime, service_interval in component_types_data %}
+                        {% if payload.component_types %}
+                            {% for component_type, expected_lifetime, service_interval in payload.component_types %}
                             <tr data-row-id="{{ loop.index0 }}">
                                 <td>{{ component_type }}</td>
                                 <td>{% if expected_lifetime == None %}Not defined{% else %}{{ expected_lifetime }}{% endif %}</td>

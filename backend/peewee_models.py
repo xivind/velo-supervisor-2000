@@ -4,7 +4,7 @@
 from peewee import SqliteDatabase, Model, CharField, FloatField, IntegerField
 import json
 
-def read_parameters():
+def read_parameters(): #Pull this from utils instead
     """ Function to read configuration file"""
     with open('config.json', 'r', encoding='utf-8') as file:
         config = json.load(file)
@@ -113,13 +113,3 @@ class Services(BaseModel):
     class Meta:
         """Extends model with extra attributes"""
         table_name = "services"
-
-
-__all__ = ['database',
-           'BaseModel',
-           'Bikes',
-           'Rides',
-           'ComponentTypes',
-           'Components',
-           'ComponentHistory',
-           'Services']
