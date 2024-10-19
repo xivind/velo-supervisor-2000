@@ -6,7 +6,6 @@ import logging
 import json
 from typing import Optional
 from datetime import datetime
-import traceback
 import sys
 import asyncio
 from fastapi import FastAPI, Request, Form

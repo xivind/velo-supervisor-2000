@@ -21,11 +21,16 @@ As a principle, development is to be done in dev-branches and will be merged int
 - Improved initital setup and configuration
 - ... and much more
 
+**Planned for v0.4.0**
+- Configured program to run in Docker
+
+**Planned for v0.3.1**
+- Improved input validation and user dialogue
+
 **Planned for v0.3.0**
-- ...
+- Refactored code base and improved business logic
 
 **v0.2.0**
-- Configured program to run in Docker
 - Improved error handling and more informative error page
 - Display banner if last pull from Strava hasnt happened in a while
 - Misc bugfixes and minor improvements

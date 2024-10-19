@@ -2,13 +2,10 @@
 """Module to interact with a SQL database through Peewee"""
 
 import logging
-from datetime import datetime
 import peewee
-import traceback
 import uuid
 import time
 from peewee_models import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #Match with export from peewee_models, maybe base_model is not needed since it is inherited?
-
 
 class ReadTables(): #rename to something else, internal logic or something, might split into separate classes
     """Class to interact with a SQL database through peewee""" #Modify this description
@@ -61,7 +58,7 @@ class ReadTables(): #rename to something else, internal logic or something, migh
         service_history = Services.select().where(Services.component_id == component_id).order_by(Services.service_date.desc())
         if service_history.exists():
             return service_history
-        
+
         return None
 
 
