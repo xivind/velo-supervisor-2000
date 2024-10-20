@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Module for middleware"""
 
-from fastapi import HTTPException, Request
 import logging
 import traceback
+from fastapi import HTTPException, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 

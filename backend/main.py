@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Main backend for velo supervisor 2000"""
+"""Module for... """ #UPDATE DOCSTRING
+
+# Consider splitting this into main and route_handlers
 
 from middleware import Middleware
 import logging
@@ -14,11 +16,14 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from strava import Strava
-from peewee_connector import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods
-from utils import get_current_version, read_parameters, set_time_strava_last_pull, pull_strava_background
+from business_logic import ReadTables, ModifyTables, ReadRecords, ModifyRecords, MiscMethods #Should import entire class
+import utils
+from database_manager import DatabaseManager #Remove this and all reference to it when code has been moved to business logic
+
+database_manager = DatabaseManager() #Remove this and all reference to it when code has been moved to business logic
 
 # Load configuration
-CONFIG = read_parameters()
+CONFIG = utils.read_parameters()
 
 # Initialize database
 read_tables = ReadTables()
@@ -41,11 +46,11 @@ templates = Jinja2Templates(directory="../frontend/templates")
 app.add_middleware(Middleware, templates=templates)
 
 # Configure application state
-app.version = get_current_version()
+app.version = utils.get_current_version()
 app.state.db_path = CONFIG['db_path']
 app.state.strava_last_pull = None
 app.state.strava_days_since_last_pull = None
-set_time_strava_last_pull(app, read_records)
+utils.set_time_strava_last_pull(app, read_records)
 
 # Exception handler
 @app.exception_handler(StarletteHTTPException)
@@ -57,7 +62,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.on_event("startup") #solve this one
 async def startup_event():
     """Function to register background tasks"""
-    asyncio.create_task(pull_strava_background("recent"))
+    asyncio.create_task(utils.pull_strava_background("recent"))
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
@@ -83,7 +88,7 @@ async def root(request: Request):
 async def component_types_overview(request: Request):
     """Endpoint for component types page"""    
     
-    payload = {"component_types": read_tables.read_component_types()}
+    payload = {"component_types": database_manager.read_component_types()}
     template_path = "component_types.html"
     
     return templates.TemplateResponse(template_path, {"request": request,
@@ -114,7 +119,7 @@ async def add_service(
     """Endpoint to add service"""
 
     component_data = read_records.read_component(component_id)
-    service_id = misc_methods.generate_unique_id()
+    service_id = utils.generate_unique_id()
 
     service_data = {"service_id": service_id,
                     "component_id": component_id,
@@ -266,10 +271,10 @@ async def component_overview(request: Request):
                     component.component_name,
                     int(component.component_distance),
                     component.installation_status,
-                    misc_methods.format_component_status(component.lifetime_status),
-                    misc_methods.format_component_status(component.service_status),
+                    utils.format_component_status(component.lifetime_status),
+                    utils.format_component_status(component.service_status),
                     misc_methods.get_bike_name(component.bike_id),
-                    misc_methods.format_cost(component.cost)
+                    utils.format_cost(component.cost)
                     ) for component in components]
 
     rearranged_component_data = [(comp[4],
@@ -282,14 +287,14 @@ async def component_overview(request: Request):
                                     None,
                                     comp[7]) for comp in component_data]
 
-    component_statistics = misc_methods.get_component_statistics(rearranged_component_data)
+    component_statistics = utils.get_component_statistics(rearranged_component_data)
 
     bikes = read_tables.read_bikes()
     bikes_data = [(bike.bike_name,
                     bike.bike_id)
                     for bike in bikes if bike.bike_retired == "False"]
 
-    component_types_data = read_tables.read_component_types()
+    component_types_data = database_manager.read_component_types()
 
     payload = {"request": request,
                "component_data": component_data,
@@ -334,12 +339,12 @@ async def bike_details(request: Request, bike_id: str):
                     component.component_type,
                     component.component_name,
                     int(component.component_distance),
-                    misc_methods.format_component_status(component.lifetime_status),
-                    misc_methods.format_component_status(component.service_status),
-                    misc_methods.format_cost(component.cost)
+                    utils.format_component_status(component.lifetime_status),
+                    utils.format_component_status(component.service_status),
+                    utils.format_cost(component.cost)
                     ) for component in bike_components]
 
-    component_statistics = misc_methods.get_component_statistics([tuple(component[1:]) for component in bike_components_data])
+    component_statistics = utils.get_component_statistics([tuple(component[1:]) for component in bike_components_data])
 
     recent_rides = read_tables.read_recent_rides(bike_id)
     recent_rides_data = [(ride.ride_id,
@@ -379,7 +384,7 @@ async def component_details(request: Request, component_id: str):
                     bike.bike_id)
                     for bike in bikes if bike.bike_retired == "False"]
     
-    component_types_data = read_tables.read_component_types()
+    component_types_data = database_manager.read_component_types()
     
     bike_component = read_records.read_component(component_id)
     bike_component_data = {"bike_id": bike_component.bike_id,
@@ -393,18 +398,18 @@ async def component_details(request: Request, component_id: str):
                     "lifetime_expected": bike_component.lifetime_expected,
                     "lifetime_remaining": int(bike_component.lifetime_remaining)
                         if bike_component.lifetime_remaining is not None else None,
-                    "lifetime_status": misc_methods.format_component_status(bike_component.lifetime_status),
+                    "lifetime_status": utils.format_component_status(bike_component.lifetime_status),
                     "lifetime_percentage": modify_tables.calculate_percentage_reached(bike_component.lifetime_expected, int(bike_component.lifetime_remaining))
                         if bike_component.lifetime_remaining is not None else None,
                     "service_interval": bike_component.service_interval,
                     "service_next": int(bike_component.service_next)
                         if bike_component.service_next is not None else None,
-                    "service_status": misc_methods.format_component_status(bike_component.service_status),
+                    "service_status": utils.format_component_status(bike_component.service_status),
                     "service_percentage": modify_tables.calculate_percentage_reached(bike_component.service_interval, int(bike_component.service_next))
                         if bike_component.service_next is not None else None,
                     "offset": bike_component.component_distance_offset,
                     "component_notes": bike_component.notes,
-                    "cost": misc_methods.format_cost(bike_component.cost)}
+                    "cost": utils.format_cost(bike_component.cost)}
 
     component_history = read_tables.read_subset_component_history(bike_component.component_id)
     if component_history is not None:

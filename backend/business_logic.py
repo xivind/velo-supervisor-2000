@@ -1,28 +1,20 @@
 #!/usr/bin/env python3
-"""Module to interact with a SQL database through Peewee"""
+"""Module to handle business logic"""
 
 import logging
 import peewee
-import uuid
-import time
-from peewee_models import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #Match with export from peewee_models, maybe base_model is not needed since it is inherited?
+from database_model import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #Should import the entire class
+import utils
+from database_manager import DatabaseManager
+
+database_manager = DatabaseManager()
 
 class ReadTables(): #rename to something else, internal logic or something, might split into separate classes
     """Class to interact with a SQL database through peewee""" #Modify this description
     def __init__(self):
         pass #Check out this one..
 
-    def read_component_types(self):
-        """Method to read and sort content of component_types table"""
-        component_types = ComponentTypes.select()
-
-        component_types_data = [(component_type.component_type,
-                             component_type.expected_lifetime,
-                             component_type.service_interval) for component_type in component_types]
     
-        component_types_data.sort(key=lambda x: x[0])
-        
-        return component_types_data
     
     def read_all_components(self):
         """Method to read content of components table"""
@@ -549,26 +541,6 @@ class MiscMethods():
             logging.error(f"An error occurred while creating list of unique bike_ids: {error}")
             return {}
         
-    def generate_unique_id(self):
-        """Method to generates a random and unique ID"""
-        unique_id_part1 = uuid.uuid4()
-        unique_id_part2 = time.time()
-
-        return f'{str(unique_id_part1)[:6]}{str(unique_id_part2)[-4:]}'
-    
-    def format_component_status(self, status):
-        """Method to display user friendly text for None values"""
-        if status is not None:
-            return status
-
-        return "Not defined"
-    
-    def format_cost(self, cost):
-        """Method to display user friendly text for None values"""
-        if cost is not None:
-            return cost
-
-        return "No estimate"
     
     def get_bike_name(self, bike_id):
         """Method to get the name of a bike based on bike id"""
@@ -588,56 +560,4 @@ class MiscMethods():
         
         return None
     
-    def get_component_statistics(self, component_list):
-        """Method to summarise key data for a set of components"""
-        component_statistics = {"count_installed": 0,
-                                "count_not_installed": 0,
-                                "count_retired": 0,
-                                "count_lifetime_status_green": 0,
-                                "count_lifetime_status_yellow": 0,
-                                "count_lifetime_status_red": 0,
-                                "count_lifetime_status_purple": 0,
-                                "count_lifetime_status_grey": 0,
-                                "count_service_status_green": 0,
-                                "count_service_status_yellow": 0,
-                                "count_service_status_red": 0,
-                                "count_service_status_purple": 0,
-                                "count_service_status_grey": 0,
-                                "sum_cost": 0,
-                                }
-        
-        for component in component_list:
-            if component[0] == "Installed":
-                component_statistics["count_installed"] += 1
-            if component[0] == "Not installed":
-                component_statistics["count_not_installed"] += 1
-            if component[0] == "Retired":
-                component_statistics["count_retired"] += 1
-            if component[4] == "OK" and component[0] == "Installed":
-                component_statistics["count_lifetime_status_green"] += 1
-            if component[4] == "End of life approaching" and component[0] == "Installed":
-                component_statistics["count_lifetime_status_yellow"] += 1
-            if component[4] == "Due for replacement" and component[0] == "Installed":
-                component_statistics["count_lifetime_status_red"] += 1
-            if component[4] == "Lifetime exceeded" and component[0] == "Installed":
-                component_statistics["count_lifetime_status_purple"] += 1
-            if component[4] == "Not defined" and component[0] == "Installed":
-                component_statistics["count_lifetime_status_grey"] += 1                
-            if component[5] == "OK" and component[0] == "Installed":
-                component_statistics["count_service_status_green"] += 1
-            if component[5] == "Service approaching" and component[0] == "Installed":
-                component_statistics["count_service_status_yellow"] += 1
-            if component[5] == "Due for service" and component[0] == "Installed":
-                component_statistics["count_service_status_red"] += 1
-            if component[5] == "Service interval exceeded" and component[0] == "Installed":
-                component_statistics["count_service_status_purple"] += 1
-            if component[5] == "Not defined" and component[0] == "Installed":
-                component_statistics["count_service_status_grey"] += 1
-            if component[6] is not None and isinstance(component[6], int) and component[0] == "Installed":
-                    if (component[4] != "OK" and component[4] is not None) or (component[5] != "OK" and component[5] is not None):
-                        component_statistics["sum_cost"] += component[6]
-
-        if component_statistics["sum_cost"] == 0:
-            component_statistics["sum_cost"] = "No estimate"
-            
-        return component_statistics
+    
