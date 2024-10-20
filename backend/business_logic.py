@@ -9,49 +9,7 @@ from database_manager import DatabaseManager
 
 database_manager = DatabaseManager()
 
-class ReadTables(): #rename to something else, internal logic or something, might split into separate classes
-    """Class to interact with a SQL database through peewee""" #Modify this description
-    def __init__(self):
-        pass #Check out this one..
 
-    
-    
-    def read_all_components(self):
-        """Method to read content of components table"""
-        components = Components.select()
-        return components
-    
-    def read_subset_components(self, bike_id):
-        """Method to read components for a specific bike"""
-        components = Components.select().where(Components.bike_id == bike_id)
-        return components
-
-    def read_recent_rides(self, bike_id):
-        """Method to read recent rides for a specific bike"""
-        recent_rides = Rides.select().where(Rides.bike_id == bike_id)
-        recent_rides = (Rides.select().where(Rides.bike_id == bike_id).order_by(Rides.record_time.desc()).limit(5)) #Is this a duplicate? Can be merged with statement above?
-        return recent_rides
-    
-    def read_bikes(self):
-        """Method to read content of bikes table"""
-        bikes = Bikes.select()
-        return bikes
-    
-    def read_subset_component_history(self, component_id):
-        """Method to read a subset of receords from the component history table"""
-        component_history = ComponentHistory.select().where(ComponentHistory.component_id == component_id).order_by(ComponentHistory.updated_date.desc())
-        if component_history.exists():
-            return component_history
-        
-        return None
-
-    def read_subset_service_history(self, component_id):
-        """Method to read a subset of receords from the component history table"""
-        service_history = Services.select().where(Services.component_id == component_id).order_by(Services.service_date.desc())
-        if service_history.exists():
-            return service_history
-
-        return None
 
 
 class ModifyTables(): #rename to something else, internal logic or something, might split into separate classes
@@ -294,7 +252,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         except Exception as error:
             logging.error(f'An error occurred while updating bike status for {bike.bike_name} with id {bike.bike_id}): {error}')
     
-    def compute_component_status(self, mode, reached_distance_percent): #move to misc? Can be others also. Could be possible by calling classes directly
+    def compute_component_status(self, mode, reached_distance_percent): #This is business 
         """Method to compute service status"""
         if mode == "service":
             if 0 <= reached_distance_percent <= 70:
@@ -318,47 +276,14 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
         return status
 
-    def calculate_percentage_reached(self, total, remaining): #move to misc?  Can be others also. Could be possible by calling classes directly
+    def calculate_percentage_reached(self, total, remaining): #This is utils
         """Method to calculate remaining service interval or remaining lifetime as percentage"""
         if isinstance(total, int) and isinstance(remaining, int):
             return round(((total - remaining) / total) * 100, 2)
         
         return 1000
 
-class ReadRecords():
-    """Class to interact with a SQL database through peewee""" #Modify this description
-    def __init__(self):
-        pass #Check out this one.
-
-    def read_bike(self, bike_id):
-        """Method to retrieve record for a specific bike"""
-        bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
-        return bike
     
-    def read_component(self, component_id):
-        """Method to retrieve record for a specific component"""
-        component = Components.get_or_none(Components.component_id == component_id)
-        return component
-    
-    def read_history_record(self, history_id):
-        """Method to retrieve record for a specific entry in installation log"""
-        history_record = ComponentHistory.get_or_none(ComponentHistory.history_id == history_id)
-        return history_record
-    
-    def read_latest_history_record(self, component_id):
-        """Method to retrieve the most recent record from the installation log of a given component"""
-        latest_history_record = ComponentHistory.select().where(ComponentHistory.component_id == component_id).order_by(ComponentHistory.updated_date.desc()).first()
-        return latest_history_record
-
-    def read_latest_service_record(self, component_id):
-        """Method to retrieve the most recent record from the service log of a given component"""
-        latest_service_record = Services.select().where(Services.component_id == component_id).order_by(Services.service_date.desc()).first()
-        return latest_service_record
-    
-    def read_latest_ride_record(self):
-        """Method to retrieve the most recent ride"""
-        latest_ride_record = Rides.select().order_by(Rides.record_time.desc()).first()
-        return latest_ride_record
 
 
 class ModifyRecords(): #Consider merging with modify tables
@@ -513,7 +438,7 @@ class MiscMethods():
     def __init__(self):
         pass #Check out this one.
 
-    def sum_distanse_subset_rides(self, bike_id, start_date, stop_date):
+    def sum_distanse_subset_rides(self, bike_id, start_date, stop_date): #move to db_manager, do not reproduce queries, use existing functions (if available)
         """Method to sum distance for a given set of rides"""
 
         matching_rides = Rides.select().where(
@@ -525,7 +450,7 @@ class MiscMethods():
                    
         return 0
     
-    def get_unique_bikes(self):
+    def get_unique_bikes(self): #move to db_manager, do not reproduce queries, use existing functions (if available)
         """Method to query database and create list of unique bike ids"""
         try:
             logging.info("Generating list of bikes stored in local database")
@@ -542,7 +467,7 @@ class MiscMethods():
             return {}
         
     
-    def get_bike_name(self, bike_id):
+    def get_bike_name(self, bike_id): #move to db_manager, do not reproduce queries, use existing functions (if available)
         """Method to get the name of a bike based on bike id"""
         bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
         if bike:
@@ -551,7 +476,7 @@ class MiscMethods():
         
         return "Not assigned"
     
-    def get_first_ride(self, bike_id):
+    def get_first_ride(self, bike_id): #move to db_manager, do not reproduce queries, use existing functions (if available)
         """Method to get the date for the first ride for a given bike"""
         oldest_ride_record = Rides.select(Rides.record_time).where(Rides.bike_id == bike_id).order_by(Rides.record_time.asc()).first()
         if oldest_ride_record:

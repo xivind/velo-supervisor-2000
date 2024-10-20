@@ -23,7 +23,7 @@ def read_parameters():
         config = json.load(file)
     return config
 
-def set_time_strava_last_pull(app, read_records): #This should not receive read_record, but call database.read_records
+def set_time_strava_last_pull(app, read_records): #This is business logic, move to business module
     """
     Function to set the date for last pull from Strava
     Args:
@@ -43,7 +43,7 @@ def set_time_strava_last_pull(app, read_records): #This should not receive read_
         app.state.strava_last_pull = "never"
         app.state.strava_days_since_last_pull = None
 
-async def pull_strava_background(mode): #Move to strava module
+async def pull_strava_background(mode):
     """Function to pull data from Strava in the background"""
     while True:
         try:
