@@ -3,8 +3,8 @@
 
 import logging
 import peewee
-from database_model import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #Should import the entire class
-import utils
+from database_model import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #This will be removed afer refactoring
+import utils #Consider import explicitly
 from database_manager import DatabaseManager
 
 database_manager = DatabaseManager()
@@ -151,7 +151,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.service_next = service_next
-                    component.service_status = self.compute_component_status("service", self.calculate_percentage_reached(component.service_interval, int(service_next)))
+                    component.service_status = self.compute_component_status("service", utils.calculate_percentage_reached(component.service_interval, int(service_next)))
                     component.save()
 
             except peewee.OperationalError as error:
@@ -176,7 +176,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.lifetime_remaining = component.lifetime_expected - component.component_distance
-                    component.lifetime_status = self.compute_component_status("lifetime", self.calculate_percentage_reached(component.lifetime_expected, int(component.lifetime_remaining)))
+                    component.lifetime_status = self.compute_component_status("lifetime", utils.calculate_percentage_reached(component.lifetime_expected, int(component.lifetime_remaining)))
                     component.save()
 
             except peewee.OperationalError as error:
@@ -275,16 +275,6 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
                 status = "Lifetime exceeded"
 
         return status
-
-    def calculate_percentage_reached(self, total, remaining): #This is utils
-        """Method to calculate remaining service interval or remaining lifetime as percentage"""
-        if isinstance(total, int) and isinstance(remaining, int):
-            return round(((total - remaining) / total) * 100, 2)
-        
-        return 1000
-
-    
-
 
 class ModifyRecords(): #Consider merging with modify tables
     """Class to interact with a SQL database through peewee""" #Modify this description
@@ -404,85 +394,13 @@ class ModifyRecords(): #Consider merging with modify tables
 
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
-
-        try:
-            logging.info(f"Deleting record with id {record_id} from table {table_selector}")
-            table_found = True
-            
-            if table_selector == str("ComponentTypes"):
-                query = ComponentTypes.get_or_none(ComponentTypes.component_type == record_id)
-            elif table_selector == str("Components"):
-                query = Components.get_or_none(Components.component_id == record_id)
-            else:
-                logging.error(f'Error looking up table for deletion of record, non-existing table: {table_selector}')
-                table_found = False
+        logging.info(f"Attempting to delete record with id {record_id} from table {table_selector}")
         
-            if table_found:
-                with database.atomic():
-                    record = query
-                    if record:
-                        if table_selector == str("Components"):
-                            services_deleted = Services.delete().where(Services.component_id == record_id).execute()
-                            history_deleted = ComponentHistory.delete().where(ComponentHistory.component_id == record_id).execute()
-                            logging.info(f"Deleted {services_deleted} service records and {history_deleted} history records for component with id {record_id}")
-                            
-                        record.delete_instance()
-                    else:
-                        logging.warning(f"No record found with id {record_id} in table {table_selector}")
-
-        except peewee.OperationalError as error:
-            logging.error(f'An error occurred while deleting record with id {record_id} from table {table_selector}: {error}')
+        success, message = database_manager.delete_record(table_selector, record_id)
         
-class MiscMethods():
-    """Class to interact with a SQL database through peewee""" #Modify this description
-    def __init__(self):
-        pass #Check out this one.
+        if success:
+            logging.info(f"Deletion successful: {message}")
+        else:
+            logging.error(f"Deletion failed: {message}")
 
-    def sum_distanse_subset_rides(self, bike_id, start_date, stop_date): #move to db_manager, do not reproduce queries, use existing functions (if available)
-        """Method to sum distance for a given set of rides"""
-
-        matching_rides = Rides.select().where(
-                                            (Rides.bike_id == bike_id) &
-                                            (Rides.record_time >= start_date) &
-                                            (Rides.record_time <= stop_date))
-        if matching_rides:
-          return sum(ride.ride_distance for ride in matching_rides)
-                   
-        return 0
-    
-    def get_unique_bikes(self): #move to db_manager, do not reproduce queries, use existing functions (if available)
-        """Method to query database and create list of unique bike ids"""
-        try:
-            logging.info("Generating list of bikes stored in local database")
-            unique_bike_ids = Rides.select(Rides.bike_id).distinct()
-            bike_id_set = {
-                ride.bike_id
-                for ride in unique_bike_ids
-                if ride.bike_id != "None"}
-
-            return bike_id_set
-
-        except (peewee.OperationalError, ValueError) as error:
-            logging.error(f"An error occurred while creating list of unique bike_ids: {error}")
-            return {}
-        
-    
-    def get_bike_name(self, bike_id): #move to db_manager, do not reproduce queries, use existing functions (if available)
-        """Method to get the name of a bike based on bike id"""
-        bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
-        if bike:
-            if bike.bike_name is not None:
-                return bike.bike_name
-        
-        return "Not assigned"
-    
-    def get_first_ride(self, bike_id): #move to db_manager, do not reproduce queries, use existing functions (if available)
-        """Method to get the date for the first ride for a given bike"""
-        oldest_ride_record = Rides.select(Rides.record_time).where(Rides.bike_id == bike_id).order_by(Rides.record_time.asc()).first()
-        if oldest_ride_record:
-            first_ride =  oldest_ride_record.record_time.split('T')[0]
-            return first_ride
-        
-        return None
-    
-    
+        return success, message

@@ -16,8 +16,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from strava import Strava
-from business_logic import ModifyTables, ModifyRecords, MiscMethods #Should import entire class
-import utils
+from business_logic import ModifyTables, ModifyRecords #Remove after refactoring
+import utils #import explicitly
 from database_manager import DatabaseManager #Remove this and all reference to it when code has been moved to business logic
 
 database_manager = DatabaseManager() #Remove this and all reference to it when code has been moved to business logic
@@ -29,7 +29,6 @@ CONFIG = utils.read_parameters()
 
 modify_tables = ModifyTables()
 modify_records = ModifyRecords()
-misc_methods = MiscMethods()
 
 # Initialize Strava API
 strava = Strava(CONFIG['strava_tokens'])
@@ -272,7 +271,7 @@ async def component_overview(request: Request):
                     component.installation_status,
                     utils.format_component_status(component.lifetime_status),
                     utils.format_component_status(component.service_status),
-                    misc_methods.get_bike_name(component.bike_id),
+                    database_manager.get_bike_name(component.bike_id),
                     utils.format_cost(component.cost)
                     ) for component in components]
 
@@ -398,13 +397,13 @@ async def component_details(request: Request, component_id: str):
                     "lifetime_remaining": int(bike_component.lifetime_remaining)
                         if bike_component.lifetime_remaining is not None else None,
                     "lifetime_status": utils.format_component_status(bike_component.lifetime_status),
-                    "lifetime_percentage": modify_tables.calculate_percentage_reached(bike_component.lifetime_expected, int(bike_component.lifetime_remaining))
+                    "lifetime_percentage": utils.calculate_percentage_reached(bike_component.lifetime_expected, int(bike_component.lifetime_remaining))
                         if bike_component.lifetime_remaining is not None else None,
                     "service_interval": bike_component.service_interval,
                     "service_next": int(bike_component.service_next)
                         if bike_component.service_next is not None else None,
                     "service_status": utils.format_component_status(bike_component.service_status),
-                    "service_percentage": modify_tables.calculate_percentage_reached(bike_component.service_interval, int(bike_component.service_next))
+                    "service_percentage": utils.calculate_percentage_reached(bike_component.service_interval, int(bike_component.service_next))
                         if bike_component.service_next is not None else None,
                     "offset": bike_component.component_distance_offset,
                     "component_notes": bike_component.notes,
@@ -414,7 +413,7 @@ async def component_details(request: Request, component_id: str):
     if component_history is not None:
         component_history_data = [(installation_record.updated_date,
                                    installation_record.update_reason,
-                                   misc_methods.get_bike_name(installation_record.bike_id),
+                                   database_manager.get_bike_name(installation_record.bike_id),
                                    int(installation_record.distance_marker)) for installation_record in component_history]
     else:
         component_history_data = None
@@ -423,7 +422,7 @@ async def component_details(request: Request, component_id: str):
     if service_history is not None:
         service_history_data = [(service_record.service_date,
                                    service_record.description,
-                                   misc_methods.get_bike_name(service_record.bike_id),
+                                   database_manager.get_bike_name(service_record.bike_id),
                                    int(service_record.distance_marker)) for service_record in service_history]
     else:
         service_history_data = None
@@ -431,7 +430,7 @@ async def component_details(request: Request, component_id: str):
     payload = {"bikes_data": bikes_data,
                "component_types_data": component_types_data,
                "bike_component_data": bike_component_data,
-               "bike_name": misc_methods.get_bike_name(bike_component.bike_id),
+               "bike_name": database_manager.get_bike_name(bike_component.bike_id),
                "component_history_data": component_history_data,
                "service_history_data": service_history_data}
     template_path = "component_details.html"
@@ -445,10 +444,10 @@ async def refresh_all_bikes(request: Request):
     """Endpoint to manually refresh data for all bikes"""
 
     logging.info("Refreshing all bikes from Strava (called directly)")
-    await strava.get_bikes(misc_methods.get_unique_bikes())
+    await strava.get_bikes(database_manager.get_unique_bikes())
     modify_tables.update_bikes(strava.payload_bikes)
 
-    for bike_id in misc_methods.get_unique_bikes():
+    for bike_id in database_manager.get_unique_bikes():
         modify_tables.update_bike_status(bike_id) #Not sure why we need to call this here..?
 
     return RedirectResponse(url="/", status_code=303)
@@ -466,10 +465,10 @@ async def refresh_rides(request: Request, mode: str):
         # set_time_strava_last_pull(app, read_records) Disable during refactoring
 
         logging.info("Refreshing all bikes from Strava")
-        await strava.get_bikes(misc_methods.get_unique_bikes())
+        await strava.get_bikes(database_manager.get_unique_bikes())
         modify_tables.update_bikes(strava.payload_bikes)
 
-        modify_tables.update_components_distance_iterator(misc_methods.get_unique_bikes())
+        modify_tables.update_components_distance_iterator(database_manager.get_unique_bikes())
 
     if mode == "recent":
         logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")

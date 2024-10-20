@@ -23,26 +23,6 @@ def read_parameters():
         config = json.load(file)
     return config
 
-def set_time_strava_last_pull(app, read_records): #This is business logic, move to business module
-    """
-    Function to set the date for last pull from Strava
-    Args:
-        app: FastAPI application instance
-        read_records: ReadRecords instance for database access
-    """
-    if app.state.strava_last_pull:
-        days_since = (datetime.now() - app.state.strava_last_pull).days
-        app.state.strava_last_pull = app.state.strava_last_pull.strftime("%Y-%m-%d %H:%M")
-        app.state.strava_days_since_last_pull = days_since
-    
-    elif app.state.strava_last_pull is None and read_records.read_latest_ride_record():
-        app.state.strava_last_pull = datetime.strptime(read_records.read_latest_ride_record().record_time, "%Y-%m-%d %H:%M")
-        app.state.strava_days_since_last_pull = (datetime.now() - app.state.strava_last_pull).days
-
-    else:
-        app.state.strava_last_pull = "never"
-        app.state.strava_days_since_last_pull = None
-
 async def pull_strava_background(mode):
     """Function to pull data from Strava in the background"""
     while True:
@@ -132,3 +112,30 @@ def get_component_statistics(component_list):
         component_statistics["sum_cost"] = "No estimate"
         
     return component_statistics
+
+def calculate_percentage_reached(total, remaining):
+        """Method to calculate remaining service interval or remaining lifetime as percentage"""
+        if isinstance(total, int) and isinstance(remaining, int):
+            return round(((total - remaining) / total) * 100, 2)
+        
+        return 1000
+
+def set_time_strava_last_pull(app, read_records): #This is business logic, move to business module
+    """
+    Function to set the date for last pull from Strava
+    Args:
+        app: FastAPI application instance
+        read_records: ReadRecords instance for database access
+    """
+    if app.state.strava_last_pull:
+        days_since = (datetime.now() - app.state.strava_last_pull).days
+        app.state.strava_last_pull = app.state.strava_last_pull.strftime("%Y-%m-%d %H:%M")
+        app.state.strava_days_since_last_pull = days_since
+    
+    elif app.state.strava_last_pull is None and read_records.read_latest_ride_record():
+        app.state.strava_last_pull = datetime.strptime(read_records.read_latest_ride_record().record_time, "%Y-%m-%d %H:%M")
+        app.state.strava_days_since_last_pull = (datetime.now() - app.state.strava_last_pull).days
+
+    else:
+        app.state.strava_last_pull = "never"
+        app.state.strava_days_since_last_pull = None
