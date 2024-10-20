@@ -65,7 +65,7 @@
                     <div class="card-body">
                         <h6 class="card-title fw-bold">{{ payload.bike_data['bike_service_status'] }}</h6>
                         <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>{% if payload.bike_data['bike_retired'] == 'False' %}🟩 Active {% elif payload.bike_data['bike_retired'] == 'True' %}🟥 Retired {% endif %}📍{{ payload.bike_data['bike_total_distance'] }} km ✨ {{ payload.bike_data['first_ride'] }}</span>
+                            <span>{% if payload.bike_data['bike_retired'] == 'False' %}🟩 Active {% elif payload.bike_data['bike_retired'] == 'True' %}🟥 Retired {% endif %}📍{{ payload.bike_data['bike_total_distance'] }} km ✨ {{ payload.bike_data['oldest_ride'] }}</span>
                         </p>
                     </div>
                 </div>

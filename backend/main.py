@@ -330,7 +330,7 @@ async def bike_details(request: Request, bike_id: str):
                 "bike_service_status": bike.service_status,
                 "bike_total_distance": int(bike.total_distance),
                 "bike_notes": bike.notes,
-                "first_ride": misc_methods.get_first_ride(bike_id)}
+                "oldest_ride": database_manager.get_date_oldest_ride(bike_id)}
 
     bike_components = database_manager.read_subset_components(bike_id)
     bike_components_data = [(component.component_id,
