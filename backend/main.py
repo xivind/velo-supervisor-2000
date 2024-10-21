@@ -488,7 +488,7 @@ async def update_config(request: Request,
                         db_path: str = Form(...),
                         strava_tokens: str = Form(...)):
     """Endpoint to update config file"""
-#Move to utils
+#Move to utils and get data from there
     CONFIG['db_path'] = db_path
     CONFIG['strava_tokens'] = strava_tokens
 
@@ -502,7 +502,7 @@ async def update_config(request: Request,
 @app.get("/get_filtered_log")
 async def get_logs():
     """Endpoint to read log and return only business events""" 
- #Move to utils
+ #Move to utils and get data from there
     with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:
         logs = log_file.readlines()
 
