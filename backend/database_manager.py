@@ -144,7 +144,33 @@ class DatabaseManager:
                 .where(Services.component_id == component_id)
                 .order_by(Services.service_date.desc())
                 .first())
-    
+
+    def update_rides_bulk(self, ride_list):
+        """Method to create or update ride data in bulk to database"""
+        try:
+            with database.atomic():
+                batch_size = 50
+                for i in range(0, len(ride_list), batch_size):
+                    batch = ride_list[i:i + batch_size]
+                    rides_tuples_list = [(dictionary['ride_id'],
+                                          dictionary['bike_id'],
+                                          dictionary['record_time'],
+                                          dictionary['ride_name'],
+                                          dictionary['ride_distance'],
+                                          dictionary['moving_time'],
+                                          dictionary['commute'])
+                                         for dictionary in batch]
+
+                    Rides.insert_many(rides_tuples_list).on_conflict(
+                        conflict_target=[Rides.ride_id],
+                        action='REPLACE'
+                    ).execute()
+
+                    return True, "Rides table updated successfully"
+
+        except peewee.OperationalError as error:
+            return False, f"An error occurred during bulk update of rides table: {str(error)}"
+        
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         try:
@@ -169,4 +195,3 @@ class DatabaseManager:
 
         except peewee.OperationalError as error:
             return False, f"Database operation failed: {str(error)}"
-        

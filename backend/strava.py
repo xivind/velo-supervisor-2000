@@ -6,7 +6,7 @@ import logging
 from datetime import datetime, timedelta
 from requests_oauthlib import OAuth2Session
 
-def health_check(status, mode): #move to separate module
+def health_check(status, mode): #Remove this function entirely, will not use
     """Function to write healthcheck data"""
     if mode == "reset":
         with open("status.txt", "w", encoding='utf-8') as file:

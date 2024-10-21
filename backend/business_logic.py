@@ -4,10 +4,13 @@
 import logging
 import peewee
 from database_model import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #This will be removed afer refactoring
-import utils #Consider import explicitly
+from utils import read_parameters, calculate_percentage_reached
+from strava import Strava
 from database_manager import DatabaseManager
 
+CONFIG = read_parameters()
 database_manager = DatabaseManager()
+strava = Strava(CONFIG['strava_tokens'])
 
 
 
@@ -17,33 +20,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
     def __init__(self):
         pass #Check out this one..
 
-    def update_rides_bulk(self, ride_list):
-        """Method to create or update ride data in bulk to database"""
-        logging.info(f'There are {len(ride_list)} rides in the list')
-
-        try:
-            with database.atomic():
-                batch_size = 50
-                for i in range(0, len(ride_list), batch_size):
-                    batch = ride_list[i:i + batch_size]
-                    rides_tuples_list = [(dictionary['ride_id'],
-                                          dictionary['bike_id'],
-                                          dictionary['record_time'],
-                                          dictionary['ride_name'],
-                                          dictionary['ride_distance'],
-                                          dictionary['moving_time'],
-                                          dictionary['commute'])
-                                         for dictionary in batch]
-
-                    Rides.insert_many(rides_tuples_list).on_conflict(
-                        conflict_target=[Rides.ride_id],
-                        action='REPLACE'
-                    ).execute()
-
-                    logging.info("Rides table updated successfully")
-
-        except peewee.OperationalError as error:
-            logging.error(f"An error occurred while updating the rides table: {error}")
+    
 
     def update_bikes(self, bike_list):
         """Method to create or update bike data to the database"""
@@ -151,7 +128,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.service_next = service_next
-                    component.service_status = self.compute_component_status("service", utils.calculate_percentage_reached(component.service_interval, int(service_next)))
+                    component.service_status = self.compute_component_status("service", calculate_percentage_reached(component.service_interval, int(service_next)))
                     component.save()
 
             except peewee.OperationalError as error:
@@ -176,7 +153,7 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
 
                 with database.atomic():
                     component.lifetime_remaining = component.lifetime_expected - component.component_distance
-                    component.lifetime_status = self.compute_component_status("lifetime", utils.calculate_percentage_reached(component.lifetime_expected, int(component.lifetime_remaining)))
+                    component.lifetime_status = self.compute_component_status("lifetime", calculate_percentage_reached(component.lifetime_expected, int(component.lifetime_remaining)))
                     component.save()
 
             except peewee.OperationalError as error:
@@ -392,6 +369,43 @@ class ModifyRecords(): #Consider merging with modify tables
             logging.error(f'An error occurred while adding installation history record for component with id {component_id}: {error}')
             return True
 
+# REFACTORED METHODS
+
+    async def update_rides_bulk(self, mode):
+        """Method to create or update ride data in bulk to database"""
+        logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
+        await strava.get_rides(mode)
+        logging.info(f'There are {len(strava.payload_rides)} rides in the list')
+
+        success, message = database_manager.update_rides_bulk(strava.payload_rides)
+
+        if success:
+            logging.info(f"Bulk update of database OK: {message}")
+        else:
+            logging.error(f"Bulk update of database failed: {message}")
+
+        if mode == "all":
+            logging.info("Refreshing all bikes from Strava")
+            await strava.get_bikes(database_manager.get_unique_bikes())
+            modify_tables.update_bikes(strava.payload_bikes)
+            modify_tables.update_components_distance_iterator(database_manager.get_unique_bikes())
+
+        if mode == "recent":
+            if len(strava.bike_ids_recent_rides) > 0:
+                logging.info("Refreshing bikes used in recent rides from Strava")
+                await strava.get_bikes(strava.bike_ids_recent_rides)
+                modify_tables.update_bikes(strava.payload_bikes)
+                modify_tables.update_components_distance_iterator(strava.bike_ids_recent_rides)
+
+            else:
+                logging.warning("No bikes found in recent activities")
+        
+        # See method below for how logging should be done
+        #app.state.strava_last_pull = datetime.now() Disable during refactoring
+        #set_time_strava_last_pull(app, read_records) Disable during refactoring
+
+        # Include return statement to route handler, see below
+        
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         logging.info(f"Attempting to delete record with id {record_id} from table {table_selector}")

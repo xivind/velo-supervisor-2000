@@ -25,13 +25,13 @@ database_manager = DatabaseManager() #Remove this and all reference to it when c
 # Load configuration
 CONFIG = utils.read_parameters()
 
-# Initialize database
+# Initialize database # Remove after refactoring
 
-modify_tables = ModifyTables()
-modify_records = ModifyRecords()
+modify_tables = ModifyTables() # Remove after refactoring
+modify_records = ModifyRecords() # Remove after refactoring
 
 # Initialize Strava API
-strava = Strava(CONFIG['strava_tokens'])
+strava = Strava(CONFIG['strava_tokens']) # Remove after refactoring
 
 # Create application
 app = FastAPI()
@@ -457,37 +457,8 @@ async def refresh_all_bikes(request: Request):
 async def refresh_rides(request: Request, mode: str):
     """Endpoint to refresh data for a subset or all rides"""
 
-    if mode == "all":
-        logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
-        await strava.get_rides(mode)
-        modify_tables.update_rides_bulk(strava.payload_rides)
-        app.state.strava_last_pull = datetime.now()
-        # set_time_strava_last_pull(app, read_records) Disable during refactoring
-
-        logging.info("Refreshing all bikes from Strava")
-        await strava.get_bikes(database_manager.get_unique_bikes())
-        modify_tables.update_bikes(strava.payload_bikes)
-
-        modify_tables.update_components_distance_iterator(database_manager.get_unique_bikes())
-
-    if mode == "recent":
-        logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
-        await strava.get_rides(mode)
-        modify_tables.update_rides_bulk(strava.payload_rides)
-        app.state.strava_last_pull = datetime.now()
-        # set_time_strava_last_pull(app, read_records) Disable during refactoring
-
-        if len(strava.bike_ids_recent_rides) > 0:
-            logging.info("Refreshing all bikes from Strava")
-            await strava.get_bikes(strava.bike_ids_recent_rides)
-            modify_tables.update_bikes(strava.payload_bikes)
-
-            modify_tables.update_components_distance_iterator(strava.bike_ids_recent_rides)
-
-        else:
-            logging.warning("No bikes found in recent activities")
-
-    return RedirectResponse(url="/", status_code=303) #This one should redirect to the page where the button is located
+    modify_records.update_rides_bulk(mode)
+    # This should return a message to the user
 
 
 @app.post("/delete_record", response_class=HTMLResponse)
@@ -497,12 +468,13 @@ async def delete_record(
     """Endpoint to delete records"""
 
     modify_records.delete_record(table_selector, record_id)
+    # This should return a message to the user
 
 
 @app.get("/config_overview", response_class=HTMLResponse)
 async def read_config(request: Request):
     """Endpoint for component types page"""
-
+# Get data from utils instead
     payload = {"strava_tokens": CONFIG['strava_tokens'],
                "db_path": CONFIG['strava_tokens']}
     template_path = "config.html"
@@ -516,7 +488,7 @@ async def update_config(request: Request,
                         db_path: str = Form(...),
                         strava_tokens: str = Form(...)):
     """Endpoint to update config file"""
-
+#Move to utils
     CONFIG['db_path'] = db_path
     CONFIG['strava_tokens'] = strava_tokens
 
@@ -530,7 +502,7 @@ async def update_config(request: Request,
 @app.get("/get_filtered_log")
 async def get_logs():
     """Endpoint to read log and return only business events""" 
-
+ #Move to utils
     with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:
         logs = log_file.readlines()
 
