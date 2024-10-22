@@ -150,6 +150,7 @@ class DatabaseManager:
         try:
             with database.atomic():
                 batch_size = 50
+                
                 for i in range(0, len(ride_list), batch_size):
                     batch = ride_list[i:i + batch_size]
                     rides_tuples_list = [(dictionary['ride_id'],
@@ -170,7 +171,28 @@ class DatabaseManager:
 
         except peewee.OperationalError as error:
             return False, f"An error occurred during bulk update of rides table: {str(error)}"
-        
+
+    def update_bikes(self, bike_list):
+        """Method to create or update bike data to the database"""
+        try:
+            with database.atomic():
+                for bike_data in bike_list:
+                    existing_bike = self.read_single_bike(bike_data["bike_id"])
+
+                    if existing_bike:
+                        filtered_bike_data = {key: value for key, value in bike_data.items() if key != 'bike_id'}
+                        query = Bikes.update(**filtered_bike_data).where(Bikes.bike_id == bike_data["bike_id"])
+                        query.execute()
+
+                    else:
+                        query = Bikes.insert(**bike_data)
+                        query.execute()
+
+            return True, f'Records for {len(bike_list)} bikes updated'
+
+        except peewee.OperationalError as error:
+            return False, f"Update of bike records failed: {str(error)}"
+    
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         try:
@@ -180,6 +202,7 @@ class DatabaseManager:
                     if record:
                         record.delete_instance()
                         return True, f"Deleted component type: {record_id}"
+                
                 elif table_selector == "Components":
                     record = Components.get_or_none(Components.component_id == record_id)
                     if record:
@@ -194,4 +217,4 @@ class DatabaseManager:
                     return False, f"Record not found: {record_id}"
 
         except peewee.OperationalError as error:
-            return False, f"Database operation failed: {str(error)}"
+            return False, f"Deletion of records failed: {str(error)}"

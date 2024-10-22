@@ -2,14 +2,20 @@
 """Module to handle business logic"""
 
 import logging
+from datetime import datetime
 import peewee
 from database_model import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #This will be removed afer refactoring
 from utils import read_parameters, calculate_percentage_reached
 from strava import Strava
 from database_manager import DatabaseManager
 
+# Load configuration
 CONFIG = read_parameters()
+
+# Create database manager object
 database_manager = DatabaseManager()
+
+# Initialize Strava API
 strava = Strava(CONFIG['strava_tokens'])
 
 
@@ -20,46 +26,6 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
     def __init__(self):
         pass #Check out this one..
 
-    
-
-    def update_bikes(self, bike_list):
-        """Method to create or update bike data to the database"""
-        try:
-            with database.atomic():
-                for bike_data in bike_list:
-                    existing_bike = Bikes.get_or_none(Bikes.bike_id == bike_data["bike_id"])
-
-                    if existing_bike:
-                        filtered_bike_data = {key: value for key, value in bike_data.items() if key != 'bike_id'}
-                        query = Bikes.update(**filtered_bike_data).where(Bikes.bike_id == bike_data["bike_id"])
-                        query.execute()
-                        logging.info(f'Record for bike with id {bike_data["bike_id"]} updated')
-
-                    else:
-                        query = Bikes.insert(**bike_data)
-                        query.execute()
-                        logging.info(f'Record for bike with id {bike_data["bike_id"]} inserted')
-
-        except peewee.OperationalError as error:
-            logging.error(f'An error occurred while updating the bikes table: {error}')
-
-    def update_components_distance_iterator(self, bike_ids):
-        """Method to determine which selection of components to update"""
-        try:
-            logging.info(f'Iterating over bikes to find components to update. Received {len(bike_ids)} bikes')
-            for bike_id in bike_ids:
-                for component in Components.select().where(
-                    (Components.installation_status == 'Installed') &
-                    (Components.bike_id == bike_id)).execute():
-                    
-                    latest_history_record = ComponentHistory.select().where(ComponentHistory.component_id == component.component_id).order_by(ComponentHistory.updated_date.desc()).first()
-                    current_component_distance = latest_history_record.distance_marker
-                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_history_record.updated_date))
-                    current_component_distance += sum(ride.ride_distance for ride in matching_rides)
-                    self.update_component_distance(component.component_id, current_component_distance)
-
-        except (peewee.OperationalError, ValueError) as error:
-            logging.error(f'An error occurred while iterating over bikes to find components to update: {error}')
 
     def update_component_distance(self, component_id, current_distance):
         """Method to update component table with distance from ride table"""
@@ -369,7 +335,7 @@ class ModifyRecords(): #Consider merging with modify tables
             logging.error(f'An error occurred while adding installation history record for component with id {component_id}: {error}')
             return True
 
-# REFACTORED METHODS
+# REFACTORED METHODS Add class here BusinessLogic, takes app as argument)
 
     async def update_rides_bulk(self, mode):
         """Method to create or update ride data in bulk to database"""
@@ -387,25 +353,57 @@ class ModifyRecords(): #Consider merging with modify tables
         if mode == "all":
             logging.info("Refreshing all bikes from Strava")
             await strava.get_bikes(database_manager.get_unique_bikes())
-            modify_tables.update_bikes(strava.payload_bikes)
+            success, message = database_manager.update_bikes(strava.payload_bikes)
+            
+            if success:
+                logging.info(f"Bike update OK: {message}")
+            else:
+                logging.error(f"Bike update failed failed: {message}")
+            
             modify_tables.update_components_distance_iterator(database_manager.get_unique_bikes())
 
         if mode == "recent":
             if len(strava.bike_ids_recent_rides) > 0:
                 logging.info("Refreshing bikes used in recent rides from Strava")
                 await strava.get_bikes(strava.bike_ids_recent_rides)
-                modify_tables.update_bikes(strava.payload_bikes)
+                success, message = database_manager.update_bikes(strava.payload_bikes)
+                
+                if success:
+                    logging.info(f"Bike update OK: {message}")
+                else:
+                    logging.error(f"Bike update failed failed: {message}")
+                
                 modify_tables.update_components_distance_iterator(strava.bike_ids_recent_rides)
 
             else:
                 logging.warning("No bikes found in recent activities")
         
         # See method below for how logging should be done
-        #app.state.strava_last_pull = datetime.now() Disable during refactoring
+        #app.state.strava_last_pull = datetime.now() Disable during refactoring, app must be made available somehow
         #set_time_strava_last_pull(app, read_records) Disable during refactoring
 
         # Include return statement to route handler, see below
         
+    def update_components_distance_iterator(self, bike_ids): #This function only prints to console, no message to user
+        """Method to determine which selection of components to update"""
+        try:
+            logging.info(f'Iterating over bikes to find components to update. Received {len(bike_ids)} bikes')
+            for bike_id in bike_ids: #Replace for loop with function
+                for component in Components.select().where(
+                    (Components.installation_status == 'Installed') &
+                    (Components.bike_id == bike_id)).execute():
+                    
+                    latest_history_record = database_manager.read_latest_history_record(component.component_id) #Is this correct?
+                    current_component_distance = latest_history_record.distance_marker
+                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_history_record.updated_date)) #Replace with function
+                    current_component_distance += sum(ride.ride_distance for ride in matching_rides)
+                    self.update_component_distance(component.component_id, current_component_distance)
+
+        except (peewee.OperationalError, ValueError) as error:
+            logging.error(f'An error occurred while iterating over bikes to find components to update: {error}')
+    
+    #More functions below, following the sequence from functions above
+    
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         logging.info(f"Attempting to delete record with id {record_id} from table {table_selector}")
@@ -418,3 +416,23 @@ class ModifyRecords(): #Consider merging with modify tables
             logging.error(f"Deletion failed: {message}")
 
         return success, message
+    
+    def set_time_strava_last_pull(self, app, read_records): #Read records should be called from database manager
+        """
+        Function to set the date for last pull from Strava
+        Args:
+            app: FastAPI application instance
+            read_records: ReadRecords instance for database access
+        """
+        if app.state.strava_last_pull:
+            days_since = (datetime.now() - app.state.strava_last_pull).days
+            app.state.strava_last_pull = app.state.strava_last_pull.strftime("%Y-%m-%d %H:%M")
+            app.state.strava_days_since_last_pull = days_since
+        
+        elif app.state.strava_last_pull is None and read_records.read_latest_ride_record():
+            app.state.strava_last_pull = datetime.strptime(read_records.read_latest_ride_record().record_time, "%Y-%m-%d %H:%M")
+            app.state.strava_days_since_last_pull = (datetime.now() - app.state.strava_last_pull).days
+
+        else:
+            app.state.strava_last_pull = "never"
+            app.state.strava_days_since_last_pull = None

@@ -4,7 +4,6 @@
 import json
 import logging
 import asyncio
-from datetime import datetime
 import uuid
 import time
 import httpx
@@ -120,22 +119,3 @@ def calculate_percentage_reached(total, remaining):
         
         return 1000
 
-def set_time_strava_last_pull(app, read_records): #This is business logic, move to business module
-    """
-    Function to set the date for last pull from Strava
-    Args:
-        app: FastAPI application instance
-        read_records: ReadRecords instance for database access
-    """
-    if app.state.strava_last_pull:
-        days_since = (datetime.now() - app.state.strava_last_pull).days
-        app.state.strava_last_pull = app.state.strava_last_pull.strftime("%Y-%m-%d %H:%M")
-        app.state.strava_days_since_last_pull = days_since
-    
-    elif app.state.strava_last_pull is None and read_records.read_latest_ride_record():
-        app.state.strava_last_pull = datetime.strptime(read_records.read_latest_ride_record().record_time, "%Y-%m-%d %H:%M")
-        app.state.strava_days_since_last_pull = (datetime.now() - app.state.strava_last_pull).days
-
-    else:
-        app.state.strava_last_pull = "never"
-        app.state.strava_days_since_last_pull = None

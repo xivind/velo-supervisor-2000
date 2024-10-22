@@ -30,11 +30,16 @@ CONFIG = utils.read_parameters()
 modify_tables = ModifyTables() # Remove after refactoring
 modify_records = ModifyRecords() # Remove after refactoring
 
+# Create application
+app = FastAPI()
+
+# Create business logic object
+#business_logic = BusinessLogic(app)
+
+
 # Initialize Strava API
 strava = Strava(CONFIG['strava_tokens']) # Remove after refactoring
 
-# Create application
-app = FastAPI()
 
 # Setup static files and templates
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
@@ -48,7 +53,7 @@ app.version = utils.get_current_version()
 app.state.db_path = CONFIG['db_path']
 app.state.strava_last_pull = None
 app.state.strava_days_since_last_pull = None
-#utils.set_time_strava_last_pull(app, read_records) Disabled during refactoring
+#business_logic.set_time_strava_last_pull(app, read_records) Disabled during refactoring, should not send read_tables
 
 # Exception handler
 @app.exception_handler(StarletteHTTPException)
@@ -442,7 +447,7 @@ async def component_details(request: Request, component_id: str):
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
 async def refresh_all_bikes(request: Request):
     """Endpoint to manually refresh data for all bikes"""
-
+    # Something is not right with this endpoint, only called by button in config
     logging.info("Refreshing all bikes from Strava (called directly)")
     await strava.get_bikes(database_manager.get_unique_bikes())
     modify_tables.update_bikes(strava.payload_bikes)
@@ -450,7 +455,7 @@ async def refresh_all_bikes(request: Request):
     for bike_id in database_manager.get_unique_bikes():
         modify_tables.update_bike_status(bike_id) #Not sure why we need to call this here..?
 
-    return RedirectResponse(url="/", status_code=303)
+    # This should return a message to the user
 
 
 @app.get("/refresh_rides/{mode}", response_class=HTMLResponse)
