@@ -16,7 +16,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from strava import Strava
-from business_logic import ModifyTables, ModifyRecords #Remove after refactoring
+from business_logic import BusinessLogic, ModifyTables, ModifyRecords #Remove after refactoring
 import utils #import explicitly
 from database_manager import DatabaseManager #Remove this and all reference to it when code has been moved to business logic
 
@@ -33,13 +33,8 @@ modify_records = ModifyRecords() # Remove after refactoring
 # Create application
 app = FastAPI()
 
-# Create business logic object
-#business_logic = BusinessLogic(app)
-
-
 # Initialize Strava API
 strava = Strava(CONFIG['strava_tokens']) # Remove after refactoring
-
 
 # Setup static files and templates
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
@@ -53,7 +48,10 @@ app.version = utils.get_current_version()
 app.state.db_path = CONFIG['db_path']
 app.state.strava_last_pull = None
 app.state.strava_days_since_last_pull = None
-#business_logic.set_time_strava_last_pull(app, read_records) Disabled during refactoring, should not send read_tables
+
+# Create business logic object
+business_logic = BusinessLogic(app.state)
+#business_logic.set_time_strava_last_pull(app, read_records) Disabled during refactoring
 
 # Exception handler
 @app.exception_handler(StarletteHTTPException)

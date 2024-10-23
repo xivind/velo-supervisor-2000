@@ -27,34 +27,6 @@ class ModifyTables(): #rename to something else, internal logic or something, mi
         pass #Check out this one..
 
 
-    def update_component_distance(self, component_id, current_distance):
-        """Method to update component table with distance from ride table"""
-        try:
-            component = Components.get(Components.component_id == component_id) 
-            distance_offset = component.component_distance_offset
-            total_distance = current_distance + distance_offset
-    
-            with database.atomic():
-                component.component_distance = total_distance
-                component.save()
-
-            logging.info(f"Updated distance for component {component.component_name} (id {component.component_id}). New total distance: {total_distance}")
-            
-            updated_component = Components.get(Components.component_id == component_id)
-            
-            if updated_component.bike_id is None: #Refactor with classmethod, this one should use existing method instead
-                bike_id = ComponentHistory.select().where(ComponentHistory.component_id == component_id).order_by(ComponentHistory.updated_date.desc()).first().bike_id
-
-            else:
-                bike_id = updated_component.bike_id
-            
-            self.update_component_lifetime_status(updated_component)
-            self.update_component_service_status(updated_component)
-            self.update_bike_status(bike_id)
-
-        except (peewee.OperationalError, ValueError) as error:
-            logging.error(f'An error occurred while updating component distance for component {component.component_name} (id {component.component_id}): {error}')
-
     def update_component_service_status(self, component):
         """Method to update component table with service status"""
         
@@ -337,6 +309,11 @@ class ModifyRecords(): #Consider merging with modify tables
 
 # REFACTORED METHODS Add class here BusinessLogic, takes app as argument)
 
+class BusinessLogic():
+    """Class that contains business logic""" 
+    def __init__(self, app_state):
+        self.app_state = app_state
+
     async def update_rides_bulk(self, mode):
         """Method to create or update ride data in bulk to database"""
         logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
@@ -360,7 +337,7 @@ class ModifyRecords(): #Consider merging with modify tables
             else:
                 logging.error(f"Bike update failed failed: {message}")
             
-            modify_tables.update_components_distance_iterator(database_manager.get_unique_bikes())
+            self.update_components_distance_iterator(database_manager.get_unique_bikes())
 
         if mode == "recent":
             if len(strava.bike_ids_recent_rides) > 0:
@@ -373,7 +350,7 @@ class ModifyRecords(): #Consider merging with modify tables
                 else:
                     logging.error(f"Bike update failed failed: {message}")
                 
-                modify_tables.update_components_distance_iterator(strava.bike_ids_recent_rides)
+                self.update_components_distance_iterator(strava.bike_ids_recent_rides)
 
             else:
                 logging.warning("No bikes found in recent activities")
@@ -389,18 +366,46 @@ class ModifyRecords(): #Consider merging with modify tables
         try:
             logging.info(f'Iterating over bikes to find components to update. Received {len(bike_ids)} bikes')
             for bike_id in bike_ids: #Replace for loop with function
-                for component in Components.select().where(
-                    (Components.installation_status == 'Installed') &
-                    (Components.bike_id == bike_id)).execute():
+                for component in database_manager.read_subset_installed_components(bike_id):
                     
-                    latest_history_record = database_manager.read_latest_history_record(component.component_id) #Is this correct?
+                    latest_history_record = database_manager.read_latest_history_record(component.component_id)
                     current_component_distance = latest_history_record.distance_marker
-                    matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_history_record.updated_date)) #Replace with function
+                    matching_rides = database_manager.read_matching_rides(component.bike_id, latest_history_record.updated_date)
                     current_component_distance += sum(ride.ride_distance for ride in matching_rides)
                     self.update_component_distance(component.component_id, current_component_distance)
 
-        except (peewee.OperationalError, ValueError) as error:
+        except (peewee.OperationalError, ValueError) as error: #Do not call peewee from this module
             logging.error(f'An error occurred while iterating over bikes to find components to update: {error}')
+    
+    def update_component_distance(self, component_id, current_distance):
+        """Method to update component table with distance from ride table"""
+        try:
+            component = database_manager.read_component(component_id)
+            distance_offset = component.component_distance_offset
+            total_distance = current_distance + distance_offset
+    
+            with database.atomic():# Move to function
+                component.component_distance = total_distance
+                component.save()
+
+            logging.info(f"Updated distance for component {component.component_name} (id {component.component_id}). New total distance: {total_distance}")
+            
+            updated_component = database_manager.read_component(component_id)
+            
+            if updated_component.bike_id is None:
+                bike_id = database_manager.read_bike_id_recent_component_history(component_id)
+
+            else:
+                bike_id = updated_component.bike_id #What is happening here, check this logic
+            
+            self.update_component_lifetime_status(updated_component)
+            self.update_component_service_status(updated_component)
+            self.update_bike_status(bike_id)
+
+        except (peewee.OperationalError, ValueError) as error: #Do not call peewee from this module
+            logging.error(f'An error occurred while updating component distance for component {component.component_name} (id {component.component_id}): {error}')
+    
+    
     
     #More functions below, following the sequence from functions above
     
@@ -417,22 +422,22 @@ class ModifyRecords(): #Consider merging with modify tables
 
         return success, message
     
-    def set_time_strava_last_pull(self, app, read_records): #Read records should be called from database manager
+    def set_time_strava_last_pull(self):
         """
         Function to set the date for last pull from Strava
         Args:
             app: FastAPI application instance
             read_records: ReadRecords instance for database access
         """
-        if app.state.strava_last_pull:
-            days_since = (datetime.now() - app.state.strava_last_pull).days
-            app.state.strava_last_pull = app.state.strava_last_pull.strftime("%Y-%m-%d %H:%M")
-            app.state.strava_days_since_last_pull = days_since
+        if self.app_state.strava_last_pull:
+            days_since = (datetime.now() - self.app_state.strava_last_pull).days
+            self.app_state.strava_last_pull = self.app_state.strava_last_pull.strftime("%Y-%m-%d %H:%M")
+            self.app_state.strava_days_since_last_pull = days_since
         
-        elif app.state.strava_last_pull is None and read_records.read_latest_ride_record():
-            app.state.strava_last_pull = datetime.strptime(read_records.read_latest_ride_record().record_time, "%Y-%m-%d %H:%M")
-            app.state.strava_days_since_last_pull = (datetime.now() - app.state.strava_last_pull).days
+        elif self.app_state.strava_last_pull is None and database_manager.read_latest_ride_record():
+            self.app_state.strava_last_pull = datetime.strptime(database_manager.read_latest_ride_record().record_time, "%Y-%m-%d %H:%M")
+            self.app_state.strava_days_since_last_pull = (datetime.now() - self.app_state.strava_last_pull).days
 
         else:
-            app.state.strava_last_pull = "never"
-            app.state.strava_days_since_last_pull = None
+            self.app_state.strava_last_pull = "never"
+            self.app_state.strava_days_since_last_pull = None

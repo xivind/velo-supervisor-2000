@@ -34,6 +34,15 @@ class DatabaseManager:
 
         return "Not assigned"
 
+    def read_bike_id_recent_component_history(self, component_id):
+        """Method to get bike id from most recent component history"""
+        return (ComponentHistory
+                .select()
+                .where(ComponentHistory.component_id == component_id)
+                .order_by(ComponentHistory.updated_date.desc())
+                .first()
+                .bike_id)
+    
     def get_unique_bikes(self):
         """Method to query database and create list of unique bike ids"""
         unique_bike_ids = (Rides
@@ -54,6 +63,13 @@ class DatabaseManager:
                 .order_by(Rides.record_time.desc())
                 .limit(5))
 
+    def read_matching_rides(self, bike_id, latest_updated_date):
+        """Method to read rides associated with a given component aftere a given date"""
+        return (Rides
+                .select()
+                .where((Rides.bike_id == bike_id) &
+                (Rides.record_time >= latest_updated_date)))
+    
     def read_latest_ride_record(self):
         """Method to retrieve the most recent ride"""
         return (Rides
@@ -106,6 +122,13 @@ class DatabaseManager:
                 .select()
                 .where(Components.bike_id == bike_id))
 
+    def read_subset_installed_components(self, bike_id):
+        """Method to read installed components for a specific bike"""
+        return (Components
+                .select()
+                .where(Components.installation_status == 'Installed') &
+                (Components.bike_id == bike_id))
+                
     def read_component(self, component_id):
         """Method to retrieve record for a specific component"""
         return (Components
