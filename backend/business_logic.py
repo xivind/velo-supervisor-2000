@@ -19,177 +19,8 @@ database_manager = DatabaseManager()
 strava = Strava(CONFIG['strava_tokens'])
 
 
-
-
-class ModifyTables(): #rename to something else, internal logic or something, might split into separate classes
-    """Class to interact with a SQL database through peewee""" #Modify this description
-    def __init__(self):
-        pass #Check out this one..
-
-
-    def update_component_service_status(self, component):
-        """Method to update component table with service status"""
-        
-        if component.service_interval:
-            try:
-                logging.info(f"Updating service status for component {component.component_name} with component id {component.component_id}")
-                latest_service_record = Services.select().where(Services.component_id == component.component_id).order_by(Services.service_date.desc()).first()
-                latest_history_record = ComponentHistory.select().where(ComponentHistory.component_id == component.component_id).order_by(ComponentHistory.updated_date.desc()).first()
-
-                if component.installation_status == "Installed":
-                    if latest_service_record is None:
-                        logging.info(f'No service record found for component with id {component.component_id}. Using distance from installation log and querying distance from installation date to today')
-                        distance_since_service = latest_history_record.distance_marker
-                        matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_history_record.updated_date))
-                        distance_since_service += sum(ride.ride_distance for ride in matching_rides)
-                        
-                    elif latest_service_record:
-                        logging.info(f'Service record found for for component with id {component.component_id}. Querying distance from previous service date to today')
-                        matching_rides = Rides.select().where((Rides.bike_id == component.bike_id) & (Rides.record_time >= latest_service_record.service_date))
-                        distance_since_service = sum(ride.ride_distance for ride in matching_rides)
-
-                elif component.installation_status != "Installed":
-                    if latest_service_record is None:
-                        logging.info(f'Component with id {component.component_id} has been uninstalled and there are no previous services. Setting distance since service to distance at the time of uninstallation')
-                        distance_since_service = latest_history_record.distance_marker
-                    
-                    elif latest_service_record:
-                        if latest_service_record.service_date > component.updated_date:
-                            logging.info(f'Component with id {component.component_id} has been serviced after uninstall. Setting distance since service to 0')
-                            distance_since_service = 0
-                    
-                        elif latest_service_record.service_date < component.updated_date:
-                            logging.info(f'Component with id {component.component_id} has no services after uninstall, but a previous service exist. Using already calculated distance to next service')
-                            distance_since_service = component.service_interval + component.service_next*-1
-            
-                service_next = component.service_interval - distance_since_service
-
-                with database.atomic():
-                    component.service_next = service_next
-                    component.service_status = self.compute_component_status("service", calculate_percentage_reached(component.service_interval, int(service_next)))
-                    component.save()
-
-            except peewee.OperationalError as error:
-                logging.error(f'An error occurred while updating service status for component {component.component_name} with component id {component.component_id}: {error}')
-
-        else:
-            try:
-                logging.info(f"Component {component.component_name} with component id {component.component_id} has no service interval, setting NULL values for service")
-                with database.atomic():
-                    component.service_next = None
-                    component.service_status = None
-                    component.save()
-
-            except peewee.OperationalError as error:
-                logging.error(f'An error occurred while setting blank service status for component {component.component_name} with component id {component.component_id}: {error}')
-
-    def update_component_lifetime_status(self, component):
-        """Method to update component table with lifetime status"""
-        if component.lifetime_expected:
-            try:
-                logging.info(f"Updating lifetime status for component {component.component_name} (id {component.component_id})")
-
-                with database.atomic():
-                    component.lifetime_remaining = component.lifetime_expected - component.component_distance
-                    component.lifetime_status = self.compute_component_status("lifetime", calculate_percentage_reached(component.lifetime_expected, int(component.lifetime_remaining)))
-                    component.save()
-
-            except peewee.OperationalError as error:
-                logging.error(f'An error occurred while updating lifetime status for component {component.component_name} (id {component.component_id}): {error}')
-
-        else:
-            try:
-                logging.info(f"Component {component.component_name} (id {component.component_id}) has no expected lifetime, setting NULL values for lifetime")
-
-                with database.atomic():
-                    component.lifetime_remaining = None
-                    component.lifetime_status = None
-                    component.save()
-
-            except peewee.OperationalError as error:
-                logging.error(f'An error occurred while setting blank lifetime status for component {component.component_name} (id {component.component_id}): {error}')
-
-    def update_bike_status(self, bike_id):
-        """Method to update status for a given bike based on component service and lifetime status"""
-
-        try:
-            bike = Bikes.get_or_none(Bikes.bike_id == bike_id)
-            components = Components.select().where(Components.bike_id == bike_id)
-            
-            logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}")
-            
-            component_status = {"breakdown_imminent": 0,
-                        "maintenance_required": 0,
-                        "maintenance_approaching": 0,
-                        "ok": 0}
-            
-            count_installed = 0
-            count_retired = 0
-
-            if components.exists():
-                for component in components:
-                    if component.installation_status == "Installed":
-                        count_installed += 1
-                        if component.lifetime_status == "Lifetime exceeded" or component.service_status =="Service interval exceeded":
-                            component_status["breakdown_imminent"] += 1
-                        elif component.lifetime_status == "Due for replacement" or component.service_status =="Due for service":
-                            component_status["maintenance_required"] += 1
-                        elif component.lifetime_status == "End of life approaching" or component.service_status =="Service approaching":
-                            component_status["maintenance_approaching"] += 1
-                        elif component.lifetime_status == "OK" or component.service_status =="OK":
-                            component_status["ok"] += 1
-                    
-                    if component.installation_status == "Retired":
-                        count_retired += 1
-
-                if component_status["breakdown_imminent"] > 0:
-                    service_status = "Breakdown imminent"
-                elif component_status["maintenance_required"] > 0:
-                    service_status = "Maintenance required"
-                elif component_status["maintenance_approaching"] > 0:
-                    service_status = "Maintenance approaching"
-                elif component_status["ok"] > 0:
-                    service_status = "Pristine condition"
-                elif all(value == 0 for value in component_status.values()) and count_installed > 0:
-                    service_status = "Maintenance not defined"
-                elif count_installed == 0 and count_retired > 0:
-                    service_status = "No active components"
-            
-            else:
-                service_status = "No components registered"
-        
-            logging.info(f"New status for bike {bike.bike_name}: {service_status}")
-
-            with database.atomic():
-                bike.service_status = service_status
-                bike.save()
-        
-        except Exception as error:
-            logging.error(f'An error occurred while updating bike status for {bike.bike_name} with id {bike.bike_id}): {error}')
     
-    def compute_component_status(self, mode, reached_distance_percent): #This is business 
-        """Method to compute service status"""
-        if mode == "service":
-            if 0 <= reached_distance_percent <= 70:
-                status = "OK"
-            elif 70 < reached_distance_percent <= 90:
-                status = "Service approaching"
-            elif 90 < reached_distance_percent <= 100:
-                status = "Due for service"
-            elif reached_distance_percent > 100:
-                status = "Service interval exceeded"
-
-        if mode == "lifetime":
-            if 0 <= reached_distance_percent <= 70:
-                status = "OK"
-            elif 70 < reached_distance_percent <= 90:
-                status = "End of life approaching"
-            elif 90 < reached_distance_percent <= 100:
-                status = "Due for replacement"
-            elif reached_distance_percent > 100:
-                status = "Lifetime exceeded"
-
-        return status
+    
 
 class ModifyRecords(): #Consider merging with modify tables
     """Class to interact with a SQL database through peewee""" #Modify this description
@@ -219,7 +50,7 @@ class ModifyRecords(): #Consider merging with modify tables
                     # Missing log statement
         
         except peewee.OperationalError as error:
-                logging.error(f'An error occurred while creating or updating component type {component_type_data["component_type"]}: {error}')
+            logging.error(f'An error occurred while creating or updating component type {component_type_data["component_type"]}: {error}')
     
     def update_component_details(self, component_id, new_component_data):
         """Method to create or update component data to the database"""
@@ -314,7 +145,7 @@ class BusinessLogic():
     def __init__(self, app_state):
         self.app_state = app_state
 
-    async def update_rides_bulk(self, mode):
+    async def update_rides_bulk(self, mode): #Might wrap this in try except block
         """Method to create or update ride data in bulk to database"""
         logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
         await strava.get_rides(mode)
@@ -383,10 +214,8 @@ class BusinessLogic():
             component = database_manager.read_component(component_id)
             distance_offset = component.component_distance_offset
             total_distance = current_distance + distance_offset
-    
-            with database.atomic():# Move to function
-                component.component_distance = total_distance
-                component.save()
+
+            database_manager.write_component_distance(component, total_distance)
 
             logging.info(f"Updated distance for component {component.component_name} (id {component.component_id}). New total distance: {total_distance}")
             
@@ -405,9 +234,173 @@ class BusinessLogic():
         except (peewee.OperationalError, ValueError) as error: #Do not call peewee from this module
             logging.error(f'An error occurred while updating component distance for component {component.component_name} (id {component.component_id}): {error}')
     
+    def update_component_lifetime_status(self, component):
+        """Method to update component table with lifetime status"""
+        if component.lifetime_expected:
+            try:
+                logging.info(f"Updating lifetime status for component {component.component_name} (id {component.component_id})")
+
+                lifetime_remaining = component.lifetime_expected - component.component_distance
+                lifetime_status = self.compute_component_status("lifetime",
+                                                               calculate_percentage_reached(component.lifetime_expected,
+                                                                                            int(component.lifetime_remaining)))
+                
+                database_manager.write_component_lifetime_status(component,
+                                                                 lifetime_remaining, lifetime_status)
+
+            except peewee.OperationalError as error: #Do not call peewee from this module
+                logging.error(f'An error occurred while updating lifetime status for component {component.component_name} (id {component.component_id}): {error}')
+
+        else:
+            try:
+                logging.info(f"Component {component.component_name} (id {component.component_id}) has no expected lifetime, setting NULL values for lifetime")
+
+                lifetime_remaining = None
+                lifetime_status = None
+                
+                database_manager.write_component_lifetime_status(component, lifetime_remaining, lifetime_status)
+ 
+            except peewee.OperationalError as error: #Do not call peewee from this module
+                logging.error(f'An error occurred while setting blank lifetime status for component {component.component_name} (id {component.component_id}): {error}')
     
+    def update_component_service_status(self, component):
+        """Method to update component table with service status"""
+        if component.service_interval:
+            try:
+                logging.info(f"Updating service status for component {component.component_name} with component id {component.component_id}")
+                latest_service_record = database_manager.read_latest_service_record(component.component_id)
+                latest_history_record = database_manager.read_latest_history_record(component.component_id)
+
+                if component.installation_status == "Installed":
+                    if latest_service_record is None:
+                        logging.info(f'No service record found for component with id {component.component_id}. Using distance from installation log and querying distance from installation date to today')
+                        distance_since_service = latest_history_record.distance_marker
+                        matching_rides = database_manager.read_matching_rides(component.bike_id, latest_history_record.updated_date)
+                        distance_since_service += sum(ride.ride_distance for ride in matching_rides)
+                        
+                    elif latest_service_record:
+                        logging.info(f'Service record found for for component with id {component.component_id}. Querying distance from previous service date to today')
+                        matching_rides = database_manager.read_matching_rides(component.bike_id, latest_history_record.updated_date)
+                        distance_since_service = sum(ride.ride_distance for ride in matching_rides)
+
+                elif component.installation_status != "Installed":
+                    if latest_service_record is None:
+                        logging.info(f'Component with id {component.component_id} has been uninstalled and there are no previous services. Setting distance since service to distance at the time of uninstallation')
+                        distance_since_service = latest_history_record.distance_marker
+                    
+                    elif latest_service_record:
+                        if latest_service_record.service_date > component.updated_date:
+                            logging.info(f'Component with id {component.component_id} has been serviced after uninstall. Setting distance since service to 0')
+                            distance_since_service = 0
+                    
+                        elif latest_service_record.service_date < component.updated_date:
+                            logging.info(f'Component with id {component.component_id} has no services after uninstall, but a previous service exist. Using already calculated distance to next service')
+                            distance_since_service = component.service_interval + component.service_next*-1
+            
+                service_next = component.service_interval - distance_since_service
+                service_status = self.compute_component_status("service",
+                                                               calculate_percentage_reached(component.service_interval,
+                                                                                            int(service_next)))
+                
+                database_manager.write_component_service_status(component, service_next, service_status)
+
+            except peewee.OperationalError as error: #Do not call peewee from this module
+
+                logging.error(f'An error occurred while updating service status for component {component.component_name} with component id {component.component_id}: {error}')
+
+        else:
+            try:
+                logging.info(f"Component {component.component_name} with component id {component.component_id} has no service interval, setting NULL values for service")
+                
+                service_next = None
+                service_status = None
+                
+                database_manager.write_component_service_status(component, service_next, service_status)
+
+            except peewee.OperationalError as error: #Do not call peewee from this module
+
+                logging.error(f'An error occurred while setting blank service status for component {component.component_name} with component id {component.component_id}: {error}')
+
+    def update_bike_status(self, bike_id):
+        """Method to update status for a given bike based on component service and lifetime status"""
+        try:
+            bike = database_manager.read_single_bike(bike_id)
+            components = database_manager.read_subset_components(bike_id)            
+            
+            logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}")
+            
+            component_status = {"breakdown_imminent": 0,
+                                "maintenance_required": 0,
+                                "maintenance_approaching": 0,
+                                "ok": 0}
+            
+            count_installed = 0
+            count_retired = 0
+
+            if components.exists():
+                for component in components:
+                    if component.installation_status == "Installed":
+                        count_installed += 1
+                        if component.lifetime_status == "Lifetime exceeded" or component.service_status =="Service interval exceeded":
+                            component_status["breakdown_imminent"] += 1
+                        elif component.lifetime_status == "Due for replacement" or component.service_status =="Due for service":
+                            component_status["maintenance_required"] += 1
+                        elif component.lifetime_status == "End of life approaching" or component.service_status =="Service approaching":
+                            component_status["maintenance_approaching"] += 1
+                        elif component.lifetime_status == "OK" or component.service_status =="OK":
+                            component_status["ok"] += 1
+                    
+                    if component.installation_status == "Retired":
+                        count_retired += 1
+
+                if component_status["breakdown_imminent"] > 0:
+                    service_status = "Breakdown imminent"
+                elif component_status["maintenance_required"] > 0:
+                    service_status = "Maintenance required"
+                elif component_status["maintenance_approaching"] > 0:
+                    service_status = "Maintenance approaching"
+                elif component_status["ok"] > 0:
+                    service_status = "Pristine condition"
+                elif all(value == 0 for value in component_status.values()) and count_installed > 0:
+                    service_status = "Maintenance not defined"
+                elif count_installed == 0 and count_retired > 0:
+                    service_status = "No active components"
+            
+            else:
+                service_status = "No components registered"
+        
+            logging.info(f"New status for bike {bike.bike_name}: {service_status}")
+
+            database_manager.write_bike_service_status(bike, service_status)
+        
+        except Exception as error: #Ger error from return statement database_manager
+            logging.error(f'An error occurred while updating bike status for {bike.bike_name} with id {bike.bike_id}): {error}')
     
     #More functions below, following the sequence from functions above
+    
+    def compute_component_status(self, mode, reached_distance_percent):
+        """Method to compute service status"""
+        if mode == "service":
+            if 0 <= reached_distance_percent <= 70:
+                status = "OK"
+            elif 70 < reached_distance_percent <= 90:
+                status = "Service approaching"
+            elif 90 < reached_distance_percent <= 100:
+                status = "Due for service"
+            elif reached_distance_percent > 100:
+                status = "Service interval exceeded"
+
+        if mode == "lifetime":
+            if 0 <= reached_distance_percent <= 70:
+                status = "OK"
+            elif 70 < reached_distance_percent <= 90:
+                status = "End of life approaching"
+            elif 90 < reached_distance_percent <= 100:
+                status = "Due for replacement"
+            elif reached_distance_percent > 100:
+                status = "Lifetime exceeded"
+
+        return status
     
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""

@@ -96,7 +96,7 @@ class DatabaseManager:
                                  (Rides.record_time >= start_date) &
                                  (Rides.record_time <= stop_date)))
         if matching_rides:
-          return sum(ride.ride_distance for ride in matching_rides)
+            return sum(ride.ride_distance for ride in matching_rides)
                    
         return 0
     
@@ -126,8 +126,8 @@ class DatabaseManager:
         """Method to read installed components for a specific bike"""
         return (Components
                 .select()
-                .where(Components.installation_status == 'Installed') &
-                (Components.bike_id == bike_id))
+                .where((Components.installation_status == 'Installed') &
+                (Components.bike_id == bike_id)))
                 
     def read_component(self, component_id):
         """Method to retrieve record for a specific component"""
@@ -215,6 +215,32 @@ class DatabaseManager:
 
         except peewee.OperationalError as error:
             return False, f"Update of bike records failed: {str(error)}"
+    
+    def write_component_distance(self, component, total_distance): #Should have peewee op error and return statement
+        """Method to update component distance in database"""
+        with database.atomic():
+            component.component_distance = total_distance
+            component.save()
+
+    def write_component_lifetime_status(self, component, lifetime_remaining, lifetime_status): #Should have peewee op error and return statement
+        """Method to update component lifetime status in database"""
+        with database.atomic():
+            component.lifetime_remaining = lifetime_remaining
+            component.lifetime_status = lifetime_status
+            component.save()
+
+    def write_component_service_status(self, component, service_next, service_status): #Should have peewee op error and return statement
+        """Method to update component service status in database"""
+        with database.atomic():
+            component.service_next = service_next
+            component.service_status = service_status
+            component.save()
+
+    def write_bike_service_status(self, bike, service_status): #Should have peewee op error and return statement
+        """Method to update bike service status in database"""
+        with database.atomic():
+            bike.service_status = service_status
+            bike.save()
     
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""

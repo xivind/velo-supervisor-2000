@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Module for... """ #UPDATE DOCSTRING
 
-# Consider splitting this into main and route_handlers
+
 
 from middleware import Middleware
 import logging
@@ -16,7 +16,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from strava import Strava
-from business_logic import BusinessLogic, ModifyTables, ModifyRecords #Remove after refactoring
+from business_logic import BusinessLogic, ModifyRecords #Remove after refactoring
 import utils #import explicitly
 from database_manager import DatabaseManager #Remove this and all reference to it when code has been moved to business logic
 
@@ -27,7 +27,6 @@ CONFIG = utils.read_parameters()
 
 # Initialize database # Remove after refactoring
 
-modify_tables = ModifyTables() # Remove after refactoring
 modify_records = ModifyRecords() # Remove after refactoring
 
 # Create application
@@ -144,11 +143,11 @@ async def add_service(
         if latest_service_record is None:
             logging.info(f'No service record found for component with id {component_id}. Using distance from installation log and querying distance from installation date to service date')
             distance_since_service = latest_history_record.distance_marker
-            distance_since_service += misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
+            distance_since_service += database_manager.sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
 
         elif latest_service_record:
             logging.info(f'Service record found for for component with id {component_id}. Querying distance from previous service date to current service date')
-            distance_since_service = misc_methods.sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
+            distance_since_service = database_manager.sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
 
     elif component_data.installation_status != "Installed":
         if latest_service_record is None:
@@ -162,8 +161,8 @@ async def add_service(
 
     service_data.update({"distance_marker": distance_since_service})
     modify_records.update_service_history(service_data)
-    modify_tables.update_component_service_status(component_data)
-    modify_tables.update_bike_status(component_data.bike_id)
+    business_logic.update_component_service_status(component_data)
+    business_logic.update_bike_status(component_data.bike_id)
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
@@ -199,7 +198,7 @@ async def modify_component(
                       "notes": component_notes}
 
     if component_id is None:
-        component_id = misc_methods.generate_unique_id()
+        component_id = utils.generate_unique_id()
         modify_records.update_component_details(component_id, new_component_data)
 
     current_history_id = f'{component_updated_date} {component_id}'
@@ -215,7 +214,7 @@ async def modify_component(
             logging.info(f"Only updating select component record details and service and lifetime status. Historic record already exist for component id {component_id} and record id {current_history_id}.")
             modify_records.update_component_details(component_id, new_component_data)
             updated_component_data = database_manager.read_component(component_id)
-            modify_tables.update_component_distance(component_id, old_component_data.component_distance - old_component_data.component_distance_offset)
+            business_logic.update_component_distance(component_id, old_component_data.component_distance - old_component_data.component_distance_offset)
         else:
             logging.warning(f"Cannot change installation status when record date it the same as previous record. Historic record already exist for component id {component_id} and record id {current_history_id}. Skipping...")
 
@@ -234,7 +233,7 @@ async def modify_component(
         else:
             if component_installation_status != "Installed":
                 logging.info(f'Timespan for historic distance query (triggered by component update): start date {latest_history_record.updated_date} stop date {component_updated_date}')
-                historic_distance = misc_methods.sum_distanse_subset_rides(old_component_data.bike_id, latest_history_record.updated_date, component_updated_date)
+                historic_distance = database_manager.sum_distanse_subset_rides(old_component_data.bike_id, latest_history_record.updated_date, component_updated_date)
                 historic_distance += latest_history_record.distance_marker
 
             else:
@@ -249,13 +248,13 @@ async def modify_component(
 
             if updated_component_data.installation_status == "Installed":
                 logging.info(f'Timespan for current distance query (triggered by component update): start date {updated_component_data.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}') #Improve logging statement, see service, also applies to similar above
-                current_distance = misc_methods.sum_distanse_subset_rides(updated_component_data.bike_id, updated_component_data.updated_date, datetime.now().strftime("%Y-%m-%d %H:%M"))
+                current_distance = database_manager.sum_distanse_subset_rides(updated_component_data.bike_id, updated_component_data.updated_date, datetime.now().strftime("%Y-%m-%d %H:%M"))
                 current_distance += latest_history_record.distance_marker
-                modify_tables.update_component_distance(component_id, current_distance)
+                business_logic.update_component_distance(component_id, current_distance)
 
             else:
                 current_distance = latest_history_record.distance_marker #Can this be made redundant by reordering function above?
-                modify_tables.update_component_distance(component_id, current_distance)
+                business_logic.update_component_distance(component_id, current_distance)
         else:
             logging.warning(f"Update of component with id {component_id} skipped due to exceptions when updating history record")
 
@@ -448,10 +447,10 @@ async def refresh_all_bikes(request: Request):
     # Something is not right with this endpoint, only called by button in config
     logging.info("Refreshing all bikes from Strava (called directly)")
     await strava.get_bikes(database_manager.get_unique_bikes())
-    modify_tables.update_bikes(strava.payload_bikes)
+    database_manager.update_bikes(strava.payload_bikes)
 
     for bike_id in database_manager.get_unique_bikes():
-        modify_tables.update_bike_status(bike_id) #Not sure why we need to call this here..?
+        business_logic.update_bike_status(bike_id) #Not sure why we need to call this here..?
 
     # This should return a message to the user
 
@@ -460,7 +459,7 @@ async def refresh_all_bikes(request: Request):
 async def refresh_rides(request: Request, mode: str):
     """Endpoint to refresh data for a subset or all rides"""
 
-    modify_records.update_rides_bulk(mode)
+    await business_logic.update_rides_bulk(mode)
     # This should return a message to the user
 
 
@@ -470,7 +469,7 @@ async def delete_record(
     table_selector: str = Form(...)):
     """Endpoint to delete records"""
 
-    modify_records.delete_record(table_selector, record_id)
+    business_logic.delete_record(table_selector, record_id)
     # This should return a message to the user
 
 
