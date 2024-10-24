@@ -273,7 +273,7 @@ async def component_overview(request: Request):
                     component.installation_status,
                     utils.format_component_status(component.lifetime_status),
                     utils.format_component_status(component.service_status),
-                    database_manager.get_bike_name(component.bike_id),
+                    database_manager.read_bike_name(component.bike_id),
                     utils.format_cost(component.cost)
                     ) for component in components]
 
@@ -331,7 +331,7 @@ async def bike_details(request: Request, bike_id: str):
                 "bike_service_status": bike.service_status,
                 "bike_total_distance": int(bike.total_distance),
                 "bike_notes": bike.notes,
-                "oldest_ride": database_manager.get_date_oldest_ride(bike_id)}
+                "oldest_ride": database_manager.read_date_oldest_ride(bike_id)}
 
     bike_components = database_manager.read_subset_components(bike_id)
     bike_components_data = [(component.component_id,
@@ -415,7 +415,7 @@ async def component_details(request: Request, component_id: str):
     if component_history is not None:
         component_history_data = [(installation_record.updated_date,
                                    installation_record.update_reason,
-                                   database_manager.get_bike_name(installation_record.bike_id),
+                                   database_manager.read_bike_name(installation_record.bike_id),
                                    int(installation_record.distance_marker)) for installation_record in component_history]
     else:
         component_history_data = None
@@ -424,7 +424,7 @@ async def component_details(request: Request, component_id: str):
     if service_history is not None:
         service_history_data = [(service_record.service_date,
                                    service_record.description,
-                                   database_manager.get_bike_name(service_record.bike_id),
+                                   database_manager.read_bike_name(service_record.bike_id),
                                    int(service_record.distance_marker)) for service_record in service_history]
     else:
         service_history_data = None
@@ -432,7 +432,7 @@ async def component_details(request: Request, component_id: str):
     payload = {"bikes_data": bikes_data,
                "component_types_data": component_types_data,
                "bike_component_data": bike_component_data,
-               "bike_name": database_manager.get_bike_name(bike_component.bike_id),
+               "bike_name": database_manager.read_bike_name(bike_component.bike_id),
                "component_history_data": component_history_data,
                "service_history_data": service_history_data}
     template_path = "component_details.html"
@@ -446,10 +446,10 @@ async def refresh_all_bikes(request: Request):
     """Endpoint to manually refresh data for all bikes"""
     # Something is not right with this endpoint, only called by button in config
     logging.info("Refreshing all bikes from Strava (called directly)")
-    await strava.get_bikes(database_manager.get_unique_bikes())
+    await strava.get_bikes(database_manager.read_unique_bikes())
     database_manager.update_bikes(strava.payload_bikes)
 
-    for bike_id in database_manager.get_unique_bikes():
+    for bike_id in database_manager.read_unique_bikes():
         business_logic.update_bike_status(bike_id) #Not sure why we need to call this here..?
 
     # This should return a message to the user

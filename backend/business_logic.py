@@ -3,7 +3,7 @@
 
 import logging
 from datetime import datetime
-import peewee
+import peewee #Remove after refactoring
 from database_model import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #This will be removed afer refactoring
 from utils import read_parameters, calculate_percentage_reached
 from strava import Strava
@@ -151,7 +151,7 @@ class BusinessLogic():
         await strava.get_rides(mode)
         logging.info(f'There are {len(strava.payload_rides)} rides in the list')
 
-        success, message = database_manager.update_rides_bulk(strava.payload_rides)
+        success, message = database_manager.write_update_rides_bulk(strava.payload_rides)
 
         if success:
             logging.info(f"Bulk update of database OK: {message}")
@@ -160,21 +160,21 @@ class BusinessLogic():
 
         if mode == "all":
             logging.info("Refreshing all bikes from Strava")
-            await strava.get_bikes(database_manager.get_unique_bikes())
-            success, message = database_manager.update_bikes(strava.payload_bikes)
+            await strava.get_bikes(database_manager.read_unique_bikes())
+            success, message = database_manager.write_update_bikes(strava.payload_bikes)
             
             if success:
                 logging.info(f"Bike update OK: {message}")
             else:
                 logging.error(f"Bike update failed failed: {message}")
             
-            self.update_components_distance_iterator(database_manager.get_unique_bikes())
+            self.update_components_distance_iterator(database_manager.read_unique_bikes())
 
         if mode == "recent":
             if len(strava.bike_ids_recent_rides) > 0:
                 logging.info("Refreshing bikes used in recent rides from Strava")
                 await strava.get_bikes(strava.bike_ids_recent_rides)
-                success, message = database_manager.update_bikes(strava.payload_bikes)
+                success, message = database_manager.write_update_bikes(strava.payload_bikes)
                 
                 if success:
                     logging.info(f"Bike update OK: {message}")

@@ -24,7 +24,7 @@ class DatabaseManager:
         return (Bikes
                 .get_or_none(Bikes.bike_id == bike_id))
 
-    def get_bike_name(self, bike_id):
+    def read_bike_name(self, bike_id):
         """Method to get the name of a bike based on bike id"""
         bike = self.read_single_bike(bike_id)
 
@@ -43,7 +43,7 @@ class DatabaseManager:
                 .first()
                 .bike_id)
     
-    def get_unique_bikes(self):
+    def read_unique_bikes(self):
         """Method to query database and create list of unique bike ids"""
         unique_bike_ids = (Rides
                            .select(Rides.bike_id)
@@ -77,7 +77,7 @@ class DatabaseManager:
                 .order_by(Rides.record_time.desc())
                 .first())
 
-    def get_date_oldest_ride(self, bike_id):
+    def read_date_oldest_ride(self, bike_id):
         """Method to get the date for the oldest ride for a given bike"""
         oldest_ride_record = (Rides
                               .select(Rides.record_time)
@@ -89,7 +89,7 @@ class DatabaseManager:
 
         return None
 
-    def sum_distanse_subset_rides(self, bike_id, start_date, stop_date):
+    def read_sum_distanse_subset_rides(self, bike_id, start_date, stop_date):
         """Method to sum distance for a given set of rides"""
         matching_rides = (Rides.select()
                           .where((Rides.bike_id == bike_id) &
@@ -168,7 +168,7 @@ class DatabaseManager:
                 .order_by(Services.service_date.desc())
                 .first())
 
-    def update_rides_bulk(self, ride_list):
+    def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk to database"""
         try:
             with database.atomic():
@@ -195,7 +195,7 @@ class DatabaseManager:
         except peewee.OperationalError as error:
             return False, f"An error occurred during bulk update of rides table: {str(error)}"
 
-    def update_bikes(self, bike_list):
+    def write_update_bikes(self, bike_list):
         """Method to create or update bike data to the database"""
         try:
             with database.atomic():
@@ -242,7 +242,7 @@ class DatabaseManager:
             bike.service_status = service_status
             bike.save()
     
-    def delete_record(self, table_selector, record_id):
+    def write_delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         try:
             with self.database.atomic():
