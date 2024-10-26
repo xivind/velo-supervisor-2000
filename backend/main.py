@@ -13,7 +13,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from strava import Strava
+from strava import Strava #Remove after refactoring
 from business_logic import BusinessLogic, ModifyRecords #Remove after refactoring
 import utils #import explicitly
 from database_manager import DatabaseManager #Remove this and all reference to it when code has been moved to business logic
@@ -115,56 +115,16 @@ async def add_service(
     service_description: str = Form(...)):
     """Endpoint to add service"""
 
-    component_data = database_manager.read_component(component_id)
-    service_id = utils.generate_unique_id()
-
-    service_data = {"service_id": service_id,
-                    "component_id": component_id,
-                    "service_date": service_date,
-                    "description": service_description,
-                    "component_name": component_data.component_name,
-                    "bike_id": component_data.bike_id}
+    business_logic.add_service(component_id,
+                               service_date,
+                               service_description)
     
-    latest_service_record = database_manager.read_latest_service_record(component_id)
-    latest_history_record = database_manager.read_latest_history_record(component_id)
-
-    if latest_history_record and service_date < latest_history_record.updated_date:
-        logging.warning(f"Service date {service_date} is before the latest history record for component with id {component_id}. Services must be entered chronologically, skipping...")
-        return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-
-    elif latest_service_record and service_date < latest_service_record.service_date:
-        logging.warning(f"Service date {service_date} is before the latest service record for component {component_id}. Services must be entered chronologically, skipping...")
-        return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-
-    if component_data.installation_status == "Installed":
-        if latest_service_record is None:
-            logging.info(f'No service record found for component with id {component_id}. Using distance from installation log and querying distance from installation date to service date')
-            distance_since_service = latest_history_record.distance_marker
-            distance_since_service += database_manager.sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
-
-        elif latest_service_record:
-            logging.info(f'Service record found for for component with id {component_id}. Querying distance from previous service date to current service date')
-            distance_since_service = database_manager.sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
-
-    elif component_data.installation_status != "Installed":
-        if latest_service_record is None:
-            logging.info(f'Component with id {component_id} has been uninstalled and there are no previous services. Setting historic distance since service to distance at the time of uninstallation')
-            distance_since_service = latest_history_record.distance_marker
-
-        elif latest_service_record:
-            if latest_service_record.service_date > component_data.updated_date:
-                logging.info(f'Component with id {component_id} has been serviced after uninstall. Setting distance since service to 0')
-                distance_since_service = 0
-
-    service_data.update({"distance_marker": distance_since_service})
-    modify_records.update_service_history(service_data)
-    business_logic.update_component_service_status(component_data)
-    business_logic.update_bike_status(component_data.bike_id)
+    # This should return a message to the user, could use success, message = above
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
 
-@app.post("/component_modify", response_class=HTMLResponse)
+@app.post("/component_modify", response_class=HTMLResponse) #Synce name of endpoint with corresponding method, applies to all endpoints (do not change endpoint name)
 async def modify_component(
     component_id: Optional[str] = Form(None),
     component_installation_status: str = Form(...),
@@ -179,81 +139,19 @@ async def modify_component(
     component_notes: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
 
-    expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
-    service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
-    cost = int(cost) if cost and cost.isdigit() else None
+    business_logic.modify_component_details(component_id,
+                                            component_installation_status,
+                                            component_updated_date,
+                                            component_name,
+                                            component_type,
+                                            component_bike_id,
+                                            expected_lifetime,
+                                            service_interval,
+                                            cost,
+                                            offset,
+                                            component_notes)
 
-    new_component_data = {"installation_status": component_installation_status,
-                      "updated_date": component_updated_date,
-                      "component_name": component_name,
-                      "component_type": component_type,
-                      "bike_id": component_bike_id,
-                      "lifetime_expected": expected_lifetime,
-                      "service_interval": service_interval,
-                      "cost": cost,
-                      "component_distance_offset": offset,
-                      "notes": component_notes}
-
-    if component_id is None:
-        component_id = utils.generate_unique_id()
-        modify_records.update_component_details(component_id, new_component_data)
-
-    current_history_id = f'{component_updated_date} {component_id}'
-    old_component_data = database_manager.read_component(component_id)
-    updated_bike_id = component_bike_id
-    previous_bike_id = old_component_data.bike_id if old_component_data else None
-    old_component_name = old_component_data.component_name if old_component_data else None
-    latest_service_record = database_manager.read_latest_service_record(component_id)
-    latest_history_record = database_manager.read_latest_history_record(component_id)
-
-    if latest_history_record is not None and latest_history_record.history_id == current_history_id:
-        if latest_history_record.update_reason == component_installation_status:
-            logging.info(f"Only updating select component record details and service and lifetime status. Historic record already exist for component id {component_id} and record id {current_history_id}.")
-            modify_records.update_component_details(component_id, new_component_data)
-            updated_component_data = database_manager.read_component(component_id)
-            business_logic.update_component_distance(component_id, old_component_data.component_distance - old_component_data.component_distance_offset)
-        else:
-            logging.warning(f"Cannot change installation status when record date it the same as previous record. Historic record already exist for component id {component_id} and record id {current_history_id}. Skipping...")
-
-    else:
-        if latest_history_record and component_updated_date < latest_history_record.updated_date:
-            logging.warning(f"Component update date {component_updated_date} is before the latest history record for component with id {component_id}. Component update dates must be entered chronologically, skipping...")
-            return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-
-        elif latest_service_record and component_updated_date < latest_service_record.service_date:
-            logging.warning(f"Component update date {component_updated_date} is before the latest service record for component {component_id}. Component update dates must be entered chronologically, skipping...")
-            return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-
-        if latest_history_record is None:
-            historic_distance = 0
-
-        else:
-            if component_installation_status != "Installed":
-                logging.info(f'Timespan for historic distance query (triggered by component update): start date {latest_history_record.updated_date} stop date {component_updated_date}')
-                historic_distance = database_manager.sum_distanse_subset_rides(old_component_data.bike_id, latest_history_record.updated_date, component_updated_date)
-                historic_distance += latest_history_record.distance_marker
-
-            else:
-                historic_distance = latest_history_record.distance_marker #This line is probably redundant..? 
-
-        halt_update = modify_records.update_component_history_record(old_component_name, latest_history_record, current_history_id, component_id, previous_bike_id, updated_bike_id, component_installation_status, component_updated_date, historic_distance)
-
-        if halt_update is False:
-            modify_records.update_component_details(component_id, new_component_data)
-            updated_component_data = database_manager.read_component(component_id)
-            latest_history_record = database_manager.read_latest_history_record(component_id)
-
-            if updated_component_data.installation_status == "Installed":
-                logging.info(f'Timespan for current distance query (triggered by component update): start date {updated_component_data.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}') #Improve logging statement, see service, also applies to similar above
-                current_distance = database_manager.sum_distanse_subset_rides(updated_component_data.bike_id, updated_component_data.updated_date, datetime.now().strftime("%Y-%m-%d %H:%M"))
-                current_distance += latest_history_record.distance_marker
-                business_logic.update_component_distance(component_id, current_distance)
-
-            else:
-                current_distance = latest_history_record.distance_marker #Can this be made redundant by reordering function above?
-                business_logic.update_component_distance(component_id, current_distance)
-        else:
-            logging.warning(f"Update of component with id {component_id} skipped due to exceptions when updating history record")
+    # This should return a message to the user
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
@@ -443,8 +341,8 @@ async def refresh_all_bikes(request: Request):
     """Endpoint to manually refresh data for all bikes"""
     # Something is not right with this endpoint, only called by button in config
     logging.info("Refreshing all bikes from Strava (called directly)")
-    await strava.get_bikes(database_manager.read_unique_bikes())
-    database_manager.update_bikes(strava.payload_bikes)
+    await strava.get_bikes(database_manager.read_unique_bikes()) #Route handler should not call Strava
+    database_manager.write_update_bikes(strava.payload_bikes) #Should not call db manager, but business logic
 
     for bike_id in database_manager.read_unique_bikes():
         business_logic.update_bike_status(bike_id) #Not sure why we need to call this here..?

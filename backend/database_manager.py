@@ -228,6 +228,26 @@ class DatabaseManager:
         except peewee.OperationalError as error:
             return False, f"{component.component_name}: {str(error)}"
 
+    def write_component_details(self, component_id, new_component_data):
+        """Method to create or update component data to the database"""
+        try:
+            with database.atomic():
+                component = self.read_component(component_id)
+                
+                if component:
+                    Components.update(**new_component_data).where(Components.component_id == component_id).execute()
+                    return True, f'Component {component.component_name} updated'
+
+                else:
+                    new_component_data.update({"component_distance": 0,
+                                               "component_id": component_id})
+
+                    Components.create(**new_component_data)
+                    return True, f'Component {new_component_data["component_name"]} created'
+
+        except peewee.OperationalError as error:
+            return False, f"Component modification failed: {str(error)}"
+    
     def write_component_lifetime_status(self, component, lifetime_remaining, lifetime_status):
         """Method to update component lifetime status in database"""
         try:
@@ -266,6 +286,15 @@ class DatabaseManager:
         except peewee.OperationalError as error:
             return False, f"{bike.bike_name}: {str(error)}"
     
+    def write_new_service(self, service_data):
+        "Method to write new service record to database"
+        try:
+            Services.create(**service_data)
+            return True, f"Added service record for component {service_data['component_name']}"
+
+        except peewee.OperationalError as error:
+            return False, f"{service_data['component_name']}: {str(error)}"
+
     def write_delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         try:
@@ -277,7 +306,7 @@ class DatabaseManager:
                         return True, f"Deleted component type: {record_id}"
                 
                 elif table_selector == "Components":
-                    record = Components.get_or_none(Components.component_id == record_id)
+                    record = self.read_component(record_id)
                     if record:
                         services_deleted = Services.delete().where(Services.component_id == record_id).execute()
                         history_deleted = ComponentHistory.delete().where(ComponentHistory.component_id == record_id).execute()
