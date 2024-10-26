@@ -216,31 +216,55 @@ class DatabaseManager:
         except peewee.OperationalError as error:
             return False, f"Update of bike records failed: {str(error)}"
     
-    def write_component_distance(self, component, total_distance): #Should have peewee op error and return statement
+    def write_component_distance(self, component, total_distance):
         """Method to update component distance in database"""
-        with database.atomic():
-            component.component_distance = total_distance
-            component.save()
+        try:
+            with database.atomic():
+                component.component_distance = total_distance
+                component.save()
 
-    def write_component_lifetime_status(self, component, lifetime_remaining, lifetime_status): #Should have peewee op error and return statement
+            return True, component.component_name
+        
+        except peewee.OperationalError as error:
+            return False, f"{component.component_name}: {str(error)}"
+
+    def write_component_lifetime_status(self, component, lifetime_remaining, lifetime_status):
         """Method to update component lifetime status in database"""
-        with database.atomic():
-            component.lifetime_remaining = lifetime_remaining
-            component.lifetime_status = lifetime_status
-            component.save()
+        try:
+            with database.atomic():
+                component.lifetime_remaining = lifetime_remaining
+                component.lifetime_status = lifetime_status
+                component.save()
 
-    def write_component_service_status(self, component, service_next, service_status): #Should have peewee op error and return statement
+            return True, f"{component.component_name}"
+        
+        except peewee.OperationalError as error:
+            return False, f"{component.component_name}: {str(error)}"
+
+    def write_component_service_status(self, component, service_next, service_status):
         """Method to update component service status in database"""
-        with database.atomic():
-            component.service_next = service_next
-            component.service_status = service_status
-            component.save()
+        try:
+            with database.atomic():
+                component.service_next = service_next
+                component.service_status = service_status
+                component.save()
+            
+            return True, f"{component.component_name}"
+        
+        except peewee.OperationalError as error:
+            return False, f"{component.component_name}: {str(error)}"
 
-    def write_bike_service_status(self, bike, service_status): #Should have peewee op error and return statement
+    def write_bike_service_status(self, bike, service_status):
         """Method to update bike service status in database"""
-        with database.atomic():
-            bike.service_status = service_status
-            bike.save()
+        try:
+            with database.atomic():
+                bike.service_status = service_status
+                bike.save()
+            
+            return True, f"{bike.bike_name}"
+        
+        except peewee.OperationalError as error:
+            return False, f"{bike.bike_name}: {str(error)}"
     
     def write_delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
@@ -266,4 +290,4 @@ class DatabaseManager:
                     return False, f"Record not found: {record_id}"
 
         except peewee.OperationalError as error:
-            return False, f"Deletion of records failed: {str(error)}"
+            return False, {str(error)}

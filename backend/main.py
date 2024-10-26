@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""Module for... """ #UPDATE DOCSTRING
-
-
+"""Main code for Velo Supervisor 2000"""
 
 from middleware import Middleware
 import logging
@@ -20,16 +18,15 @@ from business_logic import BusinessLogic, ModifyRecords #Remove after refactorin
 import utils #import explicitly
 from database_manager import DatabaseManager #Remove this and all reference to it when code has been moved to business logic
 
-database_manager = DatabaseManager() #Remove this and all reference to it when code has been moved to business logic
-
 # Load configuration
 CONFIG = utils.read_parameters()
 
 # Initialize database # Remove after refactoring
+database_manager = DatabaseManager() #Remove this and all reference to it when code has been moved to business logic
 
 modify_records = ModifyRecords() # Remove after refactoring
 
-# Create application
+# Create application object
 app = FastAPI()
 
 # Initialize Strava API
@@ -50,7 +47,7 @@ app.state.strava_days_since_last_pull = None
 
 # Create business logic object
 business_logic = BusinessLogic(app.state)
-#business_logic.set_time_strava_last_pull(app, read_records) Disabled during refactoring
+business_logic.set_time_strava_last_pull()
 
 # Exception handler
 @app.exception_handler(StarletteHTTPException)
@@ -59,7 +56,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     return await Middleware(app, templates=templates).handle_exception(exc, request)
 
 #Startup event
-@app.on_event("startup") #solve this one
+@app.on_event("startup") #solve this one, on_event is deprecated
 async def startup_event():
     """Function to register background tasks"""
     asyncio.create_task(utils.pull_strava_background("recent"))
