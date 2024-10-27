@@ -3,7 +3,6 @@
 
 import logging
 from datetime import datetime
-from database_model import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #This will be removed afer refactoring
 from utils import read_parameters, calculate_percentage_reached, generate_unique_id
 from strava import Strava
 from database_manager import DatabaseManager
