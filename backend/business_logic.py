@@ -3,7 +3,6 @@
 
 import logging
 from datetime import datetime
-import peewee #Remove after refactoring
 from database_model import database, Rides, Bikes, Components, Services, ComponentTypes, ComponentHistory #This will be removed afer refactoring
 from utils import read_parameters, calculate_percentage_reached, generate_unique_id
 from strava import Strava
@@ -17,44 +16,6 @@ database_manager = DatabaseManager()
 
 # Initialize Strava API
 strava = Strava(CONFIG['strava_tokens'])
-
-
-    
-    
-
-class ModifyRecords(): #Consider merging with modify tables
-    """Class to interact with a SQL database through peewee""" #Modify this description
-    def __init__(self):
-        pass #Check out this one.
-
-    def update_component_type(self, component_type_data): #Improve this one, see update_component method for blueprint
-        """Method to create or update component types"""
-    
-        try:
-            logging.info(f"Creating or updating component type {component_type_data['component_type']}") #MOve this down to the appropriate section
-            with database.atomic():
-                component_type = ComponentTypes.get_or_none(ComponentTypes.component_type == component_type_data["component_type"]) #This should be function, also to be used in delete record
-
-                if component_type:
-                    component_type.component_type = component_type_data["component_type"]
-                    component_type.service_interval = component_type_data["service_interval"]
-                    component_type.expected_lifetime = component_type_data["expected_lifetime"]
-                    component_type.save()
-                    # Missing log statement
-            
-                else:
-                    ComponentTypes.create(
-                        component_type = component_type_data["component_type"],
-                        service_interval = component_type_data["service_interval"],
-                        expected_lifetime = component_type_data["expected_lifetime"])
-                    # Missing log statement
-        
-        except peewee.OperationalError as error:
-            logging.error(f'An error occurred while creating or updating component type {component_type_data["component_type"]}: {error}')
-    
-    
-
-# REFACTORED METHODS Add class here BusinessLogic, takes app as argument)
 
 class BusinessLogic():
     """Class that contains business logic""" 
@@ -162,18 +123,18 @@ class BusinessLogic():
     def update_component_lifetime_status(self, component):
         """Method to update component table with lifetime status"""
         if component.lifetime_expected:
-            logging.info(f"Updating lifetime status for component {component.component_name} (id {component.component_id})")
+            logging.info(f"Updating lifetime status for component {component.component_name}.")
 
             lifetime_remaining = component.lifetime_expected - component.component_distance
             lifetime_status = self.compute_component_status("lifetime",
                                                             calculate_percentage_reached(component.lifetime_expected,
-                                                                                        int(component.lifetime_remaining)))
+                                                                                        int(lifetime_remaining)))
             
             success, message = database_manager.write_component_lifetime_status(component,
                                                                 lifetime_remaining, lifetime_status)
 
         else:
-            logging.info(f"Component {component.component_name} (id {component.component_id}) has no expected lifetime, setting NULL values for lifetime")
+            logging.info(f"Component {component.component_name} has no expected lifetime, setting NULL values for lifetime")
 
             lifetime_remaining = None
             lifetime_status = None
@@ -190,34 +151,34 @@ class BusinessLogic():
     def update_component_service_status(self, component):
         """Method to update component table with service status"""
         if component.service_interval:
-            logging.info(f"Updating service status for component {component.component_name} with component id {component.component_id}")
+            logging.info(f"Updating service status for component {component.component_name}.")
             latest_service_record = database_manager.read_latest_service_record(component.component_id)
             latest_history_record = database_manager.read_latest_history_record(component.component_id)
 
             if component.installation_status == "Installed":
                 if latest_service_record is None:
-                    logging.info(f'No service record found for component with id {component.component_id}. Using distance from installation log and querying distance from installation date to today')
+                    logging.info(f'No service record found for component {component.component_name}. Using distance from installation log and querying distance from installation date to today')
                     distance_since_service = latest_history_record.distance_marker
                     matching_rides = database_manager.read_matching_rides(component.bike_id, latest_history_record.updated_date)
                     distance_since_service += sum(ride.ride_distance for ride in matching_rides)
                     
                 elif latest_service_record:
-                    logging.info(f'Service record found for for component with id {component.component_id}. Querying distance from previous service date to today')
+                    logging.info(f'Service record found for for component {component.component_name}. Querying distance from previous service date to today')
                     matching_rides = database_manager.read_matching_rides(component.bike_id, latest_history_record.updated_date)
                     distance_since_service = sum(ride.ride_distance for ride in matching_rides)
 
             elif component.installation_status != "Installed":
                 if latest_service_record is None:
-                    logging.info(f'Component with id {component.component_id} has been uninstalled and there are no previous services. Setting distance since service to distance at the time of uninstallation')
+                    logging.info(f'Component {component.component_name} has been uninstalled and there are no previous services. Setting distance since service to distance at the time of uninstallation')
                     distance_since_service = latest_history_record.distance_marker
                 
                 elif latest_service_record:
                     if latest_service_record.service_date > component.updated_date:
-                        logging.info(f'Component with id {component.component_id} has been serviced after uninstall. Setting distance since service to 0')
+                        logging.info(f'Component {component.component_name} has been serviced after uninstall. Setting distance since service to 0')
                         distance_since_service = 0
                 
                     elif latest_service_record.service_date < component.updated_date:
-                        logging.info(f'Component with id {component.component_id} has no services after uninstall, but a previous service exist. Using already calculated distance to next service')
+                        logging.info(f'Component {component.component_name} has no services after uninstall, but a previous service exist. Using already calculated distance to next service')
                         distance_since_service = component.service_interval + component.service_next*-1
         
             service_next = component.service_interval - distance_since_service
@@ -228,7 +189,7 @@ class BusinessLogic():
             success, message = database_manager.write_component_service_status(component, service_next, service_status)
 
         else:
-            logging.info(f"Component {component.component_name} with component id {component.component_id} has no service interval, setting NULL values for service")
+            logging.info(f"Component {component.component_name} has no service interval, setting NULL values for service")
             
             service_next = None
             service_status = None
@@ -319,7 +280,7 @@ class BusinessLogic():
         latest_history_record = database_manager.read_latest_history_record(component_id)
 
         if latest_history_record and service_date < latest_history_record.updated_date:
-            message = f"Service date {service_date} is before the latest history record for component with id {component_id}. Services must be entered chronologically."
+            message = f"Service date {service_date} is before the latest history record for component {component_data.component_name}. Services must be entered chronologically."
             logging.warning(message)
             return False, message
 
@@ -330,22 +291,22 @@ class BusinessLogic():
 
         if component_data.installation_status == "Installed":
             if latest_service_record is None:
-                logging.info(f'No service record found for component with id {component_id}. Using distance from installation log and querying distance from installation date to service date')
+                logging.info(f'No service record found for component {component_data.component_name}. Using distance from installation log and querying distance from installation date to service date')
                 distance_since_service = latest_history_record.distance_marker
                 distance_since_service += database_manager.read_sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
 
             elif latest_service_record:
-                logging.info(f'Service record found for for component with id {component_id}. Querying distance from previous service date to current service date')
+                logging.info(f'Service record found for component {component_data.component_name}. Querying distance from previous service date to current service date')
                 distance_since_service = database_manager.read_sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
 
         elif component_data.installation_status != "Installed":
             if latest_service_record is None:
-                logging.info(f'Component with id {component_id} has been uninstalled and there are no previous services. Setting historic distance since service to distance at the time of uninstallation')
+                logging.info(f'Component {component_data.component_name} has been uninstalled and there are no previous services. Setting historic distance since service to distance at the time of uninstallation')
                 distance_since_service = latest_history_record.distance_marker
 
             elif latest_service_record:
                 if latest_service_record.service_date > component_data.updated_date:
-                    logging.info(f'Component with id {component_id} has been serviced after uninstall. Setting distance since service to 0')
+                    logging.info(f'Component {component_data.component_name} has been serviced after uninstall. Setting distance since service to 0')
                     distance_since_service = 0
 
         service_data.update({"distance_marker": distance_since_service})
@@ -400,6 +361,7 @@ class BusinessLogic():
         
         current_history_id = f'{component_updated_date} {component_id}'
         old_component_data = database_manager.read_component(component_id)
+        component_id = old_component_data.component_id
         updated_bike_id = component_bike_id
         previous_bike_id = old_component_data.bike_id if old_component_data else None
         old_component_name = old_component_data.component_name if old_component_data else None
@@ -419,12 +381,12 @@ class BusinessLogic():
             if latest_history_record and component_updated_date < latest_history_record.updated_date:
                 message = f"Component update date {component_updated_date} is before the latest history record for component {old_component_data.component_name}. Component update dates must be entered chronologically."
                 logging.warning(message)
-                return False, message
+                return False, message, component_id
 
             elif latest_service_record and component_updated_date < latest_service_record.service_date:
                 message = f"Component update date {component_updated_date} is before the latest service record for component {old_component_data.component_name}. Component update dates must be entered chronologically."
                 logging.warning(message)
-                return False, message
+                return False, message, component_id
 
             if latest_history_record is None:
                 historic_distance = 0
@@ -442,9 +404,9 @@ class BusinessLogic():
 
             if history_record_creation is False:
                 if success:
-                   return success, f"{message}. No history record added."
+                   return success, f"{message}. No history record added.", component_id
                 else:
-                    return success, message
+                    return success, message, component_id
 
             elif history_record_creation is True:
                 success, message = database_manager.write_component_details(component_id, new_component_data)
@@ -464,7 +426,7 @@ class BusinessLogic():
             else:
                 logging.warning(f"Modification of component {old_component_data.component_name} skipped due to exceptions when creating history record.")
         
-            return success, message
+        return success, message, component_id
     
     def create_history_record(self,
                               old_component_name,
@@ -478,29 +440,29 @@ class BusinessLogic():
                               historic_distance):
         """Method to create installation history record"""
         if latest_history_record is None and updated_component_installation_status != "Installed":
-            logging.warning(f"Cannot change a component that is not installed, component id {component_id}.") #Can use return on these statements instead?
+            logging.warning(f"Cannot change a component that is not installed: {old_component_name}.")
             return False
         
         elif latest_history_record is None:
             if updated_bike_id is None:
-                logging.warning(f"Cannot set status to installed without specifying bike, component id {component_id}.")
+                logging.warning(f"Cannot set status to installed without specifying bike: {old_component_name}.")
                 return False
             else:
                 bike_id = updated_bike_id #This is probably redundant, or maybe not?
         
         else:
             if latest_history_record.history_id == current_history_id:
-                logging.warning(f"Historic record already exist for component id {component_id} and record id {current_history_id}.")
+                logging.warning(f"History record dated {component_updated_date} already exists: {old_component_name}.")
                 return False
             
             elif latest_history_record.update_reason == updated_component_installation_status:
-                logging.warning(f"Component status is already set to: {latest_history_record.update_reason}.")
+                logging.warning(f"Component status for {old_component_name} is already set to: {latest_history_record.update_reason}.")
                 return False
                         
             else:
                 if updated_component_installation_status == "Installed":
                     if updated_bike_id is None:
-                        logging.warning(f"Cannot set status to installed without specifying bike, component id {component_id}.")
+                        logging.warning(f"Cannot set status to installed without specifying bike, component id {old_component_name}.")
                         return False
                     else:
                         bike_id = updated_bike_id
@@ -512,13 +474,14 @@ class BusinessLogic():
                     bike_id = previous_bike_id
                 
         success, message = (database_manager
-                            .write_history_record(current_history_id,
-                                                  component_id,
-                                                  bike_id,
-                                                  old_component_name,
-                                                  component_updated_date,
-                                                  updated_component_installation_status,
-                                                  historic_distance))
+                            .write_history_record
+                                (current_history_id,
+                                 component_id,
+                                 bike_id, #This could be a problem
+                                 old_component_name,
+                                 component_updated_date,
+                                 updated_component_installation_status,
+                                 historic_distance))
         
         if success:
             logging.info(f"Creation of history record successful: {message}")
@@ -549,7 +512,28 @@ class BusinessLogic():
             elif reached_distance_percent > 100:
                 status = "Lifetime exceeded"
 
-        return status
+        return status #Consider to fix this
+    
+    def modify_component_type(self,
+                              component_type,
+                              expected_lifetime,
+                              service_interval):
+        """Method to create or update component types"""
+        expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
+        service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
+
+        component_type_data = {"component_type": component_type,
+                            "service_interval": service_interval,
+                            "expected_lifetime": expected_lifetime}
+
+        success, message = database_manager.write_component_type(component_type_data)
+
+        if success:
+            logging.info(f"Component type update successful: {message}")
+        else:
+            logging.error(f"Component type update failed: {message}")
+
+        return success, message
     
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""

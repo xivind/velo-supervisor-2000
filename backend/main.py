@@ -14,7 +14,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from strava import Strava #Remove after refactoring
-from business_logic import BusinessLogic, ModifyRecords #Remove after refactoring
+from business_logic import BusinessLogic
 import utils #import explicitly
 from database_manager import DatabaseManager #Remove this and all reference to it when code has been moved to business logic
 
@@ -23,8 +23,6 @@ CONFIG = utils.read_parameters()
 
 # Initialize database # Remove after refactoring
 database_manager = DatabaseManager() #Remove this and all reference to it when code has been moved to business logic
-
-modify_records = ModifyRecords() # Remove after refactoring
 
 # Create application object
 app = FastAPI()
@@ -85,7 +83,7 @@ async def root(request: Request):
 async def component_types_overview(request: Request):
     """Endpoint for component types page"""    
     
-    payload = {"component_types": database_manager.read_component_types()}
+    payload = {"component_types": database_manager.read_all_component_types()}
     template_path = "component_types.html"
     
     return templates.TemplateResponse(template_path, {"request": request,
@@ -98,12 +96,12 @@ async def modify_component_type(
     expected_lifetime: Optional[str] = Form(None),
     service_interval: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
-    
-    expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
-    service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
 
-    component_type_data = {"component_type": component_type, "service_interval": service_interval, "expected_lifetime": expected_lifetime}
-    modify_records.update_component_type(component_type_data)
+    business_logic.modify_component_type(component_type,
+                                         expected_lifetime,
+                                         service_interval)
+    
+    # This should return a message to the user, could use success, message
 
     return RedirectResponse(url="/component_types_overview", status_code=303)
 
@@ -139,22 +137,23 @@ async def modify_component(
     component_notes: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
 
-    business_logic.modify_component_details(component_id,
-                                            component_installation_status,
-                                            component_updated_date,
-                                            component_name,
-                                            component_type,
-                                            component_bike_id,
-                                            expected_lifetime,
-                                            service_interval,
-                                            cost,
-                                            offset,
-                                            component_notes)
+    success, message, component_id = (business_logic
+                                      .modify_component_details
+                                        (component_id,
+                                        component_installation_status,
+                                        component_updated_date,
+                                        component_name,
+                                        component_type,
+                                        component_bike_id,
+                                        expected_lifetime,
+                                        service_interval,
+                                        cost,
+                                        offset,
+                                        component_notes))
 
     # This should return a message to the user
 
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
-
 
 @app.get("/component_overview", response_class=HTMLResponse)
 async def component_overview(request: Request):
@@ -189,7 +188,7 @@ async def component_overview(request: Request):
                     bike.bike_id)
                     for bike in bikes if bike.bike_retired == "False"]
 
-    component_types_data = database_manager.read_component_types()
+    component_types_data = database_manager.read_all_component_types()
 
     payload = {"request": request,
                "component_data": component_data,
@@ -279,7 +278,7 @@ async def component_details(request: Request, component_id: str):
                     bike.bike_id)
                     for bike in bikes if bike.bike_retired == "False"]
     
-    component_types_data = database_manager.read_component_types()
+    component_types_data = database_manager.read_all_component_types()
     
     bike_component = database_manager.read_component(component_id)
     bike_component_data = {"bike_id": bike_component.bike_id,

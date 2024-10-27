@@ -100,7 +100,7 @@ class DatabaseManager:
                    
         return 0
     
-    def read_component_types(self):
+    def read_all_component_types(self):
         """Method to read and sort content of component_types table"""
         component_types = ComponentTypes.select()
 
@@ -112,6 +112,11 @@ class DatabaseManager:
 
         return component_types_data
 
+    def read_single_component_type(self, component_type):
+        """Method to retrieve record for a single component type"""
+        return (ComponentTypes
+                .get_or_none(ComponentTypes.component_type == component_type))
+    
     def read_all_components(self):
         """Method to read content of components table"""
         return Components.select()
@@ -296,13 +301,13 @@ class DatabaseManager:
             return False, f"{service_data['component_name']}: {str(error)}"
 
     def write_history_record(self,
-                                  current_history_id,
-                                  component_id,
-                                  bike_id,
-                                  old_component_name,
-                                  component_updated_date,
-                                  updated_component_installation_status,
-                                  historic_distance):
+                             current_history_id,
+                             component_id,
+                             bike_id,
+                             old_component_name,
+                             component_updated_date,
+                             updated_component_installation_status,
+                             historic_distance):
         "Method to write history record to database"
         try:
             with database.atomic():
@@ -319,12 +324,32 @@ class DatabaseManager:
         except peewee.OperationalError as error:
             return False, f"{old_component_name}: {str(error)}"
 
+    def write_component_type(self, component_type_data):
+        """Method to write component type record to database"""
+        try:
+            with database.atomic():
+                component_type = self.read_single_component_type(component_type_data["component_type"])
+
+                if component_type:
+                    (ComponentTypes
+                     .update(**component_type_data)
+                     .where(ComponentTypes.component_type == component_type_data["component_type"])
+                     .execute())
+                    return True, f"Updated {component_type_data['component_type']}"
+            
+                else:
+                    ComponentTypes.create(**component_type_data)
+                    return True, f"Created {component_type_data['component_type']}"
+        
+        except peewee.OperationalError as error:
+            return False, f"{component_type_data['component_type']}: {str(error)}"
+    
     def write_delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         try:
             with self.database.atomic():
                 if table_selector == "ComponentTypes":
-                    record = ComponentTypes.get_or_none(ComponentTypes.component_type == record_id)
+                    record = self.read_single_component_type(record_id)
                     if record:
                         record.delete_instance()
                         return True, f"Deleted component type: {record_id}"
