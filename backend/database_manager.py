@@ -286,14 +286,38 @@ class DatabaseManager:
         except peewee.OperationalError as error:
             return False, f"{bike.bike_name}: {str(error)}"
     
-    def write_new_service(self, service_data):
-        "Method to write new service record to database"
+    def write_service_record(self, service_data):
+        "Method to write service record to database"
         try:
             Services.create(**service_data)
             return True, f"Added service record for component {service_data['component_name']}"
 
         except peewee.OperationalError as error:
             return False, f"{service_data['component_name']}: {str(error)}"
+
+    def write_history_record(self,
+                                  current_history_id,
+                                  component_id,
+                                  bike_id,
+                                  old_component_name,
+                                  component_updated_date,
+                                  updated_component_installation_status,
+                                  historic_distance):
+        "Method to write history record to database"
+        try:
+            with database.atomic():
+                ComponentHistory.create(history_id = current_history_id,
+                                        component_id = component_id,
+                                        bike_id = bike_id,
+                                        component_name = old_component_name,
+                                        updated_date = component_updated_date,
+                                        update_reason = updated_component_installation_status,
+                                        distance_marker = historic_distance)
+
+            return True, f'{old_component_name}'
+        
+        except peewee.OperationalError as error:
+            return False, f"{old_component_name}: {str(error)}"
 
     def write_delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""

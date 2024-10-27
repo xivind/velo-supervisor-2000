@@ -52,62 +52,7 @@ class ModifyRecords(): #Consider merging with modify tables
         except peewee.OperationalError as error:
             logging.error(f'An error occurred while creating or updating component type {component_type_data["component_type"]}: {error}')
     
-    def update_component_history_record(self, old_component_name, latest_history_record, current_history_id, component_id, previous_bike_id, updated_bike_id, updated_component_installation_status, component_updated_date, historic_distance):
-        """Method to create or update component history and write to the database"""
-        try:
-            halt_update = False
-
-            if latest_history_record is None and updated_component_installation_status != "Installed":
-                logging.warning(f"Cannot change a component that is not installed, component id {component_id}.") #Can use return on these statements instead?
-                halt_update = True
-            
-            elif latest_history_record is None:
-                if updated_bike_id is None:
-                    logging.warning(f"Cannot set status to installed without specifying bike, component id {component_id}.")
-                    halt_update = True
-                else:
-                    bike_id = updated_bike_id
-            
-            else:
-                if latest_history_record.history_id == current_history_id:
-                    logging.warning(f"Historic record already exist for component id {component_id} and record id {current_history_id}.")
-                    halt_update = True
-                
-                elif latest_history_record.update_reason == updated_component_installation_status:
-                    logging.warning(f"Component status is already set to: {latest_history_record.update_reason}.")
-                    halt_update = True
-                            
-                else:
-                    if updated_component_installation_status == "Installed":
-                        if updated_bike_id is None:
-                            logging.warning(f"Cannot set status to installed without specifying bike, component id {component_id}.")
-                            halt_update = True
-                        else:
-                            bike_id = updated_bike_id
-                    
-                    elif updated_component_installation_status == "Retired":
-                        bike_id = updated_bike_id
-
-                    elif updated_component_installation_status == "Not installed":
-                        bike_id = previous_bike_id
-                    
-            if halt_update is False:
-                with database.atomic():
-                    ComponentHistory.create(history_id = current_history_id,
-                                        component_id = component_id,
-                                        bike_id = bike_id,
-                                        component_name = old_component_name,
-                                        updated_date = component_updated_date,
-                                        update_reason = updated_component_installation_status,
-                                        distance_marker = historic_distance)
-                        
-                    logging.info(f'Added record to installation history with id {current_history_id} for component with id {component_id}')
-
-            return halt_update
-        
-        except peewee.OperationalError as error:
-            logging.error(f'An error occurred while adding installation history record for component with id {component_id}: {error}')
-            return True
+    
 
 # REFACTORED METHODS Add class here BusinessLogic, takes app as argument)
 
@@ -355,7 +300,7 @@ class BusinessLogic():
     
         return success, message
 
-    def add_service(self,
+    def create_service_record(self,
                     component_id,
                     service_date,
                     service_description):
@@ -405,7 +350,7 @@ class BusinessLogic():
 
         service_data.update({"distance_marker": distance_since_service})
         
-        success, message = database_manager.write_new_service(service_data)
+        success, message = database_manager.write_service_record(service_data)
         self.update_component_service_status(component_data)
         self.update_bike_status(component_data.bike_id)
 
@@ -493,15 +438,15 @@ class BusinessLogic():
                 else:
                     historic_distance = latest_history_record.distance_marker #This line is probably redundant..? 
 
-            halt_update = modify_records.update_component_history_record(old_component_name, latest_history_record, current_history_id, component_id, previous_bike_id, updated_bike_id, component_installation_status, component_updated_date, historic_distance)
+            history_record_creation = self.create_history_record(old_component_name, latest_history_record, current_history_id, component_id, previous_bike_id, updated_bike_id, component_installation_status, component_updated_date, historic_distance)
 
-            if halt_update is True:
+            if history_record_creation is False:
                 if success:
-                   return success, f"{message}. No historic record added."
+                   return success, f"{message}. No history record added."
                 else:
                     return success, message
 
-            elif halt_update is False:
+            elif history_record_creation is True:
                 success, message = database_manager.write_component_details(component_id, new_component_data)
                 updated_component_data = database_manager.read_component(component_id)
                 latest_history_record = database_manager.read_latest_history_record(component_id)
@@ -517,14 +462,71 @@ class BusinessLogic():
                     self.update_component_distance(component_id, current_distance)
 
             else:
-                logging.warning(f"Modification of component {old_component_data.component_name} skipped due to exceptions when updating history record.")
+                logging.warning(f"Modification of component {old_component_data.component_name} skipped due to exceptions when creating history record.")
         
             return success, message
     
-    #Here comes history record function, must be updated in code above
-    
-    #More functions below, following the sequence from functions above
-    
+    def create_history_record(self,
+                              old_component_name,
+                              latest_history_record,
+                              current_history_id,
+                              component_id,
+                              previous_bike_id,
+                              updated_bike_id,
+                              updated_component_installation_status,
+                              component_updated_date,
+                              historic_distance):
+        """Method to create installation history record"""
+        if latest_history_record is None and updated_component_installation_status != "Installed":
+            logging.warning(f"Cannot change a component that is not installed, component id {component_id}.") #Can use return on these statements instead?
+            return False
+        
+        elif latest_history_record is None:
+            if updated_bike_id is None:
+                logging.warning(f"Cannot set status to installed without specifying bike, component id {component_id}.")
+                return False
+            else:
+                bike_id = updated_bike_id #This is probably redundant, or maybe not?
+        
+        else:
+            if latest_history_record.history_id == current_history_id:
+                logging.warning(f"Historic record already exist for component id {component_id} and record id {current_history_id}.")
+                return False
+            
+            elif latest_history_record.update_reason == updated_component_installation_status:
+                logging.warning(f"Component status is already set to: {latest_history_record.update_reason}.")
+                return False
+                        
+            else:
+                if updated_component_installation_status == "Installed":
+                    if updated_bike_id is None:
+                        logging.warning(f"Cannot set status to installed without specifying bike, component id {component_id}.")
+                        return False
+                    else:
+                        bike_id = updated_bike_id
+                
+                elif updated_component_installation_status == "Retired":
+                    bike_id = updated_bike_id
+
+                elif updated_component_installation_status == "Not installed":
+                    bike_id = previous_bike_id
+                
+        success, message = (database_manager
+                            .write_history_record(current_history_id,
+                                                  component_id,
+                                                  bike_id,
+                                                  old_component_name,
+                                                  component_updated_date,
+                                                  updated_component_installation_status,
+                                                  historic_distance))
+        
+        if success:
+            logging.info(f"Creation of history record successful: {message}")
+            return True
+        else:
+            logging.error(f"Creation of history record failed: {message}")
+            return False
+     
     def compute_component_status(self, mode, reached_distance_percent):
         """Method to compute service status"""        
         if mode == "service":

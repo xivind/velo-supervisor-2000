@@ -115,9 +115,9 @@ async def add_service(
     service_description: str = Form(...)):
     """Endpoint to add service"""
 
-    business_logic.add_service(component_id,
-                               service_date,
-                               service_description)
+    business_logic.create_service_record(component_id,
+                                         service_date,
+                                         service_description)
     
     # This should return a message to the user, could use success, message = above
 
