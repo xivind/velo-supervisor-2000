@@ -66,16 +66,16 @@ class BusinessLogic():
         self.set_time_strava_last_pull()
 
         if success:
-            logging.info(f"Update of rides, bikes and components successful: {message}")
+            logging.info(f"Update of rides, bikes and components successful: {message}.")
         else:
-            logging.error(f"Update of rides, bikes and components failed: {message}")
+            logging.error(f"Update of rides, bikes and components failed: {message}.")
     
         return success, message
         
     def update_components_distance_iterator(self, bike_ids): #This function only prints to console, no message to user
         """Method to determine which selection of components to update"""
         try:
-            logging.info(f'Iterating over bikes to find components to update. Received {len(bike_ids)} bikes')
+            logging.info(f'Iterating over bikes to find components to update. Received {len(bike_ids)} bikes.')
             for bike_id in bike_ids:
                 for component in database_manager.read_subset_installed_components(bike_id):
                     
@@ -98,7 +98,7 @@ class BusinessLogic():
 
         success, message = database_manager.write_component_distance(component, total_distance)
 
-        logging.info(f"Updated distance for component {component.component_name}. New total distance: {total_distance}")
+        logging.info(f"Updated distance for component {component.component_name}. New total distance: {total_distance}.")
         
         updated_component = database_manager.read_component(component_id)
         
@@ -113,9 +113,9 @@ class BusinessLogic():
         self.update_bike_status(bike_id)
 
         if success:
-            logging.info(f"Component distance update successful: {message}")
+            logging.info(f"Component distance update successful: {message}.")
         else:
-            logging.error(f"Component distance update failed: {message}")
+            logging.error(f"Component distance update failed: {message}.")
     
         return success, message
 
@@ -133,7 +133,7 @@ class BusinessLogic():
                                                                 lifetime_remaining, lifetime_status)
 
         else:
-            logging.info(f"Component {component.component_name} has no expected lifetime, setting NULL values for lifetime")
+            logging.info(f"Component {component.component_name} has no expected lifetime, setting NULL values for lifetime.")
 
             lifetime_remaining = None
             lifetime_status = None
@@ -141,9 +141,9 @@ class BusinessLogic():
             success, message = database_manager.write_component_lifetime_status(component, lifetime_remaining, lifetime_status)
  
         if success:
-            logging.info(f"Component lifetime status update successful: {message}")
+            logging.info(f"Component lifetime status update successful: {message}.")
         else:
-            logging.error(f"Component lifetime status update failed: {message}")
+            logging.error(f"Component lifetime status update failed: {message}.")
     
         return success, message
     
@@ -156,28 +156,28 @@ class BusinessLogic():
 
             if component.installation_status == "Installed":
                 if latest_service_record is None:
-                    logging.info(f'No service record found for component {component.component_name}. Using distance from installation log and querying distance from installation date to today')
+                    logging.info(f'No service record found for component {component.component_name}. Using distance from installation log and querying distance from installation date to today.')
                     distance_since_service = latest_history_record.distance_marker
                     matching_rides = database_manager.read_matching_rides(component.bike_id, latest_history_record.updated_date)
                     distance_since_service += sum(ride.ride_distance for ride in matching_rides)
                     
                 elif latest_service_record:
-                    logging.info(f'Service record found for for component {component.component_name}. Querying distance from previous service date to today')
-                    matching_rides = database_manager.read_matching_rides(component.bike_id, latest_history_record.updated_date)
+                    logging.info(f'Service record found for for component {component.component_name}. Querying distance from previous service date to today.')
+                    matching_rides = database_manager.read_matching_rides(component.bike_id, latest_service_record.service_date)
                     distance_since_service = sum(ride.ride_distance for ride in matching_rides)
 
             elif component.installation_status != "Installed":
                 if latest_service_record is None:
-                    logging.info(f'Component {component.component_name} has been uninstalled and there are no previous services. Setting distance since service to distance at the time of uninstallation')
+                    logging.info(f'Component {component.component_name} has been uninstalled and there are no previous services. Setting distance since service to distance at the time of uninstallation.')
                     distance_since_service = latest_history_record.distance_marker
                 
                 elif latest_service_record:
                     if latest_service_record.service_date > component.updated_date:
-                        logging.info(f'Component {component.component_name} has been serviced after uninstall. Setting distance since service to 0')
+                        logging.info(f'Component {component.component_name} has been serviced after uninstall. Setting distance since service to 0.')
                         distance_since_service = 0
                 
                     elif latest_service_record.service_date < component.updated_date:
-                        logging.info(f'Component {component.component_name} has no services after uninstall, but a previous service exist. Using already calculated distance to next service')
+                        logging.info(f'Component {component.component_name} has no services after uninstall, but a previous service exist. Using already calculated distance to next service.')
                         distance_since_service = component.service_interval + component.service_next*-1
         
             service_next = component.service_interval - distance_since_service
@@ -290,22 +290,22 @@ class BusinessLogic():
 
         if component_data.installation_status == "Installed":
             if latest_service_record is None:
-                logging.info(f'No service record found for component {component_data.component_name}. Using distance from installation log and querying distance from installation date to service date')
+                logging.info(f'No service record found for component {component_data.component_name}. Using distance from installation log and querying distance from installation date to service date.')
                 distance_since_service = latest_history_record.distance_marker
                 distance_since_service += database_manager.read_sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
 
             elif latest_service_record:
-                logging.info(f'Service record found for component {component_data.component_name}. Querying distance from previous service date to current service date')
+                logging.info(f'Service record found for component {component_data.component_name}. Querying distance from previous service date to current service date.')
                 distance_since_service = database_manager.read_sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
 
         elif component_data.installation_status != "Installed":
             if latest_service_record is None:
-                logging.info(f'Component {component_data.component_name} has been uninstalled and there are no previous services. Setting historic distance since service to distance at the time of uninstallation')
+                logging.info(f'Component {component_data.component_name} has been uninstalled and there are no previous services. Setting historic distance since service to distance at the time of uninstallation.')
                 distance_since_service = latest_history_record.distance_marker
 
             elif latest_service_record:
                 if latest_service_record.service_date > component_data.updated_date:
-                    logging.info(f'Component {component_data.component_name} has been serviced after uninstall. Setting distance since service to 0')
+                    logging.info(f'Component {component_data.component_name} has been serviced after uninstall. Setting distance since service to 0.')
                     distance_since_service = 0
 
         service_data.update({"distance_marker": distance_since_service})
