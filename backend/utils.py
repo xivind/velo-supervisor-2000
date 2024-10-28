@@ -118,4 +118,3 @@ def calculate_percentage_reached(total, remaining):
             return round(((total - remaining) / total) * 100, 2)
         
         return 1000
-

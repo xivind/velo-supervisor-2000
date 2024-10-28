@@ -61,7 +61,7 @@ class Strava:
         refresh_url = "https://www.strava.com/oauth/token"
 
         if self.token["expires_at"] < datetime.now().timestamp():
-            logging.info(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens')
+            logging.info(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens.')
 
             try:
                 client = OAuth2Session(self.extra["client_id"], token=self.token)
@@ -71,11 +71,11 @@ class Strava:
                 health_check("ok", "executing")
 
             except Exception as error:
-                logging.error(f'An error occured refreshing tokens: {error}')
+                logging.error(f'An error occured refreshing tokens: {error}.')
                 health_check("error", "executing")
 
         try:
-            logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])},in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}')
+            logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])},in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}.')
             client = OAuth2Session(self.extra["client_id"], token=self.token)
 
             if mode == "all":
@@ -85,11 +85,11 @@ class Strava:
                     self.json_response = raw_response.json()
 
                     if not self.json_response:
-                        logging.info(f'Reached last page. The last page with data was page {page-1}')
+                        logging.info(f'Reached last page. The last page with data was page {page-1}.')
                         break
 
-                    logging.info(f'API status for page {page}: {raw_response.status_code} - {raw_response.reason}')
-                    logging.info(f'Page contained {len(self.json_response)} activities')
+                    logging.info(f'API status for page {page}: {raw_response.status_code} - {raw_response.reason}.')
+                    logging.info(f'Page contained {len(self.json_response)} activities.')
                     page = page+1
                     self.prepare_payload_rides()
                     health_check("ok", "executing")
@@ -106,10 +106,10 @@ class Strava:
                 for activity in self.json_response:
                     if str(activity["type"]) == "Ride" and activity["gear_id"] != None:
                         self.bike_ids_recent_rides.add(activity["gear_id"])
-                logging.info(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides')
+                logging.info(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides.')
 
         except Exception as error:
-            logging.error(f'An error occured during the API call to fetch rides: {error}')
+            logging.error(f'An error occured during the API call to fetch rides: {error}.')
             health_check("error", "executing")
 
     async def get_bikes(self, bike_ids):
@@ -120,7 +120,7 @@ class Strava:
         refresh_url = "https://www.strava.com/oauth/token"
 
         if self.token["expires_at"] < datetime.now().timestamp():
-            logging.info(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens')
+            logging.info(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens.')
 
             try:
                 client = OAuth2Session(self.extra["client_id"], token=self.token)
@@ -130,11 +130,11 @@ class Strava:
                 health_check("ok", "executing")
 
             except Exception as error:
-                logging.error(f'An error occured refreshing tokens: {error}')
+                logging.error(f'An error occured refreshing tokens: {error}.')
                 health_check("error", "executing")
 
         try:
-            logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])},in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}')
+            logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])},in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}.')
             client = OAuth2Session(self.extra["client_id"], token=self.token)
 
             logging.info(f"Retrieving data for {len(bike_ids)} bikes")
@@ -144,16 +144,16 @@ class Strava:
                 self.json_response = raw_response.json()
 
                 if self.json_response:
-                    logging.info(f'API status for request: {raw_response.status_code} - {raw_response.reason}')
+                    logging.info(f'API status for request: {raw_response.status_code} - {raw_response.reason}.')
                     self.prepare_payload_bikes()
                     health_check("ok", "executing")
 
                 if not self.json_response:
-                    logging.info(f'API returned {len(self.json_response)} bikes')
+                    logging.info(f'API returned {len(self.json_response)} bikes.')
 
 
         except Exception as error:
-            logging.error(f'An error occured during the API call to fetch bikes: {error}')
+            logging.error(f'An error occured during the API call to fetch bikes: {error}.')
             health_check("error", "executing")
 
     def prepare_payload_rides(self):
@@ -174,18 +174,16 @@ class Strava:
                     ride.update({"commute": bool(activities["commute"])})
 
                     self.payload_rides.append(ride)
-                    logging.info('Ride data written to list:')
-                    logging.info(ride)
+                    logging.info(f'Ride data written to list: {ride}.')
                     health_check("ok", "executing")
 
                 except Exception as error:
-                    logging.error('An error ocurred preparing payload for rides:')
-                    logging.error(self.payload_rides)
-                    logging.error(f'More info about the error: {error}')
+                    logging.error(f'An error ocurred preparing payload for rides: {self.payload_rides}')
+                    logging.error(f'More info about the error: {error}.')
                     health_check("error", "executing")
 
             else:
-                logging.info("Activity is not of type Ride, skipping...")
+                logging.info("Activity is not of type Ride. Skipping.")
 
     def prepare_payload_bikes(self):
         """Method to prepare a list of bikes"""
@@ -199,12 +197,10 @@ class Strava:
             bike.update({"notes": str(self.json_response["description"])})
 
             self.payload_bikes.append(bike)
-            logging.info('Bike data written to list:')
-            logging.info(bike)
+            logging.info(f'Bike data written to list: {bike}.')
             health_check("ok", "executing")
 
         except Exception as error:
-            logging.error('An error ocurred preparing payload for bikes')
-            logging.error(self.payload_bikes)
-            logging.error(f'More info about the error: {error}')
+            logging.error(f'An error ocurred preparing payload for bikes: {self.payload_bikes}')
+            logging.error(f'More info about the error: {error}.')
             health_check("error", "executing")

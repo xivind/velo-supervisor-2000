@@ -195,10 +195,10 @@ class DatabaseManager:
                         action='REPLACE'
                     ).execute()
 
-                    return True, "Rides table updated successfully"
+                    return True, "Rides table updated successfully."
 
         except peewee.OperationalError as error:
-            return False, f"An error occurred during bulk update of rides table: {str(error)}"
+            return False, f"An error occurred during bulk update of rides table: {str(error)}."
 
     def write_update_bikes(self, bike_list):
         """Method to create or update bike data to the database"""
@@ -216,10 +216,10 @@ class DatabaseManager:
                         query = Bikes.insert(**bike_data)
                         query.execute()
 
-            return True, f'Records for {len(bike_list)} bikes updated'
+            return True, f'Records for {len(bike_list)} bikes updated.'
 
         except peewee.OperationalError as error:
-            return False, f"Update of bike records failed: {str(error)}"
+            return False, f"Update of bike records failed: {str(error)}."
     
     def write_component_distance(self, component, total_distance):
         """Method to update component distance in database"""
@@ -241,14 +241,14 @@ class DatabaseManager:
                 
                 if component:
                     Components.update(**new_component_data).where(Components.component_id == component_id).execute()
-                    return True, f'Component {component.component_name} updated'
+                    return True, f'Component {component.component_name} updated.'
 
                 else:
                     new_component_data.update({"component_distance": 0,
                                                "component_id": component_id})
 
                     Components.create(**new_component_data)
-                    return True, f'Component {new_component_data["component_name"]} created'
+                    return True, f'Component {new_component_data["component_name"]} created.'
 
         except peewee.OperationalError as error:
             return False, f"Component modification failed: {str(error)}"
@@ -261,10 +261,10 @@ class DatabaseManager:
                 component.lifetime_status = lifetime_status
                 component.save()
 
-            return True, f"{component.component_name}"
+            return True, f"{component.component_name}."
         
         except peewee.OperationalError as error:
-            return False, f"{component.component_name}: {str(error)}"
+            return False, f"{component.component_name}: {str(error)}."
 
     def write_component_service_status(self, component, service_next, service_status):
         """Method to update component service status in database"""
@@ -274,10 +274,10 @@ class DatabaseManager:
                 component.service_status = service_status
                 component.save()
             
-            return True, f"{component.component_name}"
+            return True, f"{component.component_name}."
         
         except peewee.OperationalError as error:
-            return False, f"{component.component_name}: {str(error)}"
+            return False, f"{component.component_name}: {str(error)}."
 
     def write_bike_service_status(self, bike, service_status):
         """Method to update bike service status in database"""
@@ -286,19 +286,19 @@ class DatabaseManager:
                 bike.service_status = service_status
                 bike.save()
             
-            return True, f"{bike.bike_name}"
+            return True, f"{bike.bike_name}."
         
         except peewee.OperationalError as error:
-            return False, f"{bike.bike_name}: {str(error)}"
+            return False, f"{bike.bike_name}: {str(error)}."
     
     def write_service_record(self, service_data):
         "Method to write service record to database"
         try:
             Services.create(**service_data)
-            return True, f"Added service record for component {service_data['component_name']}"
+            return True, f"Added service record for component {service_data['component_name']}."
 
         except peewee.OperationalError as error:
-            return False, f"{service_data['component_name']}: {str(error)}"
+            return False, f"{service_data['component_name']}: {str(error)}."
 
     def write_history_record(self,
                              current_history_id,
@@ -335,14 +335,14 @@ class DatabaseManager:
                      .update(**component_type_data)
                      .where(ComponentTypes.component_type == component_type_data["component_type"])
                      .execute())
-                    return True, f"Updated {component_type_data['component_type']}"
+                    return True, f"Updated {component_type_data['component_type']}."
             
                 else:
                     ComponentTypes.create(**component_type_data)
-                    return True, f"Created {component_type_data['component_type']}"
+                    return True, f"Created {component_type_data['component_type']}."
         
         except peewee.OperationalError as error:
-            return False, f"{component_type_data['component_type']}: {str(error)}"
+            return False, f"{component_type_data['component_type']}: {str(error)}."
     
     def write_delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
@@ -352,7 +352,7 @@ class DatabaseManager:
                     record = self.read_single_component_type(record_id)
                     if record:
                         record.delete_instance()
-                        return True, f"Deleted component type: {record_id}"
+                        return True, f"Deleted component type: {record_id}."
                 
                 elif table_selector == "Components":
                     record = self.read_component(record_id)
@@ -360,12 +360,12 @@ class DatabaseManager:
                         services_deleted = Services.delete().where(Services.component_id == record_id).execute()
                         history_deleted = ComponentHistory.delete().where(ComponentHistory.component_id == record_id).execute()
                         record.delete_instance()
-                        return True, f"Deleted component: {record.component_name} ({record_id}), related records deleted: {services_deleted} service(s), {history_deleted} history record(s)"
+                        return True, f"Deleted component: {record.component_name}, related records deleted: {services_deleted} service(s), {history_deleted} history record(s)."
                 else:
-                    return False, "Invalid table selector"
+                    return False, "Invalid table selector."
 
                 if not record:
-                    return False, f"Record not found: {record_id}"
+                    return False, f"Record not found: {record_id}."
 
         except peewee.OperationalError as error:
             return False, {str(error)}

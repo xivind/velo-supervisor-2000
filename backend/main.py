@@ -54,7 +54,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     return await Middleware(app, templates=templates).handle_exception(exc, request)
 
 #Startup event
-@app.on_event("startup") #solve this one, on_event is deprecated
+@app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
     asyncio.create_task(utils.pull_strava_background("recent"))
@@ -391,7 +391,7 @@ async def update_config(request: Request,
     with open('config.json', 'w', encoding='utf-8') as file:
         json.dump(CONFIG, file, indent=4)
 
-    logging.warning(f"Configuration updated. New database path is {db_path} and new strava tokens path is {strava_tokens}. Shutting down container...")
+    logging.warning(f"Configuration updated. New database path is {db_path} and new strava tokens path is {strava_tokens}. Shutting down container.")
     sys.exit(0)
 
 

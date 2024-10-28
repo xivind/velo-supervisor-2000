@@ -23,27 +23,27 @@ class BusinessLogic():
 
     async def update_rides_bulk(self, mode):
         """Method to create or update ride data in bulk to database"""
-        logging.info(f"Retrieving rides from Strava. Mode set to: {mode}")
+        logging.info(f"Retrieving rides from Strava. Mode set to: {mode}.")
         await strava.get_rides(mode)
-        logging.info(f'There are {len(strava.payload_rides)} rides in the list')
+        logging.info(f'There are {len(strava.payload_rides)} rides in the list.')
 
         success, message = database_manager.write_update_rides_bulk(strava.payload_rides)
 
         if success:
-            logging.info(f"Bulk update of database OK: {message}")
+            logging.info(f"Bulk update of database OK: {message}.")
         else:
-            logging.error(f"Bulk update of database failed: {message}")
+            logging.error(f"Bulk update of database failed: {message}.")
 
         if mode == "all":
             logging.info("Refreshing all bikes from Strava")
             await strava.get_bikes(database_manager.read_unique_bikes())
             success, message = database_manager.write_update_bikes(strava.payload_bikes)
-            
+
             if success:
-                logging.info(f"Bike update OK: {message}")
+                logging.info(f"Bike update OK: {message}.")
             else:
-                logging.error(f"Bike update failed failed: {message}")
-            
+                logging.error(f"Bike update failed failed: {message}.")
+
             success, message = self.update_components_distance_iterator(database_manager.read_unique_bikes())
 
         if mode == "recent":
@@ -53,15 +53,15 @@ class BusinessLogic():
                 success, message = database_manager.write_update_bikes(strava.payload_bikes)
                 
                 if success:
-                    logging.info(f"Bike update OK: {message}")
+                    logging.info(f"Bike update OK: {message}.")
                 else:
-                    logging.error(f"Bike update failed failed: {message}")
+                    logging.error(f"Bike update failed failed: {message}.")
                 
                 success, message = self.update_components_distance_iterator(strava.bike_ids_recent_rides)
 
             else:
-                logging.warning("No bikes found in recent activities")
-        
+                logging.warning("No bikes found in recent activities.")
+
         self.app_state.strava_last_pull = datetime.now()
         self.set_time_strava_last_pull()
 
@@ -69,10 +69,10 @@ class BusinessLogic():
             logging.info(f"Update of rides, bikes and components successful: {message}.")
         else:
             logging.error(f"Update of rides, bikes and components failed: {message}.")
-    
+
         return success, message
-        
-    def update_components_distance_iterator(self, bike_ids): #This function only prints to console, no message to user
+
+    def update_components_distance_iterator(self, bike_ids):
         """Method to determine which selection of components to update"""
         try:
             logging.info(f'Iterating over bikes to find components to update. Received {len(bike_ids)} bikes.')
@@ -85,7 +85,7 @@ class BusinessLogic():
                     current_component_distance += sum(ride.ride_distance for ride in matching_rides)
                     self.update_component_distance(component.component_id, current_component_distance)
 
-            return True, f"Processed components for {len(bike_ids)} bikes"
+            return True, f"Processed components for {len(bike_ids)} bikes."
 
         except Exception as error:
             return False, {str(error)}
@@ -99,17 +99,13 @@ class BusinessLogic():
         success, message = database_manager.write_component_distance(component, total_distance)
 
         logging.info(f"Updated distance for component {component.component_name}. New total distance: {total_distance}.")
-        
+
         updated_component = database_manager.read_component(component_id)
-        print(f"Got this bike id: {updated_component.bike_id}")
-        
+
         if updated_component.bike_id is None:
             bike_id = database_manager.read_bike_id_recent_component_history(component_id)
-            print(f"Entered bike_id is None: {bike_id}")
-
         else:
-            bike_id = updated_component.bike_id #What is happening here, check this logic
-            print(f"Entered else clause: {bike_id}")
+            bike_id = updated_component.bike_id
         
         self.update_component_lifetime_status(updated_component)
         self.update_component_service_status(updated_component)
@@ -119,7 +115,7 @@ class BusinessLogic():
             logging.info(f"Component distance update successful: {message}.")
         else:
             logging.error(f"Component distance update failed: {message}.")
-    
+
         return success, message
 
     def update_component_lifetime_status(self, component):
@@ -140,7 +136,7 @@ class BusinessLogic():
 
             lifetime_remaining = None
             lifetime_status = None
-            
+
             success, message = database_manager.write_component_lifetime_status(component, lifetime_remaining, lifetime_status)
  
         if success:
@@ -191,7 +187,7 @@ class BusinessLogic():
             success, message = database_manager.write_component_service_status(component, service_next, service_status)
 
         else:
-            logging.info(f"Component {component.component_name} has no service interval, setting NULL values for service")
+            logging.info(f"Component {component.component_name} has no service interval, setting NULL values for service.")
             
             service_next = None
             service_status = None
@@ -199,9 +195,9 @@ class BusinessLogic():
             success, message = database_manager.write_component_service_status(component, service_next, service_status)
 
         if success:
-            logging.info(f"Component service status update successful: {message}")
+            logging.info(f"Component service status update successful: {message}.")
         else:
-            logging.error(f"Component service status update failed: {message}")
+            logging.error(f"Component service status update failed: {message}.")
     
         return success, message
 
@@ -210,7 +206,7 @@ class BusinessLogic():
         bike = database_manager.read_single_bike(bike_id)
         components = database_manager.read_subset_components(bike_id)            
         
-        logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}")
+        logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}.")
         
         component_status = {"breakdown_imminent": 0,
                             "maintenance_required": 0,
@@ -252,14 +248,14 @@ class BusinessLogic():
         else:
             service_status = "No components registered"
     
-        logging.info(f"New status for bike {bike.bike_name}: {service_status}")
+        logging.info(f"New status for bike {bike.bike_name}: {service_status}.")
 
         success, message = database_manager.write_bike_service_status(bike, service_status)
 
         if success:
-            logging.info(f"Bike update successful: {message}")
+            logging.info(f"Bike update successful: {message}.")
         else:
-            logging.error(f"Bike update failed: {message}")
+            logging.error(f"Bike update failed: {message}.")
     
         return success, message
 
@@ -312,18 +308,18 @@ class BusinessLogic():
                     distance_since_service = 0
 
         service_data.update({"distance_marker": distance_since_service})
-        
+
         success, message = database_manager.write_service_record(service_data)
         self.update_component_service_status(component_data)
         self.update_bike_status(component_data.bike_id)
 
         if success:
-            logging.info(f"Creation of service record successful: {message}")
+            logging.info(f"Creation of service record successful: {message}.")
         else:
-            logging.error(f"Creation of service record failed: {message}")
+            logging.error(f"Creation of service record failed: {message}.")
 
         return success, message
-    
+
     def modify_component_details(self,
                                  component_id,
                                  component_installation_status,
@@ -357,7 +353,7 @@ class BusinessLogic():
             component_id = generate_unique_id()
             success, message = database_manager.write_component_details(component_id, new_component_data)
 
-            if success: #These may be redundant..
+            if success:
                 logging.info(message)
             else:
                 logging.error(message)
@@ -401,7 +397,7 @@ class BusinessLogic():
                     historic_distance += latest_history_record.distance_marker
 
                 else:
-                    historic_distance = latest_history_record.distance_marker #This line is probably redundant..? 
+                    historic_distance = latest_history_record.distance_marker
 
             history_record_creation = self.create_history_record(old_component_name, latest_history_record, current_history_id, component_id, previous_bike_id, updated_bike_id, component_installation_status, component_updated_date, historic_distance)
 
@@ -417,20 +413,20 @@ class BusinessLogic():
                 latest_history_record = database_manager.read_latest_history_record(component_id)
 
                 if updated_component_data.installation_status == "Installed":
-                    logging.info(f'Timespan for current distance query: start date {updated_component_data.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}')
+                    logging.info(f'Timespan for current distance query: start date {updated_component_data.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}.')
                     current_distance = database_manager.read_sum_distanse_subset_rides(updated_component_data.bike_id, updated_component_data.updated_date, datetime.now().strftime("%Y-%m-%d %H:%M"))
                     current_distance += latest_history_record.distance_marker
                     self.update_component_distance(component_id, current_distance)
 
                 else:
-                    current_distance = latest_history_record.distance_marker #Can this be made redundant by reordering statements above?
+                    current_distance = latest_history_record.distance_marker
                     self.update_component_distance(component_id, current_distance)
 
             else:
                 logging.warning(f"Modification of component {old_component_data.component_name} skipped due to exceptions when creating history record.")
-        
+
         return success, message, component_id
-    
+
     def create_history_record(self,
                               old_component_name,
                               latest_history_record,
@@ -445,23 +441,23 @@ class BusinessLogic():
         if latest_history_record is None and updated_component_installation_status != "Installed":
             logging.warning(f"Cannot change a component that is not installed: {old_component_name}.")
             return False
-        
+
         elif latest_history_record is None:
             if updated_bike_id is None:
                 logging.warning(f"Cannot set status to installed without specifying bike: {old_component_name}.")
                 return False
             else:
-                bike_id = updated_bike_id #This is probably redundant, or maybe not?
-        
+                bike_id = updated_bike_id
+
         else:
             if latest_history_record.history_id == current_history_id:
                 logging.warning(f"History record dated {component_updated_date} already exists: {old_component_name}.")
                 return False
-            
+
             elif latest_history_record.update_reason == updated_component_installation_status:
                 logging.warning(f"Component status for {old_component_name} is already set to: {latest_history_record.update_reason}.")
                 return False
-                        
+
             else:
                 if updated_component_installation_status == "Installed":
                     if updated_bike_id is None:
@@ -469,30 +465,30 @@ class BusinessLogic():
                         return False
                     else:
                         bike_id = updated_bike_id
-                
+
                 elif updated_component_installation_status == "Retired":
                     bike_id = updated_bike_id
 
                 elif updated_component_installation_status == "Not installed":
                     bike_id = previous_bike_id
-                
+
         success, message = (database_manager
                             .write_history_record
                                 (current_history_id,
                                  component_id,
-                                 bike_id, #This could be a problem
+                                 bike_id,
                                  old_component_name,
                                  component_updated_date,
                                  updated_component_installation_status,
                                  historic_distance))
-        
+
         if success:
-            logging.info(f"Creation of history record successful: {message}")
+            logging.info(f"Creation of history record successful: {message}.")
             return True
         else:
-            logging.error(f"Creation of history record failed: {message}")
+            logging.error(f"Creation of history record failed: {message}.")
             return False
-     
+
     def compute_component_status(self, mode, reached_distance_percent):
         """Method to compute service status"""        
         if mode == "service":
@@ -515,7 +511,7 @@ class BusinessLogic():
             elif reached_distance_percent > 100:
                 status = "Lifetime exceeded"
 
-        return status #Consider to fix this
+        return status
     
     def modify_component_type(self,
                               component_type,
@@ -532,25 +528,25 @@ class BusinessLogic():
         success, message = database_manager.write_component_type(component_type_data)
 
         if success:
-            logging.info(f"Component type update successful: {message}")
+            logging.info(f"Component type update successful: {message}.")
         else:
-            logging.error(f"Component type update failed: {message}")
+            logging.error(f"Component type update failed: {message}.")
 
         return success, message
-    
+
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         logging.info(f"Attempting to delete record with id {record_id} from table {table_selector}")
-        
+
         success, message = database_manager.write_delete_record(table_selector, record_id)
-        
+
         if success:
-            logging.info(f"Deletion successful: {message}")
+            logging.info(f"Deletion successful: {message}.")
         else:
-            logging.error(f"Deletion failed: {message}")
+            logging.error(f"Deletion failed: {message}.")
 
         return success, message
-    
+
     def set_time_strava_last_pull(self):
         """Function to set the date for last pull from Strava"""
         if self.app_state.strava_last_pull:
