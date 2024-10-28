@@ -129,7 +129,7 @@ async def modify_component(
     component_updated_date: str = Form(...),
     component_name: str = Form(...),
     component_type: str = Form(...),
-    component_bike_id: Optional[str] = Form(None),
+    component_bike_id: str = Form(...),
     expected_lifetime: Optional[str] = Form(None),
     service_interval: Optional[str] = Form(None),
     cost: Optional[str] = Form(None),

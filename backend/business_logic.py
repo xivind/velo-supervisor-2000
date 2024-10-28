@@ -101,12 +101,15 @@ class BusinessLogic():
         logging.info(f"Updated distance for component {component.component_name}. New total distance: {total_distance}.")
         
         updated_component = database_manager.read_component(component_id)
+        print(f"Got this bike id: {updated_component.bike_id}")
         
         if updated_component.bike_id is None:
             bike_id = database_manager.read_bike_id_recent_component_history(component_id)
+            print(f"Entered bike_id is None: {bike_id}")
 
         else:
             bike_id = updated_component.bike_id #What is happening here, check this logic
+            print(f"Entered else clause: {bike_id}")
         
         self.update_component_lifetime_status(updated_component)
         self.update_component_service_status(updated_component)
@@ -334,6 +337,7 @@ class BusinessLogic():
                                  offset,
                                  component_notes):
         "Method to update component details"
+        component_bike_id = None if len(component_bike_id) == 0 else component_bike_id
         expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
         service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
         cost = int(cost) if cost and cost.isdigit() else None
