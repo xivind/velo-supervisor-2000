@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Module for configuration and mapping of a Sqlite database"""
 
-from utils import read_parameters
+from utils import read_config
 from peewee import SqliteDatabase, Model, CharField, FloatField, IntegerField
 
-CONFIG = read_parameters()
+CONFIG = read_config()
 
 database = SqliteDatabase(CONFIG['db_path'])
 

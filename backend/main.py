@@ -19,7 +19,7 @@ import utils #import explicitly
 from database_manager import DatabaseManager #Remove this and all reference to it when code has been moved to business logic
 
 # Load configuration
-CONFIG = utils.read_parameters()
+CONFIG = utils.read_config()
 
 # Initialize database # Remove after refactoring
 database_manager = DatabaseManager() #Remove this and all reference to it when code has been moved to business logic
@@ -90,8 +90,8 @@ async def component_types_overview(request: Request):
                                                       "payload": payload})
 
 
-@app.post("/component_types_overview/modify", response_class=HTMLResponse)
-async def modify_component_type(
+@app.post("/component_types_modify", response_class=HTMLResponse)
+async def component_types_modify(
     component_type: str = Form(...),
     expected_lifetime: Optional[str] = Form(None),
     service_interval: Optional[str] = Form(None)):
@@ -122,8 +122,8 @@ async def add_service(
     return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
 
 
-@app.post("/component_modify", response_class=HTMLResponse) #Synce name of endpoint with corresponding method, applies to all endpoints (do not change endpoint name)
-async def modify_component(
+@app.post("/component_modify", response_class=HTMLResponse)
+async def component_modify(
     component_id: Optional[str] = Form(None),
     component_installation_status: str = Form(...),
     component_updated_date: str = Form(...),
@@ -368,9 +368,9 @@ async def delete_record(
 
 
 @app.get("/config_overview", response_class=HTMLResponse)
-async def read_config(request: Request):
+async def config_overview(request: Request):
     """Endpoint for component types page"""
-# Get data from utils instead
+
     payload = {"strava_tokens": CONFIG['strava_tokens'],
                "db_path": CONFIG['strava_tokens']}
     template_path = "config.html"
@@ -384,19 +384,18 @@ async def update_config(request: Request,
                         db_path: str = Form(...),
                         strava_tokens: str = Form(...)):
     """Endpoint to update config file"""
-#Move to utils and get data from there
-    CONFIG['db_path'] = db_path
-    CONFIG['strava_tokens'] = strava_tokens
+    
+    success, message = utils.write_config(CONFIG['db_path'] = db_path,
+                                          CONFIG['strava_tokens'] = strava_tokens
+                                          )
+    # This should return a message to the user
+    # Why do we get the non iterable error?
 
-    with open('config.json', 'w', encoding='utf-8') as file:
-        json.dump(CONFIG, file, indent=4)
-
-    logging.warning(f"Configuration updated. New database path is {db_path} and new strava tokens path is {strava_tokens}. Shutting down container.")
     sys.exit(0)
 
 
 @app.get("/get_filtered_log")
-async def get_logs():
+async def get_filtered_logs():
     """Endpoint to read log and return only business events""" 
  #Move to utils and get data from there
     with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:

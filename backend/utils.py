@@ -16,11 +16,25 @@ def get_current_version():
     except FileNotFoundError:
         return "Version unknown"
 
-def read_parameters():
+def read_config():
     """Function to read configuration file"""
     with open('config.json', 'r', encoding='utf-8') as file:
         config = json.load(file)
     return config
+
+def write_config(db_path, strava_tokens):
+    """Function to update configuration file"""
+    try:
+        updated_config = {"db_path": db_path,
+                            "strava_tokens": strava_tokens}
+
+        with open('config.json', 'w', encoding='utf-8') as file:
+            json.dump(updated_config, file, indent=4)
+
+    except OSError as error:
+        # We are here now, missing return statemets
+
+    logging.warning(f"Configuration updated. New database path is {db_path} and new strava tokens path is {strava_tokens}. Shutting down container.")
 
 async def pull_strava_background(mode):
     """Function to pull data from Strava in the background"""

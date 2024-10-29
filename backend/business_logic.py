@@ -3,12 +3,12 @@
 
 import logging
 from datetime import datetime
-from utils import read_parameters, calculate_percentage_reached, generate_unique_id
+from utils import read_config, calculate_percentage_reached, generate_unique_id
 from strava import Strava
 from database_manager import DatabaseManager
 
 # Load configuration
-CONFIG = read_parameters()
+CONFIG = read_config()
 
 # Create database manager object
 database_manager = DatabaseManager()
@@ -21,6 +21,8 @@ class BusinessLogic():
     def __init__(self, app_state):
         self.app_state = app_state
 
+    # Read methods here
+    
     async def update_rides_bulk(self, mode):
         """Method to create or update ride data in bulk to database"""
         logging.info(f"Retrieving rides from Strava. Mode set to: {mode}.")
