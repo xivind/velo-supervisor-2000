@@ -26,15 +26,15 @@ def write_config(db_path, strava_tokens):
     """Function to update configuration file"""
     try:
         updated_config = {"db_path": db_path,
-                            "strava_tokens": strava_tokens}
+                          "strava_tokens": strava_tokens}
 
         with open('config.json', 'w', encoding='utf-8') as file:
             json.dump(updated_config, file, indent=4)
 
-    except OSError as error:
-        # We are here now, missing return statemets
+        return True, f"Configuration updated. New database path is {db_path}. New strava tokens path is {strava_tokens}." 
 
-    logging.warning(f"Configuration updated. New database path is {db_path} and new strava tokens path is {strava_tokens}. Shutting down container.")
+    except OSError as error:
+        return False, f"An error occured updating configuration: {str(error)}"
 
 async def pull_strava_background(mode):
     """Function to pull data from Strava in the background"""

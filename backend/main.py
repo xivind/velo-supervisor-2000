@@ -372,7 +372,7 @@ async def config_overview(request: Request):
     """Endpoint for component types page"""
 
     payload = {"strava_tokens": CONFIG['strava_tokens'],
-               "db_path": CONFIG['strava_tokens']}
+               "db_path": CONFIG['db_path']}
     template_path = "config.html"
 
     return templates.TemplateResponse(template_path, {"request": request,
@@ -384,15 +384,13 @@ async def update_config(request: Request,
                         db_path: str = Form(...),
                         strava_tokens: str = Form(...)):
     """Endpoint to update config file"""
+
+    success, message = utils.write_config(db_path, strava_tokens)
     
-    success, message = utils.write_config(CONFIG['db_path'] = db_path,
-                                          CONFIG['strava_tokens'] = strava_tokens
-                                          )
+    if success:
+        sys.exit(0)
+
     # This should return a message to the user
-    # Why do we get the non iterable error?
-
-    sys.exit(0)
-
 
 @app.get("/get_filtered_log")
 async def get_filtered_logs():
