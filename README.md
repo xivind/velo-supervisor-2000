@@ -28,8 +28,8 @@ As a principle, development is to be done in dev-branches and will be merged int
 - Configured program to run in Docker
 
 **Planned for v0.3.0**
-- Improved input validation
 - Feedback to user from business logic
+- Improved input validation
 - Refactored code base and improved business logic
 
 **v0.2.0**
