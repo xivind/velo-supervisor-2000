@@ -36,7 +36,7 @@ def write_config(db_path, strava_tokens):
     except OSError as error:
         return False, f"An error occured updating configuration: {str(error)}"
 
-def get_filtered_logs():
+def read_filtered_logs():
     """Function to get filtered log records"""
     with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:
         logs = log_file.readlines()

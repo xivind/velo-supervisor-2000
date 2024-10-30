@@ -360,12 +360,12 @@ class DatabaseManager:
                         services_deleted = Services.delete().where(Services.component_id == record_id).execute()
                         history_deleted = ComponentHistory.delete().where(ComponentHistory.component_id == record_id).execute()
                         record.delete_instance()
-                        return True, f"Deleted component: {record.component_name}, related records deleted: {services_deleted} service(s), {history_deleted} history record(s)."
+                        return True, f"Deleted component: {record.component_name}, related records deleted: {services_deleted} service(s), {history_deleted} history record(s)"
                 else:
-                    return False, "Invalid table selector."
+                    return False, "Invalid table selector"
 
                 if not record:
-                    return False, f"Record not found: {record_id}."
+                    return False, f"Record not found: {record_id}"
 
         except peewee.OperationalError as error:
             return False, {str(error)}

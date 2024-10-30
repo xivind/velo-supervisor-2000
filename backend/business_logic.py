@@ -26,6 +26,23 @@ class BusinessLogic():
     def __init__(self, app_state):
         self.app_state = app_state
 
+    def get_bike_overview(self):
+        """Method to get bike overview"""
+        bikes = database_manager.read_bikes()
+        bikes_data = [(bike.bike_name,
+                    bike.bike_id,
+                    bike.bike_retired,
+                    bike.service_status,
+                    int(bike.total_distance),
+                    sum(1 for component in database_manager.read_subset_components(bike.bike_id)
+                        if component.installation_status == "Installed"),
+                    sum(1 for component in database_manager.read_subset_components(bike.bike_id)
+                        if component.installation_status == "Retired")) for bike in bikes]
+
+        payload = {"bikes_data": bikes_data}
+
+        return payload
+    
     def get_bike_details(self, bike_id):
         """Method to get bike details"""
         bike = database_manager.read_single_bike(bike_id)
@@ -77,13 +94,135 @@ class BusinessLogic():
         
         return payload
     
+    def get_component_overview(self):
+        """Method to get component overview"""
+        components = database_manager.read_all_components()
+        component_data = [(component.component_id,
+                           component.component_type,
+                           component.component_name,
+                           int(component.component_distance),
+                           component.installation_status,
+                           format_component_status(component.lifetime_status),
+                           format_component_status(component.service_status),
+                           database_manager.read_bike_name(component.bike_id),
+                           format_cost(component.cost)
+                           ) for component in components]
+
+        rearranged_component_data = [(comp[4],
+                                        None,
+                                        None,
+                                        None,
+                                        comp[5],
+                                        comp[6],
+                                        comp[8],
+                                        None,
+                                        comp[7]) for comp in component_data]
+
+        component_statistics = get_component_statistics(rearranged_component_data)
+
+        bikes = database_manager.read_bikes()
+        bikes_data = [(bike.bike_name,
+                       bike.bike_id)
+                       for bike in bikes if bike.bike_retired == "False"]
+
+        component_types_data = database_manager.read_all_component_types()
+
+        payload = {"component_data": component_data,
+                   "bikes_data": bikes_data,
+                   "component_types_data": component_types_data,
+                   "count_installed" : component_statistics["count_installed"],
+                   "count_not_installed" : component_statistics["count_not_installed"],
+                   "count_retired" : component_statistics["count_retired"],
+                   "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
+                   "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
+                   "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
+                   "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
+                   "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
+                   "count_service_status_green" : component_statistics["count_service_status_green"],
+                   "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
+                   "count_service_status_red" : component_statistics["count_service_status_red"],
+                   "count_service_status_purple" : component_statistics["count_service_status_purple"],
+                   "count_service_status_grey" : component_statistics["count_service_status_grey"],
+                   "sum_cost" : component_statistics["sum_cost"]}
+        
+        return payload
+    
+    def get_component_details(self, component_id):
+        """Method to get component details"""
+        bikes = database_manager.read_bikes()
+        bikes_data = [(bike.bike_name,
+                       bike.bike_id)
+                       for bike in bikes if bike.bike_retired == "False"]
+        
+        component_types_data = database_manager.read_all_component_types()
+        
+        bike_component = database_manager.read_component(component_id)
+        bike_component_data = {"bike_id": bike_component.bike_id,
+                               "component_id": bike_component.component_id,
+                               "updated_date": bike_component.updated_date,
+                               "component_name": bike_component.component_name,
+                               "component_type": bike_component.component_type,
+                               "component_distance": (int(bike_component.component_distance) 
+                                                      if bike_component.component_distance is not None else None),
+                                "installation_status": bike_component.installation_status,
+                                "lifetime_expected": bike_component.lifetime_expected,
+                                "lifetime_remaining": (int(bike_component.lifetime_remaining)
+                                                       if bike_component.lifetime_remaining is not None else None),
+                                "lifetime_status": format_component_status(bike_component.lifetime_status),
+                                "lifetime_percentage": (calculate_percentage_reached(bike_component.lifetime_expected,
+                                                                                     int(bike_component.lifetime_remaining))
+                                                                                     if bike_component.lifetime_remaining is not None else None),
+                                "service_interval": bike_component.service_interval,
+                                "service_next": (int(bike_component.service_next)
+                                                 if bike_component.service_next is not None else None),
+                                "service_status": format_component_status(bike_component.service_status),
+                                "service_percentage": calculate_percentage_reached(bike_component.service_interval,
+                                                                                   int(bike_component.service_next))
+                                                                                   if bike_component.service_next is not None else None,
+                                "offset": bike_component.component_distance_offset,
+                                "component_notes": bike_component.notes,
+                                "cost": format_cost(bike_component.cost)}
+
+        component_history = database_manager.read_subset_component_history(bike_component.component_id)
+        if component_history is not None:
+            component_history_data = [(installation_record.updated_date,
+                                       installation_record.update_reason,
+                                       database_manager.read_bike_name(installation_record.bike_id),
+                                       int(installation_record.distance_marker)) for installation_record in component_history]
+        else:
+            component_history_data = None
+
+        service_history = database_manager.read_subset_service_history(bike_component.component_id)
+        if service_history is not None:
+            service_history_data = [(service_record.service_date,
+                                     service_record.description,
+                                     database_manager.read_bike_name(service_record.bike_id),
+                                     int(service_record.distance_marker)) for service_record in service_history]
+        else:
+            service_history_data = None
+
+        payload = {"bikes_data": bikes_data,
+                   "component_types_data": component_types_data,
+                   "bike_component_data": bike_component_data,
+                   "bike_name": database_manager.read_bike_name(bike_component.bike_id),
+                   "component_history_data": component_history_data,
+                   "service_history_data": service_history_data}
+        
+        return payload
+
+    def get_component_types(self):
+        """Method to get all component types"""
+        payload = {"component_types": database_manager.read_all_component_types()}
+        
+        return payload
+    
     async def update_rides_bulk(self, mode):
         """Method to create or update ride data in bulk to database"""
         logging.info(f"Retrieving rides from Strava. Mode set to: {mode}.")
         await strava.get_rides(mode)
         logging.info(f'There are {len(strava.payload_rides)} rides in the list.')
 
-        success, message = database_manager.write_update_rides_bulk(strava.payload_rides) #Check this warning message
+        success, message = database_manager.write_update_rides_bulk(strava.payload_rides)
 
         if success:
             logging.info(f"Bulk update of database OK: {message}.")
@@ -602,6 +741,23 @@ class BusinessLogic():
             logging.error(f"Deletion failed: {message}.")
 
         return success, message
+
+    async def refresh_all_bikes(self):
+        """Method to refresh all bikes from Strava"""
+        unique_bike_ids = database_manager.read_unique_bikes()
+        
+        await strava.get_bikes(unique_bike_ids)
+        success_main, message_main = database_manager.write_update_bikes(strava.payload_bikes)
+
+        if success_main:
+            for bike_id in unique_bike_ids:
+                success_sub, message_sub = self.update_bike_status(bike_id)
+                if not success_sub:
+                    logging.error(message_sub)
+                    return success_sub, message_sub
+        
+        logging.info(message_main)
+        return success_main, message_main
 
     def set_time_strava_last_pull(self):
         """Function to set the date for last pull from Strava"""
