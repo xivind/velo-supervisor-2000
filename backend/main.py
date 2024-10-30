@@ -218,51 +218,7 @@ async def component_overview(request: Request):
 async def bike_details(request: Request, bike_id: str):
     """Endpoint for bike details page"""
     
-    bike = database_manager.read_single_bike(bike_id)
-    bike_data = {"bike_name": bike.bike_name,
-                "bike_id": bike.bike_id,
-                "bike_retired": bike.bike_retired,
-                "bike_service_status": bike.service_status,
-                "bike_total_distance": int(bike.total_distance),
-                "bike_notes": bike.notes,
-                "oldest_ride": database_manager.read_date_oldest_ride(bike_id)}
-
-    bike_components = database_manager.read_subset_components(bike_id)
-    bike_components_data = [(component.component_id,
-                    component.installation_status,
-                    component.component_type,
-                    component.component_name,
-                    int(component.component_distance),
-                    utils.format_component_status(component.lifetime_status),
-                    utils.format_component_status(component.service_status),
-                    utils.format_cost(component.cost)
-                    ) for component in bike_components]
-
-    component_statistics = utils.get_component_statistics([tuple(component[1:]) for component in bike_components_data])
-
-    recent_rides = database_manager.read_recent_rides(bike_id)
-    recent_rides_data = [(ride.ride_id,
-                    ride.record_time,
-                    ride.ride_name,
-                    int(ride.ride_distance),
-                    ride.commute
-                    ) for ride in recent_rides]
-
-    payload = {"recent_rides": recent_rides_data,
-               "bike_data": bike_data,
-               "bike_components_data": bike_components_data,
-               "count_installed" : component_statistics["count_installed"],
-               "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
-               "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
-               "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
-               "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
-               "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
-               "count_service_status_green" : component_statistics["count_service_status_green"],
-               "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
-               "count_service_status_red" : component_statistics["count_service_status_red"],
-               "count_service_status_purple" : component_statistics["count_service_status_purple"],
-               "count_service_status_grey" : component_statistics["count_service_status_grey"],
-               "sum_cost" : component_statistics["sum_cost"]}
+    payload = business_logic.get_bike_details(bike_id)
     template_path = "bike_details.html"
     
     return templates.TemplateResponse(template_path, {"request": request,
@@ -395,11 +351,5 @@ async def update_config(request: Request,
 @app.get("/get_filtered_log")
 async def get_filtered_logs():
     """Endpoint to read log and return only business events""" 
- #Move to utils and get data from there
-    with open('/data/logs/app.log', 'r', encoding='utf-8') as log_file:
-        logs = log_file.readlines()
 
-    filtered_logs = [log for log in logs if "GET" not in log and "POST" not in log]
-    subset_filtered_logs = filtered_logs[-100:]
-
-    return {"logs": subset_filtered_logs}
+    return utils.get_filtered_logs()

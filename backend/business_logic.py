@@ -3,7 +3,12 @@
 
 import logging
 from datetime import datetime
-from utils import read_config, calculate_percentage_reached, generate_unique_id
+from utils import (read_config,
+                   calculate_percentage_reached,
+                   generate_unique_id,
+                   format_component_status,
+                   format_cost,
+                   get_component_statistics)
 from strava import Strava
 from database_manager import DatabaseManager
 
@@ -21,7 +26,56 @@ class BusinessLogic():
     def __init__(self, app_state):
         self.app_state = app_state
 
-    # Read methods here
+    def get_bike_details(self, bike_id):
+        """Method to get bike details"""
+        bike = database_manager.read_single_bike(bike_id)
+        bike_data = {"bike_name": bike.bike_name,
+                    "bike_id": bike.bike_id,
+                    "bike_retired": bike.bike_retired,
+                    "bike_service_status": bike.service_status,
+                    "bike_total_distance": int(bike.total_distance),
+                    "bike_notes": bike.notes,
+                    "oldest_ride": database_manager.read_date_oldest_ride(bike_id)}
+
+        bike_components = database_manager.read_subset_components(bike_id)
+        bike_components_data = [(component.component_id,
+                                 component.installation_status,
+                                 component.component_type,
+                                 component.component_name,
+                                 int(component.component_distance),
+                                 format_component_status(component.lifetime_status),
+                                 format_component_status(component.service_status),
+                                 format_cost(component.cost)
+                                 ) for component in bike_components]
+
+        component_statistics = get_component_statistics([tuple(component[1:])
+                                                         for component in bike_components_data])
+
+        recent_rides = database_manager.read_recent_rides(bike_id)
+        recent_rides_data = [(ride.ride_id,
+                              ride.record_time,
+                              ride.ride_name,
+                              int(ride.ride_distance),
+                              ride.commute
+                              ) for ride in recent_rides]
+
+        payload = {"recent_rides": recent_rides_data,
+                   "bike_data": bike_data,
+                   "bike_components_data": bike_components_data,
+                   "count_installed" : component_statistics["count_installed"],
+                   "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
+                   "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
+                   "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
+                   "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
+                   "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
+                   "count_service_status_green" : component_statistics["count_service_status_green"],
+                   "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
+                   "count_service_status_red" : component_statistics["count_service_status_red"],
+                   "count_service_status_purple" : component_statistics["count_service_status_purple"],
+                   "count_service_status_grey" : component_statistics["count_service_status_grey"],
+                   "sum_cost" : component_statistics["sum_cost"]}
+        
+        return payload
     
     async def update_rides_bulk(self, mode):
         """Method to create or update ride data in bulk to database"""
@@ -29,7 +83,7 @@ class BusinessLogic():
         await strava.get_rides(mode)
         logging.info(f'There are {len(strava.payload_rides)} rides in the list.')
 
-        success, message = database_manager.write_update_rides_bulk(strava.payload_rides)
+        success, message = database_manager.write_update_rides_bulk(strava.payload_rides) #Check this warning message
 
         if success:
             logging.info(f"Bulk update of database OK: {message}.")
