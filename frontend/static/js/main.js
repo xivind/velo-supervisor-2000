@@ -84,3 +84,38 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// ===== Configuration page functions =====
+
+// Log Fetching Functions
+document.addEventListener('DOMContentLoaded', function() {
+    // First check if we're on the page with logs
+    const logList = document.getElementById('log-entries');
+    if (!logList) {
+        // If the log-entries element doesn't exist, just return
+        return;
+    }
+
+    function fetchLogs() {
+        fetch('/get_filtered_log')
+            .then(response => response.json())
+            .then(data => {
+                logList.innerHTML = '';
+                data.logs.reverse().forEach(log => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    if (log.includes('WARNING')) {
+                        li.classList.add('list-group-item-warning');
+                    } else if (log.includes('ERROR')) {
+                        li.classList.add('list-group-item-danger');
+                    } else {
+                        li.classList.add('list-group-item-light');
+                    }
+                    li.textContent = log;
+                    logList.appendChild(li);
+                });
+            })
+            .catch(error => console.error('Error fetching logs:', error));
+    }
+
+    fetchLogs();
+});
