@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1 class="display-5 mt-5 text-center">Configuration</h1>        
-<div class="mt-5 card shadow mb-3">
+<div class="mt-5 card shadow mb-5">
     <div class="card-header fw-bold">Actions</div>
         <div class="card-body">
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-6">
@@ -26,10 +26,8 @@
             </div>
         </div>
     </div>
-    <div class="card shadow mb-3">
-        <div class="card-header fw-bold">
-            Settings
-        </div>
+    <div class="card shadow mb-5">
+        <div class="card-header fw-bold">Settings</div>
         <div class="card-body">
             <form id="config_form" class="row" action="/update_config" method="post">
                 <div class="col mb-3">
@@ -47,9 +45,7 @@
         </div>
     </div>
     <div class="card shadow mb-3">
-        <div class="card-header fw-bold">
-            Latest log entries
-        </div>
+        <div class="card-header fw-bold">Latest log entries</div>
         <div class="card-body">
             <div id="log-container" style="height: 250px; overflow-y: auto;">
                 <ul id="log-entries" class="list-group list-group-flush">

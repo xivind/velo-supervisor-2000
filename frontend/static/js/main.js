@@ -119,3 +119,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchLogs();
 });
+
+// Update all page functions to only run when on correct page
+
