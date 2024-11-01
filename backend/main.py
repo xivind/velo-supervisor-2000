@@ -103,6 +103,17 @@ async def component_types_overview(request: Request):
     return templates.TemplateResponse(template_path, {"request": request,
                                                       "payload": payload})
 
+@app.get("/config_overview", response_class=HTMLResponse)
+async def config_overview(request: Request):
+    """Endpoint for component types page"""
+
+    payload = {"strava_tokens": CONFIG['strava_tokens'],
+               "db_path": CONFIG['db_path']}
+    template_path = "config.html"
+
+    return templates.TemplateResponse(template_path, {"request": request,
+                                                      "payload": payload})
+
 @app.post("/component_types_modify", response_class=HTMLResponse)
 async def component_types_modify(
     component_type: str = Form(...),
@@ -110,9 +121,9 @@ async def component_types_modify(
     service_interval: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
 
-    business_logic.modify_component_type(component_type,
-                                         expected_lifetime,
-                                         service_interval)
+    success, message = business_logic.modify_component_type(component_type,
+                                                            expected_lifetime,
+                                                            service_interval)
     
     # This should return a message to the user, could use success, message
 
@@ -188,17 +199,6 @@ async def delete_record(
 
     business_logic.delete_record(table_selector, record_id)
     # This should return a message to the user
-
-@app.get("/config_overview", response_class=HTMLResponse)
-async def config_overview(request: Request):
-    """Endpoint for component types page"""
-
-    payload = {"strava_tokens": CONFIG['strava_tokens'],
-               "db_path": CONFIG['db_path']}
-    template_path = "config.html"
-
-    return templates.TemplateResponse(template_path, {"request": request,
-                                                      "payload": payload})
 
 @app.post("/update_config")
 async def update_config(request: Request,

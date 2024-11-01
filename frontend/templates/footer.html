@@ -11,12 +11,12 @@
 </footer>
 <script>
     // Update footer with processing time
-        document.addEventListener('DOMContentLoaded', (event) => {
-        const start = performance.now();
-        window.addEventListener('load', () => {
-            const end = performance.now();
-            const processTime = (end - start) / 1000; // Convert to seconds
-            document.getElementById('log-fetch-time').textContent = processTime.toFixed(4);
-            });
+    document.addEventListener('DOMContentLoaded', (event) => {
+    const start = performance.now();
+    window.addEventListener('load', () => {
+        const end = performance.now();
+        const processTime = (end - start) / 1000; // Convert to seconds
+        document.getElementById('log-fetch-time').textContent = processTime.toFixed(4);
         });
+    });
 </script>

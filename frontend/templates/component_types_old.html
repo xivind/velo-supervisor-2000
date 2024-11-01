@@ -1,0 +1,136 @@
+{% from 'menu.html' import nav_menu %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Component overview</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="container mt-5">
+        {{ nav_menu(request) }}
+        <h1 class="display-5 mt-5 text-center">Component types</h1>
+        <div class="mt-5 card shadow mb-3">
+            <div class="card-header fw-bold">Add or modify component type</div>
+            <div class="card-body">
+                <form id="component_type_form" class="row" action="/component_types_modify" method="post" enctype="application/x-www-form-urlencoded">
+                    <div class="col mb-3">
+                        <label for="component_type" class="form-label fw-bold">Type</label>
+                        <input type="text" class="form-control" id="component_type" name="component_type" required>
+                    </div>
+                    <div class="col mb-3">
+                        <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
+                        <input type="number" class="form-control" id="expected_lifetime" name="expected_lifetime" oninput="validateInput(this)">
+                    </div>
+                    <div class="col mb-3">
+                        <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
+                        <input type="number" class="form-control" id="service_interval" name="service_interval" oninput="validateInput(this)">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="mt-5 card shadow mb-3">
+            <div class="card-header fw-bold">Available component types</div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Expected lifetime (km)</th>
+                            <th>Service interval (km)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if payload.component_types %}
+                            {% for component_type, expected_lifetime, service_interval in payload.component_types %}
+                            <tr data-row-id="{{ loop.index0 }}">
+                                <td>{{ component_type }}</td>
+                                <td>{% if expected_lifetime == None %}Not defined{% else %}{{ expected_lifetime }}{% endif %}</td>
+                                <td>{% if service_interval == None %}Not defined{% else %}{{ service_interval }}{% endif %}</td>
+                                <td>                    
+                                    <button type="button" class="btn btn-outline-success btn-sm modify-record" component_type="{{ component_type }}" data-row-id="{{ loop.index0 }}">✍</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm delete-record" data-component-type="{{ component_type }}">🗑</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No component types defined</td>
+                                </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="footer">
+            {% include 'footer.html' %}
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        // Modify record function: Wait for the page to load before initiating modify button
+        window.addEventListener('DOMContentLoaded', function() {
+            // Modify record function: get all modify record buttons
+            const modifyRecordButtons = document.querySelectorAll('.modify-record');
+
+            // Modify record function: add a click event listener to each button
+            modifyRecordButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const rowId = button.dataset.rowId;
+                    modifyRecord(rowId);
+                });
+            });
+
+            // Modify record function: define the modifyRecord function
+            function modifyRecord(rowId) {
+                const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+                if (row) {
+                    const componentType = row.cells[0].textContent;
+                    const expectedLifetime = row.cells[1].textContent;
+                    const serviceInterval = row.cells[2].textContent;
+
+                    document.getElementById('component_type').value = componentType;
+                    document.getElementById('expected_lifetime').value = expectedLifetime;
+                    document.getElementById('service_interval').value = serviceInterval;
+                } else {
+                    console.error(`Row with ID ${rowId} not found.`);
+                }
+            }
+        });
+        
+        // Script to delete records
+        document.querySelectorAll('.delete-record').forEach(button => {
+        button.addEventListener('click', () => {
+        const formData = new FormData();
+        formData.append('record_id', button.dataset.componentType);
+        formData.append('table_selector', 'ComponentTypes');
+
+        fetch('/delete_record', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Backend received data');
+                window.location.reload();
+            }
+        })
+        .catch(error => console.error('Backend error:', error));
+            });
+        });
+        
+        // Input valdation
+        function validateInput(input) {
+            if (input.value <= 0) {
+                input.value = null;
+            }
+        }
+    </script>
+</body>
+</html>
