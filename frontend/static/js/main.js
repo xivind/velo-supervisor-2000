@@ -7,6 +7,44 @@ function validateInputNumbers(input) {
     }
 }
 
+// Date picker
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('component_updated_date');
+    const datePickerToggle = document.getElementById('date-picker-toggle');
+
+    // Initialize Flatpickr with strict formatting
+    const flatpickrInstance = flatpickr(dateInput, {
+        dateFormat: "Y-m-d H:i",
+        allowInput: true,
+        clickOpens: false,
+        enableTime: true,
+        time_24hr: true,
+        onClose: function(selectedDates, dateStr) {
+            validateDateFormat(dateStr);
+        }
+    });
+
+    // Open calendar on icon click
+    datePickerToggle.addEventListener('click', function() {
+        flatpickrInstance.open();
+    });
+
+    // Validate manual input
+    dateInput.addEventListener('blur', function() {
+        validateDateFormat(this.value);
+    });
+
+    function validateDateFormat(dateStr) {
+        const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+        if (!regex.test(dateStr)) {
+            alert("Error: Invalid date format. Please use YYYY-MM-DD HH:MM");
+            dateInput.value = ''; // Clear the invalid input
+            flatpickrInstance.clear(); // Clear Flatpickr's internal date
+        }
+    }
+});
+
+
 // ===== Bike overview page functions =====
 
 // Function to update visibility
@@ -27,6 +65,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update visibility when switch is toggled
     showRetiredBikesSwitch.addEventListener('change', updateVisibility);
+});
+
+// ===== Component overview page functions =====
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component overview page by looking for the specific element
+    const typeSelect = document.getElementById('component_type');
+    if (!typeSelect) {
+        // Not on component overview page, exit early
+        return;
+    }
+
+    const serviceIntervalInput = document.getElementById('service_interval');
+    const expectedLifetimeInput = document.getElementById('expected_lifetime');
+
+    typeSelect.addEventListener('change', function() {
+        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+        const serviceInterval = selectedOption.getAttribute('service_interval');
+        const expectedLifetime = selectedOption.getAttribute('expected_lifetime');
+
+        // Update the input fields with the selected option's data attributes
+        serviceIntervalInput.value = serviceInterval;
+        expectedLifetimeInput.value = expectedLifetime;
+    });
 });
 
 // ===== Component types page functions =====
