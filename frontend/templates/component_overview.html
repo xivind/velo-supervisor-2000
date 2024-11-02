@@ -203,29 +203,6 @@
 
 
 
-// Date picker must only fire in main js when date toggle is present
-
-        // Script to delete records
-        document.querySelectorAll('.delete-record').forEach(button => {
-        button.addEventListener('click', () => {
-        const formData = new FormData();
-        formData.append('record_id', button.dataset.componentId);
-        formData.append('table_selector', 'Components');
-
-        fetch('/delete_record', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log('Backend received data');
-                window.location.reload();
-            }
-        })
-        .catch(error => console.error('Backend error:', error));
-            });
-        });
-
         // Script to filter table
         document.addEventListener('DOMContentLoaded', function() {
             const filterSwitches = document.querySelectorAll('.filter-switch');

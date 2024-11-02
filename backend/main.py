@@ -197,6 +197,8 @@ async def delete_record(
     table_selector: str = Form(...)):
     """Endpoint to delete records"""
 
+    print(record_id, table_selector)
+
     business_logic.delete_record(table_selector, record_id)
     # This should return a message to the user
 

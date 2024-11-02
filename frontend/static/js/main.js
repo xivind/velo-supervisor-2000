@@ -1,15 +1,25 @@
 // ===== Functions used on multiple pages =====
 
-// Input valdation: accept only numbers
+// Input valdation function: accept only numbers
 function validateInputNumbers(input) {
     if (input.value <= 0) {
         input.value = null;
     }
 }
 
-// Date picker
+// Date picker function
 document.addEventListener('DOMContentLoaded', function() {
-    const dateInput = document.getElementById('component_updated_date');
+    // Check if we're on a page with either of the date inputs
+    const updateDateInput = document.getElementById('component_updated_date');
+    const serviceDateInput = document.getElementById('service_date');
+    
+    // Exit if neither element exists
+    if (!updateDateInput && !serviceDateInput) {
+        return;
+    }
+
+    // Use whichever date input exists
+    const dateInput = updateDateInput || serviceDateInput;
     const datePickerToggle = document.getElementById('date-picker-toggle');
 
     // Initialize Flatpickr with strict formatting
@@ -44,6 +54,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Function to delete records
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.delete-record').forEach(button => {
+        button.addEventListener('click', () => {
+            const formData = new FormData();
+            const recordId = button.dataset.componentType || button.dataset.componentId;
+            const tableSelector = button.dataset.componentType ? 'ComponentTypes' : 'Components';
+            
+            formData.append('record_id', recordId);
+            formData.append('table_selector', tableSelector);
+
+            fetch('/delete_record', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Backend received data');
+                    window.location.reload();
+                }
+            })
+            .catch(error => console.error('Backend error:', error));
+        });
+    });
+});
 
 // ===== Bike overview page functions =====
 
