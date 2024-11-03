@@ -1,3 +1,47 @@
+// Function to filter component tables, working except for installed
+document.addEventListener('DOMContentLoaded', function() {
+    const componentsTable = document.getElementById('componentsTable');
+    if (!componentsTable) return; // Exit if the components table doesn't exist
+
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    const componentRows = componentsTable.querySelectorAll('tbody tr');
+
+    // Check if we're on the component overview page by looking for a unique element
+    const isComponentOverviewPage = document.querySelector('h1#component-overview') !== null;
+
+    function updateVisibility() {
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+        
+        // Only get not-installed state if we're on the component overview page
+        const showNotInstalled = isComponentOverviewPage ? 
+            document.getElementById('showNotInstalledComponents')?.checked : false;
+
+        componentRows.forEach(row => {
+            const statusCell = row.querySelector('td:nth-child(4)'); // Assuming status is in the 4th column
+            if (statusCell) {
+                const status = statusCell.textContent.trim();
+                const shouldShow = (
+                    (status.includes('⚡') && showInstalled) ||
+                    (isComponentOverviewPage && status.includes('💤') && showNotInstalled) ||
+                    (status.includes('⛔') && showRetired)
+                );
+                
+                row.style.display = shouldShow ? '' : 'none';
+            }
+        });
+    }
+
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateVisibility);
+    });
+
+    // Initial visibility update
+    updateVisibility();
+});
+
+
+
 // Script to filter table from bike details
 document.addEventListener('DOMContentLoaded', function() {
     const componentsTable = document.getElementById('componentsTable');

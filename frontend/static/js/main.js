@@ -80,42 +80,42 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function to filter component tables
+// Function for component table filtering
 document.addEventListener('DOMContentLoaded', function() {
     const componentsTable = document.getElementById('componentsTable');
-    if (!componentsTable) return; // Exit if the components table doesn't exist
+    if (!componentsTable) return;
 
     const filterSwitches = document.querySelectorAll('.filter-switch');
     const componentRows = componentsTable.querySelectorAll('tbody tr');
 
-    function updateVisibility() {
+    function updateComponentRowVisibility() {
+        // Get switch states
         const showInstalled = document.getElementById('showInstalledComponents').checked;
-        const showNotInstalled = document.getElementById('showNotInstalledComponents').checked;
         const showRetired = document.getElementById('showRetiredComponents').checked;
+        const notInstalledSwitch = document.getElementById('showNotInstalledComponents');
+        const showNotInstalled = notInstalledSwitch ? notInstalledSwitch.checked : false;
 
         componentRows.forEach(row => {
-            const statusCell = row.querySelector('td:nth-child(4)'); // Assuming status is in the 4th column
+            const statusCell = row.querySelector('td:nth-child(4)');
             if (statusCell) {
                 const status = statusCell.textContent.trim();
-                if (
+                const shouldShow = (
                     (status.includes('⚡') && showInstalled) ||
                     (status.includes('💤') && showNotInstalled) ||
-                    (status.includes('⛔') && showRetired) 
-                ) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                    (status.includes('⛔') && showRetired)
+                );
+                row.style.display = shouldShow ? '' : 'none';
             }
         });
     }
 
+    // Add event listeners
     filterSwitches.forEach(switchElement => {
-        switchElement.addEventListener('change', updateVisibility);
+        switchElement.addEventListener('change', updateComponentRowVisibility);
     });
 
     // Initial visibility update
-    updateVisibility();
+    updateComponentRowVisibility();
 });
 
 // Script to sort component table
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const showRetiredBikesSwitch = document.getElementById('showRetiredBikes');
     const bikeCards = document.querySelectorAll('.card[data-bike-status]');
 
-    function updateVisibility() {
+    function updateBikeVisibility() {
         bikeCards.forEach(card => {
             if (card.dataset.bikeStatus === 'True') {
                 card.closest('.col-md-4').style.display = showRetiredBikesSwitch.checked ? '' : 'none';
@@ -170,10 +170,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initial state: hide retired bikes
-    updateVisibility();
+    updateBikeVisibility();
 
     // Update visibility when switch is toggled
-    showRetiredBikesSwitch.addEventListener('change', updateVisibility);
+    showRetiredBikesSwitch.addEventListener('change', updateBikeVisibility);
 });
 
 // ===== Component overview page functions =====
