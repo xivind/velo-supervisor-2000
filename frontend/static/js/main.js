@@ -7,7 +7,30 @@ function validateInputNumbers(input) {
     }
 }
 
-// Date picker function
+// Function to prefill data related to component types
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on page that need automatic prefill of component types
+    const typeSelect = document.getElementById('component_type');
+    if (!typeSelect) {
+        // Not on component overview page, exit early
+        return;
+    }
+
+    const serviceIntervalInput = document.getElementById('service_interval');
+    const expectedLifetimeInput = document.getElementById('expected_lifetime');
+
+    typeSelect.addEventListener('change', function() {
+        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+        const serviceInterval = selectedOption.getAttribute('service_interval');
+        const expectedLifetime = selectedOption.getAttribute('expected_lifetime');
+
+        // Update the input fields with the selected option's data attributes
+        serviceIntervalInput.value = serviceInterval;
+        expectedLifetimeInput.value = expectedLifetime;
+    });
+});
+
+// Date picker function NEEDS MORE WORK
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on a page with either of the date inputs
     const updateDateInput = document.getElementById('component_updated_date');
@@ -72,7 +95,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => {
                 if (response.ok) {
                     console.log('Backend received data');
-                    window.location.reload();
+                    // Redirect to the component overview page
+                    window.location.href = '/component_overview'; // This could work, but why is it recirected to component_modify?
+                    // window.location.reload(); This cant be used, needs to redirect to component overview, always CHECK, or use ID to redirect
                 }
             })
             .catch(error => console.error('Backend error:', error));
@@ -118,8 +143,40 @@ document.addEventListener('DOMContentLoaded', function() {
     updateComponentRowVisibility();
 });
 
+
+// ===== Bike overview page functions =====
+
+// Function to update visibility of bike cards
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the bike overview page
+    if (document.querySelector('h1#bike-overview') === null) return;
+    
+    const showRetiredBikesSwitch = document.getElementById('showRetiredBikes');
+    const bikeCards = document.querySelectorAll('.card[data-bike-status]');
+
+    function updateBikeVisibility() {
+        bikeCards.forEach(card => {
+            if (card.dataset.bikeStatus === 'True') {
+                card.closest('.col-md-4').style.display = showRetiredBikesSwitch.checked ? '' : 'none';
+            }
+        });
+    }
+
+    // Initial state: hide retired bikes
+    updateBikeVisibility();
+
+    // Update visibility when switch is toggled
+    showRetiredBikesSwitch.addEventListener('change', updateBikeVisibility);
+});
+
+
+// ===== Component overview page functions =====
+
 // Script to sort component table
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component overview page
+    if (document.querySelector('h1#component-overview') === null) return;
+    
     const table = document.querySelector('table');
     const headers = table.querySelectorAll('th');
     const tableBody = table.querySelector('tbody');
@@ -154,51 +211,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ===== Bike overview page functions =====
+// ===== Component details page functions =====
 
-// Function to update visibility of bike cards
+// Function to validate input NEEDS MORE WORK
 document.addEventListener('DOMContentLoaded', function() {
-    const showRetiredBikesSwitch = document.getElementById('showRetiredBikes');
-    const bikeCards = document.querySelectorAll('.card[data-bike-status]');
+    const bikeSelect = document.getElementById('component_bike_id');
+    const installationSelect = document.getElementById('component_installation_status');
 
-    function updateBikeVisibility() {
-        bikeCards.forEach(card => {
-            if (card.dataset.bikeStatus === 'True') {
-                card.closest('.col-md-4').style.display = showRetiredBikesSwitch.checked ? '' : 'none';
+    bikeSelect.addEventListener('change', function() {
+        if (installationSelect.value !== "Retired") {
+            if (this.value !== "") {
+                installationSelect.value = "Installed";
+            } else {
+                installationSelect.value = "Not installed";
             }
-        });
-    }
-
-    // Initial state: hide retired bikes
-    updateBikeVisibility();
-
-    // Update visibility when switch is toggled
-    showRetiredBikesSwitch.addEventListener('change', updateBikeVisibility);
-});
-
-// ===== Component overview page functions =====
-
-// Function to prefill data related to component types
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the component overview page by looking for the specific element
-    const typeSelect = document.getElementById('component_type');
-    if (!typeSelect) {
-        // Not on component overview page, exit early
-        return;
-    }
-
-    const serviceIntervalInput = document.getElementById('service_interval');
-    const expectedLifetimeInput = document.getElementById('expected_lifetime');
-
-    typeSelect.addEventListener('change', function() {
-        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
-        const serviceInterval = selectedOption.getAttribute('service_interval');
-        const expectedLifetime = selectedOption.getAttribute('expected_lifetime');
-
-        // Update the input fields with the selected option's data attributes
-        serviceIntervalInput.value = serviceInterval;
-        expectedLifetimeInput.value = expectedLifetime;
+        }
     });
+
+    installationSelect.addEventListener('change', function() {
+        if (this.value === "Not installed") {
+            bikeSelect.value = "";
+        }
+    });
+
+    // Initial check on page load
+    if (bikeSelect.value === "" && installationSelect.value !== "Retired") {
+        installationSelect.value = "Not installed";
+    }
 });
 
 // ===== Component types page functions =====

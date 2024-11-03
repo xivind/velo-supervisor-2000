@@ -1,4 +1,4 @@
-/* Custom CSS styles */
+/* Custom CSS styles that extends Bootstrap framework*/
 
 .bg-purple {
     background-color: rgb(173, 15, 173) !important;}
@@ -10,7 +10,6 @@
 th[data-sort] {
     cursor: pointer;
     white-space: nowrap;} /* Prevent wrapping of text and arrow */
-
 
 th[data-sort]:hover {
     background-color: #f0f0f0;}

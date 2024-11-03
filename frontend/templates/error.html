@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="display-4 mt-5 text-center">Looks like we hit a bit of a speed bump there...</h1>
+        <h1 id="error" class="display-4 mt-5 text-center">Looks like we hit a bit of a speed bump there...</h1>
         <h1 class="display-1 mt-5 text-center fw-bold">Error code {{ status_code }}</h1>
         <p class="text-center mt-3"><span class="fw-bold">Requested URL: </span>{{ request.url }}</p>
         <p class="text-center mt-3"><span class="fw-bold">Detailed error message: </span>{{ error_message }}</p>

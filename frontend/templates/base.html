@@ -27,7 +27,7 @@
 
     <!-- Strava warning if needed -->
     {% if request.app.state.strava_days_since_last_pull is none or request.app.state.strava_days_since_last_pull > 3 %}
-        <div class="alert alert-warning text-center fw-bold mt-3" role="alert">
+        <div class="container alert alert-warning text-center fw-bold mt-3" role="alert">
             ⚠ Data from Strava has not been updated recently. Last update: {{ request.app.state.strava_last_pull }} ⚠
         </div>
     {% endif %}

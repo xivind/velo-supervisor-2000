@@ -1,0 +1,74 @@
+// Date picker
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInputs = [
+        { input: document.getElementById('component_updated_date'), toggle: document.getElementById('date-picker-toggle-updated') },
+        { input: document.getElementById('service_date'), toggle: document.getElementById('date-picker-toggle-service') }
+    ];
+
+    dateInputs.forEach(({ input, toggle }) => {
+        if (!input || !toggle) return; // Skip if elements are not found
+
+        // Initialize Flatpickr with strict formatting
+        const flatpickrInstance = flatpickr(input, {
+            dateFormat: "Y-m-d H:i",
+            allowInput: true,
+            clickOpens: false,
+            enableTime: true,
+            time_24hr: true,
+            onClose: function(selectedDates, dateStr) {
+                validateDateFormat(dateStr, input, flatpickrInstance);
+            }
+        });
+
+        // Open calendar on icon click
+        toggle.addEventListener('click', function() {
+            flatpickrInstance.open();
+        });
+
+        // Validate manual input
+        input.addEventListener('blur', function() {
+            validateDateFormat(this.value, input, flatpickrInstance);
+        });
+    });
+
+    function validateDateFormat(dateStr, input, instance) {
+        const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+        if (!regex.test(dateStr)) {
+            alert("Error: Invalid date format. Please use YYYY-MM-DD HH:MM");
+            input.value = ''; // Clear the invalid input
+            instance.clear(); // Clear Flatpickr's internal date
+        }
+    }
+});
+
+
+// Script to delete records
+document.querySelectorAll('.delete-record').forEach(button => {
+    button.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent form submission if the button is within a form
+
+        const formData = new FormData();
+        formData.append('record_id', button.dataset.componentId);
+        formData.append('table_selector', 'Components');
+
+        fetch('/delete_record', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Backend received data');
+                // Redirect to the component overview page
+                window.location.href = '/component_overview';
+            } else {
+                // Handle error cases
+                console.error('Error deleting record');
+                // Optionally, show an error message to the user
+            }
+        })
+        .catch(error => {
+            console.error('Backend error:', error);
+            // Optionally, show an error message to the user
+        });
+    });
+});
