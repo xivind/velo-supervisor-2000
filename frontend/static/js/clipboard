@@ -1,0 +1,112 @@
+// Script to filter table from bike details
+document.addEventListener('DOMContentLoaded', function() {
+    const componentsTable = document.getElementById('componentsTable');
+    if (!componentsTable) return; // Exit if the components table doesn't exist
+
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    const componentRows = componentsTable.querySelectorAll('tbody tr');
+
+    function updateVisibility() {
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+
+        componentRows.forEach(row => {
+            const statusCell = row.querySelector('td:nth-child(4)'); // Assuming status is in the 4th column
+            if (statusCell) {
+                const status = statusCell.textContent.trim();
+                if (
+                    (status.includes('⚡') && showInstalled) ||
+                    (status.includes('Retired') && showRetired)
+                ) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateVisibility);
+    });
+
+    // Initial visibility update
+    updateVisibility();
+});
+
+
+// Script to sort component table
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.querySelector('table');
+    const headers = table.querySelectorAll('th');
+    const tableBody = table.querySelector('tbody');
+    const rows = tableBody.querySelectorAll('tr');
+
+    // Sorting function
+    const sortColumn = (index, asc = true) => {
+        const nodeList = Array.from(rows);
+        const compare = (rowA, rowB) => {
+            const cellA = rowA.querySelectorAll('td')[index].innerText;
+            const cellB = rowB.querySelectorAll('td')[index].innerText;
+            return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+        };
+        nodeList.sort(compare);
+        nodeList.forEach(node => tableBody.appendChild(node));
+    }
+
+    // Add click event to table headers
+    headers.forEach(header => {
+        header.addEventListener('click', () => {
+            const columnIndex = header.cellIndex;
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Remove sorted classes from all headers
+            headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+            
+            // Add appropriate class to clicked header
+            header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+            
+            sortColumn(columnIndex, isAscending);
+        });
+    });
+});
+
+
+
+
+
+
+
+
+
+// OK
+document.addEventListener('DOMContentLoaded', function() {
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    const componentRows = document.querySelectorAll('tbody tr');
+
+    function updateVisibility() {
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showNotInstalled = document.getElementById('showNotInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+
+        componentRows.forEach(row => {
+            const status = row.dataset.status;
+            if (
+                (status === 'Installed' && showInstalled) ||
+                (status === 'Not installed' && showNotInstalled) ||
+                (status === 'Retired' && showRetired)
+            ) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateVisibility);
+    });
+
+    // Initial visibility update
+    updateVisibility();
+});

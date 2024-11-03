@@ -80,9 +80,83 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Function to filter component tables
+document.addEventListener('DOMContentLoaded', function() {
+    const componentsTable = document.getElementById('componentsTable');
+    if (!componentsTable) return; // Exit if the components table doesn't exist
+
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    const componentRows = componentsTable.querySelectorAll('tbody tr');
+
+    function updateVisibility() {
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showNotInstalled = document.getElementById('showNotInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+
+        componentRows.forEach(row => {
+            const statusCell = row.querySelector('td:nth-child(4)'); // Assuming status is in the 4th column
+            if (statusCell) {
+                const status = statusCell.textContent.trim();
+                if (
+                    (status.includes('⚡') && showInstalled) ||
+                    (status.includes('💤') && showNotInstalled) ||
+                    (status.includes('⛔') && showRetired) 
+                ) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateVisibility);
+    });
+
+    // Initial visibility update
+    updateVisibility();
+});
+
+// Script to sort component table
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.querySelector('table');
+    const headers = table.querySelectorAll('th');
+    const tableBody = table.querySelector('tbody');
+    const rows = tableBody.querySelectorAll('tr');
+
+    // Sorting function
+    const sortColumn = (index, asc = true) => {
+        const nodeList = Array.from(rows);
+        const compare = (rowA, rowB) => {
+            const cellA = rowA.querySelectorAll('td')[index].innerText;
+            const cellB = rowB.querySelectorAll('td')[index].innerText;
+            return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+        };
+        nodeList.sort(compare);
+        nodeList.forEach(node => tableBody.appendChild(node));
+    }
+
+    // Add click event to table headers
+    headers.forEach(header => {
+        header.addEventListener('click', () => {
+            const columnIndex = header.cellIndex;
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Remove sorted classes from all headers
+            headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+            
+            // Add appropriate class to clicked header
+            header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+            
+            sortColumn(columnIndex, isAscending);
+        });
+    });
+});
+
 // ===== Bike overview page functions =====
 
-// Function to update visibility
+// Function to update visibility of bike cards
 document.addEventListener('DOMContentLoaded', function() {
     const showRetiredBikesSwitch = document.getElementById('showRetiredBikes');
     const bikeCards = document.querySelectorAll('.card[data-bike-status]');
@@ -104,6 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ===== Component overview page functions =====
 
+// Function to prefill data related to component types
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component overview page by looking for the specific element
     const typeSelect = document.getElementById('component_type');
@@ -128,12 +203,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ===== Component types page functions =====
 
-// Modify record function: Wait for the page to load before initiating modify button
+// Function to modify component types
 window.addEventListener('DOMContentLoaded', function() {
     // Modify record function: get all modify record buttons
     const modifyRecordButtons = document.querySelectorAll('.modify-record');
 
-    // Modify record function: add a click event listener to each button
+    // Add a click event listener to each button
     modifyRecordButtons.forEach(button => {
         button.addEventListener('click', () => {
             const rowId = button.dataset.rowId;
@@ -141,7 +216,7 @@ window.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Modify record function: define the modifyRecord function
+    // Define the modifyRecord function
     function modifyRecord(rowId) {
         const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
         if (row) {
@@ -158,32 +233,9 @@ window.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Script to delete records MIGHT MOVE THIS TO GENERAL, BUT NEEDS TO BE GENERIC
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.delete-record').forEach(button => {
-        button.addEventListener('click', () => {
-            const formData = new FormData();
-            formData.append('record_id', button.dataset.componentType);
-            formData.append('table_selector', 'ComponentTypes');
-
-            fetch('/delete_record', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Backend received data');
-                    window.location.reload();
-                }
-            })
-            .catch(error => console.error('Backend error:', error));
-        });
-    });
-});
-
 // ===== Configuration page functions =====
 
-// Log Fetching Functions
+// Function for fetching logs
 document.addEventListener('DOMContentLoaded', function() {
     // First check if we're on the page with logs
     const logList = document.getElementById('log-entries');
@@ -217,5 +269,5 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchLogs();
 });
 
-// Update all page functions to only run when on correct page
+
 
