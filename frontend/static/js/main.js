@@ -30,51 +30,58 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Date picker function NEEDS MORE WORK
+// Date picker function
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on a page with either of the date inputs
-    const updateDateInput = document.getElementById('component_updated_date');
-    const serviceDateInput = document.getElementById('service_date');
-    
-    // Exit if neither element exists
-    if (!updateDateInput && !serviceDateInput) {
-        return;
+    // Function to initialize a single date picker
+    function initializeDatePicker(inputId, toggleId) {
+        const dateInput = document.getElementById(inputId);
+        const datePickerToggle = document.getElementById(toggleId);
+        
+        if (!dateInput || !datePickerToggle) {
+            return;
+        }
+
+        // Initialize Flatpickr with strict formatting
+        const flatpickrInstance = flatpickr(dateInput, {
+            dateFormat: "Y-m-d H:i",
+            allowInput: true,
+            clickOpens: false,
+            enableTime: true,
+            time_24hr: true,
+            onClose: function(selectedDates, dateStr) {
+                validateDateFormat(dateStr, dateInput, flatpickrInstance);
+            }
+        });
+
+        // Open calendar on icon click
+        datePickerToggle.addEventListener('click', function() {
+            flatpickrInstance.open();
+        });
+
+        // Validate manual input
+        dateInput.addEventListener('blur', function() {
+            validateDateFormat(this.value, dateInput, flatpickrInstance);
+        });
     }
 
-    // Use whichever date input exists
-    const dateInput = updateDateInput || serviceDateInput;
-    const datePickerToggle = document.getElementById('date-picker-toggle');
-
-    // Initialize Flatpickr with strict formatting
-    const flatpickrInstance = flatpickr(dateInput, {
-        dateFormat: "Y-m-d H:i",
-        allowInput: true,
-        clickOpens: false,
-        enableTime: true,
-        time_24hr: true,
-        onClose: function(selectedDates, dateStr) {
-            validateDateFormat(dateStr);
-        }
-    });
-
-    // Open calendar on icon click
-    datePickerToggle.addEventListener('click', function() {
-        flatpickrInstance.open();
-    });
-
-    // Validate manual input
-    dateInput.addEventListener('blur', function() {
-        validateDateFormat(this.value);
-    });
-
-    function validateDateFormat(dateStr) {
+    function validateDateFormat(dateStr, input, picker) {
         const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
         if (!regex.test(dateStr)) {
             alert("Error: Invalid date format. Please use YYYY-MM-DD HH:MM");
-            dateInput.value = ''; // Clear the invalid input
-            flatpickrInstance.clear(); // Clear Flatpickr's internal date
+            input.value = ''; // Clear the invalid input
+            picker.clear(); // Clear Flatpickr's internal date
         }
     }
+
+    // Initialize all date pickers
+    const datePickerConfigs = [
+        { inputId: 'component_updated_date', toggleId: 'update-date-picker-toggle' },
+        { inputId: 'service_date', toggleId: 'service-date-picker-toggle' }
+    ];
+
+    datePickerConfigs.forEach(config => {
+        initializeDatePicker(config.inputId, config.toggleId);
+    });
 });
 
 // Function to delete records
