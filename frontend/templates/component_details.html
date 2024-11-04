@@ -161,7 +161,7 @@
                     </div>
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Save</button>
-                        <button type="submit" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">Delete component</button>                                
+                        <button type="button" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">Delete component</button>                                
                     </div>
                 </form>
             </div>

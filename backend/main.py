@@ -5,6 +5,7 @@ from middleware import Middleware
 from typing import Optional
 import sys
 import asyncio
+import json
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -125,9 +126,15 @@ async def component_types_modify(
                                                             expected_lifetime,
                                                             service_interval)
     
-    # This should return a message to the user, could use success, message
+    response = RedirectResponse(url="/component_types_overview", status_code=303)
+    response.headers['HX-Trigger'] = json.dumps({
+        "showToast": {
+            "success": success,
+            "message": message}})
+    
+    return response
 
-    return RedirectResponse(url="/component_types_overview", status_code=303)
+    # WORKING HERE NOW WITH TOASTS
 
 @app.post("/add_service", response_class=HTMLResponse)
 async def add_service(

@@ -1,5 +1,40 @@
 // ===== Functions used on multiple pages =====
 
+// Toast handler
+document.addEventListener('DOMContentLoaded', function() {
+    htmx.on("showToast", (event) => {
+        const { message, success } = event.detail;
+        showToast(message, success);
+    });
+});
+
+// Function to show toast with message
+function showToast(message, success = true) {
+    const toast = document.getElementById('messageToast');
+    const toastTitle = document.getElementById('toastTitle');
+    const toastMessage = document.getElementById('toastMessage');
+    
+    // Set title and message
+    toastTitle.textContent = success ? 'Success' : 'Error';
+    toastMessage.textContent = message;
+    
+    // Set bootstrap classes based on success/error
+    toast.classList.remove('bg-danger', 'text-white', 'bg-success');
+    if (!success) {
+        toast.classList.add('bg-danger', 'text-white');
+    } else {
+        toast.classList.add('bg-success', 'text-white');
+    }
+    
+    // Create and show the toast
+    const bsToast = new bootstrap.Toast(toast, {
+        animation: true,
+        autohide: true,
+        delay: 5000
+    });
+    bsToast.show();
+}
+
 // Input valdation function: accept only numbers
 function validateInputNumbers(input) {
     if (input.value <= 0) {
@@ -87,7 +122,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // Function to delete records
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.delete-record').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (event) => {
+            // Prevent any form submission and default button behavior
+            event.preventDefault();
+            event.stopPropagation();
+            
             const formData = new FormData();
             const recordId = button.dataset.componentType || button.dataset.componentId;
             const tableSelector = button.dataset.componentType ? 'ComponentTypes' : 'Components';
@@ -102,9 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => {
                 if (response.ok) {
                     console.log('Backend received data');
-                    // Redirect to the component overview page
-                    window.location.href = '/component_overview'; // This could work, but why is it recirected to component_modify?
-                    // window.location.reload(); This cant be used, needs to redirect to component overview, always CHECK, or use ID to redirect
+                    // Redirect based on what was deleted
+                    const redirectUrl = tableSelector === 'ComponentTypes' 
+                        ? '/component_types_overview' 
+                        : '/component_overview';
+                    window.location.href = redirectUrl;
                 }
             })
             .catch(error => console.error('Backend error:', error));
@@ -220,8 +261,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ===== Component details page functions =====
 
-// Function to validate input NEEDS MORE WORK
+// Function to validate input
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the bike overview page
+    if (document.querySelector('h1#component-details') === null) return;
+    
     const bikeSelect = document.getElementById('component_bike_id');
     const installationSelect = document.getElementById('component_installation_status');
 
