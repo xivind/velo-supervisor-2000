@@ -2,14 +2,21 @@
 
 // Toast handler
 document.addEventListener('DOMContentLoaded', function() {
-    htmx.on("showToast", (event) => {
-        const { message, success } = event.detail;
-        showToast(message, success);
-    });
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    const success = urlParams.get('success');
+    
+    // If we have a message, show the toast
+    if (message) {
+        console.log('Showing toast:', message, success);  // Debug log
+        showToast(message, success === 'True');
+    }
 });
 
-// Function to show toast with message
+// Toast behaviour
 function showToast(message, success = true) {
+    console.log('Toast function called:', message, success);  // Debug log
     const toast = document.getElementById('messageToast');
     const toastTitle = document.getElementById('toastTitle');
     const toastMessage = document.getElementById('toastMessage');

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Main code for Velo Supervisor 2000"""
+"""Route handlers for Velo Supervisor 2000"""
 
-from middleware import Middleware
 from typing import Optional
 import sys
 import asyncio
-import json
+from middleware import Middleware
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -95,14 +94,19 @@ async def component_details(request: Request, component_id: str):
                                                       "payload": payload})
 
 @app.get("/component_types_overview", response_class=HTMLResponse)
-async def component_types_overview(request: Request):
+async def component_types_overview(request: Request,
+                                   success: Optional[str] = None,
+                                   message: Optional[str] = None):
     """Endpoint for component types page"""    
     
     payload = business_logic.get_component_types()
     template_path = "component_types.html"
     
-    return templates.TemplateResponse(template_path, {"request": request,
-                                                      "payload": payload})
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "payload": payload,
+                                       "success": success,
+                                       "message": message})
 
 @app.get("/config_overview", response_class=HTMLResponse)
 async def config_overview(request: Request):
@@ -125,16 +129,12 @@ async def component_types_modify(
     success, message = business_logic.modify_component_type(component_type,
                                                             expected_lifetime,
                                                             service_interval)
-    
-    response = RedirectResponse(url="/component_types_overview", status_code=303)
-    response.headers['HX-Trigger'] = json.dumps({
-        "showToast": {
-            "success": success,
-            "message": message}})
+        
+    response = RedirectResponse(
+        url=f"/component_types_overview?success={success}&message={message}",
+        status_code=303)
     
     return response
-
-    # WORKING HERE NOW WITH TOASTS
 
 @app.post("/add_service", response_class=HTMLResponse)
 async def add_service(
