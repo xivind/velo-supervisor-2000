@@ -51,10 +51,18 @@ function validateInputNumbers(input) {
 
 // Function to prefill data related to component types
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on page that need automatic prefill of component types
+    // Check if we're on either component details or component overview page
+    const componentDetailsPage = document.getElementById('component-details');
+    const componentOverviewPage = document.getElementById('component-overview');
+    
+    if (!componentDetailsPage && !componentOverviewPage) {
+        // Not on either of the target pages, exit early
+        return;
+    }
+
     const typeSelect = document.getElementById('component_type');
     if (!typeSelect) {
-        // Not on component overview page, exit early
+        // Component type select not found, exit early
         return;
     }
 
