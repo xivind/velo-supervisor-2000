@@ -25,14 +25,16 @@
         {{ nav_menu(request) }}
     </div>
 
-    <!-- Toast container - position it top-right -->
-    <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div id="messageToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <strong class="me-auto" id="toastTitle"></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    <!-- Toast container for GUI feedback -->
+    <div class="container position-relative">
+        <div class="toast-container position-absolute top-0 end-0 px-3 pb-3">
+            <div id="messageToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto" id="toastTitle"></strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" id="toastMessage"></div>
             </div>
-            <div class="toast-body" id="toastMessage"></div>
         </div>
     </div>
 

@@ -37,7 +37,7 @@ function showToast(message, success = true) {
     const bsToast = new bootstrap.Toast(toast, {
         animation: true,
         autohide: true,
-        delay: 5000
+        delay: 10000
     });
     bsToast.show();
 }

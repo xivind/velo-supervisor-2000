@@ -15,7 +15,8 @@ from utils import (read_config,
                    get_current_version,
                    pull_strava_background,
                    write_config,
-                   read_filtered_logs)
+                   read_filtered_logs,
+                   shutdown_server)
 
 # Load configuration
 CONFIG = read_config()
@@ -60,18 +61,21 @@ async def root(request: Request):
     payload = business_logic.get_bike_overview()
     template_path = "index.html"
 
-    return templates.TemplateResponse(template_path, {"request": request,
-                                                      "payload": payload})
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "payload": payload})
 
 @app.get("/bike_details/{bike_id}", response_class=HTMLResponse)
-async def bike_details(request: Request, bike_id: str):
+async def bike_details(request: Request,
+                       bike_id: str):
     """Endpoint for bike details page"""
     
     payload = business_logic.get_bike_details(bike_id)
     template_path = "bike_details.html"
     
-    return templates.TemplateResponse(template_path, {"request": request,
-                                                      "payload": payload})
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "payload": payload})
 
 @app.get("/component_overview", response_class=HTMLResponse)
 async def component_overview(request: Request):
@@ -80,28 +84,35 @@ async def component_overview(request: Request):
     payload = business_logic.get_component_overview()
     template_path = "component_overview.html"
     
-    return templates.TemplateResponse(template_path, {"request": request,
-                                                      "payload": payload})
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "payload": payload})
 
 @app.get("/component_details/{component_id}", response_class=HTMLResponse)
-async def component_details(request: Request, component_id: str):
+async def component_details(request: Request,
+                            component_id: str,
+                            success: Optional[str] = None,
+                            message: Optional[str] = None):
     """Endpoint for component details page"""
 
     payload = business_logic.get_component_details(component_id)
     template_path = "component_details.html"
 
-    return templates.TemplateResponse(template_path, {"request": request,
-                                                      "payload": payload})
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "payload": payload,
+                                       "success": success,
+                                       "message": message})
 
 @app.get("/component_types_overview", response_class=HTMLResponse)
 async def component_types_overview(request: Request,
                                    success: Optional[str] = None,
                                    message: Optional[str] = None):
     """Endpoint for component types page"""    
-    
+
     payload = business_logic.get_component_types()
     template_path = "component_types.html"
-    
+
     return templates.TemplateResponse(template_path,
                                       {"request": request,
                                        "payload": payload,
@@ -109,80 +120,85 @@ async def component_types_overview(request: Request,
                                        "message": message})
 
 @app.get("/config_overview", response_class=HTMLResponse)
-async def config_overview(request: Request):
+async def config_overview(request: Request,
+                          success: Optional[str] = None,
+                          message: Optional[str] = None):
     """Endpoint for component types page"""
 
     payload = {"strava_tokens": CONFIG['strava_tokens'],
                "db_path": CONFIG['db_path']}
     template_path = "config.html"
 
-    return templates.TemplateResponse(template_path, {"request": request,
-                                                      "payload": payload})
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "payload": payload,
+                                       "success": success,
+                                       "message": message})
 
 @app.post("/component_types_modify", response_class=HTMLResponse)
-async def component_types_modify(
-    component_type: str = Form(...),
-    expected_lifetime: Optional[str] = Form(None),
-    service_interval: Optional[str] = Form(None)):
+async def component_types_modify(component_type: str = Form(...),
+                                 expected_lifetime: Optional[str] = Form(None),
+                                 service_interval: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
 
     success, message = business_logic.modify_component_type(component_type,
                                                             expected_lifetime,
                                                             service_interval)
-        
+
     response = RedirectResponse(
         url=f"/component_types_overview?success={success}&message={message}",
         status_code=303)
-    
+
     return response
 
 @app.post("/add_service", response_class=HTMLResponse)
-async def add_service(
-    component_id: str = Form(...),
-    service_date: str = Form(...),
-    service_description: str = Form(...)):
+async def add_service(component_id: str = Form(...),
+                      service_date: str = Form(...),
+                      service_description: str = Form(...)):
     """Endpoint to add service"""
 
-    business_logic.create_service_record(component_id,
-                                         service_date,
-                                         service_description)
-    
-    # This should return a message to the user, could use success, message = above
+    success, message = business_logic.create_service_record(component_id,
+                                                            service_date,
+                                                            service_description)
 
-    return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+
+    return response
 
 @app.post("/component_modify", response_class=HTMLResponse)
-async def component_modify(
-    component_id: Optional[str] = Form(None),
-    component_installation_status: str = Form(...),
-    component_updated_date: str = Form(...),
-    component_name: str = Form(...),
-    component_type: str = Form(...),
-    component_bike_id: str = Form(...),
-    expected_lifetime: Optional[str] = Form(None),
-    service_interval: Optional[str] = Form(None),
-    cost: Optional[str] = Form(None),
-    offset: Optional[int] = Form(0),
-    component_notes: Optional[str] = Form(None)):
+async def component_modify(component_id: Optional[str] = Form(None),
+                           component_installation_status: str = Form(...),
+                           component_updated_date: str = Form(...),
+                           component_name: str = Form(...),
+                           component_type: str = Form(...),
+                           component_bike_id: str = Form(...),
+                           expected_lifetime: Optional[str] = Form(None),
+                           service_interval: Optional[str] = Form(None),
+                           cost: Optional[str] = Form(None),
+                           offset: Optional[int] = Form(0),
+                           component_notes: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
 
-    success, message, component_id = (business_logic
-                                      .modify_component_details
-                                        (component_id,
-                                        component_installation_status,
-                                        component_updated_date,
-                                        component_name,
-                                        component_type,
-                                        component_bike_id,
-                                        expected_lifetime,
-                                        service_interval,
-                                        cost,
-                                        offset,
-                                        component_notes))
+    success, message, component_id = (business_logic.modify_component_details
+                                      (component_id,
+                                       component_installation_status,
+                                       component_updated_date,
+                                       component_name,
+                                       component_type,
+                                       component_bike_id,
+                                       expected_lifetime,
+                                       service_interval,
+                                       cost,
+                                       offset,
+                                       component_notes))
 
-    # This should return a message to the user
-
-    return RedirectResponse(url=f"/component_details/{component_id}", status_code=303)
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+    
+    return response
 
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
 async def refresh_all_bikes(request: Request):
@@ -195,16 +211,29 @@ async def refresh_all_bikes(request: Request):
 async def refresh_rides(request: Request, mode: str):
     """Endpoint to refresh data for a subset or all rides"""
 
-    await business_logic.update_rides_bulk(mode)
+    success, message = await business_logic.update_rides_bulk(mode)
     # This should return a message to the user
 
 @app.post("/delete_record", response_class=HTMLResponse)
-async def delete_record(
-    record_id: str = Form(...),
-    table_selector: str = Form(...)):
+async def delete_record(record_id: str = Form(...),
+                        table_selector: str = Form(...)):
     """Endpoint to delete records"""
 
-    business_logic.delete_record(table_selector, record_id)
+    success, message = business_logic.delete_record(table_selector, record_id)
+        
+    redirect_url = "/"
+    
+    if table_selector == "ComponentTypes":
+        redirect_url = "/component_types_overview"
+    if table_selector == "Components":
+        redirect_url = "/component_overview"
+
+    response = RedirectResponse(
+        url=f"{redirect_url}?success={success}&message={message}",
+        status_code=303)
+    
+    return response
+
     # This should return a message to the user
 
 @app.post("/update_config")
@@ -215,10 +244,14 @@ async def update_config(request: Request,
 
     success, message = write_config(db_path, strava_tokens)
     
-    if success:
-        sys.exit(0)
+    response = RedirectResponse(
+        url=f"/config_overview?success={success}&message={message}",
+        status_code=303)
 
-    # This should return a message to the user
+    if success:
+        asyncio.create_task(shutdown_server())
+        
+    return response
 
 @app.get("/get_filtered_log")
 async def get_filtered_log():

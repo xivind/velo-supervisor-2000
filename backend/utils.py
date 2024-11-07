@@ -7,6 +7,7 @@ import asyncio
 import uuid
 import time
 import httpx
+import sys
 
 def get_current_version():
     """Function to get current program version"""
@@ -60,6 +61,11 @@ async def pull_strava_background(mode):
 
         logging.info("Next pull from Strava is in two hours")
         await asyncio.sleep(7200)
+
+async def shutdown_server():
+    """Helper function to shutdown the server after a short delay"""
+    await asyncio.sleep(2)
+    sys.exit(0)
 
 def generate_unique_id():
     """Method to generates a random and unique ID"""
