@@ -138,7 +138,6 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.delete-record').forEach(button => {
         button.addEventListener('click', (event) => {
-            // Prevent any form submission and default button behavior
             event.preventDefault();
             event.stopPropagation();
             
@@ -153,20 +152,20 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('record_id', recordId);
             formData.append('table_selector', tableSelector);
 
-            fetch('/delete_record', {
-                method: 'POST',
-                body: formData,
-                redirect: 'follow'
-            })
-            .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
-                }
-            })
-            .catch(error => {
-                console.error('Backend error:', error);
-                showToast('Error deleting record', false);
-            });
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/delete_record';
+            
+            for (let [key, value] of formData.entries()) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
         });
     });
 });
@@ -376,6 +375,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchLogs();
 });
-
-
-

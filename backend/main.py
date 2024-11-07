@@ -2,7 +2,6 @@
 """Route handlers for Velo Supervisor 2000"""
 
 from typing import Optional
-import sys
 import asyncio
 from middleware import Middleware
 from fastapi import FastAPI, Request, Form
@@ -197,13 +196,13 @@ async def component_modify(component_id: Optional[str] = Form(None),
     response = RedirectResponse(
         url=f"/component_details/{component_id}?success={success}&message={message}",
         status_code=303)
-    
+
     return response
 
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
 async def refresh_all_bikes(request: Request):
     """Endpoint to manually refresh data for all bikes"""
-    
+
     success, message = await business_logic.refresh_all_bikes()
     # This should return a message to the user
 
@@ -220,9 +219,9 @@ async def delete_record(record_id: str = Form(...),
     """Endpoint to delete records"""
 
     success, message = business_logic.delete_record(table_selector, record_id)
-        
+
     redirect_url = "/"
-    
+
     if table_selector == "ComponentTypes":
         redirect_url = "/component_types_overview"
     if table_selector == "Components":
@@ -231,7 +230,7 @@ async def delete_record(record_id: str = Form(...),
     response = RedirectResponse(
         url=f"{redirect_url}?success={success}&message={message}",
         status_code=303)
-    
+
     return response
 
 @app.post("/update_config")
@@ -248,7 +247,7 @@ async def update_config(request: Request,
 
     if success:
         asyncio.create_task(shutdown_server())
-        
+
     return response
 
 @app.get("/get_filtered_log")
