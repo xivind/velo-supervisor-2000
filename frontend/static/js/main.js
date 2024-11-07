@@ -37,7 +37,7 @@ function showToast(message, success = true) {
     const bsToast = new bootstrap.Toast(toast, {
         animation: true,
         autohide: true,
-        delay: 10000
+        delay: 6000
     });
     bsToast.show();
 }
@@ -142,6 +142,10 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             event.stopPropagation();
             
+            if (!confirm('Are you sure you want to delete this record?')) {
+                return;
+            }
+            
             const formData = new FormData();
             const recordId = button.dataset.componentType || button.dataset.componentId;
             const tableSelector = button.dataset.componentType ? 'ComponentTypes' : 'Components';
@@ -151,19 +155,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
             fetch('/delete_record', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                redirect: 'follow'
             })
             .then(response => {
-                if (response.ok) {
-                    console.log('Backend received data');
-                    // Redirect based on what was deleted
-                    const redirectUrl = tableSelector === 'ComponentTypes' 
-                        ? '/component_types_overview' 
-                        : '/component_overview';
-                    window.location.href = redirectUrl;
+                if (response.redirected) {
+                    window.location.href = response.url;
                 }
             })
-            .catch(error => console.error('Backend error:', error));
+            .catch(error => {
+                console.error('Backend error:', error);
+                showToast('Error deleting record', false);
+            });
         });
     });
 });

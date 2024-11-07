@@ -234,8 +234,6 @@ async def delete_record(record_id: str = Form(...),
     
     return response
 
-    # This should return a message to the user
-
 @app.post("/update_config")
 async def update_config(request: Request,
                         db_path: str = Form(...),
