@@ -9,14 +9,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // If we have a message, show the toast
     if (message) {
-        console.log('Showing toast:', message, success);  // Debug log
+        // console.log('Showing toast:', message, success);  // Debug log
         showToast(message, success === 'True');
     }
 });
 
 // Toast behaviour
 function showToast(message, success = true) {
-    console.log('Toast function called:', message, success);  // Debug log
+    // console.log('Toast function called:', message, success);  // Debug log
     const toast = document.getElementById('messageToast');
     const toastTitle = document.getElementById('toastTitle');
     const toastMessage = document.getElementById('toastMessage');
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to validate input
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the bike overview page
+    // Check if we're on the component details page
     if (document.querySelector('h1#component-details') === null) return;
     
     const bikeSelect = document.getElementById('component_bike_id');
@@ -375,3 +375,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchLogs();
 });
+
+// Function to show spinner while executing API call
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the config page
+    if (document.querySelector('h1#config') === null) return;
+    // Add click handlers to all update buttons
+    document.querySelectorAll('.update-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const endpoint = this.dataset.endpoint;
+            const message = this.dataset.message;
+            handleUpdate(endpoint, message);
+        });
+    });
+});
+
+function handleUpdate(endpoint, message) {
+    // Check if we're on the config page
+    if (document.querySelector('h1#config') === null) return;
+    // Show the loading modal with custom message
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    document.getElementById('loadingMessage').textContent = message;
+    loadingModal.show();
+
+    // Make the API call
+    fetch(endpoint)
+        .then(response => response.json())
+        .then(data => {
+            loadingModal.hide();
+            showToast(data.message, data.success);
+        })
+        .catch(error => {
+            loadingModal.hide();
+            showToast('An error occurred during the update', false);
+        });
+}

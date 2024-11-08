@@ -5,14 +5,13 @@ from typing import Optional
 import asyncio
 from middleware import Middleware
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from business_logic import BusinessLogic
 from utils import (read_config,
                    get_current_version,
-                   pull_strava_background,
                    write_config,
                    read_filtered_logs,
                    shutdown_server)
@@ -50,7 +49,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
-    asyncio.create_task(pull_strava_background("recent"))
+    asyncio.create_task(business_logic.pull_strava_background("recent"))
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
@@ -204,14 +203,18 @@ async def refresh_all_bikes(request: Request):
     """Endpoint to manually refresh data for all bikes"""
 
     success, message = await business_logic.refresh_all_bikes()
-    # This should return a message to the user
+
+    return JSONResponse({"success": success,
+                         "message": message})
 
 @app.get("/refresh_rides/{mode}", response_class=HTMLResponse)
 async def refresh_rides(request: Request, mode: str):
     """Endpoint to refresh data for a subset or all rides"""
 
     success, message = await business_logic.update_rides_bulk(mode)
-    # This should return a message to the user
+    
+    return JSONResponse({"success": success,
+                         "message": message})
 
 @app.post("/delete_record", response_class=HTMLResponse)
 async def delete_record(record_id: str = Form(...),

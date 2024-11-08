@@ -2,11 +2,9 @@
 """Module for auxiliary functions"""
 
 import json
-import logging
 import asyncio
 import uuid
 import time
-import httpx
 import sys
 
 def get_current_version():
@@ -46,21 +44,6 @@ def read_filtered_logs():
     subset_filtered_logs = filtered_logs[-100:]
 
     return {"logs": subset_filtered_logs}
-
-async def pull_strava_background(mode):
-    """Function to pull data from Strava in the background"""
-    while True:
-        try:
-            logging.info(f"Retrieving rides from Strava as background task. Mode set to: {mode}")
-            async with httpx.AsyncClient() as client:
-                pass #Remove this before deploy
-                # await client.get(f"http://localhost:8000/refresh_rides/{mode}") Activate before deploying
-
-        except Exception as error:
-            logging.error(f"An error occured calling refresh rides endpoint: {error}")
-
-        logging.info("Next pull from Strava is in two hours")
-        await asyncio.sleep(7200)
 
 async def shutdown_server():
     """Helper function to shutdown the server after a short delay"""

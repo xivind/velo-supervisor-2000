@@ -2,6 +2,7 @@
 """Module to handle business logic"""
 
 import logging
+import asyncio
 from datetime import datetime
 from utils import (read_config,
                    calculate_percentage_reached,
@@ -216,6 +217,28 @@ class BusinessLogic():
         
         return payload
     
+    async def pull_strava_background(self, mode):
+        """Function to pull data from Strava in the background"""
+        while True:
+            try:
+                logging.info(f"Retrieving rides from Strava as background task. Mode set to: {mode}")
+
+                pass #Remove this before deploy
+                success = True #Remove this before deploy
+                message = "Test run" #Remove this before deploy
+                #success, message = await self.update_rides_bulk(mode) #Enable before deploy
+
+                if success:
+                    logging.info(f"Background update successful: {message}")
+                else:
+                    logging.error(f"Background update failed: {message}")
+
+            except Exception as error:
+                logging.error(f"An error occurred during background update: {error}")
+
+            logging.info("Next pull from Strava is in two hours")
+            await asyncio.sleep(7200)
+
     async def update_rides_bulk(self, mode):
         """Method to create or update ride data in bulk to database"""
         logging.info(f"Retrieving rides from Strava. Mode set to: {mode}.")
@@ -261,9 +284,11 @@ class BusinessLogic():
         self.set_time_strava_last_pull()
 
         if success:
-            logging.info(f"Update of rides, bikes and components successful: {message}.")
+            message = f"Update of rides, bikes and components successful: {message}."
+            logging.info(message)
         else:
-            logging.error(f"Update of rides, bikes and components failed: {message}.")
+            message = f"Update of rides, bikes and components failed: {message}."
+            logging.error(message)
 
         return success, message
 

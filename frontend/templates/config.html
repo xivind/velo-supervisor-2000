@@ -9,19 +9,42 @@
         <div class="card-body">
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-6">
                 <div class="col">
-                    <a href="/refresh_rides/recent" class="btn btn-secondary w-100">Get new rides</a>
+                    <button class="btn btn-secondary w-100 update-button" 
+                            data-endpoint="/refresh_rides/recent"
+                            data-message="Retrieving recent rides...">
+                        Get new rides
+                    </button>
                 </div>
                 <div class="col">
-                    <a href="/refresh_all_bikes" class="btn btn-secondary w-100">Refesh all bikes</a>
+                    <button class="btn btn-secondary w-100 update-button"
+                            data-endpoint="/refresh_rides/all"
+                            data-message="Retrieving all rides...">
+                        Get all rides
+                    </button>
                 </div>
                 <div class="col">
-                    <a href="/refresh_rides/all" class="btn btn-secondary w-100">Get all rides</a>
+                    <button class="btn btn-secondary w-100 update-button"
+                            data-endpoint="/refresh_all_bikes"
+                            data-message="Refreshing all bikes...">
+                        Refresh all bikes
+                    </button>
                 </div>
                 <div class="col">
-                    <a href="/#" class="btn btn-secondary w-100">Export dataset</a>
+                    <a href="" class="btn btn-secondary w-100">Export dataset</a>
                 </div>
                 <div class="col">
-                    <a href="/#" class="btn btn-outline-danger w-100">Reset database</a>
+                    <a href="" class="btn btn-outline-danger w-100">Reset database</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-warning-subtle">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary mb-2" role="status"></div>
+                    <h5 class="mb-2" id="loadingMessage"></h5>
+                    <p class="mb-0">This may take a moment, hold your horses 🚴</p>
                 </div>
             </div>
         </div>
