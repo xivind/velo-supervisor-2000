@@ -29,7 +29,7 @@ As a principle, development is to be done in dev-branches and will be merged int
 
 **Planned for v0.3.0**
 - Feedback to user from business logic
-- Improved input validation
+- Improved input validation and user interaction
 - Refactored backend and improved business logic
 - Refactored frontend and introduced base template
 

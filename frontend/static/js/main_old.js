@@ -1,21 +1,18 @@
 // ===== Functions used on multiple pages =====
 
-// MISSING DOCSTRING
+// ===== Generic Modal Component =====
 document.addEventListener('DOMContentLoaded', function() {
-    // Get form by ID
-    const componentDetailsForm = document.getElementById('component_details_form');
-    if (!componentDetailsForm) return;
-
-    // Add validation modal to the page
+    // Create and append modal to body
     const modalHTML = `
         <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
+                    <div class="modal-header">
                         <h5 class="modal-title" id="validationModalLabel">Validation Error</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" id="validationModalBody"></div>
+                    <div class="modal-body" id="validationModalBody">
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
@@ -24,33 +21,150 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     `;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-    // Form submit handler with validation
-    componentDetailsForm.addEventListener('submit', function(e) {
-        const statusSelect = this.querySelector('#component_installation_status');
-        const installationStatus = statusSelect.value;
-        const bikeId = this.querySelector('#component_bike_id').value;
-        const initialSelectedStatus = statusSelect.options[statusSelect.selectedIndex].defaultSelected ? statusSelect.value : null;
-        
-        let errorMessage = null;
-        
-        if (installationStatus === 'Installed' && !bikeId) {
-            errorMessage = 'A bike must be selected when status is Installed';
-        } else if (installationStatus === initialSelectedStatus) {
-            errorMessage = `Component status is already set to: ${installationStatus}`;
-        }
-
-        if (errorMessage) {
-            e.preventDefault();
-            const modalBody = document.getElementById('validationModalBody');
-            modalBody.innerHTML = errorMessage;
-            const validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
-            validationModal.show();
-        }
-    });
 });
 
+// Function to show validation errors in modal
+function showValidationError(errors) {
+    const modalBody = document.getElementById('validationModalBody');
+    modalBody.innerHTML = '<ul class="list-group">' + 
+        errors.map(error => `<li class="list-group-item list-group-item-danger">${error}</li>`).join('') +
+        '</ul>';
     
+    const validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+    validationModal.show();
+}
+
+// ===== Form Validation Functions =====
+
+// Validate component overview form
+function validateComponentOverviewForm(form) {
+    const errors = [];
+    
+    // Required fields validation
+    const requiredFields = {
+        'component_updated_date': 'Update date',
+        'component_name': 'Component name',
+        'component_type': 'Component type'
+    };
+
+    Object.entries(requiredFields).forEach(([fieldId, fieldName]) => {
+        const field = form.querySelector(`#${fieldId}`);
+        if (!field || !field.value.trim()) {
+            errors.push(`${fieldName} is required`);
+        }
+    });
+
+    // Date format validation
+    const dateField = form.querySelector('#component_updated_date');
+    if (dateField && dateField.value) {
+        const dateRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+        if (!dateRegex.test(dateField.value)) {
+            errors.push('Date must be in format YYYY-MM-DD HH:MM');
+        }
+    }
+
+    // Numeric fields validation
+    const numericFields = {
+        'expected_lifetime': 'Expected lifetime',
+        'service_interval': 'Service interval',
+        'cost': 'Cost',
+        'offset': 'Offset'
+    };
+
+    Object.entries(numericFields).forEach(([fieldId, fieldName]) => {
+        const field = form.querySelector(`#${fieldId}`);
+        if (field && field.value && (!Number.isInteger(Number(field.value)) || Number(field.value) < 0)) {
+            errors.push(`${fieldName} must be a positive integer`);
+        }
+    });
+
+    return errors;
+}
+
+// Validate component details form
+function validateComponentDetailsForm(form) {
+    const errors = [];
+    
+    // Required fields validation
+    const requiredFields = {
+        'component_updated_date': 'Update date',
+        'component_name': 'Component name',
+        'component_type': 'Component type',
+        'component_installation_status': 'Installation status'
+    };
+
+    Object.entries(requiredFields).forEach(([fieldId, fieldName]) => {
+        const field = form.querySelector(`#${fieldId}`);
+        if (!field || !field.value.trim()) {
+            errors.push(`${fieldName} is required`);
+        }
+    });
+
+    // Installation status and bike validation
+    const installationStatus = form.querySelector('#component_installation_status').value;
+    const bikeId = form.querySelector('#component_bike_id').value;
+    
+    if (installationStatus === 'Installed' && !bikeId) {
+        errors.push('A bike must be selected when status is Installed');
+    }
+
+    if (installationStatus === 'Not installed' && bikeId) {
+        errors.push('No bike should be selected when status is Not installed');
+    }
+
+    // Date validation
+    const dateField = form.querySelector('#component_updated_date');
+    if (dateField && dateField.value) {
+        const dateRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+        if (!dateRegex.test(dateField.value)) {
+            errors.push('Date must be in format YYYY-MM-DD HH:MM');
+        }
+    }
+
+    // Numeric fields validation
+    const numericFields = {
+        'expected_lifetime': 'Expected lifetime',
+        'service_interval': 'Service interval',
+        'cost': 'Cost',
+        'offset': 'Offset'
+    };
+
+    Object.entries(numericFields).forEach(([fieldId, fieldName]) => {
+        const field = form.querySelector(`#${fieldId}`);
+        if (field && field.value && (!Number.isInteger(Number(field.value)) || Number(field.value) < 0)) {
+            errors.push(`${fieldName} must be a positive integer`);
+        }
+    });
+
+    return errors;
+}
+
+// ===== Form Submission Handlers =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Component Overview Form Handler
+    const componentOverviewForm = document.querySelector('#component-overview form');
+    if (componentOverviewForm) {
+        componentOverviewForm.addEventListener('submit', function(e) {
+            const errors = validateComponentOverviewForm(this);
+            if (errors.length > 0) {
+                e.preventDefault();
+                showValidationError(errors);
+            }
+        });
+    }
+
+    // Component Details Form Handler
+    const componentDetailsForm = document.querySelector('#component-type-form');
+    if (componentDetailsForm) {
+        componentDetailsForm.addEventListener('submit', function(e) {
+            const errors = validateComponentDetailsForm(this);
+            if (errors.length > 0) {
+                e.preventDefault();
+                showValidationError(errors);
+            }
+        });
+    }
+});
 
 // Toast handler
 document.addEventListener('DOMContentLoaded', function() {
@@ -94,6 +208,12 @@ function showToast(message, success = true) {
     bsToast.show();
 }
 
+// Input valdation function: accept only numbers
+function validateInputNumbers(input) {
+    if (input.value <= 0) {
+        input.value = null;
+    }
+}
 
 // Function to prefill data related to component types
 document.addEventListener('DOMContentLoaded', function() {
@@ -140,10 +260,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize Flatpickr with strict formatting
         const flatpickrInstance = flatpickr(dateInput, {
             dateFormat: "Y-m-d H:i",
-            allowInput: false,
-            clickOpens: true,
+            allowInput: true,
+            clickOpens: false,
             enableTime: true,
             time_24hr: true,
+            onClose: function(selectedDates, dateStr) {
+                validateDateFormat(dateStr, dateInput, flatpickrInstance);
+            }
         });
 
         // Open calendar on icon click
@@ -151,6 +274,19 @@ document.addEventListener('DOMContentLoaded', function() {
             flatpickrInstance.open();
         });
 
+        // Validate manual input
+        dateInput.addEventListener('blur', function() {
+            validateDateFormat(this.value, dateInput, flatpickrInstance);
+        });
+    }
+
+    function validateDateFormat(dateStr, input, picker) {
+        const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+        if (!regex.test(dateStr)) {
+            alert("Error: Invalid date format. Please use YYYY-MM-DD HH:MM");
+            input.value = ''; // Clear the invalid input
+            picker.clear(); // Clear Flatpickr's internal date
+        }
     }
 
     // Initialize all date pickers
@@ -307,7 +443,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===== Component details page functions =====
-// Function to set bike based on installation status BETTER DESCRIPTION
+
+// Function to validate input
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component details page
     if (document.querySelector('h1#component-details') === null) return;

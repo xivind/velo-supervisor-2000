@@ -83,7 +83,7 @@
         <div class="card shadow mb-4">
             <div class="card-header fw-bold">Modify component</div>
             <div class="card-body">
-                <form id="component_type_form" class="row align-items-center" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
+                <form id="component_details_form" class="row align-items-center" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
                     <div class="col-md-7 mb-3">
                         <div class="row align-items-center">
@@ -141,26 +141,26 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
-                        <input type="number" class="form-control" id="expected_lifetime" name="expected_lifetime" value="{{ payload.bike_component_data['lifetime_expected'] }}" oninput="validateInput(this)">
+                        <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime" value="{{ payload.bike_component_data['lifetime_expected'] }}">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
-                        <input type="number" class="form-control" id="service_interval" name="service_interval" value="{{ payload.bike_component_data['service_interval'] }}" oninput="validateInput(this)">
+                        <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="{{ payload.bike_component_data['service_interval'] }}">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="cost" class="form-label fw-bold">Cost (kr)</label>
-                        <input type="number" class="form-control" id="cost" name="cost" value="{{ payload.bike_component_data['cost'] }}">
+                        <input type="number" min="0" step="1" class="form-control" id="cost" name="cost" value="{{ payload.bike_component_data['cost'] }}">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="offset" class="form-label fw-bold">Offset (km)</label>
-                        <input type="number" class="form-control" id="offset" name="offset" value="{{ payload.bike_component_data['offset'] }}">
+                        <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="{{ payload.bike_component_data['offset'] }}">
                     </div>
                     <div class="col-md-12 mb-3">
                         <label for="component_notes" class="form-label fw-bold">Notes</label>
                         <textarea class="form-control" id="component_notes" name="component_notes" rows="3">{% if payload.bike_component_data['component_notes'] %}{{ payload.bike_component_data['component_notes'] }}{% else %}{% endif %}</textarea>
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Save</button>
+                        <button type="submit" class="btn btn-primary" form="component_details_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Save</button>
                         <button type="button" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">Delete component</button>                                
                     </div>
                 </form>
@@ -188,7 +188,7 @@
                 </div>
                 <div class="col mb-3">
                     <label for="service_description" class="form-label fw-bold">Description</label>
-                    <input type="text" class="form-control" id="service_description" name="service_description" oninput="validateInput(this)">
+                    <input type="text" minlength="5" class="form-control" id="service_description" name="service_description" required>
                 </div>
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary" form="service_form" id="submit_btn_service" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Save</button>

@@ -14,11 +14,11 @@
             </div>
             <div class="col mb-3">
                 <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
-                <input type="number" class="form-control" id="expected_lifetime" name="expected_lifetime" oninput="validateInputNumbers(this)">
+                <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime">
             </div>
             <div class="col mb-3">
                 <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
-                <input type="number" class="form-control" id="service_interval" name="service_interval" oninput="validateInputNumbers(this)">
+                <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval">
             </div>
             <div class="col-12">
                 <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Save</button>

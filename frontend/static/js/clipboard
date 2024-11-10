@@ -1,0 +1,179 @@
+<div class="modal fade" id="retireConfirmModal" tabindex="-1" aria-labelledby="retireConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="retireConfirmModalLabel">Confirm retirement of component</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                You are about to retire this component. This cannot be undone. Do you want to proceed? You still need to save.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelRetire" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmRetire" data-bs-dismiss="modal">Proceed</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const installationSelect = document.getElementById('component_installation_status');
+    const retireModal = new bootstrap.Modal(document.getElementById('retireConfirmModal'));
+    let previousValue = installationSelect.value;
+
+    installationSelect.addEventListener('change', function(e) {
+        if (this.value === 'Retired') {
+            retireModal.show();
+            
+            // Handle cancel
+            document.getElementById('cancelRetire').addEventListener('click', function() {
+                installationSelect.value = previousValue;
+            }, { once: true });  // Remove listener after first use
+            
+            // Handle confirm
+            document.getElementById('confirmRetire').addEventListener('click', function() {
+                previousValue = 'Retired';
+            }, { once: true });  // Remove listener after first use
+        } else {
+            previousValue = this.value;
+        }
+    });
+});
+</script>
+
+Old js functions
+
+// Function to validate input
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component details page
+    if (document.querySelector('h1#component-details') === null) return;
+    
+    const bikeSelect = document.getElementById('component_bike_id');
+    const installationSelect = document.getElementById('component_installation_status');
+
+    bikeSelect.addEventListener('change', function() {
+        if (installationSelect.value !== "Retired") {
+            if (this.value !== "") {
+                installationSelect.value = "Installed";
+            } else {
+                installationSelect.value = "Not installed";
+            }
+        }
+    });
+
+    installationSelect.addEventListener('change', function() {
+        if (this.value === "Not installed") {
+            bikeSelect.value = "";
+        }
+    });
+
+    // Initial check on page load
+    if (bikeSelect.value === "" && installationSelect.value !== "Retired") {
+        installationSelect.value = "Not installed";
+    }
+});
+
+
+// Define the error display function first
+function showValidationError(errors) {
+    console.log('Showing validation errors:', errors);
+    const modalBody = document.getElementById('validationModalBody');
+    if (!modalBody) {
+        console.error('Modal body element not found!');
+        return;
+    }
+    
+    modalBody.innerHTML = '<ul class="list-group">' + 
+        errors.map(error => `<li class="list-group-item list-group-item-danger">${error}</li>`).join('') +
+        '</ul>';
+    
+    const modalElement = document.getElementById('validationModal');
+    if (!modalElement) {
+        console.error('Modal element not found!');
+        return;
+    }
+    
+    try {
+        const validationModal = new bootstrap.Modal(modalElement);
+        console.log('Modal instance created');
+        validationModal.show();
+        console.log('Modal shown');
+    } catch (error) {
+        console.error('Error creating/showing modal:', error);
+    }
+}
+
+// Main initialization and validation logic
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing simplified validation system...');
+    
+    // Add modal HTML
+    const modalHTML = `
+        <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="validationModalLabel">Validation Error</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="validationModalBody">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Get form by exact ID
+    const componentDetailsForm = document.getElementById('component_type_form');
+    console.log('Found form:', componentDetailsForm);
+
+    if (componentDetailsForm) {
+        console.log('Adding submit handler to form');
+        componentDetailsForm.addEventListener('submit', function(e) {
+            console.log('Form submit triggered'); 
+            const errors = [];
+
+            // 1. Installation status and bike validation
+            const statusElement = this.querySelector('#component_installation_status');
+            const bikeElement = this.querySelector('#component_bike_id');
+            
+            if (statusElement && bikeElement) {
+                const installationStatus = statusElement.value;
+                const bikeId = bikeElement.value;
+                
+                console.log('Installation status:', installationStatus);
+                console.log('Bike ID:', bikeId);
+                
+                if (installationStatus === 'Installed' && !bikeId) {
+                    errors.push('A bike must be selected when status is Installed');
+                }
+                if (installationStatus === 'Not installed' && bikeId) {
+                    errors.push('No bike should be selected when status is Not installed');
+                }
+            }
+
+            // 2. Date format validation
+            const dateField = this.querySelector('#component_updated_date');
+            if (dateField && dateField.value) {
+                const dateRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+                if (!dateRegex.test(dateField.value)) {
+                    errors.push('Date must be in format YYYY-MM-DD HH:MM');
+                }
+            }
+
+            // Show errors if any
+            if (errors.length > 0) {
+                console.log('Validation errors:', errors);
+                e.preventDefault();
+                showValidationError(errors);
+            }
+        });
+    } else {
+        console.log('Form not found!');
+    }
+});
