@@ -44,7 +44,7 @@
 
 Old js functions
 
-// Function to validate input
+// Function to validate input, probably outdated
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component details page
     if (document.querySelector('h1#component-details') === null) return;

@@ -1,6 +1,6 @@
 // ===== Functions used on multiple pages =====
 
-// MISSING DOCSTRING
+// Function for input validation of component details - MOVE TO COMPONENT DETAILS SECTION
 document.addEventListener('DOMContentLoaded', function() {
     // Get form by ID
     const componentDetailsForm = document.getElementById('component_details_form');
@@ -9,10 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add validation modal to the page
     const modalHTML = `
         <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" id="validationModalLabel">Validation Error</h5>
+                        <h5 class="modal-title" id="validationModalLabel">Input validation error</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" id="validationModalBody"></div>
@@ -35,15 +35,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const initialDate = dateInput.defaultValue;
         
         let errorMessage = null;
-        
         if (installationStatus === 'Installed' && !bikeId) {
-            errorMessage = 'A bike must be selected when status is set to "Installed"';
-            } else if (installationStatus === initialSelectedStatus && dateInput.value === initialDate) {
-                errorMessage = `OK: "${installationStatus}"`;
+            errorMessage = 'Status cannot be set to "Installed" if no bike is selected';
             } else if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
-                errorMessage = `Component status is already set to: "${installationStatus}"`;
-            } // Handle else if in backend, see 625 and 648 in business logic. Then add retire warning and delete
-            // Could be its possible, experiment a bit more
+                errorMessage = `Status cannot be changed to "${statusSelect.value}" since status is already: "${installationStatus}"`;
+            } else if (installationStatus !== initialSelectedStatus && dateInput.value === initialDate) {
+                errorMessage = `Status cannot be changed unless you also update record date`;
+            }
 
         if (errorMessage) {
             e.preventDefault();
@@ -54,8 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-
 
 // Toast handler
 document.addEventListener('DOMContentLoaded', function() {
@@ -269,7 +265,6 @@ document.addEventListener('DOMContentLoaded', function() {
     showRetiredBikesSwitch.addEventListener('change', updateBikeVisibility);
 });
 
-
 // ===== Component overview page functions =====
 
 // Script to sort component table
@@ -312,7 +307,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===== Component details page functions =====
-// Function to set bike based on installation status BETTER DESCRIPTION
+
+// Function to control installaion status and bike name
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component details page
     if (document.querySelector('h1#component-details') === null) return;
