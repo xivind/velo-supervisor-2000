@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="modal-content">
                     <div class="modal-header bg-danger text-white">
                         <h5 class="modal-title" id="validationModalLabel">Validation Error</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" id="validationModalBody"></div>
                     <div class="modal-footer">
@@ -31,14 +31,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const installationStatus = statusSelect.value;
         const bikeId = this.querySelector('#component_bike_id').value;
         const initialSelectedStatus = statusSelect.options[statusSelect.selectedIndex].defaultSelected ? statusSelect.value : null;
+        const dateInput = this.querySelector('#component_updated_date');
+        const initialDate = dateInput.defaultValue;
         
         let errorMessage = null;
         
         if (installationStatus === 'Installed' && !bikeId) {
-            errorMessage = 'A bike must be selected when status is Installed';
-        } else if (installationStatus === initialSelectedStatus) {
-            errorMessage = `Component status is already set to: ${installationStatus}`;
-        }
+            errorMessage = 'A bike must be selected when status is set to "Installed"';
+            } else if (installationStatus === initialSelectedStatus && dateInput.value === initialDate) {
+                errorMessage = `OK: "${installationStatus}"`;
+            } else if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
+                errorMessage = `Component status is already set to: "${installationStatus}"`;
+            } // Handle else if in backend, see 625 and 648 in business logic. Then add retire warning and delete
+            // Could be its possible, experiment a bit more
 
         if (errorMessage) {
             e.preventDefault();
@@ -50,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-    
+
 
 // Toast handler
 document.addEventListener('DOMContentLoaded', function() {
