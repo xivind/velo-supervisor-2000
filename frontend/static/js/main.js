@@ -338,6 +338,62 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Function to handle component retirement confirmation
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component details page
+    const componentDetailsPage = document.getElementById('component-details');
+    if (!componentDetailsPage) return;
+
+    // Get installation status select
+    const installationSelect = document.getElementById('component_installation_status');
+    if (!installationSelect) return;
+
+    // Add retirement modal to the page
+    const modalHTML = `
+        <div class="modal fade" id="retireConfirmModal" tabindex="-1" aria-labelledby="retireConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="retireConfirmModalLabel">Confirm retirement of component</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        You are about to retire this component. This cannot be undone. Do you want to proceed? You still need to save.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancelRetire" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmRetire" data-bs-dismiss="modal">Proceed</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Initialize modal and tracking variables
+    const retireModal = new bootstrap.Modal(document.getElementById('retireConfirmModal'));
+    let previousValue = installationSelect.value;
+
+    // Add change event listener to installation status select
+    installationSelect.addEventListener('change', function(e) {
+        if (this.value === 'Retired') {
+            retireModal.show();
+            
+            // Handle cancel
+            document.getElementById('cancelRetire').addEventListener('click', function() {
+                installationSelect.value = previousValue;
+            }, { once: true });  // Remove listener after first use
+            
+            // Handle confirm
+            document.getElementById('confirmRetire').addEventListener('click', function() {
+                previousValue = 'Retired';
+            }, { once: true });  // Remove listener after first use
+        } else {
+            previousValue = this.value;
+        }
+    });
+});
+
 // ===== Component types page functions =====
 
 // Function to modify component types
