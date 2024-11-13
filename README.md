@@ -26,7 +26,7 @@ As a principle, development is to be done in dev-branches and will be merged int
 
 **Planned for v0.4.0**
 - Configured program to run in Docker
-- Improved logic for versioning
+- Improved logic for versioning 
 
 **v0.3.0**
 - Feedback to user from business logic
