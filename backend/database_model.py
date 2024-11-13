@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-"""Module for configuration and mapping of an SQL database"""
+"""Module for configuration and mapping of a Sqlite database"""
 
-from peewee import SqliteDatabase, Model, CharField, FloatField, IntegerField
-import json
+from utils import read_config
+from peewee import (SqliteDatabase,
+                    Model,
+                    CharField,
+                    FloatField,
+                    IntegerField)
 
-def read_parameters(): #Pull this from utils instead
-    """ Function to read configuration file"""
-    with open('config.json', 'r', encoding='utf-8') as file:
-        config = json.load(file)
-    return config
-
-CONFIG = read_parameters()
+CONFIG = read_config()
 
 database = SqliteDatabase(CONFIG['db_path'])
 

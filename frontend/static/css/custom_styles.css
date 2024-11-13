@@ -1,0 +1,33 @@
+/* Custom CSS styles that extends Bootstrap framework*/
+
+.bg-purple {
+    background-color: rgb(173, 15, 173) !important;}
+
+.text-bg-purple {
+    background-color: rgb(173, 15, 173) !important;
+    color: white !important;}
+
+th[data-sort] {
+    cursor: pointer;
+    white-space: nowrap;} /* Prevent wrapping of text and arrow */
+
+th[data-sort]:hover {
+    background-color: #f0f0f0;}
+
+.sort-indicator {
+    display: inline-block;
+    margin-left: 5px; /* Add some space between text and arrow */
+    font-size: 0.8em;
+    color: #999;
+}
+.sort-indicator::after {
+    content: '\25B2\25BC';} /* Up and down arrows */
+
+th[data-sort].sorted-asc .sort-indicator::after {
+    content: '\25B2'; /* Up arrow */
+    color: #333;} /* Darker color for active sort */
+
+th[data-sort].sorted-desc .sort-indicator::after {
+    content: '\25BC'; /* Down arrow */
+    color: #333;} /* Darker color for active sort */
+

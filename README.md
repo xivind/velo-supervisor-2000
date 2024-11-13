@@ -21,14 +21,17 @@ As a principle, development is to be done in dev-branches and will be merged int
 - Improved initital setup and configuration
 - ... and much more
 
+**Planned for v0.5.0**
+- ...
+
 **Planned for v0.4.0**
 - Configured program to run in Docker
 
-**Planned for v0.3.1**
-- Improved input validation and user dialogue
-
-**Planned for v0.3.0**
-- Refactored code base and improved business logic
+**v0.3.0**
+- Feedback to user from business logic
+- Improved input validation and user interaction
+- Refactored backend and improved business logic
+- Refactored frontend and introduced base template
 
 **v0.2.0**
 - Improved error handling and more informative error page
