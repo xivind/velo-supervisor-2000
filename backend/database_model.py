@@ -2,7 +2,11 @@
 """Module for configuration and mapping of a Sqlite database"""
 
 from utils import read_config
-from peewee import SqliteDatabase, Model, CharField, FloatField, IntegerField
+from peewee import (SqliteDatabase,
+                    Model,
+                    CharField,
+                    FloatField,
+                    IntegerField)
 
 CONFIG = read_config()
 
