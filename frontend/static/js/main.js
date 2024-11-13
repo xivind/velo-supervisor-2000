@@ -329,6 +329,38 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Function to clear component overview form
+document.addEventListener('DOMContentLoaded', function() {
+    const clearFormButton = document.getElementById('clear_form_btn');
+    const componentForm = document.getElementById('component_overview_form');
+    
+    if (!clearFormButton || !componentForm) return;
+    
+    clearFormButton.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent form submission
+        
+        // Get all form inputs
+        const inputs = componentForm.querySelectorAll('input, select, textarea');
+        
+        // Clear each input
+        inputs.forEach(input => {
+            if (input.type === 'text' || input.type === 'number' || input.tagName === 'TEXTAREA') {
+                input.value = '';
+            } else if (input.type === 'select-one') {
+                input.selectedIndex = 0;
+            }
+        });
+        
+        // If you have any flatpickr date inputs, clear those too
+        const dateInputs = componentForm.querySelectorAll('.flatpickr-input');
+        dateInputs.forEach(input => {
+            if (input._flatpickr) {
+                input._flatpickr.clear();
+            }
+        });
+    });
+});
+
 // ===== Component details page functions =====
 
 // Function to control installaion status and bike name
