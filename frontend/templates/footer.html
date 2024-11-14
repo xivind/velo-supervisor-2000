@@ -2,7 +2,7 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center py-1">
             <span>🧮 <strong>Version:</strong> {{ request.app.version }}</span>
-            <span>🗂 <strong>DB:</strong> {{ request.app.state.db_path }}</span> 
+            <span>🗂 <strong>Db:</strong> {{ request.app.state.db_path }}</span> 
             <span>⏱ <strong>Load time:</strong> <span id="log-fetch-time"></span> seconds</span>
             <span>📡 <strong>Last pull Strava:</strong> {{ request.app.state.strava_last_pull }}</span> 
             <span>🐛 <strong><a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">Submit issue</a></strong></span>
