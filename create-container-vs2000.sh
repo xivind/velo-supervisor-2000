@@ -18,7 +18,7 @@ docker run -d \
   --mount type=bind,source=/home/pi/code/secrets,target=/secrets \
   --restart unless-stopped \
   -p 8000:8000 \
-  dashboard
+  velo-supervisor-2000
 
 
 

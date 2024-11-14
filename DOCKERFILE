@@ -18,7 +18,7 @@ COPY frontend/. frontend/.
 EXPOSE 8000
 
 # Command to run your application using Uvicorn
-CMD ["uvicorn", "main:APP", "--host", "0.0.0.0", "--port", "8000", "--log-config", "uvicorn_log_config.ini"]
+CMD ["uvicorn", "backend/main:app", "--host", "0.0.0.0", "--port", "8000", "--log-config", "backend/uvicorn_log_config.ini"]
 
 # Healthcheck to monitor the container for errors
 # HEALTHCHECK --interval=600s --timeout=10s --retries=3 CMD curl -sSf -o /dev/null -w '%{http_code}' http://127.0.0.1:8000 || exit 1
