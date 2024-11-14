@@ -3,6 +3,12 @@
 *.sh
 DOCKERFILE
 .dockerignore
-__pycache__/*
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.env
+*.log
 
 # Add more, githubactions +++

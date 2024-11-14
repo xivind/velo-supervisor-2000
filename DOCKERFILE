@@ -4,21 +4,24 @@
 FROM python:3.9
 
 # Set the working directory in the container
-WORKDIR /backend
+WORKDIR /app/backend
 
 # Copy the requirements.txt file and install dependencies
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire project directory into the container
-COPY backend/. backend/.
-COPY frontend/. frontend/.
+COPY backend/. .
+COPY frontend /app/frontend
+
+# Add current directory to Python path
+ENV PYTHONPATH="${PYTHONPATH}:/app/backend"
 
 # Expose the port your application runs on
 EXPOSE 8000
 
 # Command to run your application using Uvicorn
-CMD ["uvicorn", "backend/main:app", "--host", "0.0.0.0", "--port", "8000", "--log-config", "backend/uvicorn_log_config.ini"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--log-config", "uvicorn_log_config.ini"]
 
 # Healthcheck to monitor the container for errors
 # HEALTHCHECK --interval=600s --timeout=10s --retries=3 CMD curl -sSf -o /dev/null -w '%{http_code}' http://127.0.0.1:8000 || exit 1
