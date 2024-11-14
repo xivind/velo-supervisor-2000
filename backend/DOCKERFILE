@@ -11,8 +11,8 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Copy the entire project directory into the container
-COPY backend/. backend/.
-COPY frontend/. frontend/.
+COPY ../backend/. backend/.
+COPY ../frontend/. frontend/.
 
 # Expose the port your application runs on
 EXPOSE 8000
@@ -21,7 +21,7 @@ EXPOSE 8000
 CMD ["uvicorn", "main:APP", "--host", "0.0.0.0", "--port", "8000", "--log-config", "uvicorn_log_config.ini"]
 
 # Healthcheck to monitor the container for errors
-HEALTHCHECK --interval=600s --timeout=10s --retries=3 CMD curl -sSf -o /dev/null -w '%{http_code}' http://127.0.0.1:8000 || exit 1
+# HEALTHCHECK --interval=600s --timeout=10s --retries=3 CMD curl -sSf -o /dev/null -w '%{http_code}' http://127.0.0.1:8000 || exit 1
 
 
 
