@@ -21,10 +21,10 @@ As a principle, development is to be done in dev-branches and will be merged int
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.5.0**
+**Planned for v0.4.0**
 - ...
 
-**Planned for v0.4.0**
+**Planned for v0.3.1**
 - Configured program to run in Docker
 - Improved logic for versioning 
 
