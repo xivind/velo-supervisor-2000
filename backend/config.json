@@ -1,4 +1,4 @@
 {
-    "db_path": "/home/xivind/SQLiteStudio/prod_db.sqlite",
-    "strava_tokens": "/home/xivind/code/strava_tokens.json"
+    "db_path": "/data/prod_db.sqlite",
+    "strava_tokens": "/secrets/strava_tokens.json"
 }

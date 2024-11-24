@@ -15,7 +15,7 @@ COPY backend/. .
 COPY frontend /app/frontend
 
 # Add current directory to Python path
-ENV PYTHONPATH="${PYTHONPATH}:/app/backend"
+ENV PYTHONPATH=/app/backend:/data:/secrets
 
 # Expose the port your application runs on
 EXPOSE 8000
