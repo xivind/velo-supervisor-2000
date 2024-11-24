@@ -3,6 +3,9 @@ Program to keep track of lifetime and service intervals of bicycle components, b
 
 > **Join the work, either by forking the repo and contribute with PRs or simply by submitting <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issues</a> 🙋**
 
+## Setup and configuration
+Must modify json and get Strava_tokens
+
 ## Bugs
 There are currently quite a few bugs scattered around. If you find any, please submit them as an <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issue</a>.
 
