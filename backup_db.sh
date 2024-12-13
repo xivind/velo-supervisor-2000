@@ -1,12 +1,11 @@
 #!/bin/bash
-# Script to backup data volume for Velo Supervisor 2000
+# Script to backup database for Velo Supervisor 2000
 
 set -o xtrace
 
-rm -vf /home/pi/backup/velo-supervisor-2000.tar
 docker container stop velo-supervisor-2000
 sleep 5
-docker run --rm --volumes-from velo-supervisor-2000 -v /home/pi/backup:/backup ubuntu tar cvf /backup/velo-supervisor-2000.tar /data 
+rm -vf /home/pi/backup/prod_db.sqlite
+cp /home/pi/code/container_data/prod_db.sqlite /home/pi/backup/prod_db.sqlite
 docker container start velo-supervisor-2000
 
-#For more information, see https://docs.docker.com/storage/volumes/#back-up-restore-or-migrate-data-volumes
