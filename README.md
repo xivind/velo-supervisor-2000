@@ -2,7 +2,7 @@
 Velo Supervisor 2000 is a program to keep track of lifetime and service intervals of bicycle components, based on activity data from Strava.
 
 ---
-> **📡 IMPORTANT INFORMATION TO USERS PARTICIPARTING IN PILOTING Q1 2025**
+**📡 IMPORTANT INFORMATION TO USERS PARTICIPARTING IN PILOTING Q1 2025**
 
 The onboarding procedure is not ready yet, but you can start piloting already now by setting up Velo Supervisor 2000 manually. Complete the following steps:
 - **Step 1:** Copy the file `backend/template_db.sqlite` and place it somewhere outside the repo
