@@ -31,3 +31,9 @@ th[data-sort].sorted-desc .sort-indicator::after {
     content: '\25BC'; /* Down arrow */
     color: #333;} /* Darker color for active sort */
 
+.card.hover-effect {
+    transition: transform 0.2s ease-in-out;
+}
+.card.hover-effect:hover {
+    transform: translateY(-5px);
+}
