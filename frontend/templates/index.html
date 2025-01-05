@@ -12,7 +12,7 @@
 </div>
 <div class="row">
     {% for name, bike_id, bike_status, service_lifetime_status, distance, count_installed, count_retired in payload.bikes_data %}
-        <div class="col-md-4 mb-3">
+        <div class="col-md-4 mb-4">
             <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">
                 <div class="card shadow hover-effect" data-bike-status="{{ bike_status }}">
                     <div class="card-header h5 fw-bold text-bg-

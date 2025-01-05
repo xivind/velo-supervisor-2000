@@ -92,13 +92,12 @@
                             <th>Name</th>
                             <th>Distance</th>
                             <th class="text-center">Mode</th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if payload.recent_rides %}
                             {% for ride_id, date, name, ride_distance, commute in payload.recent_rides %}
-                                <tr>
+                                <tr role="button" onclick="window.open('https://www.strava.com/activities/{{ ride_id }}', '_blank');">
                                     <td>{{ date }}</td>
                                     <td>{{ name }}</td>
                                     <td>{{ ride_distance }} km</td>
@@ -109,7 +108,6 @@
                                         👔
                                         {% endif %}
                                     </td>
-                                    <td><a href="https://www.strava.com/activities/{{ ride_id }}" target="_blank" class="btn btn-outline-info btn-sm">🌎</a></td>
                                 </tr>
                             {% endfor %}
                         {% else %}
