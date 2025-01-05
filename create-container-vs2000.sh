@@ -14,11 +14,11 @@ docker build -t velo-supervisor-2000 -f DOCKERFILE .
 docker run -d \
   --name=velo-supervisor-2000 \
   -e TZ=Europe/Stockholm \
-  --mount type=volume,source=nodered,target=/data \
+  --mount type=bind,source=/home/pi/code/container_data,target=/data \
   --mount type=bind,source=/home/pi/code/secrets,target=/secrets \
   --restart unless-stopped \
   -p 8000:8000 \
-  dashboard
+  velo-supervisor-2000
 
 
 

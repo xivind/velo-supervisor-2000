@@ -1,0 +1,4 @@
+{
+    "db_path": "/data/prod_db.sqlite",
+    "strava_tokens": "/secrets/strava_tokens.json"
+}

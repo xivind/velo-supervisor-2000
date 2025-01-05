@@ -223,10 +223,7 @@ class BusinessLogic():
             try:
                 logging.info(f"Retrieving rides from Strava as background task. Mode set to: {mode}")
 
-                pass #Remove this before deploy
-                success = True #Remove this before deploy
-                message = "Test run" #Remove this before deploy
-                #success, message = await self.update_rides_bulk(mode) #Enable before deploy
+                success, message = await self.update_rides_bulk(mode)
 
                 if success:
                     logging.info(f"Background update successful: {message}")
@@ -236,8 +233,8 @@ class BusinessLogic():
             except Exception as error:
                 logging.error(f"An error occurred during background update: {error}")
 
-            logging.info("Next pull from Strava is in two hours")
-            await asyncio.sleep(7200)
+            logging.info("Next pull from Strava is in four hours")
+            await asyncio.sleep(14400)
 
     async def update_rides_bulk(self, mode):
         """Method to create or update ride data in bulk to database"""

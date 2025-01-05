@@ -3,3 +3,4 @@
 .mypy_cache/*
 backend/__pycache__/*
 backend/.mypy_cache/*
+backend/config.json
