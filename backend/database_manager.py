@@ -197,7 +197,7 @@ class DatabaseManager:
 
                     total_processed += len(batch)
 
-                return True, "Rides table updated successfully. Processed {total_processed} rides."
+                return True, f"Rides table updated successfully. Processed {total_processed} rides."
 
         except peewee.OperationalError as error:
             return False, f"An error occurred during bulk update of rides table: {str(error)}."
