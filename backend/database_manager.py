@@ -178,6 +178,7 @@ class DatabaseManager:
         try:
             with database.atomic():
                 batch_size = 50
+                total_processed = 0
                 
                 for i in range(0, len(ride_list), batch_size):
                     batch = ride_list[i:i + batch_size]
@@ -192,10 +193,11 @@ class DatabaseManager:
 
                     Rides.insert_many(rides_tuples_list).on_conflict(
                         conflict_target=[Rides.ride_id],
-                        action='REPLACE'
-                    ).execute()
+                        action='REPLACE').execute()
 
-                    return True, "Rides table updated successfully."
+                    total_processed += len(batch)
+
+                return True, "Rides table updated successfully. Processed {total_processed} rides."
 
         except peewee.OperationalError as error:
             return False, f"An error occurred during bulk update of rides table: {str(error)}."
