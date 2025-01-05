@@ -4,6 +4,8 @@ Velo Supervisor 2000 is a program to keep track of lifetime and service interval
 ---
 **📡 IMPORTANT INFORMATION TO USERS PARTICIPARTING IN PILOTING Q1 2025**
 
+⚠ There are currently some minor limitations in this software, most notably that installation records and service records cannot be changed once they are created. Please take this into consideration if you are piloting. We are working on fixing this. See the [project board](https://github.com/users/xivind/projects/2/views/1) for a complete list of issues
+
 The onboarding procedure is not ready yet, but you can start piloting already now by setting up Velo Supervisor 2000 manually. Complete the following steps:
 - **Step 1:** Copy the file `backend/template_db.sqlite` and place it somewhere outside the repo
 - **Step 2:** Copy the file `backend/strava_tokens.example.json` and place it somewhere outside the repo. You should rename the file as well, e.g. to `strava_tokens.json`. Modify it with your own data and dont share it with anyone else. [See this tutorial](https://developers.strava.com/docs/getting-started/) on how to obtain the oauth-data from Strava
