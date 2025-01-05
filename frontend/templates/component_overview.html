@@ -139,7 +139,7 @@
             <tbody>
                 {% if payload.component_data %}
                     {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.component_data %}
-                        <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';" style="cursor: pointer;">
+                        <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
                             <td>{{ name }}</td>
                             <td>{{ type }}</td>
                             <td>{{ component_distance }} km</td>

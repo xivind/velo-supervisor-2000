@@ -145,13 +145,12 @@
                             <th class="text-center">Lifetime</th>
                             <th class="text-center">Service</th>
                             <th>Cost</th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if payload.bike_components_data %}
                             {% for component_id, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_components_data %}
-                                <tr data-status="{{ installation_status }}">
+                                <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
                                     <td>{{ name }}</td>
                                     <td>{{ type }}</td>
                                     <td>{{ component_distance }} km</td>
@@ -195,7 +194,6 @@
                                         {{ cost }} kr
                                         {% endif %}
                                     </td>
-                                    <td><a href="/component_details/{{ component_id }}" class="btn btn-outline-info btn-sm">🔍</a></td>
                                 </tr>
                             {% endfor %}
                         {% else %}
