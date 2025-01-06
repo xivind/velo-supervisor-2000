@@ -12,32 +12,33 @@
 </div>
 <div class="row">
     {% for name, bike_id, bike_status, service_lifetime_status, distance, count_installed, count_retired in payload.bikes_data %}
-        <div class="col-md-4 mb-3">
-            <div class="card shadow" data-bike-status="{{ bike_status }}">
-                <div class="card-header h5 fw-bold text-bg-
-                    {%- if service_lifetime_status == 'No components registered' or service_lifetime_status == 'No active components' -%}
-                        light
-                    {%- elif service_lifetime_status == 'Maintenance not defined' -%}
-                        secondary
-                    {%- elif service_lifetime_status == 'Breakdown imminent' -%}
-                        purple
-                    {%- elif service_lifetime_status == 'Maintenance required' -%}
-                        danger
-                    {%- elif service_lifetime_status == 'Maintenance approaching' -%}
-                        warning
-                    {%- elif service_lifetime_status == 'Pristine condition' -%}
-                        success
-                    {%- endif -%}">
-                    {{ name }}
+        <div class="col-md-4 mb-4">
+            <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">
+                <div class="card shadow hover-effect" data-bike-status="{{ bike_status }}">
+                    <div class="card-header h5 fw-bold text-bg-
+                        {%- if service_lifetime_status == 'No components registered' or service_lifetime_status == 'No active components' -%}
+                            light
+                        {%- elif service_lifetime_status == 'Maintenance not defined' -%}
+                            secondary
+                        {%- elif service_lifetime_status == 'Breakdown imminent' -%}
+                            purple
+                        {%- elif service_lifetime_status == 'Maintenance required' -%}
+                            danger
+                        {%- elif service_lifetime_status == 'Maintenance approaching' -%}
+                            warning
+                        {%- elif service_lifetime_status == 'Pristine condition' -%}
+                            success
+                        {%- endif -%}">
+                        {{ name }}
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold">{{ service_lifetime_status }}</h6>
+                        <p class="card-text d-flex justify-content-between align-items-center">
+                            <span>{% if bike_status == 'False' %}🟩 Active {% elif bike_status == 'True' %}🟥 Retired {% endif %}📍{{ distance }} km ⚡ {{ count_installed }} components</span>
+                        </p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h6 class="card-title fw-bold">{{ service_lifetime_status }}</h6>
-                    <p class="card-text d-flex justify-content-between align-items-center">
-                        <span>{% if bike_status == 'False' %}🟩 Active {% elif bike_status == 'True' %}🟥 Retired {% endif %}📍{{ distance }} km ⚡ {{ count_installed }} components</span>
-                        <a href="/bike_details/{{ bike_id }}" id="bike-details-btn" class="btn btn-outline-info btn-sm shadow-lg">🔍</a>
-                    </p>
-                </div>
-            </div>
+            </a>
         </div>
     {% endfor %}
 </div>
