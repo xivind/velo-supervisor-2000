@@ -12,7 +12,7 @@ The onboarding procedure is not ready yet, but you can start piloting already no
 - **Step 3:** Make a copy of `backend/config.json.example` and rename it to `config.json`. This new file should reside within the backend directory. It is in .gitignore, so it will not be synced to remote. Update it with the correct path to your database file and Strava tokens
 - **Step 4:** Create a virtual Python 3 environment and install the required packages, e.g. by using `pip install -r requirements.txt` Skip this step if you prefer to deploy the program as a Docker container. If you deploy as Docker container, you can have a look at the script `create-container-vs2000.sh` for inspiration, but surely you need to modify it to your liking
 - **Step 5:** To run the program from your terminal, instead of deploying as a Docker container, use this command from within the backed directory: `uvicorn main:app --log-config uvicorn_log_config.ini` Make sure that you actviate the newly created python 3 environment in advance
-- **Step 6:** On startup the program will call Stravas APIs and get the last 200 rides abd related bikes, but since this is the first time you run the program, you need to manually fetch all ride data and all bikes. This is done by navigating to the `CONFIG` tab and click the button `Get all rides`
+- **Step 6:** On startup the program will call Stravas APIs and get the last 200 rides and related bikes, but since this is the first time you run the program, you need to manually fetch all ride data and all bikes. This is done by navigating to the `CONFIG` tab and click the button `Get all rides`
 - **Step 7:** You are all set and can now register your first components. The rest will hopefully be self explanatory. Reach out if you have any comments or questions, and create issues for bug reports and feature requests as needed
 ---
 
@@ -40,11 +40,13 @@ As a principle, development is to be done in dev-branches and will be merged int
 - ... and much more
 
 **Planned for v0.4.0**
+- Installation history and service history can now be modified after creation
 - ...
 
-**Planned for v0.3.1**
-- Bugfixes
+**v0.3.1** - CURRENT
+- Fixed bug that prevented Strava activities to be saved properly
 - Preliminary onboarding instructions for pilot users
+- Minor GUI improvements
 - ...
 
 **v0.3.0**
