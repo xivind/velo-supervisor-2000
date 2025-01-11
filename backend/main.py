@@ -49,7 +49,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
-    asyncio.create_task(business_logic.pull_strava_background("recent"))
+    # asyncio.create_task(business_logic.pull_strava_background("recent")) #Reset before prod
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
@@ -163,6 +163,34 @@ async def add_service(component_id: str = Form(...),
         url=f"/component_details/{component_id}?success={success}&message={message}",
         status_code=303)
 
+    return response
+
+@app.post("/update_service_record", response_class=HTMLResponse)
+async def update_service_record(service_id: str = Form(...),
+                              service_date: str = Form(...),
+                              service_description: str = Form(...)):
+    """Endpoint to update an existing service record"""
+    success, message, component_id = business_logic.update_service_record(
+        service_id, service_date, service_description)
+    
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+    
+    return response
+
+@app.post("/update_history_record", response_class=HTMLResponse)
+async def update_history_record(history_id: str = Form(...),
+                              updated_date: str = Form(...),
+                              update_reason: str = Form(...)):
+    """Endpoint to update an existing component history record"""
+    success, message, component_id = business_logic.update_history_record(
+        history_id, updated_date, update_reason)
+    
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+    
     return response
 
 @app.post("/component_modify", response_class=HTMLResponse)

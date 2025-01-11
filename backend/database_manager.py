@@ -140,7 +140,7 @@ class DatabaseManager:
                 .get_or_none(Components.component_id == component_id))
     
     def read_subset_component_history(self, component_id):
-        """Method to read a subset of receords from the component history table"""
+        """Method to read a subset of records from the component history table"""
         return (ComponentHistory
                 .select()
                 .where(ComponentHistory.component_id == component_id)
@@ -158,6 +158,11 @@ class DatabaseManager:
                 .order_by(ComponentHistory.updated_date.desc())
                 .first())
     
+    def read_service_record(self, service_id):
+        """Method to retrieve a specific service record"""
+        return (Services
+                .get_or_none(Services.service_id == service_id))
+        
     def read_subset_service_history(self, component_id):
         """Method to read a subset of receords from the component history table"""
         return (Services.
@@ -173,6 +178,15 @@ class DatabaseManager:
                 .order_by(Services.service_date.desc())
                 .first())
 
+    def read_service_record_after_date(self, component_id, date):
+        """Method to get the next service record after a given date"""
+        return (Services
+                .select()
+                .where((Services.component_id == component_id) & 
+                    (Services.service_date > date))
+                .order_by(Services.service_date.asc())
+                .first())
+    
     def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk to database"""
         try:
@@ -326,6 +340,50 @@ class DatabaseManager:
         except peewee.OperationalError as error:
             return False, f"{old_component_name}: {str(error)}"
 
+    def write_update_service_record(self, service_id, updated_data):
+        """Method to update an existing service record"""
+        try:
+            with self.database.atomic():
+                service = (Services
+                        .select()
+                        .where(Services.service_id == service_id)
+                        .get())
+                
+                for key, value in updated_data.items():
+                    setattr(service, key, value)
+                
+                service.save()
+
+                return True, "Service record updated successfully."
+                
+        except peewee.DoesNotExist:
+            return False, f"Service record {service_id} not found."
+        
+        except peewee.OperationalError as error:
+            return False, f"Failed to update service record: {str(error)}"
+
+    def write_update_history_record(self, history_id, updated_data):
+        """Method to update an existing component history record"""
+        try:
+            with self.database.atomic():
+                history = (ComponentHistory
+                        .select()
+                        .where(ComponentHistory.history_id == history_id)
+                        .get())
+                
+                for key, value in updated_data.items():
+                    setattr(history, key, value)
+                
+                history.save()
+
+                return True, "History record updated successfully."
+                
+        except peewee.DoesNotExist:
+            return False, f"History record {history_id} not found."
+        
+        except peewee.OperationalError as error:
+            return False, f"Failed to update history record: {str(error)}"
+    
     def write_component_type(self, component_type_data):
         """Method to write component type record to database"""
         try:
