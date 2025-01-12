@@ -133,7 +133,7 @@
                     <th data-sort="lifetime">Lifetime <span class="sort-indicator"></span></th>
                     <th data-sort="service">Service <span class="sort-indicator"></span></th>
                     <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
-                    <th></th>
+                    <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
@@ -184,7 +184,7 @@
                             <td>
                                 {{ bike }}
                             </td>
-                            <td>
+                            <td class="text-end">
                                 <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}" onclick="event.stopPropagation();">🗑</button>
                             </td>
                         </tr>

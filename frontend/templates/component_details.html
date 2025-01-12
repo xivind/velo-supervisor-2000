@@ -206,7 +206,7 @@
                         <th>Description</th>
                         <th>Bike</th>
                         <th>Mileage</th>
-                        <th>Actions</th>
+                        <th class="text-end"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -217,12 +217,16 @@
                             <td>{{ description }}</td>
                             <td>{{ bike_name }}</td>
                             <td>{{ distance_marker }} km</td>
-                            <td>
-                                <button class="btn btn-outline-primary btn-sm edit-service-btn"
+                            <td class="text-end">
+                                <button class="mb-1 btn btn-outline-success btn-sm edit-service-btn"
                                         data-service-id="{{ service_id }}"
                                         data-service-date="{{ service_date }}"
                                         data-service-description="{{ description }}">
-                                    ✎
+                                        ✍
+                                </button>
+                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
+                                        data-component-type="{{ component_type }}">
+                                        🗑
                                 </button>
                             </td>
                         </tr>
@@ -248,7 +252,7 @@
                         <th>Reason</th>
                         <th>Bike</th>
                         <th>Mileage</th>
-                        <th>Actions</th>
+                        <th class="text-end"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -259,12 +263,16 @@
                             <td>{% if update_reason == "Not installed" %}Uninstalled{% else %}{{ update_reason }}{% endif %}</td>
                             <td>{{ bike_name }}</td>
                             <td>{{ mileage }} km</td>
-                            <td>
-                                <button class="btn btn-outline-primary btn-sm edit-history-btn"
+                            <td class="text-end">
+                                <button class="mb-1 btn btn-outline-success btn-sm edit-history-btn"
                                         data-history-id="{{ history_id }}"
                                         data-updated-date="{{ updated_date }}"
                                         data-update-reason="{{ update_reason }}">
-                                    ✎
+                                        ✍
+                                </button>
+                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
+                                        data-component-type="{{ component_type }}">
+                                        🗑
                                 </button>
                             </td>
                         </tr>
@@ -279,7 +287,6 @@
         </div>
     </div> 
 </div>
-{% endblock %}
 
 {# Service Record Edit Modal #}
 <div class="modal fade" id="editServiceModal" tabindex="-1" aria-labelledby="editServiceModalLabel" aria-hidden="true">
@@ -334,13 +341,11 @@
                             <span class="input-group-text" id="edit-history-date-picker-toggle">🗓</span>
                         </div>
                     </div>
-                    
                     <div class="mb-3">
                         <label for="editUpdateReason" class="form-label">Status</label>
                         <select class="form-select" id="editUpdateReason" name="update_reason" required>
                             <option value="Installed">Installed</option>
                             <option value="Not installed">Not installed</option>
-                            <option value="Retired">Retired</option>
                         </select>
                     </div>
                 </div>
@@ -352,3 +357,5 @@
         </div>
     </div>
 </div>
+
+{% endblock %}
