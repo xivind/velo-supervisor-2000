@@ -177,15 +177,6 @@ class DatabaseManager:
                 .where(Services.component_id == component_id)
                 .order_by(Services.service_date.desc())
                 .first())
-
-    def read_service_record_after_date(self, component_id, date):
-        """Method to get the next service record after a given date"""
-        return (Services
-                .select()
-                .where((Services.component_id == component_id) & 
-                    (Services.service_date > date))
-                .order_by(Services.service_date.asc())
-                .first())
     
     def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk to database"""
@@ -306,16 +297,28 @@ class DatabaseManager:
         
         except peewee.OperationalError as error:
             return False, f"{bike.bike_name}: {str(error)}."
-    
+
     def write_service_record(self, service_data):
-        "Method to write service record to database"
+        """Method to write or update service record to database"""
         try:
-            Services.create(**service_data)
-            return True, f"Added service record for component {service_data['component_name']}."
+            with self.database.atomic():
+                # Check if record exists
+                existing_service = Services.get_or_none(Services.service_id == service_data['service_id'])
+                
+                if existing_service:
+                    # Update existing record
+                    Services.update(**service_data).where(
+                        Services.service_id == service_data['service_id']
+                    ).execute()
+                    return True, f"Updated service record for component {service_data['component_name']}"
+                else:
+                    # Create new record
+                    Services.create(**service_data)
+                    return True, f"Created service record for component {service_data['component_name']}"
 
         except peewee.OperationalError as error:
-            return False, f"{service_data['component_name']}: {str(error)}."
-
+            return False, f"{service_data['component_name']}: {str(error)}"
+    
     def write_history_record(self,
                              current_history_id,
                              component_id,
@@ -339,50 +342,6 @@ class DatabaseManager:
         
         except peewee.OperationalError as error:
             return False, f"{old_component_name}: {str(error)}"
-
-    def write_update_service_record(self, service_id, updated_data):
-        """Method to update an existing service record"""
-        try:
-            with self.database.atomic():
-                service = (Services
-                        .select()
-                        .where(Services.service_id == service_id)
-                        .get())
-                
-                for key, value in updated_data.items():
-                    setattr(service, key, value)
-                
-                service.save()
-
-                return True, "Service record updated successfully."
-                
-        except peewee.DoesNotExist:
-            return False, f"Service record {service_id} not found."
-        
-        except peewee.OperationalError as error:
-            return False, f"Failed to update service record: {str(error)}"
-
-    def write_update_history_record(self, history_id, updated_data):
-        """Method to update an existing component history record"""
-        try:
-            with self.database.atomic():
-                history = (ComponentHistory
-                        .select()
-                        .where(ComponentHistory.history_id == history_id)
-                        .get())
-                
-                for key, value in updated_data.items():
-                    setattr(history, key, value)
-                
-                history.save()
-
-                return True, "History record updated successfully."
-                
-        except peewee.DoesNotExist:
-            return False, f"History record {history_id} not found."
-        
-        except peewee.OperationalError as error:
-            return False, f"Failed to update history record: {str(error)}"
     
     def write_component_type(self, component_type_data):
         """Method to write component type record to database"""
