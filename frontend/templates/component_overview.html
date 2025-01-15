@@ -106,22 +106,24 @@
     </div>
 </div>
 <hr class="mt-5"/>
-<div class="d-flex justify-content-end mb-3 pe-2">
-    <div class="form-check form-switch me-4">
-        <input class="form-check-input filter-switch" type="checkbox" id="showInstalledComponents" checked>
-        <label class="form-check-label fw-bold" for="showInstalledComponents">Show installed</label>
-    </div>
-    <div class="form-check form-switch me-4">
-        <input class="form-check-input filter-switch" type="checkbox" id="showNotInstalledComponents" checked>
-        <label class="form-check-label fw-bold" for="showNotInstalledComponents">Show not installed</label>
-    </div>
-    <div class="form-check form-switch">
-        <input class="form-check-input filter-switch" type="checkbox" id="showRetiredComponents">
-        <label class="form-check-label fw-bold" for="showRetiredComponents">Show retired</label>
-    </div>
-</div>
 <div class="card shadow mb-3">
-    <div class="card-header fw-bold">All components</div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold">All components</span>
+        <div class="d-flex gap-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showInstalledComponents" checked>
+                <label class="form-check-label fw-bold" for="showInstalledComponents">Show installed</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showNotInstalledComponents" checked>
+                <label class="form-check-label fw-bold" for="showNotInstalledComponents">Show not installed</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showRetiredComponents">
+                <label class="form-check-label fw-bold" for="showRetiredComponents">Show retired</label>
+            </div>
+        </div>
+    </div>
     <div class="card-body">
         <table class="table table-hover" id="componentsTable">
             <thead>

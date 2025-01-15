@@ -74,64 +74,57 @@
                 </p>  
             </div>
         </div>
-        <div class="card shadow">
+        <div class="card shadow mb-4">
             <div class="card-body">
                 <h5 class="card-title">Notes</h5>
                 <p class="card-text">{{ payload.bike_data.bike_notes }}</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-8">
-        <div class="card shadow mb-3">
-            <div class="card-header fw-bold">Recent rides</div>
+        <div class="card shadow">
             <div class="card-body">
+                <h5 class="card-title">Recent rides</h5>
                 <table class="table table-hover" id="ridesTable">
                     <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Name</th>
-                            <th>Distance</th>
-                            <th class="text-center">Mode</th>
+                        <tr style="border: none;">
+                            <th style="border: none;">Date</th>
+                            <th style="border: none;">Name</th>
+                            <th style="border: none;">Distance</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if payload.recent_rides %}
                             {% for ride_id, date, name, ride_distance, commute in payload.recent_rides %}
-                                <tr role="button" onclick="window.open('https://www.strava.com/activities/{{ ride_id }}', '_blank');">
-                                    <td>{{ date }}</td>
-                                    <td>{{ name }}</td>
-                                    <td>{{ ride_distance }} km</td>
-                                    <td class="text-center">
-                                        {% if commute == "False" %}
-                                        🏁
-                                        {% elif commute == "True" %}
-                                        👔
-                                        {% endif %}
-                                    </td>
+                                <tr style="border: none;" role="button" onclick="window.open('https://www.strava.com/activities/{{ ride_id }}', '_blank');">
+                                    <td style="border: none;">{{ date.split(' ')[0] }}</td>
+                                    <td style="border: none;">{{ name }}</td>
+                                    <td style="border: none;">{{ ride_distance }} km</td>
                                 </tr>
                             {% endfor %}
                         {% else %}
-                            <tr>
-                                <td colspan="5" class="text-center">Bike has no registered rides</td>
+                            <tr style="border: none;">
+                                <td style="border: none;" colspan="5" class="text-center">Bike has no registered rides</td>
                             </tr>
                         {% endif %}
                     </tbody>
                 </table>
             </div>
         </div>
-        <hr class="mt-5"/>
-        <div class="d-flex justify-content-end mb-3 pe-2">
-            <div class="form-check form-switch me-4">
-                <input class="form-check-input filter-switch" type="checkbox" id="showInstalledComponents" checked>
-                <label class="form-check-label fw-bold" for="showInstalledComponents">Show installed</label>
-            </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input filter-switch" type="checkbox" id="showRetiredComponents">
-                <label class="form-check-label fw-bold" for="showRetiredComponents">Show retired</label>
-            </div>
-        </div>
+    </div>
+    <div class="col-md-8">
         <div class="card shadow">
-            <div class="card-header fw-bold">Components</div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Components</span>
+                <div class="d-flex gap-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input filter-switch" type="checkbox" id="showInstalledComponents" checked>
+                        <label class="form-check-label fw-bold" for="showInstalledComponents">Show installed</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input filter-switch" type="checkbox" id="showRetiredComponents">
+                        <label class="form-check-label fw-bold" for="showRetiredComponents">Show retired</label>
+                    </div>
+                </div>
+            </div>
             <div class="card-body">
                 <table class="table table-hover" id="componentsTable">
                     <thead>
