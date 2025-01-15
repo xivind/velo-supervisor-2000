@@ -646,52 +646,119 @@ class BusinessLogic():
 
         return success, message
     
-    def update_service_record(self, service_id, service_date, description): #Clean up this code
-        """Method to update a service record with validation"""
+    def update_service_record(self, service_id, service_date, service_description): #Remember log-statetements
+        """Method to update a service record"""
         try:
-            # Get the service record
-            service = database_manager.read_service_record(service_id)
-            if not service:
+            # Get current service and component info
+            current_service = database_manager.read_service_record(service_id)
+            if not current_service:
                 return False, "Service record not found", None
-            
-            component_id = service.component_id
 
-            # Get component and check history
-            component = database_manager.read_component(service.component_id)
-            latest_history = database_manager.read_latest_history_record(service.component_id)
+            component = database_manager.read_component(current_service.component_id)
+            if not component:
+                return False, "Associated component not found", None
+
+            # Get installation history
+            history_records = database_manager.read_subset_component_history(component.component_id)
+            if not history_records:
+                return False, "No installation history found", component.component_id
+
+            # Find first history record for validation
+            oldest_history_record_date = database_manager.read_oldest_history_record(component.component_id).updated_date
             
-            # Validation 1: Cannot be before installation
-            if latest_history and service_date < latest_history.updated_date:
-                return False, f"Service date {service_date} cannot be before component installation date {latest_history.updated_date}", component_id
-                
-            # Validation 2: Check chronological order with other services
-            service_history = database_manager.read_subset_service_history(service.component_id)
-            for record in service_history:
-                if record.service_id != service_id:
-                    if record.service_date > service.service_date and service_date > record.service_date:
-                        return False, f"Service date {service_date} would conflict with later service at {record.service_date}", component_id
-                    if record.service_date < service.service_date and service_date < record.service_date:
-                        return False, f"Service date {service_date} would conflict with earlier service at {record.service_date}", component_id
-                    
-            # Update the record
-            updated_data = {
+            if not oldest_history_record_date:
+                return False, "No installation records found", component.component_id
+
+            # Basic validation
+            if service_date < oldest_history_record_date:
+                return False, f"Service date cannot be before before component creation date ({oldest_history_record_date})", component.component_id
+
+            if service_date > datetime.now().strftime("%Y-%m-%d %H:%M"):
+                return False, "Service date cannot be in the future", component.component_id
+
+            # Get all services, including the one being updated
+            all_services = list(database_manager.read_subset_service_history(component.component_id))
+            
+            # Update current service data, except distance marker
+            current_service_data = {
+                'service_id': service_id,
+                'component_id': component.component_id,
+                'component_name': component.component_name,
+                'bike_id': component.bike_id,
                 'service_date': service_date,
-                'description': description
+                'description': service_description
             }
+
+            # Remove current service from list and add updated service
+            all_services = [service for service in all_services if service.service_id != service_id]
+            all_services.append(type('NewService', (), current_service_data)())
             
-            success, message = database_manager.write_update_service_record(
-                service_id, updated_data)
+            # Sort all services chronologically
+            all_services.sort(key=lambda x: x.service_date)
             
-            if success:
-                # Recalculate status since service timing changed
-                self.update_component_service_status(component)
-                self.update_bike_status(component.bike_id)
+            # Process each service to update distances #WE ARE HERE NOW
+            for i, service in enumerate(all_services):
+                # Find installation status at service date
+                installation_status = None
+                installation_distance = 0
+                relevant_history = None
                 
-            return success, message, component_id
+                # Find the relevant installation record for this service date
+                for record in sorted(history_records, key=lambda x: x.updated_date, reverse=True):
+                    if record.updated_date <= service.service_date:
+                        installation_status = record.update_reason
+                        installation_distance = record.distance_marker
+                        relevant_history = record
+                        break
+                
+                if i == 0:
+                    # First service - calculate from installation
+                    if installation_status == "Installed":
+                        distance = database_manager.read_sum_distanse_subset_rides(
+                            relevant_history.bike_id,
+                            relevant_history.updated_date,
+                            service.service_date
+                        )
+                        distance += installation_distance
+                    else:
+                        distance = installation_distance
+                else:
+                    # Calculate from previous service
+                    if installation_status == "Installed":
+                        distance = database_manager.read_sum_distanse_subset_rides(
+                            relevant_history.bike_id,
+                            all_services[i-1].service_date,
+                            service.service_date
+                        )
+                        distance += all_services[i-1].distance_marker
+                    else:
+                        distance = installation_distance
+
+                # Update service record with new distance
+                service_data = {
+                    'service_id': service.service_id,
+                    'component_id': component.component_id,
+                    'service_date': service.service_date,
+                    'description': service.description,
+                    'component_name': component.component_name,
+                    'bike_id': relevant_history.bike_id,  # Use bike from relevant history
+                    'distance_marker': distance
+                }
+                
+                success, message = database_manager.write_service_record(service_data)
+                if not success:
+                    return False, f"Error updating service records: {message}", component.component_id
+
+            # Update component and bike status
+            self.update_component_service_status(component)
+            self.update_bike_status(component.bike_id)
             
+            return True, "Service record updated successfully", component.component_id
+
         except Exception as error:
-            return False, str(error), None
-    
+            logging.error(f"Error in update_service_record: {str(error)}")
+            return False, f"Error updating service record: {str(error)}", component.component_id
+
     def create_history_record(self,
                               old_component_name,
                               latest_history_record,
@@ -754,81 +821,9 @@ class BusinessLogic():
             logging.error(f"Creation of history record failed: {message}.")
             return False
 
-    def update_history_record(self, history_id, updated_date, update_reason): #Clean up this code
+    def update_history_record(self, history_id, updated_date, update_reason): ##This must be rewritten
         """Method to update a component history record with validation"""
-        try:
-            # Get the history record
-            history = database_manager.read_history_record(history_id)
-            if not history:
-                return False, "History record not found", None
-
-            component_id = history.component_id
-
-            # Get component and its records
-            component = database_manager.read_component(history.component_id)
-            history_records = list(database_manager.read_subset_component_history(
-                history.component_id))
-            service_records = database_manager.read_subset_service_history(
-                history.component_id)
-                
-            # Find previous and next history records
-            current_index = None
-            for i, record in enumerate(history_records):
-                if record.history_id == history_id:
-                    current_index = i
-                    break
-                    
-            if current_index is not None:
-                # Check previous record if exists
-                if current_index < len(history_records) - 1:
-                    next_record = history_records[current_index + 1]
-                    if updated_date < next_record.updated_date:
-                        return False, f"Update date {updated_date} would conflict with earlier record at {next_record.updated_date}"
-                
-                # Check next record if exists
-                if current_index > 0:
-                    prev_record = history_records[current_index - 1]
-                    if updated_date > prev_record.updated_date:
-                        return False, f"Update date {updated_date} would conflict with later record at {prev_record.updated_date}"
-                
-            # Check conflicts with service records
-            if service_records:
-                for service in service_records:
-                    if service.service_date < history.updated_date and updated_date > service.service_date:
-                        return False, f"Update date {updated_date} would conflict with service record at {service.service_date}"
-                
-            # Calculate new distance marker
-            if current_index is not None and current_index < len(history_records) - 1:
-                prev_record = history_records[current_index + 1]
-                historic_distance = prev_record.distance_marker
-                historic_distance += database_manager.read_sum_distanse_subset_rides(
-                    history.bike_id, prev_record.updated_date, updated_date)
-            else:
-                historic_distance = 0
-                
-            # Update the record
-            updated_data = {
-                'updated_date': updated_date,
-                'update_reason': update_reason,
-                'distance_marker': historic_distance
-            }
-            
-            success, message = database_manager.write_update_history_record(
-                history_id, updated_data)
-                
-            if success:
-                # We need to recalculate all subsequent records since
-                # changing this record's date affects all later distances
-                records_to_update = [r for r in history_records 
-                                if r.updated_date >= updated_date]
-                for record in records_to_update:
-                    self.update_component_distance(component.component_id,
-                        record.distance_marker)
-                
-            return success, message, component_id
-            
-        except Exception as error:
-            return False, str(error)
+        
     
     def compute_component_status(self, mode, reached_distance_percent):
         """Method to compute service status"""        

@@ -165,7 +165,7 @@ async def add_service(component_id: str = Form(...),
 
     return response
 
-@app.post("/update_service_record", response_class=HTMLResponse)
+@app.post("/update_service_record", response_class=HTMLResponse) #This must be rewritten
 async def update_service_record(service_id: str = Form(...),
                               service_date: str = Form(...),
                               service_description: str = Form(...)):
@@ -179,7 +179,7 @@ async def update_service_record(service_id: str = Form(...),
     
     return response
 
-@app.post("/update_history_record", response_class=HTMLResponse)
+@app.post("/update_history_record", response_class=HTMLResponse) #This must be rewritten
 async def update_history_record(history_id: str = Form(...),
                               updated_date: str = Form(...),
                               update_reason: str = Form(...)):

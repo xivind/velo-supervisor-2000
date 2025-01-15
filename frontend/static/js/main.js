@@ -467,66 +467,70 @@ document.addEventListener('DOMContentLoaded', function() {
             previousValue = this.value;
         }
     });
+});
 
-    if (document.querySelector('h1#component-details')) {
-        // Initialize edit modals
-        const editServiceModal = new bootstrap.Modal(document.getElementById('editServiceModal'));
-        const editHistoryModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
-    
-        // Initialize Flatpickr for edit modals
-        const serviceEditDatepicker = flatpickr("#editServiceDate", {
-            dateFormat: "Y-m-d H:i",
-            enableTime: true,
-            time_24hr: true,
-            allowInput: false
+// Function to handle editing of service and history records
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component details page
+    if (document.querySelector('h1#component-details') === null) return;
+
+    // Initialize edit modals
+    const editServiceModal = new bootstrap.Modal(document.getElementById('editServiceModal'));
+    const editHistoryModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
+
+    // Initialize Flatpickr for edit modals
+    const serviceEditDatepicker = flatpickr("#editServiceDate", {
+        dateFormat: "Y-m-d H:i",
+        enableTime: true,
+        time_24hr: true,
+        allowInput: false
+    });
+
+    const historyEditDatepicker = flatpickr("#editUpdatedDate", {
+        dateFormat: "Y-m-d H:i",
+        enableTime: true,
+        time_24hr: true,
+        allowInput: false
+    });
+
+    // Handle service record edit button clicks
+    document.querySelectorAll('.edit-service-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const serviceId = this.dataset.serviceId;
+            const serviceDate = this.dataset.serviceDate;
+            const serviceDescription = this.dataset.serviceDescription;
+
+            document.getElementById('editServiceId').value = serviceId;
+            serviceEditDatepicker.setDate(serviceDate);
+            document.getElementById('editServiceDescription').value = serviceDescription;
+
+            editServiceModal.show();
         });
-    
-        const historyEditDatepicker = flatpickr("#editUpdatedDate", {
-            dateFormat: "Y-m-d H:i",
-            enableTime: true,
-            time_24hr: true,
-            allowInput: false
+    });
+
+    // Handle history record edit button clicks
+    document.querySelectorAll('.edit-history-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const historyId = this.dataset.historyId;
+            const updatedDate = this.dataset.updatedDate;
+            const updateReason = this.dataset.updateReason;
+
+            document.getElementById('editHistoryId').value = historyId;
+            historyEditDatepicker.setDate(updatedDate);
+            document.getElementById('editUpdateReason').value = updateReason;
+
+            editHistoryModal.show();
         });
-    
-        // Handle service record edit button clicks
-        document.querySelectorAll('.edit-service-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const serviceId = this.dataset.serviceId;
-                const serviceDate = this.dataset.serviceDate;
-                const serviceDescription = this.dataset.serviceDescription;
-    
-                document.getElementById('editServiceId').value = serviceId;
-                serviceEditDatepicker.setDate(serviceDate);
-                document.getElementById('editServiceDescription').value = serviceDescription;
-    
-                editServiceModal.show();
-            });
-        });
-    
-        // Handle history record edit button clicks
-        document.querySelectorAll('.edit-history-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const historyId = this.dataset.historyId;
-                const updatedDate = this.dataset.updatedDate;
-                const updateReason = this.dataset.updateReason;
-    
-                document.getElementById('editHistoryId').value = historyId;
-                historyEditDatepicker.setDate(updatedDate);
-                document.getElementById('editUpdateReason').value = updateReason;
-    
-                editHistoryModal.show();
-            });
-        });
-    
-        // Calendar icon click handlers
-        document.getElementById('edit-service-date-picker-toggle').addEventListener('click', () => {
-            serviceEditDatepicker.open();
-        });
-    
-        document.getElementById('edit-history-date-picker-toggle').addEventListener('click', () => {
-            historyEditDatepicker.open();
-        });
-    }
+    });
+
+    // Calendar icon click handlers
+    document.getElementById('edit-service-date-picker-toggle').addEventListener('click', () => {
+        serviceEditDatepicker.open();
+    });
+
+    document.getElementById('edit-history-date-picker-toggle').addEventListener('click', () => {
+        historyEditDatepicker.open();
+    });
 });
 
 // ===== Component types page functions =====

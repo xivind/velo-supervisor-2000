@@ -158,6 +158,13 @@ class DatabaseManager:
                 .order_by(ComponentHistory.updated_date.desc())
                 .first())
     
+    def read_oldest_history_record(self, component_id):
+        """Method to retrieve the oldest record from the installation log of a given component"""
+        return (ComponentHistory
+                .select().where(ComponentHistory.component_id == component_id)
+                .order_by(ComponentHistory.updated_date.asc())
+                .first())
+    
     def read_service_record(self, service_id):
         """Method to retrieve a specific service record"""
         return (Services
@@ -302,17 +309,14 @@ class DatabaseManager:
         """Method to write or update service record to database"""
         try:
             with self.database.atomic():
-                # Check if record exists
                 existing_service = Services.get_or_none(Services.service_id == service_data['service_id'])
                 
                 if existing_service:
-                    # Update existing record
                     Services.update(**service_data).where(
                         Services.service_id == service_data['service_id']
                     ).execute()
                     return True, f"Updated service record for component {service_data['component_name']}"
                 else:
-                    # Create new record
                     Services.create(**service_data)
                     return True, f"Created service record for component {service_data['component_name']}"
 
