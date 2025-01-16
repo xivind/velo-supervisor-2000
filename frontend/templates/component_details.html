@@ -71,9 +71,18 @@
     </div>
     {% if payload.bike_component_data['installation_status'] != "Not installed" %}
         <div class="row">
+            <div class="col-12 mb-2">
+                <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-info btn-sm w-100">
+                    View bike details
+                </a>
+            </div>
+        </div>
+    {% endif %}
+    {% if payload.bike_component_data['installation_status'] != "Not installed" %}
+        <div class="row">
             <div class="col-12">
                 <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-info btn-sm w-100">
-                    View bike details 🔍 
+                    View incident reports
                 </a>
             </div>
         </div>
@@ -87,6 +96,7 @@
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
                     <div class="col-md-7 mb-3">
                         <div class="row align-items-center">
+                            <label for="component_installation_status" class="col-form-label col-auto fw-bold">Status</label>
                             <div class="col-md-4">
                                 <select class="form-select" id="component_installation_status" name="component_installation_status">
                                     <option value="Installed" {% if payload.bike_component_data['installation_status'] == "Installed" %}selected{% endif %}>Installed</option>
@@ -160,10 +170,12 @@
                         <textarea class="form-control" id="component_notes" name="component_notes" rows="3">{% if payload.bike_component_data['component_notes'] %}{{ payload.bike_component_data['component_notes'] }}{% else %}{% endif %}</textarea>
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-outline-primary" form="component_details_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>💾 Update component</button>
-                        <button type="submit" class="btn btn-outline-primary" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>🧑‍🔧  Register service</button>
+                        <button type="submit" class="btn btn-outline-primary" form="component_details_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>🛠 Update status</button>
+                        <button type="submit" class="btn btn-outline-primary" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>🔎 Update details</button>
+                        <button type="submit" class="btn btn-outline-primary" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>🧑‍🔧 New service</button>
                         <button type="submit" class="btn btn-outline-primary" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>♻ Quick swap</button>
-                        <button type="button" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">🗑 Delete component</button>                                
+                        <button type="submit" class="btn btn-outline-primary" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>💥 New incident</button>
+                        <button type="button" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">🗑 Delete</button>                                
                     </div>
                 </form>
             </div>
