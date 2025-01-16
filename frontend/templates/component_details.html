@@ -90,7 +90,7 @@
     </div>
     <div class="col-md-8">
         <div class="card shadow mb-4">
-            <div class="card-header fw-bold">Modify component</div>
+            <div class="card-header fw-bold">Component information</div>
             <div class="card-body">
                 <form id="component_details_form" class="row align-items-center" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
@@ -170,12 +170,20 @@
                         <textarea class="form-control" id="component_notes" name="component_notes" rows="3">{% if payload.bike_component_data['component_notes'] %}{{ payload.bike_component_data['component_notes'] }}{% else %}{% endif %}</textarea>
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-outline-primary" form="component_details_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>🛠 Update status</button>
-                        <button type="submit" class="btn btn-outline-primary" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>🔎 Update details</button>
-                        <button type="submit" class="btn btn-outline-primary" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>🧑‍🔧 New service</button>
-                        <button type="submit" class="btn btn-outline-primary" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>♻ Quick swap</button>
-                        <button type="submit" class="btn btn-outline-primary" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>💥 New incident</button>
-                        <button type="button" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">🗑 Delete</button>                                
+                        <div class="row g-2">
+                            <div class="d-flex justify-content-between mb-2">
+                                <button type="submit" class="btn btn-outline-primary" style="width: 22%;" form="component_details_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>🛠 Update status</button>
+                                <button type="submit" class="btn btn-outline-primary" style="width: 22%;" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>🧑‍🔧 New service</button>
+                                <button type="submit" class="btn btn-outline-primary" style="width: 22%;" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>💥 New incident</button>
+                                <button type="submit" class="btn btn-outline-primary" style="width: 22%;" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>➡ View bike</button>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">  
+                                <button type="submit" class="btn btn-outline-primary" style="width: 22%;" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>🔎 Update details</button>
+                                <button type="submit" class="btn btn-outline-primary" style="width: 22%;" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>♻ Quick swap</button>
+                                <button type="button" class="btn btn-outline-danger delete-record" style="width: 22%;" data-component-id="{{ payload.bike_component_data['component_id'] }}">🗑 Delete</button>
+                                <button type="submit" class="btn btn-outline-primary" style="width: 22%;" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>➡ View incidents</button>
+                            </div>
+                        </div>    
                     </div>
                 </form>
             </div>
