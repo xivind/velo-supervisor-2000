@@ -257,6 +257,7 @@ async def delete_record(record_id: str = Form(...),
         redirect_url = "/component_types_overview"
     if table_selector == "Components":
         redirect_url = "/component_overview"
+    #Add for installation history and service records 
 
     response = RedirectResponse(
         url=f"{redirect_url}?success={success}&message={message}",

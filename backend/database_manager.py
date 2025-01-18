@@ -146,8 +146,8 @@ class DatabaseManager:
                 .where(ComponentHistory.component_id == component_id)
                 .order_by(ComponentHistory.updated_date.desc()))
 
-    def read_history_record(self, history_id):
-        """Method to retrieve record for a specific entry in installation log"""
+    def read_single_history_record(self, history_id):
+        """Method to retrieve record for a specific entry in the installation log"""
         return (ComponentHistory
                 .get_or_none(ComponentHistory.history_id == history_id))
     
@@ -165,7 +165,7 @@ class DatabaseManager:
                 .order_by(ComponentHistory.updated_date.asc())
                 .first())
     
-    def read_service_record(self, service_id):
+    def read_single_service_record(self, service_id):
         """Method to retrieve a specific service record"""
         return (Services
                 .get_or_none(Services.service_id == service_id))
@@ -177,6 +177,11 @@ class DatabaseManager:
                 .where(Services.component_id == component_id)
                 .order_by(Services.service_date.desc()))
 
+    def read_subset_service_record(self, service_id):
+        """Method to retrieve record for a specific entry in the service log"""
+        return (Services
+                .get_or_none(Services.service_id == service_id))
+    
     def read_latest_service_record(self, component_id):
         """Method to retrieve the most recent record from the service log of a given component"""
         return (Services
@@ -384,6 +389,19 @@ class DatabaseManager:
                         history_deleted = ComponentHistory.delete().where(ComponentHistory.component_id == record_id).execute()
                         record.delete_instance()
                         return True, f"Deleted component: {record.component_name}, related records deleted: {services_deleted} service(s), {history_deleted} history record(s)"
+                
+                elif table_selector == "Services":
+                    record = self.read_single_service_record(record_id)
+                    if record:
+                        record.delete_instance()
+                        return True, f"Deleted service record: {record_id}."
+                
+                elif table_selector == "ComponentHistory":
+                    record = self.read_single_history_record(record_id)
+                    if record:
+                        record.delete_instance()
+                        return True, f"Deleted installtion history record: {record_id}."
+
                 else:
                     return False, "Invalid table selector"
 

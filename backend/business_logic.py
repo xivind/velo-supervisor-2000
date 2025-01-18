@@ -12,6 +12,8 @@ from utils import (read_config,
                    get_component_statistics)
 from strava import Strava
 from database_manager import DatabaseManager
+from icecream import ic #remove before prod
+import traceback #remove before prod
 
 # Load configuration
 CONFIG = read_config()
@@ -636,8 +638,10 @@ class BusinessLogic():
         service_data.update({"distance_marker": distance_since_service})
 
         success, message = database_manager.write_service_record(service_data)
+        
         self.update_component_service_status(component_data)
-        self.update_bike_status(component_data.bike_id)
+        if component_data.installation_status == "Installed":
+            self.update_bike_status(component_data.bike_id)
 
         if success:
             logging.info(f"Creation of service record successful: {message}.")
@@ -646,11 +650,11 @@ class BusinessLogic():
 
         return success, message
     
-    def update_service_record(self, service_id, service_date, service_description): #Remember log-statetements
+    def update_service_record(self, service_id, service_date, service_description): #Remember log-statetements, also must not save when somehting fails
         """Method to update a service record"""
         try:
             # Get current service and component info
-            current_service = database_manager.read_service_record(service_id)
+            current_service = database_manager.read_single_service_record(service_id)
             if not current_service:
                 return False, "Service record not found", None
 
@@ -684,66 +688,58 @@ class BusinessLogic():
                 'service_id': service_id,
                 'component_id': component.component_id,
                 'component_name': component.component_name,
-                'bike_id': component.bike_id,
+                'bike_id': current_service.bike_id,
                 'service_date': service_date,
-                'description': service_description
-            }
+                'distance_marker': current_service.distance_marker, #Probably not right
+                'description': service_description} 
 
-            # Remove current service from list and add updated service
-            all_services = [service for service in all_services if service.service_id != service_id]
-            all_services.append(type('NewService', (), current_service_data)())
+            # Remove current service from list and add the updated service
+            all_services = [service for service in all_services if service.service_id != service_id] #Consider to move parts of this into separate function
+            all_services.append(type('UpdatedService', (), current_service_data)())
             
-            # Sort all services chronologically
+            # Sort all services chronologically, oldest first
             all_services.sort(key=lambda x: x.service_date)
             
-            # Process each service to update distances #WE ARE HERE NOW
-            for i, service in enumerate(all_services):
+            # Process each service to update distances
+            for index, service in enumerate(all_services):
                 # Find installation status at service date
-                installation_status = None
-                installation_distance = 0
-                relevant_history = None
                 
                 # Find the relevant installation record for this service date
-                for record in sorted(history_records, key=lambda x: x.updated_date, reverse=True):
+                for record in history_records:
                     if record.updated_date <= service.service_date:
-                        installation_status = record.update_reason
-                        installation_distance = record.distance_marker
-                        relevant_history = record
+                        relevant_history_record = record
                         break
                 
-                if i == 0:
-                    # First service - calculate from installation
-                    if installation_status == "Installed":
-                        distance = database_manager.read_sum_distanse_subset_rides(
-                            relevant_history.bike_id,
-                            relevant_history.updated_date,
-                            service.service_date
-                        )
-                        distance += installation_distance
+                # Process first service
+                if index == 0:
+                    if relevant_history_record.update_reason == "Installed":
+                        new_service_distance = relevant_history_record.distance_marker
+                        new_service_distance += database_manager.read_sum_distanse_subset_rides(
+                            relevant_history_record.bike_id,
+                            relevant_history_record.updated_date,
+                            service.service_date)
                     else:
-                        distance = installation_distance
+                        new_service_distance = relevant_history_record.distance_marker
+                        # Handle bike id when not installed, maybe fixed?
                 else:
-                    # Calculate from previous service
-                    if installation_status == "Installed":
-                        distance = database_manager.read_sum_distanse_subset_rides(
-                            relevant_history.bike_id,
-                            all_services[i-1].service_date,
-                            service.service_date
-                        )
-                        distance += all_services[i-1].distance_marker
+                    # Process all other services
+                    if relevant_history_record.update_reason == "Installed":
+                        new_service_distance = database_manager.read_sum_distanse_subset_rides(
+                            relevant_history_record.bike_id,
+                            all_services[index-1].service_date,
+                            service.service_date)
                     else:
-                        distance = installation_distance
+                        new_service_distance = relevant_history_record.distance_marker - all_services[index-1].distance_marker #There is something wrong here
 
-                # Update service record with new distance
+                # Update service records with new distance
                 service_data = {
                     'service_id': service.service_id,
                     'component_id': component.component_id,
                     'service_date': service.service_date,
                     'description': service.description,
                     'component_name': component.component_name,
-                    'bike_id': relevant_history.bike_id,  # Use bike from relevant history
-                    'distance_marker': distance
-                }
+                    'bike_id': relevant_history_record.bike_id,  #But not if relevant_history_records says other than installed
+                    'distance_marker': new_service_distance}
                 
                 success, message = database_manager.write_service_record(service_data)
                 if not success:
@@ -751,11 +747,13 @@ class BusinessLogic():
 
             # Update component and bike status
             self.update_component_service_status(component)
-            self.update_bike_status(component.bike_id)
+            if component.installation_status == "Installed":
+                self.update_bike_status(component.bike_id)
             
-            return True, "Service record updated successfully", component.component_id
+            return True, message, component.component_id
 
         except Exception as error:
+            traceback.print_exc()
             logging.error(f"Error in update_service_record: {str(error)}")
             return False, f"Error updating service record: {str(error)}", component.component_id
 
