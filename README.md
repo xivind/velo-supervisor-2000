@@ -29,7 +29,7 @@ Velo Supervisor 2000 uses <a href="https://semver.org/" class="text-decoration-n
 - `git tag -a vX.Y.Z -m "Version X.Y.Z"`
 - `git push --tags`
 
-As a principle, development is to be done in dev-branches and will be merged into the master branch as needed. Review the changes in the PR and create a new version tag accordingly before merging.
+As a principle, development is to be done in the dev-branch. When changes are ready for testing and quality assurance, they should be merged into the staging branch. If tests and quality assurance completes successfully, the changes shall be merged into the master branch. Review the changes in the PR and create a new version tag, according to the SemVer scheme, before merging into master.
 
 ## Changelog
 
