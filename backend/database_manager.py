@@ -320,10 +320,10 @@ class DatabaseManager:
                     Services.update(**service_data).where(
                         Services.service_id == service_data['service_id']
                     ).execute()
-                    return True, f"Updated service record for component {service_data['component_name']}"
+                    return True, f"Updated service record for component {service_data['component_name']}."
                 else:
                     Services.create(**service_data)
-                    return True, f"Created service record for component {service_data['component_name']}"
+                    return True, f"Created service record for component {service_data['component_name']}."
 
         except peewee.OperationalError as error:
             return False, f"{service_data['component_name']}: {str(error)}"
@@ -347,7 +347,7 @@ class DatabaseManager:
                                         update_reason = updated_component_installation_status,
                                         distance_marker = historic_distance)
 
-            return True, f'{old_component_name}'
+            return True, f'{old_component_name}.'
         
         except peewee.OperationalError as error:
             return False, f"{old_component_name}: {str(error)}"
@@ -400,7 +400,7 @@ class DatabaseManager:
                     record = self.read_single_history_record(record_id)
                     if record:
                         record.delete_instance()
-                        return True, f"Deleted installtion history record: {record_id}."
+                        return True, f"Deleted installation history record: {record_id}."
 
                 else:
                     return False, "Invalid table selector"

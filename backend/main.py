@@ -193,7 +193,7 @@ async def update_history_record(history_id: str = Form(...),
     
     return response
 
-@app.post("/component_modify", response_class=HTMLResponse)
+@app.post("/component_modify", response_class=HTMLResponse) #This must be rewritten, way too big. Split into two endpoints, for creating and updating
 async def component_modify(component_id: Optional[str] = Form(None),
                            component_installation_status: str = Form(...),
                            component_updated_date: str = Form(...),
@@ -249,7 +249,7 @@ async def delete_record(record_id: str = Form(...),
                         table_selector: str = Form(...)):
     """Endpoint to delete records"""
 
-    success, message = business_logic.delete_record(table_selector, record_id)
+    success, message, component_id = business_logic.delete_record(table_selector, record_id)
 
     redirect_url = "/"
 
@@ -257,7 +257,8 @@ async def delete_record(record_id: str = Form(...),
         redirect_url = "/component_types_overview"
     if table_selector == "Components":
         redirect_url = "/component_overview"
-    #Add for installation history and service records 
+    if table_selector == "Services" or table_selector == "ComponentHistory":
+        redirect_url = f"/component_details/{component_id}"
 
     response = RedirectResponse(
         url=f"{redirect_url}?success={success}&message={message}",
