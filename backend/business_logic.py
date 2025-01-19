@@ -399,7 +399,7 @@ class BusinessLogic():
                     elif latest_service_record.service_date < component.updated_date:
                         logging.info(f'Component {component.component_name} has no services after uninstall, but a previous service exist. Using already calculated distance to next service.')
                         distance_since_service = component.service_interval + component.service_next*-1
-                        ic(distance_since_service) #DEBUG
+                        ic(distance_since_service) #DEBUG, there is something wrong with this logic
 
             service_next = component.service_interval - distance_since_service
             service_status = self.compute_component_status("service",
