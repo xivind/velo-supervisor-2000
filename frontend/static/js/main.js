@@ -178,9 +178,26 @@ document.addEventListener('DOMContentLoaded', function() {
             event.stopPropagation();
             
             // Get record details
-            const recordId = button.dataset.componentType || button.dataset.componentId;
-            const tableSelector = button.dataset.componentType ? 'ComponentTypes' : 'Components';
-            const recordType = tableSelector === 'ComponentTypes' ? 'component type' : 'component';
+            const recordId = button.dataset.componentType || 
+                           button.dataset.componentId || 
+                           button.dataset.serviceId || 
+                           button.dataset.historyId;
+
+            let tableSelector, recordType;
+            
+            if (button.dataset.componentType) {
+                tableSelector = 'ComponentTypes';
+                recordType = 'component type';
+            } else if (button.dataset.componentId) {
+                tableSelector = 'Components';
+                recordType = 'component';
+            } else if (button.dataset.serviceId) {
+                tableSelector = 'Services';
+                recordType = 'service record';
+            } else if (button.dataset.historyId) {
+                tableSelector = 'ComponentHistory';
+                recordType = 'history record';
+            }
             
             // Set up the modal
             const modalBody = document.getElementById('confirmModalBody');
