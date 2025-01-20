@@ -165,13 +165,16 @@ async def add_service(component_id: str = Form(...),
 
     return response
 
-@app.post("/update_service_record", response_class=HTMLResponse) #This must be rewritten, why?
-async def update_service_record(service_id: str = Form(...),
-                              service_date: str = Form(...),
-                              service_description: str = Form(...)):
+@app.post("/update_service_record", response_class=HTMLResponse)
+async def update_service_record(component_id: str = Form(...),
+                                service_id: str = Form(...),
+                                service_date: str = Form(...),
+                                service_description: str = Form(...)):
     """Endpoint to update an existing service record"""
-    success, message, component_id = business_logic.update_service_record(
-        service_id, service_date, service_description)
+    success, message = business_logic.update_service_record(component_id,
+                                                            service_id,
+                                                            service_date,
+                                                            service_description)
     
     response = RedirectResponse(
         url=f"/component_details/{component_id}?success={success}&message={message}",

@@ -593,174 +593,181 @@ class BusinessLogic():
                     service_date,
                     service_description):
         """Method to add service record"""
-        component_data = database_manager.read_component(component_id)
+        
+        #Includre try block
         service_id = generate_unique_id()
+
+        success, message = self.validate_service_record("create service", component_id, service_id, service_date)
+        if not success:
+            logging.error(f"Validation of service record failed: {message}")
+            return success, message
 
         service_data = {"service_id": service_id,
                         "component_id": component_id,
+                        "component_name": "",
                         "service_date": service_date,
                         "description": service_description,
-                        "component_name": component_data.component_name,
-                        "bike_id": component_data.bike_id}
+                        'bike_id': "",
+                        'distance_marker': 0}
         
-        latest_service_record = database_manager.read_latest_service_record(component_id)
-        latest_history_record = database_manager.read_latest_history_record(component_id)
-
-        if latest_history_record and service_date < latest_history_record.updated_date:
-            message = f"Service date {service_date} is before the latest history record for component {component_data.component_name}. Services must be entered chronologically."
-            logging.warning(message)
-            return False, message
-
-        elif latest_service_record and service_date < latest_service_record.service_date:
-            message = f"Service date {service_date} is before the latest service record for component {component_id}. Services must be entered chronologically."
-            logging.warning(message)
-            return False, message
-
-        if component_data.installation_status == "Installed":
-            if latest_service_record is None:
-                logging.info(f'No service record found for component {component_data.component_name}. Using distance from installation log and querying distance from installation date to service date.')
-                distance_since_service = latest_history_record.distance_marker
-                distance_since_service += database_manager.read_sum_distanse_subset_rides(component_data.bike_id, latest_history_record.updated_date, service_date)
-
-            elif latest_service_record:
-                logging.info(f'Service record found for component {component_data.component_name}. Querying distance from previous service date to current service date.')
-                distance_since_service = database_manager.read_sum_distanse_subset_rides(component_data.bike_id, latest_service_record.service_date, service_date)
-
-        elif component_data.installation_status != "Installed":
-            if latest_service_record is None:
-                logging.info(f'Component {component_data.component_name} has been uninstalled and there are no previous services. Setting historic distance since service to distance at the time of uninstallation.')
-                distance_since_service = latest_history_record.distance_marker
-
-            elif latest_service_record:
-                if latest_service_record.service_date > component_data.updated_date:
-                    logging.info(f'Component {component_data.component_name} has been serviced after uninstall. Setting distance since service to 0.')
-                    distance_since_service = 0
-
-        service_data.update({"distance_marker": distance_since_service})
-
         success, message = database_manager.write_service_record(service_data)
+        if not success:
+            logging.error(f"Error creating service record: {message}")
+            return False, message
         
-        self.update_component_service_status(component_data)
-        if component_data.installation_status == "Installed":
-            self.update_bike_status(component_data.bike_id)
-
+        success, message = self.process_service_records(component_id, service_id, service_date, service_description)
+        if not success:
+            logging.error(f"Error processing service record: {message}")
+            return False, message
+        
         if success:
             logging.info(f"Creation of service record successful: {message}")
         else:
             logging.error(f"Creation of service record failed: {message}")
+            return False, message
 
         return success, message
     
-    def update_service_record(self, service_id, service_date, service_description):
+    def update_service_record(self,
+                              component_id,
+                              service_id,
+                              service_date,
+                              service_description):
         """Method to update a service record"""
         try:
-            current_service = database_manager.read_single_service_record(service_id)
-            if not current_service:
-                logging.warning(f"Service record not found: {service_id}")
-                return False, "Service record not found", None
-
-            component = database_manager.read_component(current_service.component_id)
-            if not component:
-                logging.warning(f"Associated component not found: {current_service.component_id}")
-                return False, "Associated component not found", None
-
-            history_records = database_manager.read_subset_component_history(component.component_id)
-            if not history_records:
-                logging.warning(f"No installation records found for component: {component.component_id}")
-                return False, "No installation records found", component.component_id
-
-            oldest_history_record_date = database_manager.read_oldest_history_record(component.component_id).updated_date
+            success, message = self.validate_service_record("edit service", component_id, service_id, service_date)
+            if not success:
+                logging.error(f"Validation of service record failed: {message}")
+                return False, message
             
-            if service_date < oldest_history_record_date:
-                logging.warning(f"Service date cannot be before before component creation date: {oldest_history_record_date}. Component: {component.component_id}")
-                return False, f"Service date cannot be before before component creation date ({oldest_history_record_date})", component.component_id
-
-            if service_date > datetime.now().strftime("%Y-%m-%d %H:%M"):
-                logging.warning(f"Service date cannot be in the future. Component: {component.component_id}")
-                return False, "Service date cannot be in the future", component.component_id
-
-            all_services = list(database_manager.read_subset_service_history(component.component_id))
+            success, message = self.process_service_records(component_id, service_id, service_date, service_description)
+            if not success:
+                logging.error(f"Error processing service record: {message}")
+                return False, message
             
-            current_service_data = {
-                'service_id': service_id,
+            if success:
+                logging.info(f"Update of service record successful: {message}")
+            else:
+                logging.error(f"Update of service record failed: {message}")
+                return False, message
+
+            return success, message
+
+        except Exception as error:
+            logging.error(f"An error occured updating services for component {component.component_name} with component id {component.component_id}: {str(error)}")
+            return False, f"Error updating service records for {component_id}: {str(error)}"
+
+    def validate_service_record(self, mode, component_id, service_id, service_date):
+        """Method to validate service records before processing and storing in database"""
+
+        current_service = database_manager.read_single_service_record(service_id)
+        if mode == "edit service" and not current_service:
+            logging.warning(f"Service record not found: {service_id}")
+            return False, f"Service record not found: {service_id}"
+
+        component = database_manager.read_component(component_id)
+        if not component:
+            logging.warning(f"Associated component not found: {component_id}")
+            return False, f"Associated component not found: {component_id}"
+
+        history_records = database_manager.read_subset_component_history(component.component_id)
+        if not history_records:
+            logging.warning(f"No installation records found for component: {component.component_id}")
+            return False, f"No installation records found: {component_id}"
+
+        oldest_history_record_date = database_manager.read_oldest_history_record(component.component_id).updated_date
+        
+        if service_date < oldest_history_record_date:
+            logging.warning(f"Service date cannot be before before component creation date: {oldest_history_record_date}. Component: {component.component_id}")
+            return False, f"Service date cannot be before before component creation date ({oldest_history_record_date} for {component.component_id})"
+
+        if service_date > datetime.now().strftime("%Y-%m-%d %H:%M"):
+            logging.warning(f"Service date cannot be in the future. Component: {component.component_id}")
+            return False, f"Service date cannot be in the future. Component id: {component.component_id}"
+        
+        return True, "Validation of component passed"
+    
+    def process_service_records(self, component_id, service_id, service_date, service_description):
+        """Method to calculate distance and bike id for service records"""
+
+        component = database_manager.read_component(component_id)
+        current_service_data = {'service_id': service_id,
+                                'component_id': component_id,
+                                'component_name': component.component_name,
+                                'service_date': service_date,
+                                'description': service_description} 
+            
+        all_services = list(database_manager.read_subset_service_history(component.component_id))
+        history_records = database_manager.read_subset_component_history(component.component_id)
+
+        logging.info(f"Consolodating and sorting all services for component {component.component_name}")
+        all_services = [service for service in all_services if service.service_id != service_id]
+        all_services.append(type('Service', (), current_service_data)())
+        all_services.sort(key=lambda x: x.service_date)
+        
+        logging.info(f"Iterating over all services for component {component.component_name} to update distance markers and bike ids")
+        for index, service in enumerate(all_services):
+            for record in history_records:
+                if record.updated_date <= service.service_date:
+                    relevant_history_record = record
+                    logging.info(f"Defining history record for service {service.service_id} dated {service.service_date} is history record {relevant_history_record.history_id} dated {relevant_history_record.updated_date}")
+                    break
+            
+            if index == 0:
+                logging.info(f"Processing first service record {service.service_id} dated {service.service_date}")
+                if relevant_history_record.update_reason == "Installed":
+                    new_service_distance = relevant_history_record.distance_marker
+                    new_service_distance += database_manager.read_sum_distanse_subset_rides(
+                        relevant_history_record.bike_id,
+                        relevant_history_record.updated_date,
+                        service.service_date)
+                    logging.info(f"First service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
+                else:
+                    new_service_distance = relevant_history_record.distance_marker
+                    logging.info(f"First service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
+            else:
+                logging.info(f"Processing subsequent service record {service.service_id} dated {service.service_date}")
+                if relevant_history_record.update_reason == "Installed":
+                    new_service_distance = database_manager.read_sum_distanse_subset_rides(
+                        relevant_history_record.bike_id,
+                        all_services[index-1].service_date,
+                        service.service_date)
+                    logging.info(f"Subsequent service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
+                else:
+                    new_service_distance = database_manager.read_sum_distanse_subset_rides(
+                        relevant_history_record.bike_id,
+                        all_services[index-1].service_date,
+                        relevant_history_record.updated_date)
+                    logging.info(f"Subsequent service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
+
+            if relevant_history_record.update_reason == "Installed":
+                new_bike_id = relevant_history_record.bike_id
+                logging.info(f"Service record {service.service_id} is now associated with bike {database_manager.read_single_bike(new_bike_id)}")
+            else:
+                new_bike_id = None
+                logging.info(f"Service record {service.service_id} is not associated with any bike")
+            
+            service_data = {
+                'service_id': service.service_id,
                 'component_id': component.component_id,
                 'component_name': component.component_name,
-                'service_date': service_date,
-                'description': service_description} 
-
-            logging.info(f"Consolodating and sorting all services for component {component.component_name}")
-            all_services = [service for service in all_services if service.service_id != service_id]
-            all_services.append(type('UpdatedService', (), current_service_data)())
-            all_services.sort(key=lambda x: x.service_date)
+                'service_date': service.service_date,
+                'description': service.description,
+                'bike_id': new_bike_id,
+                'distance_marker': new_service_distance}
             
-            logging.info(f"Iterating over all services for component {component.component_name} to update distance markers and bike ids")
-            for index, service in enumerate(all_services):
-                for record in history_records:
-                    if record.updated_date <= service.service_date:
-                        relevant_history_record = record
-                        logging.info(f"Defining history record for service {service.service_id} dated {service.service_date} is history record {relevant_history_record.history_id} dated {relevant_history_record.updated_date}")
-                        break
-                
-                if index == 0:
-                    logging.info(f"Processing first service record {service.service_id} dated {service.service_date}")
-                    if relevant_history_record.update_reason == "Installed":
-                        new_service_distance = relevant_history_record.distance_marker
-                        new_service_distance += database_manager.read_sum_distanse_subset_rides(
-                            relevant_history_record.bike_id,
-                            relevant_history_record.updated_date,
-                            service.service_date)
-                        logging.info(f"First service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
-                    else:
-                        new_service_distance = relevant_history_record.distance_marker
-                        logging.info(f"First service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
-                else:
-                    logging.info(f"Processing subsequent service record {service.service_id} dated {service.service_date}")
-                    if relevant_history_record.update_reason == "Installed":
-                        new_service_distance = database_manager.read_sum_distanse_subset_rides(
-                            relevant_history_record.bike_id,
-                            all_services[index-1].service_date,
-                            service.service_date)
-                        logging.info(f"Subsequent service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
-                    else:
-                        new_service_distance = database_manager.read_sum_distanse_subset_rides(
-                            relevant_history_record.bike_id,
-                            all_services[index-1].service_date,
-                            relevant_history_record.updated_date)
-                        logging.info(f"Subsequent service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
-
-                if relevant_history_record.update_reason == "Installed":
-                    new_bike_id = relevant_history_record.bike_id
-                    logging.info(f"Service record {service.service_id} is now associated with bike {database_manager.read_single_bike(new_bike_id)}")
-                else:
-                    new_bike_id = None
-                    logging.info(f"Service record {service.service_id} is not associated with any bike")
-                
-                service_data = {
-                    'service_id': service.service_id,
-                    'component_id': component.component_id,
-                    'component_name': component.component_name,
-                    'service_date': service.service_date,
-                    'description': service.description,
-                    'bike_id': new_bike_id,
-                    'distance_marker': new_service_distance}
-                
-                success, message = database_manager.write_service_record(service_data)
-
-                if not success:
-                    logging.error(f"Error updating service records for {component.component_name}: {message}")
-                    return False, f"Error updating service records: {message}", component.component_id
+            success, message = database_manager.write_service_record(service_data)
+            if not success:
+                logging.error(f"Error updating service records for {component.component_name}: {message}")
+                return False, f"Error updating service records: {message}"
 
             logging.info(f"Service records for component {component.component_name} successfully updated")
             self.update_component_service_status(component)
             if component.installation_status == "Installed":
                 self.update_bike_status(component.bike_id)
             
-            return True, message, component.component_id
-
-        except Exception as error:
-            logging.error(f"An error occured updating services for component {component.component_name} with component id {component.component_id}: {str(error)}")
-            return False, f"Error updating service records for {component.component_name}: {str(error)}", component.component_id
-
+            return True, message
+    
     def create_history_record(self,
                               old_component_name,
                               latest_history_record,
