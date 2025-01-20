@@ -626,7 +626,7 @@ class BusinessLogic():
             logging.error(f"Creation of service record failed: {message}")
             return False, message
 
-        return success, message
+        return True, message
     
     def update_service_record(self,
                               component_id,
@@ -651,7 +651,7 @@ class BusinessLogic():
                 logging.error(f"Update of service record failed: {message}")
                 return False, message
 
-            return success, message
+            return True, message
 
         except Exception as error:
             logging.error(f"An error occured updating services for component {component.component_name} with component id {component.component_id}: {str(error)}")
@@ -685,7 +685,8 @@ class BusinessLogic():
             logging.warning(f"Service date cannot be in the future. Component: {component.component_id}")
             return False, f"Service date cannot be in the future. Component id: {component.component_id}"
         
-        return True, "Validation of component passed"
+        logging.info(f"Validation of component passed") #add name, also review above
+        return True, f"Validation of component passed"
     
     def process_service_records(self, component_id, service_id, service_date, service_description):
         """Method to calculate distance and bike id for service records"""
@@ -761,12 +762,12 @@ class BusinessLogic():
                 logging.error(f"Error updating service records for {component.component_name}: {message}")
                 return False, f"Error updating service records: {message}"
 
-            logging.info(f"Service records for component {component.component_name} successfully updated")
-            self.update_component_service_status(component)
-            if component.installation_status == "Installed":
-                self.update_bike_status(component.bike_id)
+        logging.info(f"Service records for component {component.component_name} successfully updated")
+        self.update_component_service_status(component)
+        if component.installation_status == "Installed":
+            self.update_bike_status(component.bike_id)
             
-            return True, message
+        return True, "All service records successfully processed"  #Review the consistency and logic of these statements, check if succes can be return or hardcode, consider try blocks
     
     def create_history_record(self,
                               old_component_name,

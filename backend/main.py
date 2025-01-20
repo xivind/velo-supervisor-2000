@@ -166,7 +166,7 @@ async def add_service(component_id: str = Form(...),
     return response
 
 @app.post("/update_service_record", response_class=HTMLResponse)
-async def update_service_record(component_id: str = Form(...),
+async def update_service_record(component_id: str = Form(...),#Currentlt not being sent
                                 service_id: str = Form(...),
                                 service_date: str = Form(...),
                                 service_description: str = Form(...)):
