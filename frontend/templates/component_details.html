@@ -194,7 +194,7 @@
     <div class="card shadow mt-3 mb-4">
         <div class="card-header fw-bold">Add service</div>
         <div class="card-body">
-            <form id="service_form" class="row" action="/add_service" method="post" enctype="application/x-www-form-urlencoded">
+            <form id="service_form" class="row" action="/add_service_record" method="post" enctype="application/x-www-form-urlencoded">
                 <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
                 <div class="col-md-3 mb-3">
                     <label for="service_date" class="form-label fw-bold">Service date</label>
@@ -242,7 +242,8 @@
                                 <button class="mb-1 btn btn-outline-success btn-sm edit-service-btn"
                                         data-service-id="{{ service_id }}"
                                         data-service-date="{{ service_date }}"
-                                        data-service-description="{{ description }}">
+                                        data-service-description="{{ description }}"
+                                        data-component-id="{{ payload.bike_component_data['component_id'] }}">
                                         ✍
                                 </button>
                                 <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"

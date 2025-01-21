@@ -513,10 +513,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle service record edit button clicks
     document.querySelectorAll('.edit-service-btn').forEach(button => {
         button.addEventListener('click', function() {
+            const componentId = this.dataset.componentId;
             const serviceId = this.dataset.serviceId;
             const serviceDate = this.dataset.serviceDate;
             const serviceDescription = this.dataset.serviceDescription;
 
+            document.getElementById('editComponentId').value = componentId;
             document.getElementById('editServiceId').value = serviceId;
             serviceEditDatepicker.setDate(serviceDate);
             document.getElementById('editServiceDescription').value = serviceDescription;

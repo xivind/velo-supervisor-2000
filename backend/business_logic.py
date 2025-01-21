@@ -593,40 +593,43 @@ class BusinessLogic():
                     service_date,
                     service_description):
         """Method to add service record"""
-        
-        #Includre try block
-        service_id = generate_unique_id()
+        try:
+            service_id = generate_unique_id()
 
-        success, message = self.validate_service_record("create service", component_id, service_id, service_date)
-        if not success:
-            logging.error(f"Validation of service record failed: {message}")
+            success, message = self.validate_service_record("create service", component_id, service_id, service_date)
+            if not success:
+                logging.error(f"Validation of service record failed: {message}")
+                return success, message
+
+            service_data = {"service_id": service_id,
+                            "component_id": component_id,
+                            "component_name": "",
+                            "service_date": service_date,
+                            "description": service_description,
+                            'bike_id': "",
+                            'distance_marker': 0}
+            
+            success, message = database_manager.write_service_record(service_data)
+            if not success:
+                logging.error(f"Error creating service record: {message}")
+                return success, message
+            
+            success, message = self.process_service_records(component_id, service_id, service_date, service_description)
+            if not success:
+                logging.error(f"Error processing service record: {message}")
+                return success, message
+            
+            if success:
+                logging.info(f"Creation of service record successful: {message}")
+            else:
+                logging.error(f"Creation of service record failed: {message}")
+                return success, message
+
             return success, message
 
-        service_data = {"service_id": service_id,
-                        "component_id": component_id,
-                        "component_name": "",
-                        "service_date": service_date,
-                        "description": service_description,
-                        'bike_id': "",
-                        'distance_marker': 0}
-        
-        success, message = database_manager.write_service_record(service_data)
-        if not success:
-            logging.error(f"Error creating service record: {message}")
-            return False, message
-        
-        success, message = self.process_service_records(component_id, service_id, service_date, service_description)
-        if not success:
-            logging.error(f"Error processing service record: {message}")
-            return False, message
-        
-        if success:
-            logging.info(f"Creation of service record successful: {message}")
-        else:
-            logging.error(f"Creation of service record failed: {message}")
-            return False, message
-
-        return True, message
+        except Exception as error:
+            logging.error(f"An error occured creating services for component with id {component_id}: {str(error)}")
+            return False, f"Error creating service records for {component_id}: {str(error)}"
     
     def update_service_record(self,
                               component_id,
@@ -638,23 +641,23 @@ class BusinessLogic():
             success, message = self.validate_service_record("edit service", component_id, service_id, service_date)
             if not success:
                 logging.error(f"Validation of service record failed: {message}")
-                return False, message
+                return success, message
             
             success, message = self.process_service_records(component_id, service_id, service_date, service_description)
             if not success:
                 logging.error(f"Error processing service record: {message}")
-                return False, message
+                return success, message
             
             if success:
                 logging.info(f"Update of service record successful: {message}")
             else:
                 logging.error(f"Update of service record failed: {message}")
-                return False, message
+                return success, message
 
-            return True, message
+            return success, message
 
         except Exception as error:
-            logging.error(f"An error occured updating services for component {component.component_name} with component id {component.component_id}: {str(error)}")
+            logging.error(f"An error occured updating services for component {component.component_name} with id {component.component_id}: {str(error)}")
             return False, f"Error updating service records for {component_id}: {str(error)}"
 
     def validate_service_record(self, mode, component_id, service_id, service_date):
@@ -685,8 +688,8 @@ class BusinessLogic():
             logging.warning(f"Service date cannot be in the future. Component: {component.component_id}")
             return False, f"Service date cannot be in the future. Component id: {component.component_id}"
         
-        logging.info(f"Validation of component passed") #add name, also review above
-        return True, f"Validation of component passed"
+        logging.info(f"Validation of component passed: {component.component_name}")
+        return True, f"Validation of component passed: {component.component_name}"
     
     def process_service_records(self, component_id, service_id, service_date, service_description):
         """Method to calculate distance and bike id for service records"""
@@ -760,14 +763,14 @@ class BusinessLogic():
             success, message = database_manager.write_service_record(service_data)
             if not success:
                 logging.error(f"Error updating service records for {component.component_name}: {message}")
-                return False, f"Error updating service records: {message}"
+                return success, f"Error updating service records: {message}"
 
         logging.info(f"Service records for component {component.component_name} successfully updated")
         self.update_component_service_status(component)
         if component.installation_status == "Installed":
             self.update_bike_status(component.bike_id)
             
-        return True, "All service records successfully processed"  #Review the consistency and logic of these statements, check if succes can be return or hardcode, consider try blocks
+        return True, "All service records successfully processed"
     
     def create_history_record(self,
                               old_component_name,
@@ -826,10 +829,10 @@ class BusinessLogic():
 
         if success:
             logging.info(f"Creation of history record successful: {message}")
-            return True
+            return success
         else:
             logging.error(f"Creation of history record failed: {message}")
-            return False
+            return success
 
     def update_history_record(self, history_id, updated_date, update_reason): ##This must be rewritten
         """Method to update a component history record with validation"""
