@@ -688,8 +688,8 @@ class BusinessLogic():
             logging.warning(f"Service date cannot be in the future. Component: {component.component_id}")
             return False, f"Service date cannot be in the future. Component id: {component.component_id}"
         
-        logging.info(f"Validation of component passed: {component.component_name}")
-        return True, f"Validation of component passed: {component.component_name}"
+        logging.info(f"Validation of service record for {component.component_name} passed")
+        return True, f"Validation of service record for {component.component_name} passed"
     
     def process_service_records(self, component_id, service_id, service_date, service_description):
         """Method to calculate distance and bike id for service records"""
