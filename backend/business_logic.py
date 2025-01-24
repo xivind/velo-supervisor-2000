@@ -657,7 +657,7 @@ class BusinessLogic():
             return success, message
 
         except Exception as error:
-            logging.error(f"An error occured updating services for component {component.component_name} with id {component.component_id}: {str(error)}")
+            logging.error(f"An error occured updating services for component with id {component_id}: {str(error)}")
             return False, f"Error updating service records for {component_id}: {str(error)}"
 
     def validate_service_record(self, mode, component_id, service_id, service_date):
