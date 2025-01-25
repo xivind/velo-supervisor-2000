@@ -12,8 +12,8 @@ from utils import (read_config,
                    get_component_statistics)
 from strava import Strava
 from database_manager import DatabaseManager
-from icecream import ic #remove before prod
-import traceback #remove before prod
+#from icecream import ic #remove before prod
+#import traceback #remove before prod
 
 # Load configuration
 CONFIG = read_config()
@@ -392,14 +392,14 @@ class BusinessLogic():
                     distance_since_service = latest_history_record.distance_marker
                 
                 elif latest_service_record:
-                    if latest_service_record.service_date > component.updated_date:
-                        logging.info(f'Component {component.component_name} has been serviced after uninstall. Setting distance since service to 0.')
+                    if latest_service_record.service_date >= component.updated_date:
+                        logging.info(f'Component {component.component_name} has been serviced after or at uninstall. Setting distance since service to 0.')
                         distance_since_service = 0
                 
-                    elif latest_service_record.service_date < component.updated_date:
-                        logging.info(f'Component {component.component_name} has no services after uninstall, but a previous service exist. Using already calculated distance to next service.')
-                        distance_since_service = component.service_interval + component.service_next*-1
-                        ic(distance_since_service) #DEBUG, there is something wrong with this logic
+                    else:
+                        logging.info(f'Component {component.component_name} was serviced before uninstall. Calculating distance from service to uninstall.')
+                        matching_rides = database_manager.read_matching_rides(latest_service_record.bike_id, latest_service_record.service_date)
+                        distance_since_service = sum(ride.ride_distance for ride in matching_rides if ride.record_time <= component.updated_date)
 
             service_next = component.service_interval - distance_since_service
             service_status = self.compute_component_status("service",
