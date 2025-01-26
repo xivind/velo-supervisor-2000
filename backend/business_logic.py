@@ -813,7 +813,7 @@ class BusinessLogic():
                               component_updated_date,
                               historic_distance):
         """Method to create installation history record"""
-        if latest_history_record is None and updated_component_installation_status != "Installed":
+        if latest_history_record is None and updated_component_installation_status != "Installed": #This is wrong, this should be possible
             logging.warning(f"Cannot change a component that is not installed: {old_component_name}.")
             return False
 
