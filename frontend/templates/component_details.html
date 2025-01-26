@@ -292,10 +292,12 @@
                                         data-update-reason="{{ update_reason }}">
                                         ✍
                                 </button>
+                                {% if loop.first and not loop.last %}
                                 <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
                                         data-history-id="{{ history_id}}">
                                         🗑
                                 </button>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
