@@ -658,7 +658,6 @@ class BusinessLogic():
 
         except Exception as error:
             logging.error(f"An error occured updating services for component with id {component_id}: {str(error)}")
-            traceback.print_exc()
             return False, f"Error updating service records for component with id {component_id}: {str(error)}"
 
     def validate_service_record(self, mode, component_id, service_id, service_date):
@@ -732,46 +731,39 @@ class BusinessLogic():
                     new_service_distance = relevant_history_record.distance_marker
                     logging.info(f"First service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
             
-            # start
             else:
                 logging.info(f"Processing subsequent service record {service.service_id} dated {service.service_date}")
                 if relevant_history_record.update_reason == "Installed":
                     previous_service = all_services[index-1]
                     
-                    # Find the history record that was active during previous service
+                    logging.info(f"Locating history record defining previous service {previous_service.service_id}")
                     previous_service_history = next(
                         record for record in reversed(sorted(history_records, key=lambda x: x.updated_date))
-                        if record.updated_date <= previous_service.service_date
-                    )
+                        if record.updated_date <= previous_service.service_date)
+                    
                     previous_service_bike = previous_service_history.bike_id
 
                     if previous_service_bike == relevant_history_record.bike_id:
-                        new_service_distance = database_manager.read_sum_distanse_subset_rides(
-                            relevant_history_record.bike_id,
-                            all_services[index-1].service_date,
-                            service.service_date)
+                        new_service_distance = database_manager.read_sum_distanse_subset_rides(relevant_history_record.bike_id,
+                                                                                               all_services[index-1].service_date,
+                                                                                               service.service_date)
                     else:
                         logging.info("The previous service was done on another bike, using alternate logic to calculate distance since service")
-                        # Look for the next status change after the previous service
                         sorted_records = sorted(history_records, key=lambda x: x.updated_date)
-                        next_change = next(
-                            record for record in sorted_records
-                            if record.updated_date > previous_service.service_date 
-                            and record.updated_date <= service.service_date
-                        )
+                        next_change = next(record for record in sorted_records
+                                           if record.updated_date > previous_service.service_date
+                                           and record.updated_date <= service.service_date)
 
-                        old_bike_distance = database_manager.read_sum_distanse_subset_rides(
-                            previous_service_bike,
-                            previous_service.service_date,
-                            next_change.updated_date)
+                        old_bike_distance = database_manager.read_sum_distanse_subset_rides(previous_service_bike,
+                                                                                            previous_service.service_date,
+                                                                                            next_change.updated_date)
 
-                        new_bike_distance = database_manager.read_sum_distanse_subset_rides(
-                            relevant_history_record.bike_id,
-                            relevant_history_record.updated_date,
-                            service.service_date)
+                        new_bike_distance = database_manager.read_sum_distanse_subset_rides(relevant_history_record.bike_id,
+                                                                                            relevant_history_record.updated_date,
+                                                                                            service.service_date)
 
                         new_service_distance = old_bike_distance + new_bike_distance
-                        
+
                     logging.info(f"Subsequent service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
                 
                 else:
