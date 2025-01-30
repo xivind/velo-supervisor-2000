@@ -182,21 +182,40 @@ async def update_service_record(component_id: str = Form(...),
     
     return response
 
-@app.post("/update_history_record", response_class=HTMLResponse) #This must be rewritten, why?
-async def update_history_record(history_id: str = Form(...),
-                              updated_date: str = Form(...),
-                              update_reason: str = Form(...)):
-    """Endpoint to update an existing component history record"""
-    success, message, component_id = business_logic.update_history_record(
-        history_id, updated_date, update_reason)
-    
+@app.post("/create_component", response_class=HTMLResponse)
+async def create_component(component_id: Optional[str] = Form(None),
+                           component_installation_status: str = Form(...),
+                           component_updated_date: str = Form(...),
+                           component_name: str = Form(...),
+                           component_type: str = Form(...),
+                           component_bike_id: str = Form(...),
+                           expected_lifetime: Optional[str] = Form(None),
+                           service_interval: Optional[str] = Form(None),
+                           cost: Optional[str] = Form(None),
+                           offset: Optional[int] = Form(0),
+                           component_notes: Optional[str] = Form(None)):
+    """Endpoint to modify component types"""
+
+    success, message, component_id = (business_logic.create_component
+                                      (component_id,
+                                       component_installation_status,
+                                       component_updated_date,
+                                       component_name,
+                                       component_type,
+                                       component_bike_id,
+                                       expected_lifetime,
+                                       service_interval,
+                                       cost,
+                                       offset,
+                                       component_notes))
+
     response = RedirectResponse(
         url=f"/component_details/{component_id}?success={success}&message={message}",
         status_code=303)
-    
+
     return response
 
-@app.post("/component_modify", response_class=HTMLResponse) #This must be rewritten, way too big. Split into two endpoints, for creating and updating
+@app.post("/update_component_details", response_class=HTMLResponse) #This must be rewritten, way too big. Split into two endpoints, for creating and updating
 async def component_modify(component_id: Optional[str] = Form(None),
                            component_installation_status: str = Form(...),
                            component_updated_date: str = Form(...),
@@ -227,6 +246,20 @@ async def component_modify(component_id: Optional[str] = Form(None),
         url=f"/component_details/{component_id}?success={success}&message={message}",
         status_code=303)
 
+    return response
+
+@app.post("/update_history_record", response_class=HTMLResponse) #This must be rewritten, why?
+async def update_history_record(history_id: str = Form(...),
+                              updated_date: str = Form(...),
+                              update_reason: str = Form(...)):
+    """Endpoint to update an existing component history record"""
+    success, message, component_id = business_logic.update_history_record(
+        history_id, updated_date, update_reason)
+    
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+    
     return response
 
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
