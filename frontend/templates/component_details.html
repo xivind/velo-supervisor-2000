@@ -123,7 +123,7 @@
         <div class="card shadow mb-4">
             <div class="card-header fw-bold">Component status</div>
             <div class="card-body">
-                <form id="component_details_form" class="row" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
+                <form id="component_status_form" class="row" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
                     
                     <!-- Status -->
@@ -166,7 +166,7 @@
                     </div>
                     <!-- Actions -->
                     <div class="col-6">
-                        <button type="submit" class="btn btn-outline-primary me-2" form="component_details_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Update status</button>
+                        <button type="submit" class="btn btn-outline-primary me-2" form="component_status_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Update status</button>
                         <button type="button" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">Delete component</button>
                     </div> 
                 </form>
@@ -175,7 +175,12 @@
         <div class="card shadow mb-4">
             <div class="card-header fw-bold">Component details</div>
             <div class="card-body">
-                <form id="component_details_form" class="row align-items-center" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
+                <form id="component_details_form" class="row align-items-center" action="/update_component_details" method="post" enctype="application/x-www-form-urlencoded">
+                    <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
+                    <input type="hidden" id="component_bike_id" name="component_bike_id" value="{{ payload.bike_component_data['bike_id'] }}">
+                    <input type="hidden" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}">
+                    <input type="hidden" id="component_installation_status" name="component_installation_status" value="{{ payload.bike_component_data['installation_status'] }}">
+                    
                     <div class="col-md-4 mb-3">
                         <label for="component_name" class="form-label fw-bold">Name</label>
                         <input type="text" class="form-control" id="component_name" name="component_name" value="{{ payload.bike_component_data['component_name'] }}" required>
@@ -216,7 +221,7 @@
                     <div class="col-12">
                         <div class="row g-2">
                             <div class="d-flex justify-content-between mb-2">  
-                                <button type="submit" class="btn btn-outline-primary" style="width: 22%;" form="REPLACE" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Update details</button>
+                                <button type="submit" class="btn btn-outline-primary" style="width: 22%;" form="component_details_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Update details</button>
                             </div>
                         </div>    
                     </div>

@@ -216,7 +216,7 @@ async def create_component(component_id: Optional[str] = Form(None),
     return response
 
 @app.post("/update_component_details", response_class=HTMLResponse) #This must be rewritten, way too big. Split into two endpoints, for creating and updating
-async def component_modify(component_id: Optional[str] = Form(None),
+async def component_modify(component_id: Optional[str] = Form(None), #Check that the api call does not send more variables than needed
                            component_installation_status: str = Form(...),
                            component_updated_date: str = Form(...),
                            component_name: str = Form(...),
