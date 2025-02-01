@@ -326,32 +326,26 @@ class DatabaseManager:
                     return True, f"Created service record for component {service_data['component_name']}."
 
         except peewee.OperationalError as error:
-            return False, f"{service_data['component_name']}: {str(error)}"
+            return False, f"Service record database error for {service_data['component_name']}: {str(error)}"
     
-    def write_history_record(self,
-                             current_history_id,
-                             component_id,
-                             bike_id,
-                             old_component_name,
-                             component_updated_date,
-                             updated_component_installation_status,
-                             historic_distance):
-        "Method to write history record to database"
+    def write_history_record(self, history_data):
+        "Method to write or update history record to database"
         try:
-            with database.atomic():
-                ComponentHistory.create(history_id = current_history_id,
-                                        component_id = component_id,
-                                        bike_id = bike_id,
-                                        component_name = old_component_name,
-                                        updated_date = component_updated_date,
-                                        update_reason = updated_component_installation_status,
-                                        distance_marker = historic_distance)
+            with self.database.atomic():
+                existing_history = Services.get_or_none(ComponentHistory.history_id == history_data['history_id'])
+                
+                if existing_history:
+                    ComponentHistory.update(**history_data).where(
+                        ComponentHistory.history_id == history_data['history_id']
+                    ).execute()
+                    return True, f"Updated history record for component {history_data['component_name']}."
+                else:
+                    Services.create(**history_data)
+                    return True, f"Created service record for component {history_data['component_name']}."
 
-            return True, f'{old_component_name}.'
-        
         except peewee.OperationalError as error:
-            return False, f"{old_component_name}: {str(error)}"
-    
+            return False, f"History record database error for {history_data['component_name']}: {str(error)}"
+            
     def write_component_type(self, component_type_data):
         """Method to write component type record to database"""
         try:
