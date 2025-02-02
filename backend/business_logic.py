@@ -522,11 +522,14 @@ class BusinessLogic():
 
             if success:
                 logging.info(message)
-                success, message = self.create_history_record(component_id, component_installation_status, component_bike_id, component_updated_date) #Method needs work
-                if success:
-                    logging.info(message)
+                if component_installation_status == "Installed":
+                    success, message = self.create_history_record(component_id, component_installation_status, component_bike_id, component_updated_date) #Method needs work
+                    if success:
+                        logging.info(message)
+                    else:
+                        logging.error(message)
                 else:
-                    logging.error(message)
+                    logging.warning(f"Component {component_name} is not installed, no history record created.")
             else:
                 logging.error(message)
 
@@ -632,8 +635,8 @@ class BusinessLogic():
             return success, message
 
         except Exception as error:
-            logging.error(f"An error occured creating history records for component {component.component_name}: {str(error)}")
-            return False, f"An error occured creating history records for {component.component_name}: {str(error)}"
+            logging.error(f"An error occured creating history record for component {component.component_name}: {str(error)}")
+            return False, f"An error occured creating history record for {component.component_name}: {str(error)}"
         
     def update_history_record(self, history_id, updated_date):
         """Method to update a component history record with validation"""
@@ -694,19 +697,25 @@ class BusinessLogic():
             logging.info(f"Running validation rules for creation of history records: {history_id}.")
 
             oldest_history_record = database_manager.read_oldest_history_record(component.component_id)
-            if oldest_history_record and updated_date <= oldest_history_record.updated_date:
-                logging.warning(f"Date for new status cannot be at or before component creation date: {oldest_history_record.updated_date}. Component: {component.component_name}")
-                return False, f"Date for new status cannot be at or before component creation date: {oldest_history_record.updated_date}. Component: {component.component_name}"
+            if oldest_history_record:
+                if updated_date <= oldest_history_record.updated_date:
+                    logging.warning(f"Date for new status cannot be at or before component creation date: {oldest_history_record.updated_date}. Component: {component.component_name}")
+                    return False, f"Date for new status cannot be at or before component creation date: {oldest_history_record.updated_date}. Component: {component.component_name}"
             
             latest_history_record = database_manager.read_latest_history_record(component_id)
-            if latest_history_record and updated_date <= latest_history_record.updated_date:
-                logging.warning(f"Component status changes must be done chronologically. Date for new status cannot be at or before date for the last status: {latest_history_record.updated_date}. Component: {component.component_name}")
-                return False, f"Component status changes must be done chronologically. Date for new status cannot be at or before date for the last status: {latest_history_record.updated_date}. Component: {component.component_name}"
-            
-            if latest_history_record.update_reason == installation_status:
-                logging.warning(f"Component status for {component.component_name} is already set to: {installation_status}.")
-                return False, f"Component status for {component.component_name} is already set to: {installation_status}."
+            if latest_history_record:
+                if updated_date <= latest_history_record.updated_date:
+                    logging.warning(f"Component status changes must be done chronologically. Date for new status cannot be at or before date for the last status: {latest_history_record.updated_date}. Component: {component.component_name}")
+                    return False, f"Component status changes must be done chronologically. Date for new status cannot be at or before date for the last status: {latest_history_record.updated_date}. Component: {component.component_name}"
+                
+                if latest_history_record.update_reason == installation_status:
+                    logging.warning(f"Component status for {component.component_name} is already set to: {installation_status}.")
+                    return False, f"Component status for {component.component_name} is already set to: {installation_status}."
 
+            if not latest_history_record and installation_status == "Not installed":
+                logging.warning(f"Component {component.component_name} is not installed and can therefore not be set to 'Not installed'.")
+                return False, f"Component {component.component_name} is not installed and can therefore not be set to 'Not installed'."
+            
             if installation_status == "Installed" and component_bike_id is None:
                 logging.warning(f"Status cannot be set to Installed without specifying bike. {component.component_name} is currently not assigned to a bike.")
                 return False, f"Status cannot be set to Installed without specifying bike. {component.component_name} is currently not assigned to a bike."

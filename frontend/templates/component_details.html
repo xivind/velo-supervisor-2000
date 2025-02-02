@@ -100,19 +100,27 @@
     
         <!-- Bottom row - 2 buttons -->
         <div class="row g-2">
-            <div class="col-6">
-                <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-info w-100">
+            <div class="col-4">
+                <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary w-100">
                     <div class="d-flex flex-column align-items-center">
-                        <span class="fs-5">➡</span>
-                        <span>View bike details</span>
+                        <span class="fs-5">⚙</span>
+                        <span>New comp.</span>
                     </div>
                 </a>
             </div>
-            <div class="col-6">
+            <div class="col-4">
                 <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-info w-100">
                     <div class="d-flex flex-column align-items-center">
                         <span class="fs-5">➡</span>
-                        <span>View incident reports</span>
+                        <span>View bike</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-4">
+                <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-info w-100">
+                    <div class="d-flex flex-column align-items-center">
+                        <span class="fs-5">➡</span>
+                        <span>View incidents</span>
                     </div>
                 </a>
             </div>
@@ -139,7 +147,7 @@
                     <!-- Broken -->
                     <div class="col-md-2 mb-3">
                         <label for="broken" class="form-label fw-bold">Broken</label>
-                        <input class="form-control" id="offset" name="broken" value="No">
+                        <input class="form-control" id="offset" name="broken" value="N/A" disabled>
                     </div>
                     
                     <!-- Bike -->

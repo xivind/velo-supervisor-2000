@@ -8,7 +8,6 @@
     <div class="card-header fw-bold">Add component</div>
     <div class="card-body">
         <form id="component_overview_form" class="row align-items-center" action="/create_component" method="post" enctype="application/x-www-form-urlencoded">
-            <input type="hidden" id="component_installation_status" name="component_installation_status" value="Installed">
             <div class="col-md-3 mb-3">
                 <label for="component_updated_date" class="col-form-label col-auto fw-bold">Updated date</label>
                 <div class="input-group">
@@ -35,7 +34,7 @@
             </div>
             <div class="col-md-2 mb-3">
                 <label for="component_bike_id" class="form-label fw-bold">Bike</label>
-                <select class="form-select" id="component_bike_id" name="component_bike_id" required>
+                <select class="form-select" id="component_bike_id" name="component_bike_id">
                     <option value="" selected></option>
                     {% for bike_name, bike_id in payload.bikes_data %}
                         <option value="{{ bike_id }}">
@@ -60,7 +59,15 @@
                 <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
                 <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="">
             </div>
-            <div class="col-md-8 mb-3">
+            <div class="col-md-2 mb-3">
+                <label for="component_installation_status" class="form-label fw-bold">Status</label>
+                <select class="form-select" id="component_installation_status" name="component_installation_status" required>">
+                    <option value="" selected></option>
+                    <option value="Installed">Installed</option>
+                    <option value="Not installed">Not installed</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
                 <label for="component_notes" class="form-label fw-bold">Notes</label>
                 <textarea class="form-control" id="component_notes" name="component_notes" rows="1"></textarea>
             </div>
