@@ -1113,14 +1113,30 @@ class BusinessLogic():
         if success:
             logging.info(f"Deletion successful: {message}")
             if table_selector == "Services":
-                logging.info(f"Recalculating service records for component {component_id}")
-                # Method is missing - need to update service records, call also update component service status and update bike status
+                logging.info(f"Recalculating service records for component {component_id} after deletion")
+                
+                service_records = database_manager.read_subset_service_history(component_id)
+                if service_records:
+                    first_service = service_records.first()
+                    success, message = self.process_service_records(component_id,
+                                                                    first_service.service_id,
+                                                                    first_service.service_date,
+                                                                    first_service.description)
+                    if not success:
+                        logging.error(f"An error occured triggering update of service records for {component_id} after deletion: {message}")
+                        return False, f"An error occured triggering update of service records for {component_id} after deletion: {message}", component_id
 
             elif table_selector == "ComponentHistory":
-                logging.info(f"Recalculating installation history records for component {component_id}")
-                # Method is missing - need to update history records, call also update component service status and update bike status
+                logging.info(f"Recalculating installation history records for component {component_id} after deletion")
+                
+                success, message = self.process_history_records(component_id)
+                if not success:
+                    logging.error(f"An error occured triggering update of history records for {component_id} after deletion: {message}")
+                    return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id
+        
         else:
-            logging.error(f"Deletion failed: {message}")
+            logging.error(f"Deletion of {record_id} failed: {message}")
+            return False, f"Deletion of {record_id} failed: {message}", component_id
 
         return success, message, component_id
 
