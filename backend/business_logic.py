@@ -534,7 +534,7 @@ class BusinessLogic():
 
         except Exception as error:
             logging.error(f"An error occurred creating component {component_name}: {str(error)}")
-            return False, f"Error creating component {component_name}: {str(error)}", component_id
+            return False, f"An error occurred creating component {component_name}: {str(error)}", component_id
     
     def modify_component_details(self,
                              component_id,
@@ -565,8 +565,7 @@ class BusinessLogic():
                 "service_interval": service_interval,
                 "cost": cost,
                 "component_distance_offset": offset,
-                "notes": component_notes
-            }
+                "notes": component_notes}
 
             component = database_manager.read_component(component_id)
             if not component:
@@ -585,8 +584,8 @@ class BusinessLogic():
             return success, message, component_id
 
         except Exception as error:
-            logging.error(f"An error occurred modifying component {component_name}: {str(error)}")
-            return False, f"Error modifying component {component_name}: {str(error)}", component_id
+            logging.error(f"An error occurred modifying component details {component_name}: {str(error)}")
+            return False, f"An error occurred modifying component details {component_name}: {str(error)}", component_id
 
     def create_history_record(self,
                               component_id,
@@ -761,6 +760,7 @@ class BusinessLogic():
                         logging.info(f'Timespan for historic distance query: start date {previous_record.updated_date} stop date {record.updated_date}.')
                         historic_distance = database_manager.read_sum_distanse_subset_rides(previous_record.bike_id, previous_record.updated_date, record.updated_date)
                         distance_marker = previous_record.distance_marker + historic_distance
+
                     else:
                         distance_marker = previous_record.distance_marker
 
@@ -780,20 +780,57 @@ class BusinessLogic():
                 previous_record = record
             
             latest_history_record = database_manager.read_latest_history_record(component_id)
-            if component.installation_status == "Installed":
-                logging.info(f'Timespan for current distance query: start date {component.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}')
-                current_distance = database_manager.read_sum_distanse_subset_rides(component.bike_id, component.updated_date, datetime.now().strftime("%Y-%m-%d %H:%M"))
-                current_distance += latest_history_record.distance_marker
-                self.update_component_distance(component_id, current_distance)
+            current_distance = latest_history_record.distance_marker
 
-            else:
-                current_distance = latest_history_record.distance_marker
-                self.update_component_distance(component_id, current_distance)
+            if latest_history_record.update_reason == "Installed":
+                logging.info(f'Calculating additional distance since last history record: start date {latest_history_record.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}')
+                additional_distance = database_manager.read_sum_distanse_subset_rides(latest_history_record.bike_id,
+                                                                                      latest_history_record.updated_date,
+                                                                                      datetime.now().strftime("%Y-%m-%d %H:%M"))
+                current_distance += additional_distance
+                logging.info(f'Total distance: {current_distance} (History: {latest_history_record.distance_marker}, Additional: {additional_distance})')
+                
+            self.update_component_distance(component_id, current_distance)
 
-            
-            #call conditional service update and update of component details
+            if success:
+                latest_history = database_manager.read_latest_history_record(component_id)
+                
+                component_data = {
+                    "installation_status": latest_history.update_reason,
+                    "updated_date": latest_history.updated_date,
+                    "component_name": component.component_name,
+                    "component_type": component.component_type,
+                    "bike_id": None if latest_history_record.update_reason == "Not installed" else latest_history_record.bike_id,
+                    "lifetime_expected": component.lifetime_expected,
+                    "service_interval": component.service_interval,
+                    "cost": component.cost,
+                    "component_distance_offset": component.component_distance_offset,
+                    "notes": component.notes}
 
-            return True, "Successfully processed history records"
+                success, message = database_manager.write_component_details(component_id, component_data)
+                if not success:
+                    logging.error(f"An error occured updating component installation status for {component.component_name}: {message}")
+                    return False, f"An error occured updating component installation status for {component.component_name}: {message}"
+                
+                updated_component = database_manager.read_component(component_id)
+
+                service_records = database_manager.read_subset_service_history(component_id)
+                if service_records:
+                    first_service = service_records.first()
+                    success, message = self.process_service_records(component_id,
+                                                                    first_service.service_id,
+                                                                    first_service.service_date,
+                                                                    first_service.description)
+                    if not success:
+                        logging.error(f"An error occured triggering update of service records for {updated_component.component_name}: {message}")
+                        return False, f"An error occured triggering update of service records for {updated_component.component_name}: {message}"
+
+                self.update_component_lifetime_status(updated_component)
+                self.update_component_service_status(updated_component)
+                if updated_component.installation_status == "Installed":
+                    self.update_bike_status(updated_component.bike_id)
+
+            return True, "Successfully processed history records and related services"
 
         except Exception as error:
             logging.error(f"An error occurred processing history records for component {component_id}: {str(error)}")
