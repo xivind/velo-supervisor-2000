@@ -332,7 +332,7 @@ class DatabaseManager:
         "Method to write or update history record to database"
         try:
             with self.database.atomic():
-                existing_history = Services.get_or_none(ComponentHistory.history_id == history_data['history_id'])
+                existing_history = ComponentHistory.get_or_none(ComponentHistory.history_id == history_data['history_id'])
                 
                 if existing_history:
                     ComponentHistory.update(**history_data).where(
@@ -340,8 +340,8 @@ class DatabaseManager:
                     ).execute()
                     return True, f"Updated history record for component {history_data['component_name']}."
                 else:
-                    Services.create(**history_data)
-                    return True, f"Created service record for component {history_data['component_name']}."
+                    ComponentHistory.create(**history_data)
+                    return True, f"Created history record for component {history_data['component_name']}."
 
         except peewee.OperationalError as error:
             return False, f"History record database error for {history_data['component_name']}: {str(error)}"

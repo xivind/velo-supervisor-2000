@@ -518,7 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const serviceDate = this.dataset.serviceDate;
             const serviceDescription = this.dataset.serviceDescription;
 
-            document.getElementById('editComponentId').value = componentId;
+            document.getElementById('editServiceComponentId').value = componentId;
             document.getElementById('editServiceId').value = serviceId;
             serviceEditDatepicker.setDate(serviceDate);
             document.getElementById('editServiceDescription').value = serviceDescription;
@@ -532,11 +532,11 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const historyId = this.dataset.historyId;
             const updatedDate = this.dataset.updatedDate;
-            const updateReason = this.dataset.updateReason;
+            const componentId = this.dataset.componentId;
 
+            document.getElementById('editHistoryComponentId').value = componentId;
             document.getElementById('editHistoryId').value = historyId;
             historyEditDatepicker.setDate(updatedDate);
-            document.getElementById('editUpdateReason').value = updateReason;
 
             editHistoryModal.show();
         });

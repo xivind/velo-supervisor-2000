@@ -123,7 +123,7 @@
         <div class="card shadow mb-4">
             <div class="card-header fw-bold">Component status</div>
             <div class="card-body">
-                <form id="component_status_form" class="row" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
+                <form id="component_status_form" class="row" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
                     
                     <!-- Status -->
@@ -330,7 +330,7 @@
                                 <button class="mb-1 btn btn-outline-success btn-sm edit-history-btn"
                                         data-history-id="{{ history_id }}"
                                         data-updated-date="{{ updated_date }}"
-                                        data-update-reason="{{ update_reason }}">
+                                        data-component-id="{{ payload.bike_component_data['component_id'] }}">
                                         ✍
                                 </button>
                                 {% if loop.first and not loop.last %}
@@ -363,7 +363,7 @@
             </div>
             <form id="editServiceForm" method="POST" action="/update_service_record">
                 <div class="modal-body">
-                    <input type="hidden" id="editComponentId" name="component_id">
+                    <input type="hidden" id="editServiceComponentId" name="component_id">
                     <input type="hidden" id="editServiceId" name="service_id">
                     
                     <div class="mb-3">
@@ -398,6 +398,7 @@
             </div>
             <form id="editHistoryForm" method="POST" action="/update_history_record">
                 <div class="modal-body">
+                    <input type="hidden" id="editHistoryComponentId" name="component_id">
                     <input type="hidden" id="editHistoryId" name="history_id">
                     
                     <div class="mb-3">
@@ -406,13 +407,6 @@
                             <input type="text" class="form-control" id="editUpdatedDate" name="updated_date" required>
                             <span class="input-group-text" id="edit-history-date-picker-toggle">🗓</span>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editUpdateReason" class="form-label">Status</label>
-                        <select class="form-select" id="editUpdateReason" name="update_reason" required>
-                            <option value="Installed">Installed</option>
-                            <option value="Not installed">Not installed</option>
-                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
