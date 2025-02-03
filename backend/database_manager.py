@@ -89,7 +89,7 @@ class DatabaseManager:
 
         return None
 
-    def read_sum_distanse_subset_rides(self, bike_id, start_date, stop_date):
+    def read_sum_distance_subset_rides(self, bike_id, start_date, stop_date):
         """Method to sum distance for a given set of rides"""
         matching_rides = (Rides.select()
                           .where((Rides.bike_id == bike_id) &

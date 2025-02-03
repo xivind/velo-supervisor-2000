@@ -523,7 +523,7 @@ class BusinessLogic():
             if success:
                 logging.info(message)
                 if component_installation_status == "Installed":
-                    success, message = self.create_history_record(component_id, component_installation_status, component_bike_id, component_updated_date) #Method needs work
+                    success, message = self.create_history_record(component_id, component_installation_status, component_bike_id, component_updated_date)
                     if success:
                         logging.info(message)
                     else:
@@ -737,14 +737,14 @@ class BusinessLogic():
                 if current_index > 0:
                     prev_record = sorted_records[current_index - 1]
                     if updated_date <= prev_record.updated_date:
-                        #log statement here and better explanation
-                        return False, f"Date must be after {prev_record.updated_date}"
+                        logging.warning(f"Updated date must be after previous insallation record date: {prev_record.updated_date}")
+                        return False, f"Updated date must be after previous insallation record date: {prev_record.updated_date}"
                 
                 if current_index < len(sorted_records) - 1:
                     next_record = sorted_records[current_index + 1]
                     if updated_date >= next_record.updated_date:
-                        #log statement here and better explanation
-                        return False, f"Date must be before {next_record.updated_date}"
+                        logging.warning(f"Updated date must be before next installation record date: {next_record.updated_date}")
+                        return False, f"Updated date must be before next installation record date: {next_record.updated_date}"
 
         logging.info(f"Validation of history record for {component.component_name} passed")
         return True, f"Validation of service record for {component.component_name} passed"
@@ -767,7 +767,7 @@ class BusinessLogic():
                 else:
                     if record.update_reason != "Installed":
                         logging.info(f'Timespan for historic distance query: start date {previous_record.updated_date} stop date {record.updated_date}.')
-                        historic_distance = database_manager.read_sum_distanse_subset_rides(previous_record.bike_id, previous_record.updated_date, record.updated_date)
+                        historic_distance = database_manager.read_sum_distance_subset_rides(previous_record.bike_id, previous_record.updated_date, record.updated_date)
                         distance_marker = previous_record.distance_marker + historic_distance
 
                     else:
@@ -786,14 +786,14 @@ class BusinessLogic():
                     logging.error(f"Failed to update distance for component {component.component_name} and history record {record.history_id}: {message}")
                     return False, f"Failed to update distance for component {component.component_name} and history record {record.history_id}: {message}"
 
-                previous_record = record
+                previous_record = database_manager.read_single_history_record(record.history_id)
             
             latest_history_record = database_manager.read_latest_history_record(component_id)
             current_distance = latest_history_record.distance_marker
 
             if latest_history_record.update_reason == "Installed":
                 logging.info(f'Calculating additional distance since last history record: start date {latest_history_record.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}')
-                additional_distance = database_manager.read_sum_distanse_subset_rides(latest_history_record.bike_id,
+                additional_distance = database_manager.read_sum_distance_subset_rides(latest_history_record.bike_id,
                                                                                       latest_history_record.updated_date,
                                                                                       datetime.now().strftime("%Y-%m-%d %H:%M"))
                 current_distance += additional_distance
@@ -980,7 +980,7 @@ class BusinessLogic():
                 logging.info(f"Processing first service record {service.service_id} dated {service.service_date}")
                 if relevant_history_record.update_reason == "Installed":
                     new_service_distance = relevant_history_record.distance_marker
-                    new_service_distance += database_manager.read_sum_distanse_subset_rides(
+                    new_service_distance += database_manager.read_sum_distance_subset_rides(
                         relevant_history_record.bike_id,
                         relevant_history_record.updated_date,
                         service.service_date)
@@ -1003,7 +1003,7 @@ class BusinessLogic():
                     previous_service_bike = previous_service_history.bike_id
 
                     if previous_service_bike == relevant_history_record.bike_id:
-                        new_service_distance = database_manager.read_sum_distanse_subset_rides(relevant_history_record.bike_id,
+                        new_service_distance = database_manager.read_sum_distance_subset_rides(relevant_history_record.bike_id,
                                                                                                all_services[index-1].service_date,
                                                                                                service.service_date)
                     else:
@@ -1013,11 +1013,11 @@ class BusinessLogic():
                                            if record.updated_date > previous_service.service_date
                                            and record.updated_date <= service.service_date)
 
-                        old_bike_distance = database_manager.read_sum_distanse_subset_rides(previous_service_bike,
+                        old_bike_distance = database_manager.read_sum_distance_subset_rides(previous_service_bike,
                                                                                             previous_service.service_date,
                                                                                             next_change.updated_date)
 
-                        new_bike_distance = database_manager.read_sum_distanse_subset_rides(relevant_history_record.bike_id,
+                        new_bike_distance = database_manager.read_sum_distance_subset_rides(relevant_history_record.bike_id,
                                                                                             relevant_history_record.updated_date,
                                                                                             service.service_date)
 
@@ -1026,7 +1026,7 @@ class BusinessLogic():
                     logging.info(f"Subsequent service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
                 
                 else:
-                    new_service_distance = database_manager.read_sum_distanse_subset_rides(
+                    new_service_distance = database_manager.read_sum_distance_subset_rides(
                         relevant_history_record.bike_id,
                         all_services[index-1].service_date,
                         relevant_history_record.updated_date)
