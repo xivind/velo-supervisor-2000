@@ -12,7 +12,6 @@ from utils import (read_config,
                    get_component_statistics)
 from strava import Strava
 from database_manager import DatabaseManager
-from icecream import ic #remove before prod
 import traceback #remove before prod
 
 # Load configuration
