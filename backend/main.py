@@ -195,7 +195,6 @@ async def component_modify(component_id: Optional[str] = Form(None), #Check that
                            offset: Optional[int] = Form(0),
                            component_notes: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
-
     success, message, component_id = (business_logic.modify_component_details
                                       (component_id,
                                        component_installation_status,

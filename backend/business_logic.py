@@ -994,17 +994,43 @@ class BusinessLogic():
                 if relevant_history_record.update_reason == "Installed":
                     previous_service = all_services[index-1]
                     
-                    logging.info(f"Locating history record defining previous service {previous_service.service_id}")
-                    previous_service_history = next(
-                        record for record in reversed(sorted(history_records, key=lambda x: x.updated_date))
-                        if record.updated_date <= previous_service.service_date)
+                    #logging.info(f"Locating history record defining previous service {previous_service.service_id}")
+                    #previous_service_history = next(
+                    #    record for record in reversed(sorted(history_records, key=lambda x: x.updated_date))
+                    #    if record.updated_date <= previous_service.service_date)
                     
-                    previous_service_bike = previous_service_history.bike_id
+                    #previous_service_bike = previous_service_history.bike_id
+
+                    #Partially working. Distance to service bar is wrong, and not working when previous service is no bike, and not working when service is after uninstall
+                    previous_service_bike = database_manager.read_single_service_record(previous_service.service_id).bike_id
 
                     if previous_service_bike == relevant_history_record.bike_id:
-                        new_service_distance = database_manager.read_sum_distance_subset_rides(relevant_history_record.bike_id,
-                                                                                               all_services[index-1].service_date,
-                                                                                               service.service_date)
+                        sorted_records = sorted(history_records, key=lambda x: x.updated_date)
+                        installation_changes = [record for record in sorted_records 
+                                            if record.updated_date > previous_service.service_date 
+                                            and record.updated_date <= service.service_date]
+                        
+                        if not installation_changes:
+                            # No installation changes, simple distance calculation
+                            new_service_distance = database_manager.read_sum_distance_subset_rides(
+                                relevant_history_record.bike_id,
+                                previous_service.service_date,
+                                service.service_date)
+                        else:
+                            # Handle installation changes on same bike
+                            new_service_distance = 0
+                            start_date = previous_service.service_date
+                            
+                            for change in installation_changes:
+                                if change.update_reason == "Installed":
+                                    # Add distance from installation to next point
+                                    new_service_distance += database_manager.read_sum_distance_subset_rides(
+                                        change.bike_id,
+                                        change.updated_date,
+                                        service.service_date if change == installation_changes[-1] else installation_changes[installation_changes.index(change) + 1].updated_date
+                                    )
+
+
                     else:
                         logging.info("The previous service was done on another bike, using alternate logic to calculate distance since service")
                         sorted_records = sorted(history_records, key=lambda x: x.updated_date)
