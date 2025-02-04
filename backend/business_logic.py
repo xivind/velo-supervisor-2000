@@ -999,7 +999,7 @@ class BusinessLogic():
                     #    record for record in reversed(sorted(history_records, key=lambda x: x.updated_date))
                     #    if record.updated_date <= previous_service.service_date)
                     
-                    #previous_service_bike = previous_service_history.bike_id
+                    #previous_service_bike = previous_service_history.bike_ids
 
                     #Partially working. Distance to service bar is wrong, and not working when previous service is no bike, and not working when service is after uninstall
                     previous_service_bike = database_manager.read_single_service_record(previous_service.service_id).bike_id
