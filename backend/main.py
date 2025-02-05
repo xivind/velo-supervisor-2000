@@ -49,7 +49,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
-    # asyncio.create_task(business_logic.pull_strava_background("recent")) #Reset before prod
+    asyncio.create_task(business_logic.pull_strava_background("recent"))
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)

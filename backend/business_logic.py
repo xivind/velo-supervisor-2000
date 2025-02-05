@@ -12,7 +12,6 @@ from utils import (read_config,
                    get_component_statistics)
 from strava import Strava
 from database_manager import DatabaseManager
-import traceback #remove before prod
 
 # Load configuration
 CONFIG = read_config()
@@ -951,120 +950,86 @@ class BusinessLogic():
     
     def process_service_records(self, component_id, service_id, service_date, service_description):
         """Method to calculate distance and bike id for service records"""
-
         component = database_manager.read_component(component_id)
         current_service_data = {'service_id': service_id,
-                                'component_id': component_id,
-                                'component_name': component.component_name,
-                                'service_date': service_date,
-                                'description': service_description} 
+                            'component_id': component_id,
+                            'component_name': component.component_name,
+                            'service_date': service_date,
+                            'description': service_description} 
             
         all_services = list(database_manager.read_subset_service_history(component.component_id))
         history_records = database_manager.read_subset_component_history(component.component_id)
+        sorted_history = sorted(history_records, key=lambda x: x.updated_date)
 
-        logging.info(f"Consolodating and sorting all services for component {component.component_name}")
+        logging.info(f"Consolidating and sorting all services for component {component.component_name}")
         all_services = [service for service in all_services if service.service_id != service_id]
         all_services.append(type('Service', (), current_service_data)())
         all_services.sort(key=lambda x: x.service_date)
-        
+
         logging.info(f"Iterating over all services for component {component.component_name} to update distance markers and bike ids")
         for index, service in enumerate(all_services):
-            for record in history_records:
-                if record.updated_date <= service.service_date:
-                    relevant_history_record = record
-                    logging.info(f"Defining history record for service {service.service_id} dated {service.service_date} is history record {relevant_history_record.history_id} dated {relevant_history_record.updated_date}")
-                    break
-            
             if index == 0:
-                logging.info(f"Processing first service record {service.service_id} dated {service.service_date}")
-                if relevant_history_record.update_reason == "Installed":
-                    new_service_distance = relevant_history_record.distance_marker
-                    new_service_distance += database_manager.read_sum_distance_subset_rides(
-                        relevant_history_record.bike_id,
-                        relevant_history_record.updated_date,
-                        service.service_date)
-                    logging.info(f"First service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
+                first_installation = sorted_history[0]
+                new_service_distance = first_installation.distance_marker
                 
-                else:
-                    new_service_distance = relevant_history_record.distance_marker
-                    logging.info(f"First service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
-            
+                if first_installation.update_reason == "Installed":
+                    additional_distance = database_manager.read_sum_distance_subset_rides(first_installation.bike_id,
+                                                                                          first_installation.updated_date,
+                                                                                          service.service_date)
+                    new_service_distance += additional_distance
+                    logging.info(f"First service: Starting from {first_installation.distance_marker}, added {additional_distance} km")
             else:
-                logging.info(f"Processing subsequent service record {service.service_id} dated {service.service_date}")
-                if relevant_history_record.update_reason == "Installed":
-                    previous_service = all_services[index-1]
-                    
-                    #logging.info(f"Locating history record defining previous service {previous_service.service_id}")
-                    #previous_service_history = next(
-                    #    record for record in reversed(sorted(history_records, key=lambda x: x.updated_date))
-                    #    if record.updated_date <= previous_service.service_date)
-                    
-                    #previous_service_bike = previous_service_history.bike_ids
-
-                    #Partially working. Distance to service bar is wrong, and not working when previous service is no bike, and not working when service is after uninstall
-                    previous_service_bike = database_manager.read_single_service_record(previous_service.service_id).bike_id
-
-                    if previous_service_bike == relevant_history_record.bike_id:
-                        sorted_records = sorted(history_records, key=lambda x: x.updated_date)
-                        installation_changes = [record for record in sorted_records 
-                                            if record.updated_date > previous_service.service_date 
-                                            and record.updated_date <= service.service_date]
-                        
-                        if not installation_changes:
-                            # No installation changes, simple distance calculation
-                            new_service_distance = database_manager.read_sum_distance_subset_rides(
-                                relevant_history_record.bike_id,
-                                previous_service.service_date,
-                                service.service_date)
-                        else:
-                            # Handle installation changes on same bike
-                            new_service_distance = 0
-                            start_date = previous_service.service_date
-                            
-                            for change in installation_changes:
-                                if change.update_reason == "Installed":
-                                    # Add distance from installation to next point
-                                    new_service_distance += database_manager.read_sum_distance_subset_rides(
-                                        change.bike_id,
-                                        change.updated_date,
-                                        service.service_date if change == installation_changes[-1] else installation_changes[installation_changes.index(change) + 1].updated_date
-                                    )
-
-
-                    else:
-                        logging.info("The previous service was done on another bike, using alternate logic to calculate distance since service")
-                        sorted_records = sorted(history_records, key=lambda x: x.updated_date)
-                        next_change = next(record for record in sorted_records
-                                           if record.updated_date > previous_service.service_date
-                                           and record.updated_date <= service.service_date)
-
-                        old_bike_distance = database_manager.read_sum_distance_subset_rides(previous_service_bike,
-                                                                                            previous_service.service_date,
-                                                                                            next_change.updated_date)
-
-                        new_bike_distance = database_manager.read_sum_distance_subset_rides(relevant_history_record.bike_id,
-                                                                                            relevant_history_record.updated_date,
-                                                                                            service.service_date)
-
-                        new_service_distance = old_bike_distance + new_bike_distance
-
-                    logging.info(f"Subsequent service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
+                logging.info(f"Processing subsequent service, using service dates to calculate distance")
+                previous_service_date = all_services[index-1].service_date
+                current_service_date = service.service_date
                 
-                else:
-                    new_service_distance = database_manager.read_sum_distance_subset_rides(
-                        relevant_history_record.bike_id,
-                        all_services[index-1].service_date,
-                        relevant_history_record.updated_date)
-                    logging.info(f"Subsequent service record distance mark is at {new_service_distance} km, based on installations status {relevant_history_record.update_reason}")
+                accumulated_distance = 0
+                current_installation = None
+                
+                initial_status = next(record for record in reversed(sorted_history)
+                                      if record.updated_date <= previous_service_date)
+                
+                if initial_status.update_reason == "Installed":
+                    current_installation = initial_status
+                
+                logging.info(f"Processing installation changes within window {previous_service_date} to {current_service_date}")
+                for record in sorted_history:
+                    if record.updated_date <= previous_service_date:
+                        logging.info(f"Record {record.history_id} dated {record.updated_date} outside window, skipping")
+                        continue
+                    if record.updated_date > current_service_date:
+                        logging.info(f"Record {record.history_id} dated {record.updated_date} inside window, processing")
+                        break
+                    
+                    if record.update_reason == "Installed":
+                        current_installation = record
+                    elif record.update_reason == "Not installed" and current_installation:
+                        logging.info(f"Calculating distance for the installation period: {current_installation.updated_date} to {record.updated_date}")
+                        period_distance = database_manager.read_sum_distance_subset_rides(
+                            current_installation.bike_id,
+                            max(current_installation.updated_date, previous_service_date),
+                            record.updated_date)
+                        accumulated_distance += period_distance
+                        logging.info(f"Added {period_distance} km from bike {current_installation.bike_id} ({current_installation.updated_date} to {record.updated_date})")
+                        current_installation = None
 
-            if relevant_history_record.update_reason == "Installed":
-                new_bike_id = relevant_history_record.bike_id
-                logging.info(f"Service record {service.service_id} is now associated with bike {database_manager.read_single_bike(new_bike_id)}")
-            
-            else:
-                new_bike_id = None
-                logging.info(f"Service record {service.service_id} is not associated with any bike")
-            
+                logging.info("Processing final installation period at the end of window")
+                if current_installation:
+                    period_distance = database_manager.read_sum_distance_subset_rides(current_installation.bike_id,
+                                                                                      max(current_installation.updated_date, previous_service_date),
+                                                                                      current_service_date)
+                    accumulated_distance += period_distance
+                    logging.info(f"Added final period of {period_distance} km from bike {current_installation.bike_id} ({current_installation.updated_date} to {current_service_date})")
+
+                new_service_distance = accumulated_distance
+                logging.info(f"Total accumulated distance: {accumulated_distance} km")
+
+            logging.info(f"Setting bike_id based on component status at service time")
+            relevant_history = next(record for record in reversed(sorted_history)
+                                    if record.updated_date <= service.service_date)
+                
+            new_bike_id = relevant_history.bike_id if relevant_history.update_reason == "Installed" else None
+
             service_data = {
                 'service_id': service.service_id,
                 'component_id': component.component_id,
@@ -1072,7 +1037,8 @@ class BusinessLogic():
                 'service_date': service.service_date,
                 'description': service.description,
                 'bike_id': new_bike_id,
-                'distance_marker': new_service_distance}
+                'distance_marker': new_service_distance
+            }
             
             success, message = database_manager.write_service_record(service_data)
             if not success:
