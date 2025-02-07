@@ -1046,7 +1046,9 @@ class BusinessLogic():
                 return success, f"Error updating service records: {message}"
 
         logging.info(f"Service records for component {component.component_name} successfully updated")
-        self.update_component_service_status(component)
+        
+        updated_component = database_manager.read_component(component_id)
+        self.update_component_service_status(updated_component)
         if component.installation_status == "Installed":
             self.update_bike_status(component.bike_id)
 
