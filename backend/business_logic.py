@@ -34,7 +34,7 @@ class BusinessLogic():
                     bike.bike_id,
                     bike.bike_retired,
                     bike.service_status,
-                    int(bike.total_distance),
+                    round(bike.total_distance),
                     sum(1 for component in database_manager.read_subset_components(bike.bike_id)
                         if component.installation_status == "Installed"),
                     sum(1 for component in database_manager.read_subset_components(bike.bike_id)
@@ -51,7 +51,7 @@ class BusinessLogic():
                     "bike_id": bike.bike_id,
                     "bike_retired": bike.bike_retired,
                     "bike_service_status": bike.service_status,
-                    "bike_total_distance": int(bike.total_distance),
+                    "bike_total_distance": round(bike.total_distance),
                     "bike_notes": bike.notes,
                     "oldest_ride": database_manager.read_date_oldest_ride(bike_id)}
 
@@ -60,7 +60,7 @@ class BusinessLogic():
                                  component.installation_status,
                                  component.component_type,
                                  component.component_name,
-                                 int(component.component_distance),
+                                 round(component.component_distance),
                                  format_component_status(component.lifetime_status),
                                  format_component_status(component.service_status),
                                  format_cost(component.cost)
@@ -73,7 +73,7 @@ class BusinessLogic():
         recent_rides_data = [(ride.ride_id,
                               ride.record_time,
                               ride.ride_name,
-                              int(ride.ride_distance),
+                              round(ride.ride_distance),
                               ride.commute
                               ) for ride in recent_rides]
 
@@ -101,7 +101,7 @@ class BusinessLogic():
         component_data = [(component.component_id,
                            component.component_type,
                            component.component_name,
-                           int(component.component_distance),
+                           round(component.component_distance),
                            component.installation_status,
                            format_component_status(component.lifetime_status),
                            format_component_status(component.service_status),
@@ -163,22 +163,22 @@ class BusinessLogic():
                                "updated_date": bike_component.updated_date,
                                "component_name": bike_component.component_name,
                                "component_type": bike_component.component_type,
-                               "component_distance": (int(bike_component.component_distance) 
+                               "component_distance": (round(bike_component.component_distance) 
                                                       if bike_component.component_distance is not None else None),
                                 "installation_status": bike_component.installation_status,
                                 "lifetime_expected": bike_component.lifetime_expected,
-                                "lifetime_remaining": (int(bike_component.lifetime_remaining)
+                                "lifetime_remaining": (round(bike_component.lifetime_remaining)
                                                        if bike_component.lifetime_remaining is not None else None),
                                 "lifetime_status": format_component_status(bike_component.lifetime_status),
                                 "lifetime_percentage": (calculate_percentage_reached(bike_component.lifetime_expected,
-                                                                                     int(bike_component.lifetime_remaining))
+                                                                                     round(bike_component.lifetime_remaining))
                                                                                      if bike_component.lifetime_remaining is not None else None),
                                 "service_interval": bike_component.service_interval,
                                 "service_next": (int(bike_component.service_next)
                                                  if bike_component.service_next is not None else None),
                                 "service_status": format_component_status(bike_component.service_status),
                                 "service_percentage": calculate_percentage_reached(bike_component.service_interval,
-                                                                                   int(bike_component.service_next))
+                                                                                   round(bike_component.service_next))
                                                                                    if bike_component.service_next is not None else None,
                                 "offset": bike_component.component_distance_offset,
                                 "component_notes": bike_component.notes,
@@ -190,7 +190,7 @@ class BusinessLogic():
                                        installation_record.updated_date,
                                        installation_record.update_reason,
                                        database_manager.read_bike_name(installation_record.bike_id),
-                                       int(installation_record.distance_marker)) for installation_record in component_history]
+                                       round(installation_record.distance_marker)) for installation_record in component_history]
         else:
             component_history_data = None
 
@@ -200,7 +200,7 @@ class BusinessLogic():
                                      service_record.service_date,
                                      service_record.description,
                                      database_manager.read_bike_name(service_record.bike_id),
-                                     int(service_record.distance_marker)) for service_record in service_history]
+                                     round(service_record.distance_marker)) for service_record in service_history]
         else:
             service_history_data = None
 
@@ -345,7 +345,7 @@ class BusinessLogic():
             lifetime_remaining = component.lifetime_expected - component.component_distance
             lifetime_status = self.compute_component_status("lifetime",
                                                             calculate_percentage_reached(component.lifetime_expected,
-                                                                                        int(lifetime_remaining)))
+                                                                                        round(lifetime_remaining)))
             
             success, message = database_manager.write_component_lifetime_status(component,
                                                                 lifetime_remaining, lifetime_status)
@@ -402,7 +402,7 @@ class BusinessLogic():
             service_next = component.service_interval - distance_since_service
             service_status = self.compute_component_status("service",
                                                             calculate_percentage_reached(component.service_interval,
-                                                                                        int(service_next)))
+                                                                                        round(service_next)))
             
             success, message = database_manager.write_component_service_status(component, service_next, service_status)
 
