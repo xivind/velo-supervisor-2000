@@ -1011,17 +1011,37 @@ class BusinessLogic():
         logging.info(f"Iterating over all services for component {component.component_name} to update distance markers and bike ids")
         for index, service in enumerate(all_services):
             if index == 0:
-                first_installation = sorted_history[0]
-                new_service_distance = first_installation.distance_marker
+                accumulated_distance = 0
+                current_installation = None
+                service_date = service.service_date
                 
-                if first_installation.update_reason == "Installed":
-                    additional_distance = database_manager.read_sum_distance_subset_rides(first_installation.bike_id,
-                                                                                          first_installation.updated_date,
-                                                                                          service.service_date)
-                    new_service_distance += additional_distance
-                    logging.info(f"First service: Starting from {first_installation.distance_marker}, added {additional_distance} km")
+                for record in sorted_history:
+                    if record.updated_date > service_date:
+                        break
+                        
+                    if record.update_reason == "Installed":
+                        current_installation = record
+                    elif record.update_reason == "Not installed" and current_installation:
+                        logging.info(f"Calculating distance for installation period for first service record: {current_installation.updated_date} to {record.updated_date}")
+                        period_distance = database_manager.read_sum_distance_subset_rides(current_installation.bike_id,
+                                                                                          current_installation.updated_date,
+                                                                                          record.updated_date)
+                        accumulated_distance += period_distance
+                        logging.info(f"Added {period_distance} km from bike {current_installation.bike_id}")
+                        current_installation = None
+
+                logging.info(f"Processing final installation period for first service record")
+                if current_installation:
+                    period_distance = database_manager.read_sum_distance_subset_rides(current_installation.bike_id,
+                                                                                      current_installation.updated_date,
+                                                                                      service_date)
+                    accumulated_distance += period_distance
+                    logging.info(f"Added final period of {period_distance} km from bike {current_installation.bike_id} for first service record")
+
+                new_service_distance = accumulated_distance
+
             else:
-                logging.info(f"Processing subsequent service, using service dates to calculate distance")
+                logging.info(f"Processing subsequent service records, using service dates to calculate distance")
                 previous_service_date = all_services[index-1].service_date
                 current_service_date = service.service_date
                 
