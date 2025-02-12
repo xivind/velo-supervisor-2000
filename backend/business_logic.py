@@ -194,13 +194,30 @@ class BusinessLogic():
         else:
             component_history_data = None
 
-        service_history = database_manager.read_subset_service_history(bike_component.component_id)
+        
+        service_history = database_manager.read_subset_service_history(component_id)
         if service_history is not None:
-            service_history_data = [(service_record.service_id,
-                                     service_record.service_date,
-                                     service_record.description,
-                                     database_manager.read_bike_name(service_record.bike_id),
-                                     round(service_record.distance_marker)) for service_record in service_history]
+            total_distance = 0
+            enhanced_service_data = []
+            
+            for service_record in reversed(service_history):
+                total_distance += service_record.distance_marker
+            
+            running_total = total_distance
+            
+            for service_record in service_history:
+                enhanced_service_data.append((
+                    service_record.service_id,
+                    service_record.service_date,
+                    service_record.description,
+                    database_manager.read_bike_name(service_record.bike_id),
+                    round(service_record.distance_marker),
+                    round(running_total)
+                ))
+                running_total -= service_record.distance_marker
+            
+            service_history_data = enhanced_service_data
+        
         else:
             service_history_data = None
 

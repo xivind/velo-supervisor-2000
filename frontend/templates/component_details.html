@@ -281,21 +281,12 @@
                 </thead>
                 <tbody>
                     {% if payload.service_history_data %}
-                        {# First calculate total from oldest to newest #}
-                        {% set final_total = namespace(value=0) %}
-                        {% for entry in payload.service_history_data|reverse %}
-                            {% set service_id, service_date, description, bike_name, distance_marker = entry %}
-                            {% set final_total.value = final_total.value + distance_marker %}
-                        {% endfor %}
-                        
-                        {# Now display from newest to oldest, subtracting as we go #}
-                        {% set running_total = namespace(value=final_total.value) %}
-                        {% for service_id, service_date, description, bike_name, distance_marker in payload.service_history_data %}
+                        {% for service_id, service_date, description, bike_name, distance_marker, running_total in payload.service_history_data %}
                             <tr>
                                 <td>{{ service_date }}</td>
                                 <td>{{ description }}</td>
                                 <td>{{ bike_name }}</td>
-                                <td>{{ running_total.value }} km (+{{ distance_marker }} km)</td>
+                                <td>{{ running_total }} km (+{{ distance_marker }} km)</td>
                                 <td class="text-end">
                                     <button class="mb-1 btn btn-outline-success btn-sm edit-service-btn"
                                             data-service-id="{{ service_id }}"
@@ -310,7 +301,6 @@
                                     </button>
                                 </td>
                             </tr>
-                            {% set running_total.value = running_total.value - distance_marker %}
                         {% endfor %}
                     {% else %}
                         <tr>
