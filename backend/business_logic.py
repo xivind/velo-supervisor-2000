@@ -186,34 +186,49 @@ class BusinessLogic():
 
         component_history = database_manager.read_subset_component_history(bike_component.component_id)
         if component_history is not None:
-            component_history_data = [(installation_record.history_id,
-                                       installation_record.updated_date,
-                                       installation_record.update_reason,
-                                       database_manager.read_bike_name(installation_record.bike_id),
-                                       round(installation_record.distance_marker)) for installation_record in component_history]
+            component_history_data = []
+            
+            for installation_record in component_history:
+                bike_total_distance = 0
+                if installation_record.bike_id:
+                    bike_total_distance = database_manager.read_sum_distance_subset_rides(installation_record.bike_id,
+                                                                                          "2000-01-01 00:00",
+                                                                                          installation_record.updated_date)
+                
+                component_history_data.append((installation_record.history_id,
+                                               installation_record.updated_date,
+                                               installation_record.update_reason,
+                                               database_manager.read_bike_name(installation_record.bike_id),
+                                               round(bike_total_distance),
+                                               round(installation_record.distance_marker)))
         else:
             component_history_data = None
 
-        
         service_history = database_manager.read_subset_service_history(component_id)
         if service_history is not None:
-            total_distance = 0
+            total_component_distance = 0
             enhanced_service_data = []
             
             for service_record in reversed(service_history):
-                total_distance += service_record.distance_marker
+                total_component_distance += service_record.distance_marker
             
-            running_total = total_distance
+            running_total = total_component_distance
             
             for service_record in service_history:
-                enhanced_service_data.append((
-                    service_record.service_id,
-                    service_record.service_date,
-                    service_record.description,
-                    database_manager.read_bike_name(service_record.bike_id),
-                    round(service_record.distance_marker),
-                    round(running_total)
-                ))
+                bike_total_distance = 0
+                if service_record.bike_id:
+                    bike_total_distance = database_manager.read_sum_distance_subset_rides(service_record.bike_id,
+                                                                                          "2000-01-01 00:00", 
+                                                                                          service_record.service_date)
+
+                enhanced_service_data.append((service_record.service_id,
+                                              service_record.service_date,
+                                              service_record.description,
+                                              database_manager.read_bike_name(service_record.bike_id),
+                                              round(bike_total_distance),
+                                              round(service_record.distance_marker),
+                                              round(running_total)))
+                
                 running_total -= service_record.distance_marker
             
             service_history_data = enhanced_service_data
