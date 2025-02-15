@@ -3,6 +3,7 @@
 {% block title %}Component details - Velo Supervisor 2000{% endblock %}
 
 {% block content %}
+{% include "modal_create_component.html" %}
 <h1 id="component-details" class="display-5 mt-5 text-center">Component details</h1>
 <div class="row mt-5">
     <div class="col-md-4">
@@ -101,12 +102,12 @@
         <!-- Bottom row - 2 buttons -->
         <div class="row g-2">
             <div class="col-4">
-                <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary w-100">
+                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#addComponentModal">
                     <div class="d-flex flex-column align-items-center">
                         <span class="fs-5">⚙</span>
                         <span>New comp.</span>
                     </div>
-                </a>
+                </button>
             </div>
             <div class="col-4">
                 <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-info w-100">
