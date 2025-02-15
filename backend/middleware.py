@@ -3,6 +3,7 @@
 
 import logging
 import traceback
+from datetime import datetime
 from fastapi import HTTPException, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -37,4 +38,5 @@ class Middleware(BaseHTTPMiddleware):
             "request": request,
             "status_code": status_code,
             "error_message": error_message,
+            "error_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }, status_code=status_code)
