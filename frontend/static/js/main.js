@@ -662,3 +662,56 @@ function handleUpdate(endpoint, message) {
             showToast('An error occurred during the update', false);
         });
 }
+
+// ===== Footer page functions =====
+
+// Modern performance timing code
+window.addEventListener('load', () => {
+    function getDetailedTiming() {
+        const perf = performance.getEntriesByType('navigation')[0];
+        
+        // Calculate all the phases using modern API
+        const timings = {
+            total: perf.loadEventEnd / 1000,
+            network: perf.responseEnd / 1000,
+            serverResponse: (perf.responseEnd - perf.requestStart) / 1000,
+            domProcessing: (perf.domComplete - perf.responseEnd) / 1000,
+            loadEvent: (perf.loadEventEnd - perf.loadEventStart) / 1000
+        };
+
+        // Validate timings
+        for (let phase in timings) {
+            if (timings[phase] < 0) {
+                console.warn(`Negative timing for ${phase}: ${timings[phase]}`);
+                return null;
+            }
+        }
+
+        return timings;
+    }
+
+    // Get the timing element
+    const timeElement = document.getElementById('log-fetch-time');
+    
+    // Check if the Performance API is available and has navigation timing
+    if (performance.getEntriesByType && performance.getEntriesByType('navigation').length > 0) {
+        // Wait a short moment to ensure timing data is available
+        setTimeout(() => {
+            const timings = getDetailedTiming();
+            
+            if (timings) {
+                // Log detailed timings for debugging
+                console.debug('Page Load Timings:', timings);
+                
+                // Display the total time with 2 decimals
+                timeElement.textContent = timings.total.toFixed(2);
+            } else {
+                console.error('Invalid timing data received');
+                timeElement.textContent = 'Timing unavailable';
+            }
+        }, 0);
+    } else {
+        console.error('Modern Performance API not supported');
+        timeElement.textContent = 'Timing unavailable';
+    }
+});
