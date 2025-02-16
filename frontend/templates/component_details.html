@@ -94,17 +94,17 @@
                 </button>
             </div>
             <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#editCollectionModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                <button type="button" class="btn btn-outline-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#editCollectionModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
                     <span>📦 Edit collection</span>
                 </button>
             </div>
                 <div class="col-6 mb-2">
                     {% if payload.bike_component_data['bike_id'] %}
-                        <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary w-100">
+                        <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary w-100 mb-2">
                             <span>🚴 View bike</span>
                         </a>
                     {% else %}
-                        <button type="button" class="btn btn-outline-primary w-100" disabled>
+                        <button type="button" class="btn btn-outline-primary w-100 mb-2" disabled>
                             <span>🚴 View bike</span>
                         </button>
                     {% endif %}
