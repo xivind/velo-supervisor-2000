@@ -30,7 +30,7 @@ const confirmModalHTML = `
             <div class="modal-body" id="confirmModalBody"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancelAction" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-secondary" id="confirmAction" data-bs-dismiss="modal">Proceed</button>
+                <button type="button" class="btn btn-primary" id="confirmAction" data-bs-dismiss="modal">Proceed</button>
             </div>
         </div>
     </div>
