@@ -5,6 +5,8 @@
 {% block content %}
 {% include "modal_create_component.html" %}
 {% include "modal_update_component_status.html" %}
+{% include "modal_update_component_details.html" %}
+
 <h1 id="component-details" class="display-5 mt-5 text-center">Component details</h1>
 <div class="row mt-5">
     <div class="col-md-4">
@@ -162,6 +164,7 @@
                       
                 </form>
             </fieldset>
+            <hr/>
             <div class="col-12 d-flex justify-content-end">
                 <button type="button" class="btn btn-outline-primary mb-2 me-2" data-bs-toggle="modal" data-bs-target="#editComponentStatusModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
                     Update status
@@ -173,6 +176,7 @@
         <div class="card shadow mb-4">
             <div class="card-header fw-bold">Component details</div>
             <div class="card-body">
+                <fieldset disabled>
                 <form id="component_details_form" class="row align-items-center" action="/update_component_details" method="post" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
                     <input type="hidden" id="component_bike_id" name="component_bike_id" value="{{ payload.bike_component_data['bike_id'] }}">
@@ -216,10 +220,14 @@
                         <label for="component_notes" class="form-label fw-bold">Notes</label>
                         <textarea class="form-control" id="component_notes" name="component_notes" rows="3">{% if payload.bike_component_data['component_notes'] %}{{ payload.bike_component_data['component_notes'] }}{% else %}{% endif %}</textarea>
                     </div>
-                    <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-outline-primary mb-2" form="component_details_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Update details</button>
-                    </div>
                 </form>
+            </fieldset>
+            <hr/>
+            <div class="col-12 d-flex justify-content-end">
+                <button type="button" class="btn btn-outline-primary mb-2" data-bs-toggle="modal" data-bs-target="#editComponentDetailsModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                    Update details
+                </button>
+            </div>
             </div>
         </div>
     </div>

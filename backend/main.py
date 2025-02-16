@@ -182,8 +182,8 @@ async def create_component(component_id: Optional[str] = Form(None),
 
     return response
 
-@app.post("/update_component_details", response_class=HTMLResponse) #This must be rewritten, way too big. Split into two endpoints, for creating and updating
-async def component_modify(component_id: Optional[str] = Form(None), #Check that the api call does not send more variables than needed
+@app.post("/update_component_details", response_class=HTMLResponse)
+async def component_modify(component_id: Optional[str] = Form(None),
                            component_installation_status: str = Form(...),
                            component_updated_date: str = Form(...),
                            component_name: str = Form(...),
@@ -195,6 +195,7 @@ async def component_modify(component_id: Optional[str] = Form(None), #Check that
                            offset: Optional[int] = Form(0),
                            component_notes: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
+    
     success, message, component_id = (business_logic.modify_component_details
                                       (component_id,
                                        component_installation_status,
@@ -220,6 +221,7 @@ async def add_history_record(component_id: str = Form(...),
                              component_bike_id: str = Form(...),
                              component_updated_date: str = Form(...)):
     """Endpoint to update an existing component history record"""
+    
     success, message = business_logic.create_history_record(component_id,
                                                             component_installation_status,
                                                             component_bike_id,
@@ -236,6 +238,7 @@ async def update_history_record(component_id: str = Form(...),
                                 history_id: str = Form(...),
                                 updated_date: str = Form(...)):
     """Endpoint to update an existing component history record"""
+    
     success, message = business_logic.update_history_record(history_id, updated_date)
     
     response = RedirectResponse(
@@ -249,7 +252,7 @@ async def add_service(component_id: str = Form(...),
                       service_date: str = Form(...),
                       service_description: str = Form(...)):
     """Endpoint to add service"""
-
+    
     success, message = business_logic.create_service_record(component_id,
                                                             service_date,
                                                             service_description)
@@ -266,6 +269,7 @@ async def update_service_record(component_id: str = Form(...),
                                 service_date: str = Form(...),
                                 service_description: str = Form(...)):
     """Endpoint to update an existing service record"""
+    
     success, message = business_logic.update_service_record(component_id,
                                                             service_id,
                                                             service_date,
