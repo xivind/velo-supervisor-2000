@@ -1053,7 +1053,7 @@ class BusinessLogic():
         
         if service_date <= oldest_history_record_date:
             logging.warning(f"Service date cannot be at or before component creation date: {oldest_history_record_date}. Component: {component.component_name}")
-            return False, f"Service date cannot be at or before component creation date {oldest_history_record_date}. Component: {component.component_name})"
+            return False, f"Service date cannot be at or before component creation date {oldest_history_record_date}. Component: {component.component_name}"
 
         if service_date >= datetime.now().strftime("%Y-%m-%d %H:%M"):
             logging.warning(f"Service date cannot be in the future. Component: {component.component_name}")
