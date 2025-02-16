@@ -486,23 +486,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function to handle editing of service and history records
+// Function to handle service records and history records
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component details page
     if (document.querySelector('h1#component-details') === null) return;
 
-    // Initialize edit modals
-    const editServiceModal = new bootstrap.Modal(document.getElementById('editServiceModal'));
+    // Initialize modals
+    const serviceRecordModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
     const editHistoryModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
 
-    // Initialize Flatpickr for edit modals
-    const serviceEditDatepicker = flatpickr("#editServiceDate", {
+    // Get component ID from the page context
+    const currentComponentId = document.getElementById('serviceComponentId').value;
+
+    // Initialize Flatpickr for service modal
+    const serviceDatepicker = flatpickr("#serviceDate", {
         dateFormat: "Y-m-d H:i",
         enableTime: true,
         time_24hr: true,
         allowInput: false
     });
 
+    // Initialize Flatpickr for history modal
     const historyEditDatepicker = flatpickr("#editUpdatedDate", {
         dateFormat: "Y-m-d H:i",
         enableTime: true,
@@ -510,20 +514,37 @@ document.addEventListener('DOMContentLoaded', function() {
         allowInput: false
     });
 
+    // Handle "New Service" button click
+    document.querySelector('[data-bs-target="#serviceRecordModal"]').addEventListener('click', function() {
+        // Set up modal for creating new service
+        document.getElementById('serviceRecordModalLabel').textContent = 'New Service Record';
+        document.getElementById('serviceRecordForm').action = '/add_service_record';
+        
+        // Ensure component_id is set for new service
+        document.getElementById('serviceComponentId').value = currentComponentId;
+        
+        // Clear other form fields
+        document.getElementById('serviceId').value = '';
+        serviceDatepicker.clear();
+        document.getElementById('serviceDescription').value = '';
+        
+        serviceRecordModal.show();
+    });
+
     // Handle service record edit button clicks
     document.querySelectorAll('.edit-service-btn').forEach(button => {
         button.addEventListener('click', function() {
-            const componentId = this.dataset.componentId;
-            const serviceId = this.dataset.serviceId;
-            const serviceDate = this.dataset.serviceDate;
-            const serviceDescription = this.dataset.serviceDescription;
+            // Set up modal for editing service
+            document.getElementById('serviceRecordModalLabel').textContent = 'Edit Service Record';
+            document.getElementById('serviceRecordForm').action = '/update_service_record';
+            
+            // Fill in the form with existing data
+            document.getElementById('serviceComponentId').value = this.dataset.componentId;
+            document.getElementById('serviceId').value = this.dataset.serviceId;
+            serviceDatepicker.setDate(this.dataset.serviceDate);
+            document.getElementById('serviceDescription').value = this.dataset.serviceDescription;
 
-            document.getElementById('editServiceComponentId').value = componentId;
-            document.getElementById('editServiceId').value = serviceId;
-            serviceEditDatepicker.setDate(serviceDate);
-            document.getElementById('editServiceDescription').value = serviceDescription;
-
-            editServiceModal.show();
+            serviceRecordModal.show();
         });
     });
 
@@ -543,8 +564,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Calendar icon click handlers
-    document.getElementById('edit-service-date-picker-toggle').addEventListener('click', () => {
-        serviceEditDatepicker.open();
+    document.getElementById('service-date-picker-toggle').addEventListener('click', () => {
+        serviceDatepicker.open();
     });
 
     document.getElementById('edit-history-date-picker-toggle').addEventListener('click', () => {

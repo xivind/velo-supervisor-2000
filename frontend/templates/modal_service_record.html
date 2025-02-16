@@ -1,0 +1,32 @@
+<div class="modal fade" id="serviceRecordModal" tabindex="-1" aria-labelledby="serviceRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="serviceRecordModalLabel">Service Record</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="serviceRecordForm" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" id="serviceComponentId" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
+                    <input type="hidden" id="serviceId" name="service_id">
+                    
+                    <div class="mb-3">
+                        <label for="serviceDate" class="form-label fw-bold">Service date</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="serviceDate" name="service_date" required>
+                            <span class="input-group-text" id="service-date-picker-toggle">🗓</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="serviceDescription" class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="serviceDescription" name="service_description" rows="3" required minlength="5"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
