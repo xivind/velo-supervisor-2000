@@ -1,56 +1,16 @@
-// ===== Modal components ====
+// ===== Modal components for feedback to user ====
 
-// Modal for input validation
-const validationModalHTML = `
-    <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="validationModalLabel">⛔ Input validation error</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="validationModalBody"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-`;
+let validationModal;
+let confirmModal;
+let loadingModal;
 
-// Modal for confirmation of action
-const confirmModalHTML = `
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title" id="confirmModalLabel">⚠ Confirm irreversible action</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="confirmModalBody"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelAction" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="confirmAction" data-bs-dismiss="modal">Proceed</button>
-            </div>
-        </div>
-    </div>
-</div>
-`;
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize modal instances
+    validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+    confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+});
 
-// Modal for loading status
-const loadingModalHTML = `
-<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-warning-subtle">
-            <div class="modal-body text-center">
-                <div class="spinner-border text-primary mb-2" role="status"></div>
-                <h5 class="mb-2" id="loadingMessage"></h5>
-                <p class="mb-0">This may take a moment, hold your horses 🚴</p>
-            </div>
-        </div>
-    </div>
-</div>
-`;
 
 // ===== Functions used on multiple pages =====
 
@@ -168,9 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // Function to delete records
 document.addEventListener('DOMContentLoaded', function() {
     // Add confirm modal to the page if it doesn't exist
-    if (!document.getElementById('confirmModal')) {
-        document.body.insertAdjacentHTML('beforeend', confirmModalHTML);
-    }
 
     document.querySelectorAll('.delete-record').forEach(button => {
         button.addEventListener('click', (event) => {
@@ -202,7 +159,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set up the modal
             const modalBody = document.getElementById('confirmModalBody');
             modalBody.innerHTML = `You are about to delete this ${recordType}. This cannot be undone. Do you want to proceed?`;
-            const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
             
             // Show the modal
             confirmModal.show();
@@ -346,41 +302,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function to clear component overview form
-document.addEventListener('DOMContentLoaded', function() {
-    const clearFormButton = document.getElementById('clear_form_btn');
-    const componentForm = document.getElementById('component_overview_form');
-    
-    if (!clearFormButton || !componentForm) return;
-    
-    clearFormButton.addEventListener('click', function(e) {
-        e.preventDefault(); // Prevent form submission
-        
-        // Get all form inputs
-        const inputs = componentForm.querySelectorAll('input, select, textarea');
-        
-        // Clear each input
-        inputs.forEach(input => {
-            if (input.type === 'text' || input.type === 'number' || input.tagName === 'TEXTAREA') {
-                input.value = '';
-            } else if (input.type === 'select-one') {
-                input.selectedIndex = 0;
-            }
-        });
-        
-        // If you have any flatpickr date inputs, clear those too
-        const dateInputs = componentForm.querySelectorAll('.flatpickr-input');
-        dateInputs.forEach(input => {
-            if (input._flatpickr) {
-                input._flatpickr.clear();
-            }
-        });
-    });
-});
-
 // ===== Component details page functions =====
 
-// Function to control installaion status and bike name
+// Function to control installaion status and bike name NOT WORKING, LINKS TO WRONG FORM
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component details page
     if (document.querySelector('h1#component-details') === null) return;
@@ -410,17 +334,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Function for input validation of component details
+// Function for validating component status modal form
 document.addEventListener('DOMContentLoaded', function() {
-    // Get form by ID
-    const componentDetailsForm = document.getElementById('component_details_form');
-    if (!componentDetailsForm) return;
+    // Get the component status modal form
+    const componentStatusForm = document.getElementById('component_status_form');
+    if (!componentStatusForm) return;
 
-    // Add validation modal to the page
-    document.body.insertAdjacentHTML('beforeend', validationModalHTML);
-
-    // Form submit handler with validation
-    componentDetailsForm.addEventListener('submit', function(e) {
+    // Add validation to the modal form
+    componentStatusForm.addEventListener('submit', function(e) {
         const statusSelect = this.querySelector('#component_installation_status');
         const installationStatus = statusSelect.value;
         const bikeId = this.querySelector('#component_bike_id').value;
@@ -431,55 +352,37 @@ document.addEventListener('DOMContentLoaded', function() {
         let errorMessage = null;
         if (installationStatus === 'Installed' && !bikeId) {
             errorMessage = 'Status cannot be set to "Installed" if no bike is selected';
-            } else if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
-                errorMessage = `Status cannot be changed to "${statusSelect.value}" since status is already "${installationStatus}"`;
-            } else if (installationStatus !== initialSelectedStatus && dateInput.value === initialDate) {
-                errorMessage = `Status cannot be changed unless you also update record date`;
-            }
+        } else if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
+            errorMessage = `Status cannot be changed to "${statusSelect.value}" since status is already "${installationStatus}"`;
+        } else if (installationStatus !== initialSelectedStatus && dateInput.value === initialDate) {
+            errorMessage = `Status cannot be changed unless you also update record date`;
+        }
 
         if (errorMessage) {
             e.preventDefault();
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = errorMessage;
-            const validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
             validationModal.show();
         }
     });
-});
 
-// Function to handle component retirement confirmation
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the component details page
-    const componentDetailsPage = document.getElementById('component-details');
-    if (!componentDetailsPage) return;
-
-    // Get installation status select
-    const installationSelect = document.getElementById('component_installation_status');
-    if (!installationSelect) return;
-
-    // Add confirm modal to the page
-    document.body.insertAdjacentHTML('beforeend', confirmModalHTML);
-
-    // Initialize modal and tracking variables
-    const modalBody = document.getElementById('confirmModalBody');
-    modalBody.innerHTML = "You are about to retire this component. This cannot be undone. Do you want to proceed? You still need to save.";
-    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    // Handle retirement confirmation for modal form
+    const installationSelect = componentStatusForm.querySelector('#component_installation_status');
     let previousValue = installationSelect.value;
 
-    // Add change event listener to installation status select
-    installationSelect.addEventListener('change', function(e) {
+    installationSelect.addEventListener('change', function() {
         if (this.value === 'Retired') {
+            const modalBody = document.getElementById('confirmModalBody');
+            modalBody.innerHTML = "You are about to retire this component. This cannot be undone. Do you want to proceed? You still need to save.";
             confirmModal.show();
             
-            // Handle cancel
             document.getElementById('cancelAction').addEventListener('click', function() {
                 installationSelect.value = previousValue;
-            }, { once: true });  // Remove listener after first use
+            }, { once: true });
             
-            // Handle confirm
             document.getElementById('confirmAction').addEventListener('click', function() {
                 previousValue = 'Retired';
-            }, { once: true });  // Remove listener after first use
+            }, { once: true });
         } else {
             previousValue = this.value;
         }
@@ -646,11 +549,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the config page
     if (document.querySelector('h1#config') === null) return;
 
-    // Add loading modal to the page if it doesn't exist
-    if (!document.getElementById('loadingModal')) {
-        document.body.insertAdjacentHTML('beforeend', loadingModalHTML);
-    }
-
     // Add click handlers to all update buttons
     document.querySelectorAll('.update-button').forEach(button => {
         button.addEventListener('click', function(e) {
@@ -667,7 +565,6 @@ function handleUpdate(endpoint, message) {
     if (document.querySelector('h1#config') === null) return;
     
     // Show the loading modal with custom message
-    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
     document.getElementById('loadingMessage').textContent = message;
     loadingModal.show();
 
