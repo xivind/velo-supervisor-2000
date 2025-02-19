@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
 // Date picker function
 document.addEventListener('DOMContentLoaded', function() {
     // Function to initialize a single date picker
@@ -105,6 +106,15 @@ document.addEventListener('DOMContentLoaded', function() {
             clickOpens: true,
             enableTime: true,
             time_24hr: true,
+            required: true,
+            // Add validation on close
+            onClose: function(selectedDates, dateStr, instance) {
+                if (!dateStr && dateInput.hasAttribute('required')) {
+                    dateInput.classList.add('is-invalid');
+                } else {
+                    dateInput.classList.remove('is-invalid');
+                }
+            }
         });
 
         // Open calendar on icon click
@@ -112,6 +122,19 @@ document.addEventListener('DOMContentLoaded', function() {
             flatpickrInstance.open();
         });
 
+        // Add form validation if input is required
+        if (dateInput.hasAttribute('required')) {
+            const form = dateInput.closest('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!dateInput.value) {
+                        e.preventDefault();
+                        dateInput.classList.add('is-invalid');
+                        return false;
+                    }
+                });
+            }
+        }
     }
 
     // Initialize all date pickers
