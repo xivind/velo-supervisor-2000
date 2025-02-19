@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// Date picker function
+// Global date picker function
 document.addEventListener('DOMContentLoaded', function() {
     // Function to initialize a single date picker
     function initializeDatePicker(inputId, toggleId) {
@@ -327,14 +327,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ===== Component details page functions =====
 
-// Function to control installaion status and bike name NOT WORKING, LINKS TO WRONG FORM
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the component details page
-    if (document.querySelector('h1#component-details') === null) return;
+// Function to handle component form status and bike selection synchronization
+function initializeComponentForm(formElement) {
+    const bikeSelect = formElement.querySelector('[name="component_bike_id"]');
+    const installationSelect = formElement.querySelector('[name="component_installation_status"]');
     
-    const bikeSelect = document.getElementById('component_bike_id');
-    const installationSelect = document.getElementById('component_installation_status');
+    if (!bikeSelect || !installationSelect) {
+        console.debug('Form elements not found:', { bikeSelect, installationSelect });
+        return;
+    }
 
+    // Handle bike selection changes
     bikeSelect.addEventListener('change', function() {
         if (installationSelect.value !== "Retired") {
             if (this.value !== "") {
@@ -345,15 +348,46 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Handle installation status changes
     installationSelect.addEventListener('change', function() {
         if (this.value === "Not installed") {
             bikeSelect.value = "";
         }
     });
 
-    // Initial check on page load
+    // Initial state check
     if (bikeSelect.value === "" && installationSelect.value !== "Retired") {
         installationSelect.value = "Not installed";
+    }
+}
+
+// Initialize forms when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle create component modal
+    const createComponentForm = document.getElementById('component_overview_form');
+    if (createComponentForm) {
+        initializeComponentForm(createComponentForm);
+    }
+
+    // Handle edit status modal
+    const componentStatusForm = document.getElementById('component_status_form');
+    if (componentStatusForm) {
+        initializeComponentForm(componentStatusForm);
+    }
+
+    // Also initialize when modals are shown (in case of dynamic content)
+    const createComponentModal = document.getElementById('createComponentModal');
+    if (createComponentModal) {
+        createComponentModal.addEventListener('shown.bs.modal', function() {
+            initializeComponentForm(createComponentForm);
+        });
+    }
+
+    const editComponentStatusModal = document.getElementById('editComponentStatusModal');
+    if (editComponentStatusModal) {
+        editComponentStatusModal.addEventListener('shown.bs.modal', function() {
+            initializeComponentForm(componentStatusForm);
+        });
     }
 });
 
