@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
     installationSelect.addEventListener('change', function() {
         if (this.value === 'Retired') {
             const modalBody = document.getElementById('confirmModalBody');
-            modalBody.innerHTML = "You are about to retire this component. This cannot be undone. Do you want to proceed? You still need to save.";
+            modalBody.innerHTML = "You are about to retire this component. This will lock the component and prevent further editing. Delete the most recent installation record if you wish to unlock the component. Do you want to proceed? You still need to save.";
             confirmModal.show();
             
             document.getElementById('cancelAction').addEventListener('click', function() {
