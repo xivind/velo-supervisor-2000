@@ -391,59 +391,77 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Function for validating component status modal form
-document.addEventListener('DOMContentLoaded', function() {
-    // Get the component status modal form
-    const componentStatusForm = document.getElementById('component_status_form');
-    if (!componentStatusForm) return;
+// Function for validating component status changes
+function addFormValidation(form) {
+    if (!form) return;
 
-    // Add validation to the modal form
-    componentStatusForm.addEventListener('submit', function(e) {
-        const statusSelect = this.querySelector('#component_installation_status');
+    form.addEventListener('submit', function(e) {
+        const statusSelect = this.querySelector('[name="component_installation_status"]');
         const installationStatus = statusSelect.value;
-        const bikeId = this.querySelector('#component_bike_id').value;
-        const initialSelectedStatus = statusSelect.options[statusSelect.selectedIndex].defaultSelected ? statusSelect.value : null;
-        const dateInput = this.querySelector('#component_updated_date');
-        const initialDate = dateInput.defaultValue;
+        const bikeId = this.querySelector('[name="component_bike_id"]').value;
         
-        let errorMessage = null;
-        if (installationStatus === 'Installed' && !bikeId) {
-            errorMessage = 'Status cannot be set to "Installed" if no bike is selected';
-        } else if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
-            errorMessage = `Status cannot be changed to "${statusSelect.value}" since status is already "${installationStatus}"`;
-        } else if (installationStatus !== initialSelectedStatus && dateInput.value === initialDate) {
-            errorMessage = `Status cannot be changed unless you also update record date`;
+        // For status update modal, we need to check additional conditions
+        if (form.id === 'component_status_form') {
+            const initialSelectedStatus = statusSelect.options[statusSelect.selectedIndex].defaultSelected ? statusSelect.value : null;
+            const dateInput = this.querySelector('#component_updated_date');
+            const initialDate = dateInput.defaultValue;
+            
+            if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
+                e.preventDefault();
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = `Status cannot be changed to "${statusSelect.value}" since status is already "${installationStatus}"`;
+                validationModal.show();
+                return;
+            } else if (installationStatus !== initialSelectedStatus && dateInput.value === initialDate) {
+                e.preventDefault();
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = `Status cannot be changed unless you also update record date`;
+                validationModal.show();
+                return;
+            }
         }
 
-        if (errorMessage) {
+        // Common validation for both forms
+        if (installationStatus === 'Installed' && !bikeId) {
             e.preventDefault();
             const modalBody = document.getElementById('validationModalBody');
-            modalBody.innerHTML = errorMessage;
+            modalBody.innerHTML = 'Status cannot be set to "Installed" if no bike is selected';
             validationModal.show();
         }
     });
+}
 
-    // Handle retirement confirmation for modal form
-    const installationSelect = componentStatusForm.querySelector('#component_installation_status');
-    let previousValue = installationSelect.value;
+document.addEventListener('DOMContentLoaded', function() {
+    // Add validation to both forms
+    const componentStatusForm = document.getElementById('component_status_form');
+    const componentOverviewForm = document.getElementById('component_overview_form');
+    
+    addFormValidation(componentStatusForm);
+    addFormValidation(componentOverviewForm);
 
-    installationSelect.addEventListener('change', function() {
-        if (this.value === 'Retired') {
-            const modalBody = document.getElementById('confirmModalBody');
-            modalBody.innerHTML = "You are about to retire this component. This will lock the component and prevent further editing. Delete the most recent installation record if you wish to unlock the component. Do you want to proceed? You still need to save.";
-            confirmModal.show();
-            
-            document.getElementById('cancelAction').addEventListener('click', function() {
-                installationSelect.value = previousValue;
-            }, { once: true });
-            
-            document.getElementById('confirmAction').addEventListener('click', function() {
-                previousValue = 'Retired';
-            }, { once: true });
-        } else {
-            previousValue = this.value;
-        }
-    });
+    // Keep the existing retirement confirmation code for the status form
+    if (componentStatusForm) {
+        const installationSelect = componentStatusForm.querySelector('#component_installation_status');
+        let previousValue = installationSelect.value;
+
+        installationSelect.addEventListener('change', function() {
+            if (this.value === 'Retired') {
+                const modalBody = document.getElementById('confirmModalBody');
+                modalBody.innerHTML = "You are about to retire this component. This will lock the component and prevent further editing. Delete the most recent installation record if you wish to unlock the component. Do you want to proceed? You still need to save.";
+                confirmModal.show();
+                
+                document.getElementById('cancelAction').addEventListener('click', function() {
+                    installationSelect.value = previousValue;
+                }, { once: true });
+                
+                document.getElementById('confirmAction').addEventListener('click', function() {
+                    previousValue = 'Retired';
+                }, { once: true });
+            } else {
+                previousValue = this.value;
+            }
+        });
+    }
 });
 
 // Function to handle service records and history records
