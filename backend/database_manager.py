@@ -190,6 +190,14 @@ class DatabaseManager:
                 .order_by(Services.service_date.desc())
                 .first())
     
+    def read_oldest_service_record(self, component_id):
+        """Method to retrieve the oldest record from the service log of a given component"""
+        return (Services
+                .select()
+                .where(Services.component_id == component_id)
+                .order_by(Services.service_date.asc())
+                .first())
+    
     def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk to database"""
         try:
