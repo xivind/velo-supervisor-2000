@@ -221,7 +221,7 @@ async def add_history_record(component_id: str = Form(...),
                              component_bike_id: str = Form(...),
                              component_updated_date: str = Form(...)):
     """Endpoint to update an existing component history record"""
-    
+
     success, message = business_logic.create_history_record(component_id,
                                                             component_installation_status,
                                                             component_bike_id,
@@ -230,7 +230,7 @@ async def add_history_record(component_id: str = Form(...),
     response = RedirectResponse(
         url=f"/component_details/{component_id}?success={success}&message={message}",
         status_code=303)
-    
+
     return response
 
 @app.post("/update_history_record", response_class=HTMLResponse)
@@ -238,13 +238,13 @@ async def update_history_record(component_id: str = Form(...),
                                 history_id: str = Form(...),
                                 updated_date: str = Form(...)):
     """Endpoint to update an existing component history record"""
-    
+
     success, message = business_logic.update_history_record(history_id, updated_date)
-    
+
     response = RedirectResponse(
         url=f"/component_details/{component_id}?success={success}&message={message}",
         status_code=303)
-    
+
     return response
 
 @app.post("/add_service_record", response_class=HTMLResponse)
@@ -252,7 +252,7 @@ async def add_service(component_id: str = Form(...),
                       service_date: str = Form(...),
                       service_description: str = Form(...)):
     """Endpoint to add service"""
-    
+
     success, message = business_logic.create_service_record(component_id,
                                                             service_date,
                                                             service_description)
@@ -269,16 +269,16 @@ async def update_service_record(component_id: str = Form(...),
                                 service_date: str = Form(...),
                                 service_description: str = Form(...)):
     """Endpoint to update an existing service record"""
-    
+
     success, message = business_logic.update_service_record(component_id,
                                                             service_id,
                                                             service_date,
                                                             service_description)
-    
+
     response = RedirectResponse(
         url=f"/component_details/{component_id}?success={success}&message={message}",
         status_code=303)
-    
+
     return response
 
 
@@ -296,7 +296,7 @@ async def refresh_rides(request: Request, mode: str):
     """Endpoint to refresh data for a subset or all rides"""
 
     success, message = await business_logic.update_rides_bulk(mode)
-    
+
     return JSONResponse({"success": success,
                          "message": message})
 
@@ -329,7 +329,7 @@ async def update_config(request: Request,
     """Endpoint to update config file"""
 
     success, message = write_config(db_path, strava_tokens)
-    
+
     response = RedirectResponse(
         url=f"/config_overview?success={success}&message={message}",
         status_code=303)

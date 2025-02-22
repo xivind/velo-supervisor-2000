@@ -346,10 +346,25 @@ class BusinessLogic():
         component = database_manager.read_component(component_id)
         distance_offset = component.component_distance_offset
         total_distance = current_distance + distance_offset
+        history_records = database_manager.read_subset_component_history(component_id)
 
         success, message = database_manager.write_component_distance(component, total_distance)
-
         logging.info(f"Updated distance for component {component.component_name}. New total distance: {total_distance}.")
+        
+        if not history_records:
+            logging.warning(f"Component {component.component_name} has never been installed. Using alternate method to set lifetime and service status")
+            success, message = self.update_component_lifetime_service_alternate("update",
+                                                                                component_id,
+                                                                                component.lifetime_expected,
+                                                                                component.service_interval,
+                                                                                None)
+
+            if success:
+                logging.info(message)
+            else:
+                logging.error(message)
+
+            return success, message
 
         updated_component = database_manager.read_component(component_id)
 
@@ -357,7 +372,7 @@ class BusinessLogic():
             bike_id = database_manager.read_bike_id_recent_component_history(component_id)
         else:
             bike_id = updated_component.bike_id
-        
+
         self.update_component_lifetime_status(updated_component)
         self.update_component_service_status(updated_component)
         self.update_bike_status(bike_id)
@@ -378,9 +393,10 @@ class BusinessLogic():
             lifetime_status = self.compute_component_status("lifetime",
                                                             calculate_percentage_reached(component.lifetime_expected,
                                                                                         round(lifetime_remaining)))
-            
+
             success, message = database_manager.write_component_lifetime_status(component,
-                                                                lifetime_remaining, lifetime_status)
+                                                                                lifetime_remaining,
+                                                                                lifetime_status)
 
         else:
             logging.info(f"Component {component.component_name} has no expected lifetime, setting NULL values for lifetime.")
@@ -535,6 +551,52 @@ class BusinessLogic():
     
         return success, message
 
+    def update_component_lifetime_service_alternate(self, mode, component_id, lifetime_expected, service_interval, distance_offset):
+        """Method to update component lifetime and service status when no installation records exist"""
+        try:
+            component = database_manager.read_component(component_id)
+            total_distance = 0
+
+            if mode == "create":
+                total_distance = distance_offset
+                database_manager.write_component_distance(component, total_distance)
+         
+            component = database_manager.read_component(component_id)
+
+
+            if lifetime_expected:
+                lifetime_remaining = lifetime_expected - component.component_distance
+                lifetime_status = self.compute_component_status("lifetime",
+                                                                calculate_percentage_reached(lifetime_expected,
+                                                                                            round(lifetime_remaining)))
+                database_manager.write_component_lifetime_status(component,
+                                                                lifetime_remaining,
+                                                                lifetime_status)
+            else:
+                database_manager.write_component_lifetime_status(component,
+                                                                None,
+                                                                None)
+            if service_interval:
+                service_next = service_interval
+                service_status = self.compute_component_status("service",
+                                                                calculate_percentage_reached(service_interval,
+                                                                                            round(service_next)))
+                
+                database_manager.write_component_service_status(component,
+                                                                service_next,
+                                                                service_status)
+            else:
+                database_manager.write_component_service_status(component,
+                                                                None,
+                                                                None)
+            
+            logging.info(f"Component {component.component_name} updated with lifetime and service status (no installation records)")
+            return True, f"Component {component.component_name} updated with lifetime and service status (no installation records)"
+
+        except Exception as error:
+            logging.error(f"An error occurred updating lifetime and service status for {component.component_name} (no installation records): {error}")
+            return False, f"An error occurred updating lifetime and service status for {component.component_name} (no installation records): {error}"
+
     def update_bike_status(self, bike_id):
         """Method to update status for a given bike based on component service and lifetime status"""
         if not bike_id:
@@ -640,8 +702,15 @@ class BusinessLogic():
                         logging.info(message)
                     else:
                         logging.error(message)
-                else:
-                    logging.warning(f"Component {component_name} is not installed, no history record created.")
+                
+                elif component_installation_status == "Not installed":
+                    logging.warning(f"Component {component_name} is not installed, no history record created. Using alternate method to set lifetime and service status")
+                    success, message = self.update_component_lifetime_service_alternate("create",
+                                                                                        component_id,
+                                                                                        new_component_data["lifetime_expected"],
+                                                                                        new_component_data["service_interval"],
+                                                                                        new_component_data["component_distance_offset"])
+
             else:
                 logging.error(message)
 
@@ -709,10 +778,10 @@ class BusinessLogic():
                               component_updated_date):
         """Method to create installation history record"""
         try:
-            history_id = f'{component_updated_date} {component_id}' #Consider change logic to build id
+            history_id = f'{component_updated_date} {component_id}'
             component = database_manager.read_component(component_id)
 
-            success, message = self.validate_history_record("create history", component_id, history_id, component_updated_date, installation_status, component_bike_id) #What is sent when bike_id is not assigned, None or 'None'?
+            success, message = self.validate_history_record("create history", component_id, history_id, component_updated_date, installation_status, component_bike_id)
             if not success:
                 logging.error(f"Validation of history record failed: {message}")
                 return success, message
