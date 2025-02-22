@@ -1053,8 +1053,8 @@ class BusinessLogic():
 
         history_records = database_manager.read_subset_component_history(component.component_id)
         if not history_records:
-            logging.warning(f"No installation records found for component {component.component_name}")
-            return False, f"No installation records found for component {component.component_name}"
+            logging.warning(f"Services cannot be registered to components that have never been installed. Component: {component.component_name}")
+            return False, f"Services cannot be registered to components that have never been installed. Component: {component.component_name}"
 
         oldest_history_record_date = database_manager.read_oldest_history_record(component.component_id).updated_date
         
