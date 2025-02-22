@@ -849,15 +849,21 @@ class BusinessLogic():
                 if current_index > 0:
                     prev_record = sorted_records[current_index - 1]
                     if updated_date <= prev_record.updated_date:
-                        logging.warning(f"Updated date must be after previous insallation record date: {prev_record.updated_date}")
-                        return False, f"Updated date must be after previous insallation record date: {prev_record.updated_date}"
+                        logging.warning(f"Updated date must be after previous installation record date: {prev_record.updated_date}")
+                        return False, f"Updated date must be after previous installation record date: {prev_record.updated_date}"
                 
                 if current_index < len(sorted_records) - 1:
                     next_record = sorted_records[current_index + 1]
                     if updated_date >= next_record.updated_date:
                         logging.warning(f"Updated date must be before next installation record date: {next_record.updated_date}")
                         return False, f"Updated date must be before next installation record date: {next_record.updated_date}"
-
+                    
+                if current_index == 0:
+                    oldest_service_record = database_manager.read_oldest_service_record(component_id)
+                    if oldest_service_record and updated_date >= oldest_service_record.service_date:
+                        logging.warning(f"First installation date for component {component.component_name} cannot be at or after first service date: {oldest_service_record.service_date}")
+                        return False, f"First installation date for component {component.component_name} cannot be at or after first service date: {oldest_service_record.service_date}"
+            
         logging.info(f"Validation of history record for {component.component_name} passed")
         return True, f"Validation of service record for {component.component_name} passed"
         
@@ -954,6 +960,7 @@ class BusinessLogic():
             return True, "Successfully processed history records and related services"
 
         except Exception as error:
+            print(f"Error message: {error}")
             logging.error(f"An error occurred processing history records for component {component_id}: {str(error)}")
             return False, f"Error processing history records for component {component_id}: {str(error)}"
       
