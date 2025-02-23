@@ -319,7 +319,7 @@
                                         {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
                                         ✍
                                 </button>
-                                {% if loop.first and not loop.last %}
+                                {% if loop.first %}
                                 <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
                                         data-history-id="{{ history_id}}">
                                         🗑

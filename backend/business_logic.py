@@ -9,7 +9,8 @@ from utils import (read_config,
                    generate_unique_id,
                    format_component_status,
                    format_cost,
-                   get_component_statistics)
+                   get_component_statistics,
+                   get_formatted_datetime_now)
 from strava import Strava
 from database_manager import DatabaseManager
 
@@ -352,7 +353,7 @@ class BusinessLogic():
         logging.info(f"Updated distance for component {component.component_name}. New total distance: {total_distance}.")
         
         if not history_records:
-            logging.warning(f"Component {component.component_name} has never been installed. Using alternate method to set lifetime and service status")
+            logging.warning(f"Component {component.component_name} has no installation records. Using alternate method to set lifetime and service status")
             success, message = self.update_component_lifetime_service_alternate("update",
                                                                                 component_id,
                                                                                 component.lifetime_expected,
@@ -563,7 +564,6 @@ class BusinessLogic():
          
             component = database_manager.read_component(component_id)
 
-
             if lifetime_expected:
                 lifetime_remaining = lifetime_expected - component.component_distance
                 lifetime_status = self.compute_component_status("lifetime",
@@ -589,8 +589,7 @@ class BusinessLogic():
                 database_manager.write_component_service_status(component,
                                                                 None,
                                                                 None)
-            
-            logging.info(f"Component {component.component_name} updated with lifetime and service status (no installation records)")
+
             return True, f"Component {component.component_name} updated with lifetime and service status (no installation records)"
 
         except Exception as error:
@@ -721,17 +720,17 @@ class BusinessLogic():
             return False, f"An error occurred creating component {component_name}: {str(error)}", component_id
     
     def modify_component_details(self,
-                             component_id,
-                             component_installation_status,
-                             component_updated_date,
-                             component_name,
-                             component_type,
-                             component_bike_id,
-                             expected_lifetime,
-                             service_interval,
-                             cost,
-                             offset,
-                             component_notes):
+                                 component_id,
+                                 component_installation_status,
+                                 component_updated_date,
+                                 component_name,
+                                 component_type,
+                                 component_bike_id,
+                                 expected_lifetime,
+                                 service_interval,
+                                 cost,
+                                 offset,
+                                 component_notes):
         """Method to update component details"""
         try:
             component_bike_id = None if component_bike_id == 'None' else component_bike_id
@@ -1316,16 +1315,24 @@ class BusinessLogic():
         component_id = None
         if table_selector == "Services":
             component_id = database_manager.read_single_service_record(record_id).component_id
+            component = database_manager.read_component(component_id)
         
         elif table_selector == "ComponentHistory":
             component_id = database_manager.read_single_history_record(record_id).component_id
+            component = database_manager.read_component(component_id)
+            service_history = database_manager.read_subset_service_history(component_id)
+            history_records = database_manager.read_subset_component_history(component_id)
+
+            if service_history and history_records.count() == 1:
+                logging.warning(f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist")
+                return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id 
 
         success, message = database_manager.write_delete_record(table_selector, record_id)
 
         if success:
             logging.info(f"Deletion successful: {message}")
             if table_selector == "Services":
-                logging.info(f"Recalculating service records for component {component_id} after deletion")
+                logging.info(f"Recalculating service records for component {component.component_name} after deletion")
                 
                 service_records = database_manager.read_subset_service_history(component_id)
                 if service_records:
@@ -1335,17 +1342,33 @@ class BusinessLogic():
                                                                     first_service.service_date,
                                                                     first_service.description)
                     if not success:
-                        logging.error(f"An error occured triggering update of service records for {component_id} after deletion: {message}")
-                        return False, f"An error occured triggering update of service records for {component_id} after deletion: {message}", component_id
+                        logging.error(f"An error occured triggering update of service records for {component.component_name} after deletion: {message}")
+                        return False, f"An error occured triggering update of service records for {component.component_name} after deletion: {message}", component_id
                 
                 elif not service_records:
                     component = database_manager.read_component(component_id)
                     self.update_component_distance(component_id, component.component_distance - component.component_distance_offset)
 
             elif table_selector == "ComponentHistory":
-                logging.info(f"Recalculating installation history records for component {component_id} after deletion")
+                logging.info(f"Recalculating installation history records for component {component.component_name} after deletion")
                 
-                success, message = self.process_history_records(component_id)
+                if history_records.count() == 0:
+                    database_manager.write_component_distance(component, component.component_distance_offset)
+                    success, message, component_id = self.modify_component_details(component_id,
+                                                                     "Not installed",
+                                                                     get_formatted_datetime_now(),
+                                                                     component.component_name,
+                                                                     component.component_type,
+                                                                     "None",
+                                                                     str(component.lifetime_expected),
+                                                                     str(component.service_interval),
+                                                                     str(component.cost),
+                                                                     component.component_distance_offset,
+                                                                     component.notes)
+                
+                else:
+                    success, message = self.process_history_records(component_id)
+                
                 if not success:
                     logging.error(f"An error occured triggering update of history records for {component_id} after deletion: {message}")
                     return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id
