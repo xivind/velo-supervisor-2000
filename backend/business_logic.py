@@ -1337,6 +1337,10 @@ class BusinessLogic():
                     if not success:
                         logging.error(f"An error occured triggering update of service records for {component_id} after deletion: {message}")
                         return False, f"An error occured triggering update of service records for {component_id} after deletion: {message}", component_id
+                
+                elif not service_records:
+                    component = database_manager.read_component(component_id)
+                    self.update_component_distance(component_id, component.component_distance - component.component_distance_offset)
 
             elif table_selector == "ComponentHistory":
                 logging.info(f"Recalculating installation history records for component {component_id} after deletion")
