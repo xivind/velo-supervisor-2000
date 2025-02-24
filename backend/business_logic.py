@@ -951,7 +951,7 @@ class BusinessLogic():
                 if previous_record is None:
                     distance_marker = 0
                 else:
-                    if record.update_reason != "Installed":
+                    if previous_record.update_reason == "Installed":
                         logging.info(f'Timespan for historic distance query: start date {previous_record.updated_date} stop date {record.updated_date}.')
                         historic_distance = database_manager.read_sum_distance_subset_rides(previous_record.bike_id, previous_record.updated_date, record.updated_date)
                         distance_marker = previous_record.distance_marker + historic_distance
