@@ -899,6 +899,12 @@ class BusinessLogic():
             if installation_status == "Installed" and component_bike_id is None:
                 logging.warning(f"Status cannot be set to Installed without specifying bike. {component.component_name} is currently not assigned to a bike.")
                 return False, f"Status cannot be set to Installed without specifying bike. {component.component_name} is currently not assigned to a bike."
+            
+            lastest_service_record = database_manager.read_latest_service_record(component_id)
+            if lastest_service_record:
+                if updated_date <= lastest_service_record.service_date:
+                    logging.warning(f"A retired component cannot be serviced. Set retire date after latest service date: {lastest_service_record.service_date}")
+                    return False, f"A retired component cannot be serviced. Set retire date after latest service date: {lastest_service_record.service_date}"
        
         if mode == "edit history":
             logging.info(f"Running validation rules for editing of history records: {history_id}.")
