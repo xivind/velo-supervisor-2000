@@ -87,16 +87,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
-// Global date picker function
-document.addEventListener('DOMContentLoaded', function() {
-    // Function to initialize a single date picker
-    function initializeDatePicker(inputId, toggleId) {
-        const dateInput = document.getElementById(inputId);
-        const datePickerToggle = document.getElementById(toggleId);
+// Global date picker function with validation
+function initializeDatePickers(container = document) {
+    // Find all date picker input groups inside the provided container
+    const dateInputGroups = container.querySelectorAll('.date-input-group');
+    
+    dateInputGroups.forEach(group => {
+        const dateInput = group.querySelector('.datepicker-input');
+        const datePickerToggle = group.querySelector('.datepicker-toggle');
         
-        if (!dateInput || !datePickerToggle) {
-            return;
+        if (!dateInput || !datePickerToggle || dateInput._flatpickr) {
+            return; // Skip if already initialized or missing elements
         }
 
         // Initialize Flatpickr with strict formatting
@@ -106,7 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
             clickOpens: true,
             enableTime: true,
             time_24hr: true,
-            required: true,
+            maxDate: "today",
+            required: dateInput.hasAttribute('required'),
             // Add validation on close
             onClose: function(selectedDates, dateStr, instance) {
                 if (!dateStr && dateInput.hasAttribute('required')) {
@@ -126,25 +128,75 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dateInput.hasAttribute('required')) {
             const form = dateInput.closest('form');
             if (form) {
-                form.addEventListener('submit', function(e) {
-                    if (!dateInput.value) {
-                        e.preventDefault();
-                        dateInput.classList.add('is-invalid');
-                        return false;
-                    }
-                });
+                if (!form.dataset.validationAdded) {
+                    form.addEventListener('submit', function(e) {
+                        let isValid = true;
+                        
+                        form.querySelectorAll('input[required]').forEach(input => {
+                            if (!input.value) {
+                                input.classList.add('is-invalid');
+                                isValid = false;
+                            }
+                        });
+                        
+                        if (!isValid) {
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
+                    form.dataset.validationAdded = 'true';
+                }
             }
         }
-    }
+    });
+}
 
-    // Initialize all date pickers
-    const datePickerConfigs = [
-        { inputId: 'component_updated_date', toggleId: 'update-date-picker-toggle' },
-        { inputId: 'service_date', toggleId: 'service-date-picker-toggle' }
-    ];
+// Initialize all date pickers on DOM load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDatePickers();
+    
+    // Initialize datepickers when any modal is shown
+    document.addEventListener('shown.bs.modal', function(event) {
+        initializeDatePickers(event.target);
+    });
+});
 
-    datePickerConfigs.forEach(config => {
-        initializeDatePicker(config.inputId, config.toggleId);
+// Add event listeners for your modal buttons
+document.addEventListener('DOMContentLoaded', function() {
+    // Service record edit button
+    document.querySelectorAll('.edit-service-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const serviceId = this.dataset.serviceId;
+            const serviceDate = this.dataset.serviceDate;
+            const serviceDescription = this.dataset.serviceDescription;
+            
+            // Populate the service modal
+            document.getElementById('serviceId').value = serviceId;
+            document.getElementById('serviceDate').value = serviceDate;
+            document.getElementById('serviceDescription').value = serviceDescription;
+            
+            // Show the modal
+            const serviceModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
+            serviceModal.show();
+        });
+    });
+    
+    // History record edit button
+    document.querySelectorAll('.edit-history-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const historyId = this.dataset.historyId;
+            const historyDate = this.dataset.historyDate;
+            const componentId = this.dataset.componentId;
+            
+            // Populate the history modal
+            document.getElementById('editHistoryId').value = historyId;
+            document.getElementById('editHistoryComponentId').value = componentId;
+            document.getElementById('editUpdatedDate').value = historyDate;
+            
+            // Show the modal
+            const historyModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
+            historyModal.show();
+        });
     });
 });
 
@@ -474,26 +526,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const editHistoryModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
 
     // Get component ID from the page context
-    const currentComponentId = document.getElementById('serviceComponentId').value;
-
-    // Initialize Flatpickr for service modal
-    const serviceDatepicker = flatpickr("#serviceDate", {
-        dateFormat: "Y-m-d H:i",
-        enableTime: true,
-        time_24hr: true,
-        allowInput: false
-    });
-
-    // Initialize Flatpickr for history modal
-    const historyEditDatepicker = flatpickr("#editUpdatedDate", {
-        dateFormat: "Y-m-d H:i",
-        enableTime: true,
-        time_24hr: true,
-        allowInput: false
-    });
+    const currentComponentId = document.getElementById('serviceComponentId')?.value;
 
     // Handle "New Service" button click
-    document.querySelector('[data-bs-target="#serviceRecordModal"]').addEventListener('click', function() {
+    document.querySelector('[data-bs-target="#serviceRecordModal"]')?.addEventListener('click', function() {
         // Set up modal for creating new service
         document.getElementById('serviceRecordModalLabel').textContent = 'New Service Record';
         document.getElementById('serviceRecordForm').action = '/add_service_record';
@@ -503,7 +539,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Clear other form fields
         document.getElementById('serviceId').value = '';
-        serviceDatepicker.clear();
+        const serviceDate = document.getElementById('serviceDate');
+        if (serviceDate._flatpickr) {
+            serviceDate._flatpickr.clear();
+        }
         document.getElementById('serviceDescription').value = '';
         
         serviceRecordModal.show();
@@ -519,7 +558,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Fill in the form with existing data
             document.getElementById('serviceComponentId').value = this.dataset.componentId;
             document.getElementById('serviceId').value = this.dataset.serviceId;
-            serviceDatepicker.setDate(this.dataset.serviceDate);
+            
+            const serviceDate = document.getElementById('serviceDate');
+            if (serviceDate._flatpickr) {
+                serviceDate._flatpickr.setDate(this.dataset.serviceDate);
+            } else {
+                serviceDate.value = this.dataset.serviceDate;
+            }
+            
             document.getElementById('serviceDescription').value = this.dataset.serviceDescription;
 
             serviceRecordModal.show();
@@ -535,19 +581,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             document.getElementById('editHistoryComponentId').value = componentId;
             document.getElementById('editHistoryId').value = historyId;
-            historyEditDatepicker.setDate(updatedDate);
+            
+            const editUpdatedDate = document.getElementById('editUpdatedDate');
+            if (editUpdatedDate._flatpickr) {
+                editUpdatedDate._flatpickr.setDate(updatedDate);
+            } else {
+                editUpdatedDate.value = updatedDate;
+            }
 
             editHistoryModal.show();
         });
-    });
-
-    // Calendar icon click handlers
-    document.getElementById('service-date-picker-toggle').addEventListener('click', () => {
-        serviceDatepicker.open();
-    });
-
-    document.getElementById('edit-history-date-picker-toggle').addEventListener('click', () => {
-        historyEditDatepicker.open();
     });
 });
 
