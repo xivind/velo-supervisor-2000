@@ -647,7 +647,7 @@ class BusinessLogic():
         else:
             service_status = "No components registered"
     
-        logging.info(f"New status for bike {bike.bike_name}: {service_status}.")
+        logging.info(f"New status for bike {bike.bike_name}: {service_status}")
 
         success, message = database_manager.write_bike_service_status(bike, service_status)
 
@@ -1028,8 +1028,13 @@ class BusinessLogic():
 
                 self.update_component_lifetime_status(updated_component)
                 self.update_component_service_status(updated_component)
-                if updated_component.installation_status == "Installed":
-                    self.update_bike_status(updated_component.bike_id)
+                
+                if updated_component.bike_id is None:
+                    bike_id = database_manager.read_bike_id_recent_component_history(component_id)
+                else:
+                    bike_id = updated_component.bike_id
+                
+                self.update_bike_status(bike_id)
 
             return True, "Successfully processed history records and related services"
 
@@ -1331,7 +1336,10 @@ class BusinessLogic():
 
             if service_history and history_records.count() == 1:
                 logging.warning(f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist")
-                return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id 
+                return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id
+        
+        elif table_selector == "Components":
+            bike_id = database_manager.read_component(record_id).bike_id
 
         success, message = database_manager.write_delete_record(table_selector, record_id)
 
@@ -1378,6 +1386,10 @@ class BusinessLogic():
                 if not success:
                     logging.error(f"An error occured triggering update of history records for {component_id} after deletion: {message}")
                     return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id
+                
+            elif table_selector == "Components":
+                if bike_id:
+                    self.update_bike_status(bike_id)
         
         else:
             logging.error(f"Deletion of {record_id} failed: {message}")
