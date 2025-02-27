@@ -11,31 +11,46 @@
     </div>
 </div>
 <div class="row">
-    {% for name, bike_id, bike_status, service_lifetime_status, distance, count_installed, count_retired in payload.bikes_data %}
+    {% for name, bike_id, bike_status, service_status, distance, count_installed, critical_count, warning_count in payload.bikes_data %}
         <div class="col-md-4 mb-4">
             <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">
                 <div class="card shadow hover-effect" data-bike-status="{{ bike_status }}">
-                    <div class="card-header h5 fw-bold text-bg-
-                        {%- if service_lifetime_status == 'No components registered' or service_lifetime_status == 'No active components' -%}
-                            light
-                        {%- elif service_lifetime_status == 'Maintenance not defined' -%}
-                            secondary
-                        {%- elif service_lifetime_status == 'Breakdown imminent' -%}
-                            purple
-                        {%- elif service_lifetime_status == 'Maintenance required' -%}
-                            danger
-                        {%- elif service_lifetime_status == 'Maintenance approaching' -%}
-                            warning
-                        {%- elif service_lifetime_status == 'Pristine condition' -%}
-                            success
+                    <div class="card-header h5 fw-bold 
+                        {%- if service_status == 'No components registered' or service_status == 'No active components' -%}
+                            text-bg-dark bike_no_components
+                        {%- elif service_status == 'Components need attention' -%}
+                            text-bg-dark bike-critical
+                        {%- else -%}
+                            text-bg-dark bike_healthy
                         {%- endif -%}">
                         {{ name }}
                     </div>
                     <div class="card-body">
-                        <h6 class="card-title fw-bold">{{ service_lifetime_status }}</h6>
+                        <h6 class="card-title fw-bold">
+                            {% if service_status == 'No components registered' or service_status == 'No active components' or service_status == 'Maintenance not defined' %}
+                                {{ service_status }}
+                            {% elif service_status == 'Components need attention' %}
+                                Components need attention
+                            {% else %}
+                                All components healthy
+                            {% endif %}
+                        </h6>
                         <p class="card-text d-flex justify-content-between align-items-center">
-                            <span>{% if bike_status == 'False' %}🟩 Active {% elif bike_status == 'True' %}🟥 Retired {% endif %}📍{{ distance }} km ⚡ {{ count_installed }} components</span>
+                            <span>
+                                {% if bike_status == 'False' %}🟩 Active {% elif bike_status == 'True' %}🟥 Retired {% endif %}
+                                📍{{ distance }} km 
+                                ⚡ {{ count_installed }} components
+                            </span>
                         </p>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between small">
+                            <span>🔴 Lifetime / Service due:</span>
+                            <span class="fw-bold">{{ warning_count|default(0) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span>🟣 Lifetime / Service exceeded:</span>
+                            <span class="fw-bold">{{ critical_count|default(0) }}</span>
+                        </div>
                     </div>
                 </div>
             </a>

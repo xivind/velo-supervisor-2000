@@ -31,15 +31,37 @@ class BusinessLogic():
     def get_bike_overview(self):
         """Method to get bike overview"""
         bikes = database_manager.read_bikes()
-        bikes_data = [(bike.bike_name,
-                    bike.bike_id,
-                    bike.bike_retired,
-                    bike.service_status,
-                    round(bike.total_distance),
-                    sum(1 for component in database_manager.read_subset_components(bike.bike_id)
-                        if component.installation_status == "Installed"),
-                    sum(1 for component in database_manager.read_subset_components(bike.bike_id)
-                        if component.installation_status == "Retired")) for bike in bikes]
+        bikes_data = []
+        
+        for bike in bikes:
+            bike_name = bike.bike_name
+            bike_id = bike.bike_id
+            bike_retired = bike.bike_retired
+            service_status = bike.service_status
+            total_distance = round(bike.total_distance)
+            
+            components = database_manager.read_subset_components(bike_id)
+            count_installed = sum(1 for component in components 
+                                if component.installation_status == "Installed")
+            
+            critical_count = sum(1 for component in components 
+                            if component.installation_status == "Installed" and
+                            (component.lifetime_status == "Lifetime exceeded" or
+                            component.service_status == "Service interval exceeded"))
+            
+            warning_count = sum(1 for component in components
+                            if component.installation_status == "Installed" and
+                            (component.lifetime_status == "Due for replacement" or
+                            component.service_status == "Due for service"))
+            
+            bikes_data.append((bike_name,
+                               bike_id,
+                               bike_retired,
+                               service_status,
+                               total_distance,
+                               count_installed,
+                               critical_count,
+                               warning_count))
 
         payload = {"bikes_data": bikes_data}
 
@@ -631,14 +653,10 @@ class BusinessLogic():
                 if component.installation_status == "Retired":
                     count_retired += 1
 
-            if component_status["breakdown_imminent"] > 0:
-                service_status = "Breakdown imminent"
-            elif component_status["maintenance_required"] > 0:
-                service_status = "Maintenance required"
-            elif component_status["maintenance_approaching"] > 0:
-                service_status = "Maintenance approaching"
+            if component_status["breakdown_imminent"] > 0 or component_status["maintenance_required"] > 0:
+                service_status = "Components need attention"
             elif component_status["ok"] > 0:
-                service_status = "Pristine condition"
+                service_status = "All components healthy"
             elif all(value == 0 for value in component_status.values()) and count_installed > 0:
                 service_status = "Maintenance not defined"
             elif count_installed == 0 and count_retired > 0:

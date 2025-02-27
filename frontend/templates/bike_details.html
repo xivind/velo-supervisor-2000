@@ -7,20 +7,14 @@
 <div class="row mt-5">
     <div class="col-md-4">
         <div class="card shadow mb-4">
-            <div class="card-header h5 fw-bold text-bg-
-                {%- if payload.bike_data['bike_service_status'] == 'No components registered' or payload.bike_data['bike_service_status'] == 'No active components' -%}
-                    light
-                {%- elif payload.bike_data['bike_service_status'] == 'Maintenance not defined' -%}
-                    secondary
-                {%- elif payload.bike_data['bike_service_status'] == 'Breakdown imminent' -%}
-                    purple
-                {%- elif payload.bike_data['bike_service_status'] == 'Maintenance required' -%}
-                    danger
-                {%- elif payload.bike_data['bike_service_status'] == 'Maintenance approaching' -%}
-                    warning
-                {%- elif payload.bike_data['bike_service_status'] == 'Pristine condition' -%}
-                    success
-                {%- endif -%}">
+            <div class="card-header h5 fw-bold 
+            {%- if payload.bike_data['bike_service_status'] == 'No components registered' or payload.bike_data['bike_service_status'] == 'No active components' -%}
+                text-bg-dark bike_no_components
+            {%- elif payload.bike_data['bike_service_status'] == 'Components need attention' -%}
+                text-bg-dark bike-critical
+            {%- else -%}
+                text-bg-dark bike_healthy
+            {%- endif -%}">
                 {{ payload.bike_data['bike_name'] }}
             </div>
             <div class="card-body">
