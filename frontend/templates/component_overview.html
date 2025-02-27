@@ -46,6 +46,16 @@
     </div>
 </div>
 <hr class="mt-5"/>
+<div class="mb-3 ms-2">
+    <div class="small text-secondary d-flex align-items-center">
+      <span class="fw-bold" style="width: 170px;">Lifetime / service status:</span>
+      <span style="width: 50px;">🟢 OK</span>
+      <span style="width: 180px;">🟡 End of life approaching</span>
+      <span style="width: 160px;">🔴 Due for replacement</span>
+      <span style="width: 150px;">🟣 Lifetime exceeded</span>
+      <span>⚪ Not defined</span>
+    </div>
+</div>
 <div class="card shadow mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span class="fw-bold">All components</span>
@@ -95,7 +105,7 @@
                                 {% endif %}
                                 {{ installation_status }}
                             </td>
-                            <td>
+                            <td class="text-center">
                                 {% if lifetime_status == "OK" %}
                                 🟢
                                 {% elif lifetime_status == "End of life approaching" %}
@@ -107,9 +117,8 @@
                                 {% elif lifetime_status == "Not defined" %}
                                 ⚪
                                 {% endif %}
-                                {{ lifetime_status }}
                             </td>
-                            <td>
+                            <td class="text-center">
                                 {% if service_status == "OK" %}
                                 🟢
                                 {% elif service_status == "Service approaching" %}
@@ -121,7 +130,6 @@
                                 {% elif service_status == "Not defined" %}
                                 ⚪
                                 {% endif %}
-                                {{ service_status }}
                             </td>
                             <td>
                                 {{ bike }}
