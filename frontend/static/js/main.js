@@ -470,6 +470,12 @@ function addFormValidation(form) {
                 modalBody.innerHTML = `Status cannot be changed unless you also update record date`;
                 validationModal.show();
                 return;
+            } else if (installationStatus === 'Retired' && bikeId !== initialBikeId) {
+                e.preventDefault();
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = `Bike assignment cannot be changed at time of retirement. If you need to unassign from bike prior to retiring, uninstall component first`;
+                validationModal.show();
+                return;
             }
         }
 
