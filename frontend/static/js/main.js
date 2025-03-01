@@ -450,26 +450,38 @@ function addFormValidation(form) {
     form.addEventListener('submit', function(e) {
         const statusSelect = this.querySelector('[name="component_installation_status"]');
         const installationStatus = statusSelect.value;
-        const bikeId = this.querySelector('[name="component_bike_id"]').value;
+        const bikeIdSelect = this.querySelector('[name="component_bike_id"]');
+        const bikeId = bikeIdSelect.value;
         
         // For status update modal, we need to check additional conditions
         if (form.id === 'component_status_form') {
             const initialSelectedStatus = statusSelect.options[statusSelect.selectedIndex].defaultSelected ? statusSelect.value : null;
+            const bikeIdSelect = this.querySelector('[name="component_bike_id"]');
+            const initialBikeId = bikeIdSelect.options[bikeIdSelect.selectedIndex].defaultSelected ? bikeIdSelect.value : "";
             const dateInput = this.querySelector('#component_updated_date');
             const initialDate = dateInput.defaultValue;
-            
+
             if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
                 e.preventDefault();
                 const modalBody = document.getElementById('validationModalBody');
                 modalBody.innerHTML = `Status cannot be changed to "${statusSelect.value}" since status is already "${installationStatus}"`;
                 validationModal.show();
                 return;
+            
+            } else if (dateInput.value === initialDate) {
+                e.preventDefault();
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = `Updated date must be changed when updating status. Last updated date is ${initialDate}. Select a date after this date`;
+                validationModal.show();
+                return;
+
             } else if (installationStatus !== initialSelectedStatus && dateInput.value === initialDate) {
                 e.preventDefault();
                 const modalBody = document.getElementById('validationModalBody');
                 modalBody.innerHTML = `Status cannot be changed unless you also update record date`;
                 validationModal.show();
                 return;
+
             } else if (installationStatus === 'Retired' && bikeId !== initialBikeId) {
                 e.preventDefault();
                 const modalBody = document.getElementById('validationModalBody');
@@ -505,7 +517,7 @@ document.addEventListener('DOMContentLoaded', function() {
         installationSelect.addEventListener('change', function() {
             if (this.value === 'Retired') {
                 const modalBody = document.getElementById('confirmModalBody');
-                modalBody.innerHTML = "You are about to retire this component. This will lock the component and prevent further editing. Delete the most recent installation record if you wish to unlock the component. Do you want to proceed? You still need to save.";
+                modalBody.innerHTML = "You are about to retire this component. This will lock the component and prevent further editing. Delete the most recent installation record if you wish to unlock the component. Do you want to proceed? You still need to save";
                 confirmModal.show();
                 
                 document.getElementById('cancelAction').addEventListener('click', function() {
