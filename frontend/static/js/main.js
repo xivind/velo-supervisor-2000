@@ -58,32 +58,36 @@ function showToast(message, success = true) {
 
 // Function to prefill data related to component types
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on either component details or component overview page
-    const componentDetailsPage = document.getElementById('component-details');
-    const componentOverviewPage = document.getElementById('component-overview');
+    // Get all component_type selects on the page
+    const typeSelects = document.querySelectorAll('select[id^="component_type"]');
     
-    if (!componentDetailsPage && !componentOverviewPage) {
-        // Not on either of the target pages, exit early
+    if (!typeSelects.length) {
+        // No component type selects found, exit early
         return;
     }
 
-    const typeSelect = document.getElementById('component_type');
-    if (!typeSelect) {
-        // Component type select not found, exit early
-        return;
-    }
+    // For each component type select, set up the change handler
+    typeSelects.forEach(function(typeSelect) {
+        // Find the closest form to locate related inputs
+        const form = typeSelect.closest('form');
+        if (!form) return;
+        
+        // Find the related inputs within the same form
+        const serviceIntervalInput = form.querySelector('input[id^="service_interval"]');
+        const expectedLifetimeInput = form.querySelector('input[id^="expected_lifetime"]');
+        
+        if (!serviceIntervalInput || !expectedLifetimeInput) return;
+        
+        // Add change event listener
+        typeSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const serviceInterval = selectedOption.getAttribute('service_interval');
+            const expectedLifetime = selectedOption.getAttribute('expected_lifetime');
 
-    const serviceIntervalInput = document.getElementById('service_interval');
-    const expectedLifetimeInput = document.getElementById('expected_lifetime');
-
-    typeSelect.addEventListener('change', function() {
-        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
-        const serviceInterval = selectedOption.getAttribute('service_interval');
-        const expectedLifetime = selectedOption.getAttribute('expected_lifetime');
-
-        // Update the input fields with the selected option's data attributes
-        serviceIntervalInput.value = serviceInterval;
-        expectedLifetimeInput.value = expectedLifetime;
+            // Update the input fields with the selected option's data attributes
+            serviceIntervalInput.value = serviceInterval;
+            expectedLifetimeInput.value = expectedLifetime;
+        });
     });
 });
 
