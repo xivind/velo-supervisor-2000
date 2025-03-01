@@ -69,6 +69,11 @@ class BusinessLogic():
     
     def get_bike_details(self, bike_id):
         """Method to get bike details"""
+        bikes = database_manager.read_bikes()
+        bikes_data = [(bike.bike_name,
+                       bike.bike_id)
+                       for bike in bikes if bike.bike_retired == "False"]
+        
         bike = database_manager.read_single_bike(bike_id)
         bike_data = {"bike_name": bike.bike_name,
                     "bike_id": bike.bike_id,
@@ -77,6 +82,8 @@ class BusinessLogic():
                     "bike_total_distance": round(bike.total_distance),
                     "bike_notes": bike.notes,
                     "oldest_ride": database_manager.read_date_oldest_ride(bike_id)}
+
+        component_types_data = database_manager.read_all_component_types()
 
         bike_components = database_manager.read_subset_components(bike_id)
         bike_components_data = [(component.component_id,
@@ -101,7 +108,9 @@ class BusinessLogic():
                               ) for ride in recent_rides]
 
         payload = {"recent_rides": recent_rides_data,
+                   "bikes_data": bikes_data,
                    "bike_data": bike_data,
+                   "component_types_data": component_types_data,
                    "bike_components_data": bike_components_data,
                    "count_installed" : component_statistics["count_installed"],
                    "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],

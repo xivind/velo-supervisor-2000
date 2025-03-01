@@ -3,6 +3,12 @@
 {% block title %}Bike details - Velo Supervisor 2000{% endblock %}
 
 {% block content %}
+
+{% with duplicate_data = {
+    'bike_id': payload.bike_data['bike_id']} %}
+    {% include "modal_create_component.html" %}
+{% endwith %}
+
 <h1 id="bike-details" class="display-5 mt-5 text-center">Bike details</h1>
 <div class="row mt-5">
     <div class="col-md-4">
@@ -66,6 +72,13 @@
                 <p class="card-text d-flex justify-content-between align-items-center">
                     <span>💰 Expected cost next service</span><span class="fw-bold">{% if payload.sum_cost == "No estimate" %} {{ payload.sum_cost }} {% else %} {{ payload.sum_cost }} kr{% endif %}</span>
                 </p>  
+            </div>
+        </div>
+        <div class="card shadow mb-4">
+            <div class="card-body text-center btn-outline-primary">
+                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createComponentModal" {% if payload.bike_data['bike_retired'] == 'True' %}disabled{% endif %}>
+                    <span>⚙ New component</span>
+                </button>
             </div>
         </div>
         <div class="card shadow mb-4">
