@@ -54,3 +54,21 @@ th[data-sort].sorted-desc .sort-indicator::after {
     background-color: #b98356 !important; /* Custom styling for the critical status bikes */
     color: white !important;
 }
+
+/* Styling of input modals */
+.input-modal-header {
+    padding-left: 15px;
+    background: linear-gradient(to right, #cccdce, rgb(188, 212, 235));
+}
+
+.input-modal-title {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Styling of form fields */
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    transition: box-shadow 0.2s ease-in-out;
+    transform: translateY(-1px);
+}
