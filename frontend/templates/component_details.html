@@ -122,6 +122,10 @@
                         <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary w-100 mb-2">
                             <span>🚴 View bike</span>
                         </a>
+                    {% elif payload.component_history_data|length > 1 and payload.bike_component_data['installation_status'] != 'Installed'  %}
+                        <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="btn btn-outline-primary w-100 mb-2">
+                            <span>🚴 View previous bike</span>
+                        </a>    
                     {% else %}
                         <button type="button" class="btn btn-outline-primary w-100 mb-2" disabled>
                             <span>🚴 View bike</span>
