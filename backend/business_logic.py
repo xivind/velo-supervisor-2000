@@ -230,6 +230,7 @@ class BusinessLogic():
                 component_history_data.append((installation_record.history_id,
                                                installation_record.updated_date,
                                                installation_record.update_reason,
+                                               installation_record.bike_id,
                                                database_manager.read_bike_name(installation_record.bike_id),
                                                round(bike_total_distance),
                                                round(installation_record.distance_marker)))
