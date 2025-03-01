@@ -6,7 +6,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="component_status_form" class="row" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded">
+                <form id="component_status_form" class="row" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded" data-initial-bike-id="{{ initial_bike_id or '' }}">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
 
                     <div class="col-md-3 mb-3">

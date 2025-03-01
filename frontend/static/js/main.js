@@ -452,12 +452,13 @@ function addFormValidation(form) {
         const installationStatus = statusSelect.value;
         const bikeIdSelect = this.querySelector('[name="component_bike_id"]');
         const bikeId = bikeIdSelect.value;
+        //Switch for debugging to prevent form to submit
+        //e.preventDefault();
         
         // For status update modal, we need to check additional conditions
         if (form.id === 'component_status_form') {
             const initialSelectedStatus = statusSelect.options[statusSelect.selectedIndex].defaultSelected ? statusSelect.value : null;
-            const bikeIdSelect = this.querySelector('[name="component_bike_id"]');
-            const initialBikeId = bikeIdSelect.options[bikeIdSelect.selectedIndex].defaultSelected ? bikeIdSelect.value : "";
+            const initialBikeId = form.dataset.initialBikeId; 
             const dateInput = this.querySelector('#component_updated_date');
             const initialDate = dateInput.defaultValue;
 
@@ -481,11 +482,12 @@ function addFormValidation(form) {
                 modalBody.innerHTML = `Status cannot be changed unless you also update record date`;
                 validationModal.show();
                 return;
+                // This rule is kept for fallback, but is not triggered due to rule above
 
-            } else if (installationStatus === 'Retired' && bikeId !== initialBikeId) {
+            } else if (installationStatus === 'Retired' && initialBikeId !== bikeId) {
                 e.preventDefault();
                 const modalBody = document.getElementById('validationModalBody');
-                modalBody.innerHTML = `Bike assignment cannot be changed at time of retirement. If you need to unassign from bike prior to retiring, uninstall component first`;
+                modalBody.innerHTML = `Bike assignment cannot be changed at time of retirement. If you need to unassign or change bike prior to retiring, uninstall or install component first`;
                 validationModal.show();
                 return;
             }

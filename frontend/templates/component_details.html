@@ -14,7 +14,9 @@
 } if request.url.path.startswith('/component_details/') else None %}
     {% include "modal_create_component.html" %}
 {% endwith %}
-{% include "modal_update_component_status.html" %}
+{% with initial_bike_id=payload.bike_component_data['bike_id'] %}
+    {% include "modal_update_component_status.html" %}
+{% endwith %}
 {% include "modal_update_component_details.html" %}
 {% include "modal_service_record.html" %}
 {% include "modal_edit_installation_record.html" %}
