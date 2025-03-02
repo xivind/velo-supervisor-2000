@@ -3,6 +3,24 @@
 {% block title %}Component details - Velo Supervisor 2000{% endblock %}
 
 {% block content %}
+{% with duplicate_data = {
+    'bike_id': payload.bike_component_data['bike_id'],
+    'component_name': payload.bike_component_data['component_name'],
+    'component_type': payload.bike_component_data['component_type'],
+    'cost': payload.bike_component_data['cost'],
+    'lifetime_expected': payload.bike_component_data['lifetime_expected'],
+    'service_interval': payload.bike_component_data['service_interval'],
+    'component_notes': payload.bike_component_data['component_notes']
+} if request.url.path.startswith('/component_details/') else None %}
+    {% include "modal_create_component.html" %}
+{% endwith %}
+{% with initial_bike_id=payload.bike_component_data['bike_id'] %}
+    {% include "modal_update_component_status.html" %}
+{% endwith %}
+{% include "modal_update_component_details.html" %}
+{% include "modal_service_record.html" %}
+{% include "modal_edit_installation_record.html" %}
+
 <h1 id="component-details" class="display-5 mt-5 text-center">Component details</h1>
 <div class="row mt-5">
     <div class="col-md-4">
@@ -23,7 +41,10 @@
             </div>
             <div class="card-body">
                 <h6 class="card-title fw-bold">
-                    {% if payload.bike_component_data['installation_status'] == 'Installed' %}⚡ {{ payload.bike_component_data['installation_status'] }} at {{ payload['bike_name'] }}{% elif payload.bike_component_data['installation_status'] == 'Not installed' %}💤 {{ payload.bike_component_data['installation_status'] }}{% elif payload.bike_component_data['installation_status'] == 'Retired' %}⛔ {{ payload.bike_component_data['installation_status'] }}{% endif %}
+                    {% if payload.bike_component_data['installation_status'] == 'Installed' %}⚡ {{ payload.bike_component_data['installation_status'] }} at <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="text-decoration-none text-reset">{{ payload['bike_name'] }}</a>{% elif payload.bike_component_data['installation_status'] == 'Not installed' %}💤 {{ payload.bike_component_data['installation_status'] }}{% elif payload.bike_component_data['installation_status'] == 'Retired' %}⛔ {{ payload.bike_component_data['installation_status'] }}{% endif %}
+                </h6>
+                <h6 class="card-title">
+                    🕰 {% if payload.component_history_data|length <= 1 %}Not previously installed{% else %}Previously installed at <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="text-decoration-none text-reset">{{ payload.component_history_data[1][4] }}</a>{% endif %}
                 </h6>
                 <hr/>
                 <span class="fw-bold">📍 Mileage {{ payload.bike_component_data['component_distance'] }} km</span>
@@ -69,47 +90,110 @@
             </p>  
         </div>
     </div>
-    {% if payload.bike_component_data['installation_status'] != "Not installed" %}
-        <div class="row">
-            <div class="col-12">
-                <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-info btn-sm w-100">
-                    View bike details 🔍 
-                </a>
+    <div class="col-12">
+        <div class="row g-2">
+            <div class="col-6 mb-2">
+                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                    <span>🧑‍🔧 New service</span>
+                </button>
             </div>
-        </div>
-    {% endif %}
+            <div class="col-6 mb-2">
+                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createIncidentModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                    <span>🚨 New incident</span>
+                </button>
+            </div>
+            <div class="col-6 mb-2">
+                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+                    <span>⛓ Duplicate</span>
+                </button>
+            </div>
+            <div class="col-6 mb-2">
+                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#replaceComponentModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                    <span>♻ Replace</span>
+                </button>
+            </div>
+            <div class="col-6 mb-2">
+                <button type="button" class="btn btn-outline-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#editCollectionModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                    <span>📦 Edit collection</span>
+                </button>
+            </div>
+                <div class="col-6 mb-2">
+                    {% if payload.bike_component_data['bike_id'] %}
+                        <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary w-100 mb-2">
+                            <span>🚴 View bike</span>
+                        </a>
+                    {% elif payload.component_history_data|length > 1 and payload.bike_component_data['installation_status'] != 'Installed'  %}
+                        <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="btn btn-outline-primary w-100 mb-2">
+                            <span>🚴 View previous bike</span>
+                        </a>    
+                    {% else %}
+                        <button type="button" class="btn btn-outline-primary w-100 mb-2" disabled>
+                            <span>🚴 View bike</span>
+                        </button>
+                    {% endif %}
+                </div>
+        </div>    
     </div>
+</div>
     <div class="col-md-8">
         <div class="card shadow mb-4">
-            <div class="card-header fw-bold">Modify component</div>
+            <div class="card-header fw-bold">Component status</div>
             <div class="card-body">
-                <form id="component_details_form" class="row align-items-center" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
+                <fieldset disabled>
+                <form id="component_status_form" class="row" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
-                    <div class="col-md-7 mb-3">
-                        <div class="row align-items-center">
-                            <div class="col-md-4">
-                                <select class="form-select" id="component_installation_status" name="component_installation_status">
-                                    <option value="Installed" {% if payload.bike_component_data['installation_status'] == "Installed" %}selected{% endif %}>Installed</option>
-                                    <option value="Not installed" {% if payload.bike_component_data['installation_status'] == "Not installed" %}selected{% endif %}>Not installed</option>
-                                    <option value="Retired" {% if payload.bike_component_data['installation_status'] == "Retired" %}selected{% endif %}>Retired</option>
-                                </select>
-                            </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="component_installation_status" class="form-label fw-bold">Status</label>
+                        <select class="form-select" id="component_installation_status" name="component_installation_status">
+                            <option value="Installed" {% if payload.bike_component_data['installation_status'] == "Installed" %}selected{% endif %}>Installed</option>
+                            <option value="Not installed" {% if payload.bike_component_data['installation_status'] == "Not installed" %}selected{% endif %}>Not installed</option>
+                            <option value="Retired" {% if payload.bike_component_data['installation_status'] == "Retired" %}selected{% endif %}>Retired</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="broken" class="form-label fw-bold">Broken</label>
+                        <input class="form-control" id="offset" name="broken" value="N/A" disabled>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="component_bike_id" class="form-label fw-bold">Bike</label>
+                        <select class="form-select" id="component_bike_id" name="component_bike_id">
+                            <option value="">Not assigned</option>
+                            {% for bike_name, bike_id in payload.bikes_data %}
+                                <option value="{{ bike_id }}"
+                                {% if bike_id == payload.bike_component_data['bike_id'] %}selected{% endif %}>
+                                {{ bike_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="component_updated_date" class="form-label fw-bold">Updated date</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}" required>
+                            <span class="input-group-text" id="update-date-picker-toggle">🗓</span>
                         </div>
                     </div>
-                    <div class="col-md-5 mb-3">
-                        <div class="row align-items-center">
-                            <label for="component_updated_date" class="col-form-label col-auto fw-bold">Updated date</label>
-                            <div class="col">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}" required>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text" id="update-date-picker-toggle" style="margin-left: 0.5rem">🗓</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>   
-                    </div>
-                    <hr/>
+                </form>
+            </fieldset>
+            <hr/>
+            <div class="col-12 d-flex justify-content-end">
+                <button type="button" class="btn btn-outline-primary mb-2 me-2" data-bs-toggle="modal" data-bs-target="#editComponentStatusModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                    Update status
+                </button>
+                <button type="button" class="btn btn-outline-danger mb-2 delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">Delete component</button>
+            </div>
+            </div>
+        </div>
+        <div class="card shadow mb-4">
+            <div class="card-header fw-bold">Component details</div>
+            <div class="card-body">
+                <fieldset disabled>
+                <form id="component_details_form" class="row align-items-center" action="/update_component_details" method="post" enctype="application/x-www-form-urlencoded">
+                    <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
+                    <input type="hidden" id="component_bike_id" name="component_bike_id" value="{{ payload.bike_component_data['bike_id'] }}">
+                    <input type="hidden" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}">
+                    <input type="hidden" id="component_installation_status" name="component_installation_status" value="{{ payload.bike_component_data['installation_status'] }}">
+                    
                     <div class="col-md-4 mb-3">
                         <label for="component_name" class="form-label fw-bold">Name</label>
                         <input type="text" class="form-control" id="component_name" name="component_name" value="{{ payload.bike_component_data['component_name'] }}" required>
@@ -127,17 +211,9 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="component_bike_id" class="form-label fw-bold">Bike</label>
-                        <select class="form-select" id="component_bike_id" name="component_bike_id">
-                            <option value="">Not assigned</option>
-                                {% for bike_name, bike_id in payload.bikes_data %}
-                                    <option value="{{ bike_id }}"
-                                    {% if bike_id == payload.bike_component_data['bike_id'] %}selected{% endif %}>
-                                    {{ bike_name }}
-                                    </option>
-                                {% endfor %}
-                        </select>
+                    <div class="col-md-3 mb-3">
+                        <label for="cost" class="form-label fw-bold">Cost (kr)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="cost" name="cost" value="{{ payload.bike_component_data['cost'] }}">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
@@ -148,10 +224,6 @@
                         <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="{{ payload.bike_component_data['service_interval'] }}">
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label for="cost" class="form-label fw-bold">Cost (kr)</label>
-                        <input type="number" min="0" step="1" class="form-control" id="cost" name="cost" value="{{ payload.bike_component_data['cost'] }}">
-                    </div>
-                    <div class="col-md-3 mb-3">
                         <label for="offset" class="form-label fw-bold">Offset (km)</label>
                         <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="{{ payload.bike_component_data['offset'] }}">
                     </div>
@@ -159,44 +231,19 @@
                         <label for="component_notes" class="form-label fw-bold">Notes</label>
                         <textarea class="form-control" id="component_notes" name="component_notes" rows="3">{% if payload.bike_component_data['component_notes'] %}{{ payload.bike_component_data['component_notes'] }}{% else %}{% endif %}</textarea>
                     </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary" form="component_details_form" id="submit_btn" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Save</button>
-                        <button type="button" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">Delete component</button>                                
-                    </div>
                 </form>
+            </fieldset>
+            <hr/>
+            <div class="col-12 d-flex justify-content-end">
+                <button type="button" class="btn btn-outline-primary mb-2" data-bs-toggle="modal" data-bs-target="#editComponentDetailsModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                    Update details
+                </button>
+            </div>
             </div>
         </div>
     </div>
     </div>
-    <hr/>
-    <h4 class="fw-normal text-center">Maintenance</h4>
-    <div class="card shadow mt-3 mb-4">
-        <div class="card-header fw-bold">Add service</div>
-        <div class="card-body">
-            <form id="service_form" class="row" action="/add_service" method="post" enctype="application/x-www-form-urlencoded">
-                <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
-                <div class="col-md-3 mb-3">
-                    <label for="service_date" class="form-label fw-bold">Service date</label>
-                    <div class="col">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="service_date" name="service_date" value="" required>
-                            <div class="input-group-append">
-                                <span class="input-group-text" id="service-date-picker-toggle" style="margin-left: 0.5rem">🗓</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col mb-3">
-                    <label for="service_description" class="form-label fw-bold">Description</label>
-                    <input type="text" minlength="5" class="form-control" id="service_description" name="service_description" required>
-                </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary" form="service_form" id="submit_btn_service" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="card shadow mb-3">
+    <div class="card shadow mb-4">
         <div class="card-header fw-bold">Service history</div>
         <div class="card-body">
             <table class="table table-hover">
@@ -206,31 +253,44 @@
                         <th>Description</th>
                         <th>Bike</th>
                         <th>Mileage</th>
+                        <th class="text-end"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if payload.service_history_data %}
-                        {% for service_date, description, bike_name, distance_marker in payload.service_history_data %}
-                        <tr>
-                            <td>{{ service_date }}</td>
-                            <td>{{ description }}</td>
-                            <td>{{ bike_name }}</td>
-                            <td>{{ distance_marker }} km</td>
-                        </tr>
+                        {% for service_id, service_date, description, bike_name, bike_total_distance, distance_marker, running_total in payload.service_history_data %}
+                            <tr>
+                                <td>{{ service_date }}</td>
+                                <td>{{ description }}</td>
+                                <td>{{ bike_name }}{% if bike_name != "Not assigned" %} ({{ bike_total_distance }} km){% endif %}</td>
+                                <td>{{ running_total }} km (+{{ distance_marker }} km)</td>
+                                <td class="text-end">
+                                    <button class="mb-1 btn btn-outline-primary btn-sm edit-service-btn"
+                                            data-service-id="{{ service_id }}"
+                                            data-service-date="{{ service_date }}"
+                                            data-service-description="{{ description }}"
+                                            data-component-id="{{ payload.bike_component_data['component_id'] }}"
+                                            {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                                            ✍
+                                    </button>
+                                    <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
+                                            data-service-id="{{ service_id }}" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                                            🗑
+                                    </button>
+                                </td>
+                            </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="4" class="text-center">No services registered</td>
+                            <td colspan="5" class="text-center">No services registered</td>
                         </tr>
                     {% endif %}
                 </tbody>
             </table>
         </div>
     </div>
-    <hr class="mt-5"/>
-    <h4 class="fw-normal text-center">Installation log</h4>
-    <div class="card shadow mb-3">
-        <div class="card-header fw-bold">Component history</div>
+    <div class="card shadow">
+        <div class="card-header fw-bold">Installation history</div>
         <div class="card-body">
             <table class="table table-hover">
                 <thead>
@@ -239,21 +299,38 @@
                         <th>Reason</th>
                         <th>Bike</th>
                         <th>Mileage</th>
+                        <th class="text-end"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if payload.component_history_data %}
-                        {% for updated_date, update_reason, bike_name, mileage in payload.component_history_data %}
-                        <tr>
+                        {% for history_id, updated_date, update_reason, bike_id, bike_name, bike_total_distance, mileage in payload.component_history_data %}
+                        <tr {% if bike_name != "Not assigned" %} role="button" role="button" onclick="window.location='/bike_details/{{ bike_id }}';"{% endif %}>
                             <td>{{ updated_date }}</td>
                             <td>{% if update_reason == "Not installed" %}Uninstalled{% else %}{{ update_reason }}{% endif %}</td>
-                            <td>{{ bike_name }}</td>
+                            <td>{{ bike_name }}{% if bike_name != "Not assigned" %} ({{ bike_total_distance }} km){% endif %}</td>
                             <td>{{ mileage }} km</td>
+                            <td class="text-end">
+                                <button class="mb-1 btn btn-outline-primary btn-sm edit-history-btn"
+                                        data-history-id="{{ history_id }}"
+                                        data-updated-date="{{ updated_date }}"
+                                        data-component-id="{{ payload.bike_component_data['component_id'] }}"
+                                        onclick="event.stopPropagation();"
+                                        {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                                        ✍
+                                </button>
+                                {% if loop.first %}
+                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
+                                        data-history-id="{{ history_id}}" onclick="event.stopPropagation();">
+                                        🗑
+                                </button>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="4" class="text-center">No installation history data available</td>
+                            <td colspan="5" class="text-center">No installation history data available</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -261,4 +338,5 @@
         </div>
     </div> 
 </div>
+
 {% endblock %}

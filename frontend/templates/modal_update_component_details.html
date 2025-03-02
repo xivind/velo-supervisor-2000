@@ -1,0 +1,60 @@
+<div class="modal fade" id="editComponentDetailsModal" tabindex="-1" aria-labelledby="editComponentDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">  <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="editComponentDetailsModalLabel">Update component details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="component_details_form" class="row align-items-center" action="/update_component_details" method="post" enctype="application/x-www-form-urlencoded">
+                    <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
+                    <input type="hidden" id="component_bike_id" name="component_bike_id" value="{{ payload.bike_component_data['bike_id'] }}">
+                    <input type="hidden" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}">
+                    <input type="hidden" id="component_installation_status" name="component_installation_status" value="{{ payload.bike_component_data['installation_status'] }}">
+                    
+                    <div class="col-md-4 mb-3">
+                        <label for="component_name" class="form-label fw-bold">Name</label>
+                        <input type="text" class="form-control" id="component_name" name="component_name" value="{{ payload.bike_component_data['component_name'] }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="component_type" class="form-label fw-bold">Type</label>
+                        <select class="form-select" id="component_type" name="component_type" required>
+                            {% for component_type, suggested_lifetime_expected, suggested_service_interval in payload.component_types_data %}
+                                <option value="{{ component_type }}"
+                                    expected_lifetime="{{ suggested_lifetime_expected }}"
+                                    service_interval="{{ suggested_service_interval }}"
+                                    {% if component_type == payload.bike_component_data['component_type'] %}selected{% endif %}>
+                                    {{ component_type }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="cost" class="form-label fw-bold">Cost (kr)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="cost" name="cost" value="{{ payload.bike_component_data['cost'] }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime" value="{{ payload.bike_component_data['lifetime_expected'] }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="{{ payload.bike_component_data['service_interval'] }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="offset" class="form-label fw-bold">Offset (km)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="{{ payload.bike_component_data['offset'] }}">
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="component_notes" class="form-label fw-bold">Notes</label>
+                        <textarea class="form-control" id="component_notes" name="component_notes" rows="3">{% if payload.bike_component_data['component_notes'] %}{{ payload.bike_component_data['component_notes'] }}{% else %}{% endif %}</textarea>
+                    </div>
+                </form>
+
+                <div class="modal-footer px-0 pb-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" form="component_details_form" id="submit_btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
