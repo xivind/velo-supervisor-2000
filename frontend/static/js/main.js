@@ -111,6 +111,7 @@ function initializeDatePickers(container = document) {
             clickOpens: true,
             enableTime: true,
             time_24hr: true,
+            disableMobile: true,
             maxDate: "today",
             required: dateInput.hasAttribute('required'),
             // Add validation on close
