@@ -1,5 +1,3 @@
-{% from 'menu.html' import nav_menu %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,6 +20,7 @@
 <body>
     <!-- Menu -->
     <div class="container mt-5">
+        {% from 'menu.html' import nav_menu %}
         {{ nav_menu(request) }}
     </div>
 
@@ -63,5 +62,10 @@
     
     <!-- Common JS -->
     <script src="/static/js/main.js"></script>
+
+    <!-- Modals for user feedback -->
+    {% include 'modal_validation.html' %}
+    {% include 'modal_confirm.html' %}
+    {% include 'modal_loading.html' %}
 </body>
 </html>

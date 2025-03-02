@@ -35,7 +35,7 @@
                     <th>Type</th>
                     <th>Expected lifetime (km)</th>
                     <th>Service interval (km)</th>
-                    <th></th>
+                    <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
@@ -45,9 +45,16 @@
                         <td>{{ component_type }}</td>
                         <td>{% if expected_lifetime == None %}Not defined{% else %}{{ expected_lifetime }}{% endif %}</td>
                         <td>{% if service_interval == None %}Not defined{% else %}{{ service_interval }}{% endif %}</td>
-                        <td>                    
-                            <button type="button" class="btn btn-outline-success btn-sm modify-record" component_type="{{ component_type }}" data-row-id="{{ loop.index0 }}">✍</button>
-                            <button type="button" class="btn btn-outline-danger btn-sm delete-record" data-component-type="{{ component_type }}">🗑</button>
+                        <td class="text-end">                    
+                            <button type="button" class="mb-1 btn btn-outline-success btn-sm modify-record"
+                                    component_type="{{ component_type }}"
+                                    data-row-id="{{ loop.index0 }}">
+                                    ✍
+                            </button>
+                            <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
+                                    data-component-type="{{ component_type }}">
+                                    🗑
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}

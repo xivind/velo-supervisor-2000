@@ -6,6 +6,11 @@ import asyncio
 import uuid
 import time
 import sys
+from datetime import datetime
+
+def get_formatted_datetime_now():
+    """Function to get current datetime formatted as YYYY-MM-DD HH:MM"""
+    return datetime.now().strftime("%Y-%m-%d %H:%M")
 
 def get_current_version():
     """Function to get current program version"""

@@ -35,5 +35,40 @@ th[data-sort].sorted-desc .sort-indicator::after {
     transition: transform 0.2s ease-in-out;
 }
 .card.hover-effect:hover {
-    transform: translateY(-5px);
+    transform: translateY(-7px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2)
+}
+
+.bike_no_components {
+    background-color: #979e9e !important; /* Enhance the secondary color for "no components" status */
+    color: white !important;
+}
+
+.bike_healthy {
+    background-color: #2967b9 !important; /* Enhance the info color for healthy components */
+    color: white !important;
+}
+
+.bike-critical {
+    background-color: #b98356 !important; /* Custom styling for the critical status bikes */
+    color: white !important;
+}
+
+/* Styling of input modals */
+.input-modal-header {
+    padding-left: 15px;
+    background: linear-gradient(to right, #cccdce, rgb(188, 212, 235));
+}
+
+.input-modal-title {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Styling of form fields */
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    transition: box-shadow 0.2s ease-in-out;
+    transform: translateY(-1px);
 }

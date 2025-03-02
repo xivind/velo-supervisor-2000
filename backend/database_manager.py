@@ -89,7 +89,7 @@ class DatabaseManager:
 
         return None
 
-    def read_sum_distanse_subset_rides(self, bike_id, start_date, stop_date):
+    def read_sum_distance_subset_rides(self, bike_id, start_date, stop_date):
         """Method to sum distance for a given set of rides"""
         matching_rides = (Rides.select()
                           .where((Rides.bike_id == bike_id) &
@@ -140,14 +140,14 @@ class DatabaseManager:
                 .get_or_none(Components.component_id == component_id))
     
     def read_subset_component_history(self, component_id):
-        """Method to read a subset of receords from the component history table"""
+        """Method to read a subset of records from the component history table"""
         return (ComponentHistory
                 .select()
                 .where(ComponentHistory.component_id == component_id)
                 .order_by(ComponentHistory.updated_date.desc()))
 
-    def read_history_record(self, history_id):
-        """Method to retrieve record for a specific entry in installation log"""
+    def read_single_history_record(self, history_id):
+        """Method to retrieve record for a specific entry in the installation log"""
         return (ComponentHistory
                 .get_or_none(ComponentHistory.history_id == history_id))
     
@@ -158,6 +158,18 @@ class DatabaseManager:
                 .order_by(ComponentHistory.updated_date.desc())
                 .first())
     
+    def read_oldest_history_record(self, component_id):
+        """Method to retrieve the oldest record from the installation log of a given component"""
+        return (ComponentHistory
+                .select().where(ComponentHistory.component_id == component_id)
+                .order_by(ComponentHistory.updated_date.asc())
+                .first())
+    
+    def read_single_service_record(self, service_id):
+        """Method to retrieve a specific service record"""
+        return (Services
+                .get_or_none(Services.service_id == service_id))
+        
     def read_subset_service_history(self, component_id):
         """Method to read a subset of receords from the component history table"""
         return (Services.
@@ -165,6 +177,11 @@ class DatabaseManager:
                 .where(Services.component_id == component_id)
                 .order_by(Services.service_date.desc()))
 
+    def read_subset_service_record(self, service_id):
+        """Method to retrieve record for a specific entry in the service log"""
+        return (Services
+                .get_or_none(Services.service_id == service_id))
+    
     def read_latest_service_record(self, component_id):
         """Method to retrieve the most recent record from the service log of a given component"""
         return (Services
@@ -172,7 +189,15 @@ class DatabaseManager:
                 .where(Services.component_id == component_id)
                 .order_by(Services.service_date.desc())
                 .first())
-
+    
+    def read_oldest_service_record(self, component_id):
+        """Method to retrieve the oldest record from the service log of a given component"""
+        return (Services
+                .select()
+                .where(Services.component_id == component_id)
+                .order_by(Services.service_date.asc())
+                .first())
+    
     def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk to database"""
         try:
@@ -292,40 +317,43 @@ class DatabaseManager:
         
         except peewee.OperationalError as error:
             return False, f"{bike.bike_name}: {str(error)}."
-    
+
     def write_service_record(self, service_data):
-        "Method to write service record to database"
+        """Method to write or update service record to database"""
         try:
-            Services.create(**service_data)
-            return True, f"Added service record for component {service_data['component_name']}."
+            with self.database.atomic():
+                existing_service = Services.get_or_none(Services.service_id == service_data['service_id'])
+                
+                if existing_service:
+                    Services.update(**service_data).where(
+                        Services.service_id == service_data['service_id']
+                    ).execute()
+                    return True, f"Updated service record for component {service_data['component_name']}."
+                else:
+                    Services.create(**service_data)
+                    return True, f"Created service record for component {service_data['component_name']}."
 
         except peewee.OperationalError as error:
-            return False, f"{service_data['component_name']}: {str(error)}."
-
-    def write_history_record(self,
-                             current_history_id,
-                             component_id,
-                             bike_id,
-                             old_component_name,
-                             component_updated_date,
-                             updated_component_installation_status,
-                             historic_distance):
-        "Method to write history record to database"
+            return False, f"Service record database error for {service_data['component_name']}: {str(error)}"
+    
+    def write_history_record(self, history_data):
+        "Method to write or update history record to database"
         try:
-            with database.atomic():
-                ComponentHistory.create(history_id = current_history_id,
-                                        component_id = component_id,
-                                        bike_id = bike_id,
-                                        component_name = old_component_name,
-                                        updated_date = component_updated_date,
-                                        update_reason = updated_component_installation_status,
-                                        distance_marker = historic_distance)
+            with self.database.atomic():
+                existing_history = ComponentHistory.get_or_none(ComponentHistory.history_id == history_data['history_id'])
+                
+                if existing_history:
+                    ComponentHistory.update(**history_data).where(
+                        ComponentHistory.history_id == history_data['history_id']
+                    ).execute()
+                    return True, f"Updated history record for component {history_data['component_name']}."
+                else:
+                    ComponentHistory.create(**history_data)
+                    return True, f"Created history record for component {history_data['component_name']}."
 
-            return True, f'{old_component_name}'
-        
         except peewee.OperationalError as error:
-            return False, f"{old_component_name}: {str(error)}"
-
+            return False, f"History record database error for {history_data['component_name']}: {str(error)}"
+            
     def write_component_type(self, component_type_data):
         """Method to write component type record to database"""
         try:
@@ -363,6 +391,19 @@ class DatabaseManager:
                         history_deleted = ComponentHistory.delete().where(ComponentHistory.component_id == record_id).execute()
                         record.delete_instance()
                         return True, f"Deleted component: {record.component_name}, related records deleted: {services_deleted} service(s), {history_deleted} history record(s)"
+                
+                elif table_selector == "Services":
+                    record = self.read_single_service_record(record_id)
+                    if record:
+                        record.delete_instance()
+                        return True, f"Deleted service record: {record_id}."
+                
+                elif table_selector == "ComponentHistory":
+                    record = self.read_single_history_record(record_id)
+                    if record:
+                        record.delete_instance()
+                        return True, f"Deleted installation history record: {record_id}."
+
                 else:
                     return False, "Invalid table selector"
 

@@ -1,56 +1,16 @@
-// ===== Modal components ====
+// ===== Modal components for feedback to user ====
 
-// Modal for input validation
-const validationModalHTML = `
-    <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="validationModalLabel">⛔ Input validation error</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="validationModalBody"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-`;
+let validationModal;
+let confirmModal;
+let loadingModal;
 
-// Modal for confirmation of action
-const confirmModalHTML = `
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title" id="confirmModalLabel">⚠ Confirm irreversible action</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="confirmModalBody"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelAction" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-secondary" id="confirmAction" data-bs-dismiss="modal">Proceed</button>
-            </div>
-        </div>
-    </div>
-</div>
-`;
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize modal instances
+    validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+    confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+});
 
-// Modal for loading status
-const loadingModalHTML = `
-<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-warning-subtle">
-            <div class="modal-body text-center">
-                <div class="spinner-border text-primary mb-2" role="status"></div>
-                <h5 class="mb-2" id="loadingMessage"></h5>
-                <p class="mb-0">This may take a moment, hold your horses 🚴</p>
-            </div>
-        </div>
-    </div>
-</div>
-`;
 
 // ===== Functions used on multiple pages =====
 
@@ -98,44 +58,50 @@ function showToast(message, success = true) {
 
 // Function to prefill data related to component types
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on either component details or component overview page
-    const componentDetailsPage = document.getElementById('component-details');
-    const componentOverviewPage = document.getElementById('component-overview');
+    // Get all component_type selects on the page
+    const typeSelects = document.querySelectorAll('select[id^="component_type"]');
     
-    if (!componentDetailsPage && !componentOverviewPage) {
-        // Not on either of the target pages, exit early
+    if (!typeSelects.length) {
+        // No component type selects found, exit early
         return;
     }
 
-    const typeSelect = document.getElementById('component_type');
-    if (!typeSelect) {
-        // Component type select not found, exit early
-        return;
-    }
+    // For each component type select, set up the change handler
+    typeSelects.forEach(function(typeSelect) {
+        // Find the closest form to locate related inputs
+        const form = typeSelect.closest('form');
+        if (!form) return;
+        
+        // Find the related inputs within the same form
+        const serviceIntervalInput = form.querySelector('input[id^="service_interval"]');
+        const expectedLifetimeInput = form.querySelector('input[id^="expected_lifetime"]');
+        
+        if (!serviceIntervalInput || !expectedLifetimeInput) return;
+        
+        // Add change event listener
+        typeSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const serviceInterval = selectedOption.getAttribute('service_interval');
+            const expectedLifetime = selectedOption.getAttribute('expected_lifetime');
 
-    const serviceIntervalInput = document.getElementById('service_interval');
-    const expectedLifetimeInput = document.getElementById('expected_lifetime');
-
-    typeSelect.addEventListener('change', function() {
-        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
-        const serviceInterval = selectedOption.getAttribute('service_interval');
-        const expectedLifetime = selectedOption.getAttribute('expected_lifetime');
-
-        // Update the input fields with the selected option's data attributes
-        serviceIntervalInput.value = serviceInterval;
-        expectedLifetimeInput.value = expectedLifetime;
+            // Update the input fields with the selected option's data attributes
+            serviceIntervalInput.value = serviceInterval;
+            expectedLifetimeInput.value = expectedLifetime;
+        });
     });
 });
 
-// Date picker function
-document.addEventListener('DOMContentLoaded', function() {
-    // Function to initialize a single date picker
-    function initializeDatePicker(inputId, toggleId) {
-        const dateInput = document.getElementById(inputId);
-        const datePickerToggle = document.getElementById(toggleId);
+// Global date picker function with validation
+function initializeDatePickers(container = document) {
+    // Find all date picker input groups inside the provided container
+    const dateInputGroups = container.querySelectorAll('.date-input-group');
+    
+    dateInputGroups.forEach(group => {
+        const dateInput = group.querySelector('.datepicker-input');
+        const datePickerToggle = group.querySelector('.datepicker-toggle');
         
-        if (!dateInput || !datePickerToggle) {
-            return;
+        if (!dateInput || !datePickerToggle || dateInput._flatpickr) {
+            return; // Skip if already initialized or missing elements
         }
 
         // Initialize Flatpickr with strict formatting
@@ -145,6 +111,17 @@ document.addEventListener('DOMContentLoaded', function() {
             clickOpens: true,
             enableTime: true,
             time_24hr: true,
+            disableMobile: true,
+            maxDate: "today",
+            required: dateInput.hasAttribute('required'),
+            // Add validation on close
+            onClose: function(selectedDates, dateStr, instance) {
+                if (!dateStr && dateInput.hasAttribute('required')) {
+                    dateInput.classList.add('is-invalid');
+                } else {
+                    dateInput.classList.remove('is-invalid');
+                }
+            }
         });
 
         // Open calendar on icon click
@@ -152,25 +129,85 @@ document.addEventListener('DOMContentLoaded', function() {
             flatpickrInstance.open();
         });
 
-    }
+        // Add form validation if input is required
+        if (dateInput.hasAttribute('required')) {
+            const form = dateInput.closest('form');
+            if (form) {
+                if (!form.dataset.validationAdded) {
+                    form.addEventListener('submit', function(e) {
+                        let isValid = true;
+                        
+                        form.querySelectorAll('input[required]').forEach(input => {
+                            if (!input.value) {
+                                input.classList.add('is-invalid');
+                                isValid = false;
+                            }
+                        });
+                        
+                        if (!isValid) {
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
+                    form.dataset.validationAdded = 'true';
+                }
+            }
+        }
+    });
+}
 
-    // Initialize all date pickers
-    const datePickerConfigs = [
-        { inputId: 'component_updated_date', toggleId: 'update-date-picker-toggle' },
-        { inputId: 'service_date', toggleId: 'service-date-picker-toggle' }
-    ];
+// Initialize all date pickers on DOM load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDatePickers();
+    
+    // Initialize datepickers when any modal is shown
+    document.addEventListener('shown.bs.modal', function(event) {
+        initializeDatePickers(event.target);
+    });
+});
 
-    datePickerConfigs.forEach(config => {
-        initializeDatePicker(config.inputId, config.toggleId);
+// Add event listeners for your modal buttons
+document.addEventListener('DOMContentLoaded', function() {
+    // Service record edit button
+    document.querySelectorAll('.edit-service-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const serviceId = this.dataset.serviceId;
+            const serviceDate = this.dataset.serviceDate;
+            const serviceDescription = this.dataset.serviceDescription;
+            
+            // Populate the service modal
+            document.getElementById('serviceId').value = serviceId;
+            document.getElementById('serviceDate').value = serviceDate;
+            document.getElementById('serviceDescription').value = serviceDescription;
+            
+            // Show the modal
+            const serviceModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
+            serviceModal.show();
+        });
+    });
+    
+    // History record edit button
+    document.querySelectorAll('.edit-history-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const historyId = this.dataset.historyId;
+            const historyDate = this.dataset.historyDate;
+            const componentId = this.dataset.componentId;
+            
+            // Populate the history modal
+            document.getElementById('editHistoryId').value = historyId;
+            document.getElementById('editHistoryComponentId').value = componentId;
+            document.getElementById('editUpdatedDate').value = historyDate;
+            
+            // Show the modal
+            const historyModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
+            historyModal.show();
+        });
     });
 });
 
 // Function to delete records
 document.addEventListener('DOMContentLoaded', function() {
     // Add confirm modal to the page if it doesn't exist
-    if (!document.getElementById('confirmModal')) {
-        document.body.insertAdjacentHTML('beforeend', confirmModalHTML);
-    }
 
     document.querySelectorAll('.delete-record').forEach(button => {
         button.addEventListener('click', (event) => {
@@ -178,14 +215,30 @@ document.addEventListener('DOMContentLoaded', function() {
             event.stopPropagation();
             
             // Get record details
-            const recordId = button.dataset.componentType || button.dataset.componentId;
-            const tableSelector = button.dataset.componentType ? 'ComponentTypes' : 'Components';
-            const recordType = tableSelector === 'ComponentTypes' ? 'component type' : 'component';
+            const recordId = button.dataset.componentType || 
+                           button.dataset.componentId || 
+                           button.dataset.serviceId || 
+                           button.dataset.historyId;
+
+            let tableSelector, recordType;
+            
+            if (button.dataset.componentType) {
+                tableSelector = 'ComponentTypes';
+                recordType = 'component type';
+            } else if (button.dataset.componentId) {
+                tableSelector = 'Components';
+                recordType = 'component';
+            } else if (button.dataset.serviceId) {
+                tableSelector = 'Services';
+                recordType = 'service record';
+            } else if (button.dataset.historyId) {
+                tableSelector = 'ComponentHistory';
+                recordType = 'history record';
+            }
             
             // Set up the modal
             const modalBody = document.getElementById('confirmModalBody');
             modalBody.innerHTML = `You are about to delete this ${recordType}. This cannot be undone. Do you want to proceed?`;
-            const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
             
             // Show the modal
             confirmModal.show();
@@ -329,48 +382,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function to clear component overview form
-document.addEventListener('DOMContentLoaded', function() {
-    const clearFormButton = document.getElementById('clear_form_btn');
-    const componentForm = document.getElementById('component_overview_form');
-    
-    if (!clearFormButton || !componentForm) return;
-    
-    clearFormButton.addEventListener('click', function(e) {
-        e.preventDefault(); // Prevent form submission
-        
-        // Get all form inputs
-        const inputs = componentForm.querySelectorAll('input, select, textarea');
-        
-        // Clear each input
-        inputs.forEach(input => {
-            if (input.type === 'text' || input.type === 'number' || input.tagName === 'TEXTAREA') {
-                input.value = '';
-            } else if (input.type === 'select-one') {
-                input.selectedIndex = 0;
-            }
-        });
-        
-        // If you have any flatpickr date inputs, clear those too
-        const dateInputs = componentForm.querySelectorAll('.flatpickr-input');
-        dateInputs.forEach(input => {
-            if (input._flatpickr) {
-                input._flatpickr.clear();
-            }
-        });
-    });
-});
-
 // ===== Component details page functions =====
 
-// Function to control installaion status and bike name
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the component details page
-    if (document.querySelector('h1#component-details') === null) return;
+// Function to handle component form status and bike selection synchronization
+function initializeComponentForm(formElement) {
+    const bikeSelect = formElement.querySelector('[name="component_bike_id"]');
+    const installationSelect = formElement.querySelector('[name="component_installation_status"]');
     
-    const bikeSelect = document.getElementById('component_bike_id');
-    const installationSelect = document.getElementById('component_installation_status');
+    if (!bikeSelect || !installationSelect) {
+        console.debug('Form elements not found:', { bikeSelect, installationSelect });
+        return;
+    }
 
+    // Handle bike selection changes
     bikeSelect.addEventListener('change', function() {
         if (installationSelect.value !== "Retired") {
             if (this.value !== "") {
@@ -381,91 +405,217 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Handle installation status changes
     installationSelect.addEventListener('change', function() {
         if (this.value === "Not installed") {
             bikeSelect.value = "";
         }
     });
 
-    // Initial check on page load
+    // Initial state check
     if (bikeSelect.value === "" && installationSelect.value !== "Retired") {
         installationSelect.value = "Not installed";
     }
+}
+
+// Initialize forms when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle create component modal
+    const createComponentForm = document.getElementById('component_overview_form');
+    if (createComponentForm) {
+        initializeComponentForm(createComponentForm);
+    }
+
+    // Handle edit status modal
+    const componentStatusForm = document.getElementById('component_status_form');
+    if (componentStatusForm) {
+        initializeComponentForm(componentStatusForm);
+    }
+
+    // Also initialize when modals are shown (in case of dynamic content)
+    const createComponentModal = document.getElementById('createComponentModal');
+    if (createComponentModal) {
+        createComponentModal.addEventListener('shown.bs.modal', function() {
+            initializeComponentForm(createComponentForm);
+        });
+    }
+
+    const editComponentStatusModal = document.getElementById('editComponentStatusModal');
+    if (editComponentStatusModal) {
+        editComponentStatusModal.addEventListener('shown.bs.modal', function() {
+            initializeComponentForm(componentStatusForm);
+        });
+    }
 });
 
-// Function for input validation of component details
-document.addEventListener('DOMContentLoaded', function() {
-    // Get form by ID
-    const componentDetailsForm = document.getElementById('component_details_form');
-    if (!componentDetailsForm) return;
+// Function for validating component status changes
+function addFormValidation(form) {
+    if (!form) return;
 
-    // Add validation modal to the page
-    document.body.insertAdjacentHTML('beforeend', validationModalHTML);
-
-    // Form submit handler with validation
-    componentDetailsForm.addEventListener('submit', function(e) {
-        const statusSelect = this.querySelector('#component_installation_status');
+    form.addEventListener('submit', function(e) {
+        const statusSelect = this.querySelector('[name="component_installation_status"]');
         const installationStatus = statusSelect.value;
-        const bikeId = this.querySelector('#component_bike_id').value;
-        const initialSelectedStatus = statusSelect.options[statusSelect.selectedIndex].defaultSelected ? statusSelect.value : null;
-        const dateInput = this.querySelector('#component_updated_date');
-        const initialDate = dateInput.defaultValue;
+        const bikeIdSelect = this.querySelector('[name="component_bike_id"]');
+        const bikeId = bikeIdSelect.value;
+        //Switch for debugging to prevent form to submit
+        //e.preventDefault();
         
-        let errorMessage = null;
-        if (installationStatus === 'Installed' && !bikeId) {
-            errorMessage = 'Status cannot be set to "Installed" if no bike is selected';
-            } else if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
-                errorMessage = `Status cannot be changed to "${statusSelect.value}" since status is already "${installationStatus}"`;
-            } else if (installationStatus !== initialSelectedStatus && dateInput.value === initialDate) {
-                errorMessage = `Status cannot be changed unless you also update record date`;
-            }
+        // For status update modal, we need to check additional conditions
+        if (form.id === 'component_status_form') {
+            const initialSelectedStatus = statusSelect.options[statusSelect.selectedIndex].defaultSelected ? statusSelect.value : null;
+            const initialBikeId = form.dataset.initialBikeId; 
+            const dateInput = this.querySelector('#component_updated_date');
+            const initialDate = dateInput.defaultValue;
 
-        if (errorMessage) {
+            if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
+                e.preventDefault();
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = `Status cannot be changed to "${statusSelect.value}" since status is already "${installationStatus}"`;
+                validationModal.show();
+                return;
+            
+            } else if (dateInput.value === initialDate) {
+                e.preventDefault();
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = `Updated date must be changed when updating status. Last updated date is ${initialDate}. Select a date after this date`;
+                validationModal.show();
+                return;
+
+            } else if (installationStatus !== initialSelectedStatus && dateInput.value === initialDate) {
+                e.preventDefault();
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = `Status cannot be changed unless you also update record date`;
+                validationModal.show();
+                return;
+                // This rule is kept for fallback, but is not triggered due to rule above
+
+            } else if (installationStatus === 'Retired' && initialBikeId !== bikeId) {
+                e.preventDefault();
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = `Bike assignment cannot be changed at time of retirement. If you need to unassign or change bike prior to retiring, uninstall or install component first`;
+                validationModal.show();
+                return;
+            }
+        }
+
+        // Common validation for both forms
+        if (installationStatus === 'Installed' && !bikeId) {
             e.preventDefault();
             const modalBody = document.getElementById('validationModalBody');
-            modalBody.innerHTML = errorMessage;
-            const validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+            modalBody.innerHTML = 'Status cannot be set to "Installed" if no bike is selected';
             validationModal.show();
         }
     });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Add validation to both forms
+    const componentStatusForm = document.getElementById('component_status_form');
+    const componentOverviewForm = document.getElementById('component_overview_form');
+    
+    addFormValidation(componentStatusForm);
+    addFormValidation(componentOverviewForm);
+
+    // Keep the existing retirement confirmation code for the status form
+    if (componentStatusForm) {
+        const installationSelect = componentStatusForm.querySelector('#component_installation_status');
+        let previousValue = installationSelect.value;
+
+        installationSelect.addEventListener('change', function() {
+            if (this.value === 'Retired') {
+                const modalBody = document.getElementById('confirmModalBody');
+                modalBody.innerHTML = "You are about to retire this component. This will lock the component and prevent further editing. Delete the most recent installation record if you wish to unlock the component. Do you want to proceed? You still need to save";
+                confirmModal.show();
+                
+                document.getElementById('cancelAction').addEventListener('click', function() {
+                    installationSelect.value = previousValue;
+                }, { once: true });
+                
+                document.getElementById('confirmAction').addEventListener('click', function() {
+                    previousValue = 'Retired';
+                }, { once: true });
+            } else {
+                previousValue = this.value;
+            }
+        });
+    }
 });
 
-// Function to handle component retirement confirmation
+// Function to handle service records and history records
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component details page
-    const componentDetailsPage = document.getElementById('component-details');
-    if (!componentDetailsPage) return;
+    if (document.querySelector('h1#component-details') === null) return;
 
-    // Get installation status select
-    const installationSelect = document.getElementById('component_installation_status');
-    if (!installationSelect) return;
+    // Initialize modals
+    const serviceRecordModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
+    const editHistoryModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
 
-    // Add confirm modal to the page
-    document.body.insertAdjacentHTML('beforeend', confirmModalHTML);
+    // Get component ID from the page context
+    const currentComponentId = document.getElementById('serviceComponentId')?.value;
 
-    // Initialize modal and tracking variables
-    const modalBody = document.getElementById('confirmModalBody');
-    modalBody.innerHTML = "You are about to retire this component. This cannot be undone. Do you want to proceed? You still need to save.";
-    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
-    let previousValue = installationSelect.value;
-
-    // Add change event listener to installation status select
-    installationSelect.addEventListener('change', function(e) {
-        if (this.value === 'Retired') {
-            confirmModal.show();
-            
-            // Handle cancel
-            document.getElementById('cancelAction').addEventListener('click', function() {
-                installationSelect.value = previousValue;
-            }, { once: true });  // Remove listener after first use
-            
-            // Handle confirm
-            document.getElementById('confirmAction').addEventListener('click', function() {
-                previousValue = 'Retired';
-            }, { once: true });  // Remove listener after first use
-        } else {
-            previousValue = this.value;
+    // Handle "New Service" button click
+    document.querySelector('[data-bs-target="#serviceRecordModal"]')?.addEventListener('click', function() {
+        // Set up modal for creating new service
+        document.getElementById('serviceRecordModalLabel').textContent = 'New Service Record';
+        document.getElementById('serviceRecordForm').action = '/add_service_record';
+        
+        // Ensure component_id is set for new service
+        document.getElementById('serviceComponentId').value = currentComponentId;
+        
+        // Clear other form fields
+        document.getElementById('serviceId').value = '';
+        const serviceDate = document.getElementById('serviceDate');
+        if (serviceDate._flatpickr) {
+            serviceDate._flatpickr.clear();
         }
+        document.getElementById('serviceDescription').value = '';
+        
+        serviceRecordModal.show();
+    });
+
+    // Handle service record edit button clicks
+    document.querySelectorAll('.edit-service-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // Set up modal for editing service
+            document.getElementById('serviceRecordModalLabel').textContent = 'Edit Service Record';
+            document.getElementById('serviceRecordForm').action = '/update_service_record';
+            
+            // Fill in the form with existing data
+            document.getElementById('serviceComponentId').value = this.dataset.componentId;
+            document.getElementById('serviceId').value = this.dataset.serviceId;
+            
+            const serviceDate = document.getElementById('serviceDate');
+            if (serviceDate._flatpickr) {
+                serviceDate._flatpickr.setDate(this.dataset.serviceDate);
+            } else {
+                serviceDate.value = this.dataset.serviceDate;
+            }
+            
+            document.getElementById('serviceDescription').value = this.dataset.serviceDescription;
+
+            serviceRecordModal.show();
+        });
+    });
+
+    // Handle history record edit button clicks
+    document.querySelectorAll('.edit-history-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const historyId = this.dataset.historyId;
+            const updatedDate = this.dataset.updatedDate;
+            const componentId = this.dataset.componentId;
+
+            document.getElementById('editHistoryComponentId').value = componentId;
+            document.getElementById('editHistoryId').value = historyId;
+            
+            const editUpdatedDate = document.getElementById('editUpdatedDate');
+            if (editUpdatedDate._flatpickr) {
+                editUpdatedDate._flatpickr.setDate(updatedDate);
+            } else {
+                editUpdatedDate.value = updatedDate;
+            }
+
+            editHistoryModal.show();
+        });
     });
 });
 
@@ -542,11 +692,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the config page
     if (document.querySelector('h1#config') === null) return;
 
-    // Add loading modal to the page if it doesn't exist
-    if (!document.getElementById('loadingModal')) {
-        document.body.insertAdjacentHTML('beforeend', loadingModalHTML);
-    }
-
     // Add click handlers to all update buttons
     document.querySelectorAll('.update-button').forEach(button => {
         button.addEventListener('click', function(e) {
@@ -563,7 +708,6 @@ function handleUpdate(endpoint, message) {
     if (document.querySelector('h1#config') === null) return;
     
     // Show the loading modal with custom message
-    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
     document.getElementById('loadingMessage').textContent = message;
     loadingModal.show();
 
@@ -579,3 +723,56 @@ function handleUpdate(endpoint, message) {
             showToast('An error occurred during the update', false);
         });
 }
+
+// ===== Footer page functions =====
+
+// Modern performance timing code
+window.addEventListener('load', () => {
+    function getDetailedTiming() {
+        const perf = performance.getEntriesByType('navigation')[0];
+        
+        // Calculate all the phases using modern API
+        const timings = {
+            total: perf.loadEventEnd / 1000,
+            network: perf.responseEnd / 1000,
+            serverResponse: (perf.responseEnd - perf.requestStart) / 1000,
+            domProcessing: (perf.domComplete - perf.responseEnd) / 1000,
+            loadEvent: (perf.loadEventEnd - perf.loadEventStart) / 1000
+        };
+
+        // Validate timings
+        for (let phase in timings) {
+            if (timings[phase] < 0) {
+                console.warn(`Negative timing for ${phase}: ${timings[phase]}`);
+                return null;
+            }
+        }
+
+        return timings;
+    }
+
+    // Get the timing element
+    const timeElement = document.getElementById('log-fetch-time');
+    
+    // Check if the Performance API is available and has navigation timing
+    if (performance.getEntriesByType && performance.getEntriesByType('navigation').length > 0) {
+        // Wait a short moment to ensure timing data is available
+        setTimeout(() => {
+            const timings = getDetailedTiming();
+            
+            if (timings) {
+                // Log detailed timings for debugging
+                console.debug('Page Load Timings:', timings);
+                
+                // Display the total time with 2 decimals
+                timeElement.textContent = timings.total.toFixed(2);
+            } else {
+                console.error('Invalid timing data received');
+                timeElement.textContent = 'Timing unavailable';
+            }
+        }, 0);
+    } else {
+        console.error('Modern Performance API not supported');
+        timeElement.textContent = 'Timing unavailable';
+    }
+});

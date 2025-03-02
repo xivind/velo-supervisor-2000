@@ -149,24 +149,8 @@ async def component_types_modify(component_type: str = Form(...),
 
     return response
 
-@app.post("/add_service", response_class=HTMLResponse)
-async def add_service(component_id: str = Form(...),
-                      service_date: str = Form(...),
-                      service_description: str = Form(...)):
-    """Endpoint to add service"""
-
-    success, message = business_logic.create_service_record(component_id,
-                                                            service_date,
-                                                            service_description)
-
-    response = RedirectResponse(
-        url=f"/component_details/{component_id}?success={success}&message={message}",
-        status_code=303)
-
-    return response
-
-@app.post("/component_modify", response_class=HTMLResponse)
-async def component_modify(component_id: Optional[str] = Form(None),
+@app.post("/create_component", response_class=HTMLResponse)
+async def create_component(component_id: Optional[str] = Form(None),
                            component_installation_status: str = Form(...),
                            component_updated_date: str = Form(...),
                            component_name: str = Form(...),
@@ -179,6 +163,39 @@ async def component_modify(component_id: Optional[str] = Form(None),
                            component_notes: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
 
+    success, message, component_id = (business_logic.create_component
+                                      (component_id,
+                                       component_installation_status,
+                                       component_updated_date,
+                                       component_name,
+                                       component_type,
+                                       component_bike_id,
+                                       expected_lifetime,
+                                       service_interval,
+                                       cost,
+                                       offset,
+                                       component_notes))
+
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
+@app.post("/update_component_details", response_class=HTMLResponse)
+async def component_modify(component_id: Optional[str] = Form(None),
+                           component_installation_status: str = Form(...),
+                           component_updated_date: str = Form(...),
+                           component_name: str = Form(...),
+                           component_type: str = Form(...),
+                           component_bike_id: str = Form(...),
+                           expected_lifetime: Optional[str] = Form(None),
+                           service_interval: Optional[str] = Form(None),
+                           cost: Optional[str] = Form(None),
+                           offset: Optional[int] = Form(0),
+                           component_notes: Optional[str] = Form(None)):
+    """Endpoint to modify component types"""
+    
     success, message, component_id = (business_logic.modify_component_details
                                       (component_id,
                                        component_installation_status,
@@ -198,6 +215,73 @@ async def component_modify(component_id: Optional[str] = Form(None),
 
     return response
 
+@app.post("/add_history_record", response_class=HTMLResponse)
+async def add_history_record(component_id: str = Form(...),
+                             component_installation_status: str = Form(...),
+                             component_bike_id: str = Form(...),
+                             component_updated_date: str = Form(...)):
+    """Endpoint to update an existing component history record"""
+
+    success, message = business_logic.create_history_record(component_id,
+                                                            component_installation_status,
+                                                            component_bike_id,
+                                                            component_updated_date)
+
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
+@app.post("/update_history_record", response_class=HTMLResponse)
+async def update_history_record(component_id: str = Form(...),
+                                history_id: str = Form(...),
+                                updated_date: str = Form(...)):
+    """Endpoint to update an existing component history record"""
+
+    success, message = business_logic.update_history_record(history_id, updated_date)
+
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
+@app.post("/add_service_record", response_class=HTMLResponse)
+async def add_service(component_id: str = Form(...),
+                      service_date: str = Form(...),
+                      service_description: str = Form(...)):
+    """Endpoint to add service"""
+
+    success, message = business_logic.create_service_record(component_id,
+                                                            service_date,
+                                                            service_description)
+
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
+@app.post("/update_service_record", response_class=HTMLResponse)
+async def update_service_record(component_id: str = Form(...),
+                                service_id: str = Form(...),
+                                service_date: str = Form(...),
+                                service_description: str = Form(...)):
+    """Endpoint to update an existing service record"""
+
+    success, message = business_logic.update_service_record(component_id,
+                                                            service_id,
+                                                            service_date,
+                                                            service_description)
+
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
+
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
 async def refresh_all_bikes(request: Request):
     """Endpoint to manually refresh data for all bikes"""
@@ -212,7 +296,7 @@ async def refresh_rides(request: Request, mode: str):
     """Endpoint to refresh data for a subset or all rides"""
 
     success, message = await business_logic.update_rides_bulk(mode)
-    
+
     return JSONResponse({"success": success,
                          "message": message})
 
@@ -221,7 +305,7 @@ async def delete_record(record_id: str = Form(...),
                         table_selector: str = Form(...)):
     """Endpoint to delete records"""
 
-    success, message = business_logic.delete_record(table_selector, record_id)
+    success, message, component_id = business_logic.delete_record(table_selector, record_id)
 
     redirect_url = "/"
 
@@ -229,6 +313,8 @@ async def delete_record(record_id: str = Form(...),
         redirect_url = "/component_types_overview"
     if table_selector == "Components":
         redirect_url = "/component_overview"
+    if table_selector == "Services" or table_selector == "ComponentHistory":
+        redirect_url = f"/component_details/{component_id}"
 
     response = RedirectResponse(
         url=f"{redirect_url}?success={success}&message={message}",
@@ -243,7 +329,7 @@ async def update_config(request: Request,
     """Endpoint to update config file"""
 
     success, message = write_config(db_path, strava_tokens)
-    
+
     response = RedirectResponse(
         url=f"/config_overview?success={success}&message={message}",
         status_code=303)

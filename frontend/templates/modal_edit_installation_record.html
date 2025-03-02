@@ -1,0 +1,28 @@
+<div class="modal fade" id="editHistoryModal" tabindex="-1" aria-labelledby="editHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="editHistoryModalLabel">Edit installation record</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editHistoryForm" method="POST" action="/update_history_record">
+                <div class="modal-body">
+                    <input type="hidden" id="editHistoryComponentId" name="component_id">
+                    <input type="hidden" id="editHistoryId" name="history_id">
+                    
+                    <div class="mb-3">
+                        <label for="editUpdatedDate" class="form-label fw-bold">Update date</label>
+                        <div class="input-group date-input-group">
+                            <input type="text" class="form-control datepicker-input" id="editUpdatedDate" name="updated_date" required>
+                            <span class="input-group-text datepicker-toggle">🗓</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

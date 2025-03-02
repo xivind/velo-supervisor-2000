@@ -4,74 +4,14 @@
 
 {% block content %}
 <h1 id="component-overview" class="display-5 mt-5 text-center">Component overview</h1>
-<div class="card shadow mt-5 mb-3">
-    <div class="card-header fw-bold">Add component</div>
-    <div class="card-body">
-        <form id="component_overview_form" class="row align-items-center" action="/component_modify" method="post" enctype="application/x-www-form-urlencoded">
-            <input type="hidden" id="component_installation_status" name="component_installation_status" value="Installed">
-            <div class="col-md-3 mb-3">
-                <label for="component_updated_date" class="col-form-label col-auto fw-bold">Updated date</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="component_updated_date" name="component_updated_date" value="" required>
-                    <div class="input-group-append">
-                        <span class="input-group-text" id="update-date-picker-toggle" style="margin-left: 0.5rem">🗓</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <label for="component_name" class="form-label fw-bold">Name</label>
-                <input type="text" class="form-control" id="component_name" name="component_name" value="" required>
-            </div>
-            <div class="col-md-2 mb-3">
-                <label for="component_type" class="form-label fw-bold">Type</label>
-                <select class="form-select" id="component_type" name="component_type" required>
-                    <option value="" selected></option>
-                    {% for component_type, suggested_lifetime_expected, suggested_service_interval in payload.component_types_data %}
-                        <option value="{{ component_type }}" expected_lifetime="{{ suggested_lifetime_expected }}" service_interval="{{ suggested_service_interval }}">
-                            {{ component_type }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-2 mb-3">
-                <label for="component_bike_id" class="form-label fw-bold">Bike</label>
-                <select class="form-select" id="component_bike_id" name="component_bike_id" required>
-                    <option value="" selected></option>
-                    {% for bike_name, bike_id in payload.bikes_data %}
-                        <option value="{{ bike_id }}">
-                            {{ bike_name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-1 mb-3">
-                <label for="cost" class="form-label fw-bold">Cost</label>
-                <input type="number" min="0" step="1" class="form-control" id="cost" name="cost" value="">
-            </div>
-            <div class="col-md-1 mb-3">
-                <label for="offset" class="form-label fw-bold">Offset</label>
-                <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="">
-            </div>
-            <div class="col-md-2 mb-3">
-                <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
-                <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime" value="">
-            </div>
-            <div class="col-md-2 mb-3">
-                <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
-                <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="">
-            </div>
-            <div class="col-md-8 mb-3">
-                <label for="component_notes" class="form-label fw-bold">Notes</label>
-                <textarea class="form-control" id="component_notes" name="component_notes" rows="1"></textarea>
-            </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary" form="component_overview_form" id="submit_btn">Save</button>
-                <button type="submit" class="btn btn-outline-danger" form="component_overview_form" id="clear_form_btn">Clear form</button>
-            </div>
-        </form>
-    </div>
-</div>
-<hr class="mt-5"/>
+  
+<button type="button" class="btn btn-outline-primary mt-5" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+    <span>⚙ New component</span>
+</button>
+
+{% include "modal_create_component.html" %}
+
+<hr/>
 <div class="card shadow mb-4">
     <div class="card-header fw-bold">Component statistics</div>
     <div class="card-body">
@@ -106,22 +46,34 @@
     </div>
 </div>
 <hr class="mt-5"/>
-<div class="d-flex justify-content-end mb-3 pe-2">
-    <div class="form-check form-switch me-4">
-        <input class="form-check-input filter-switch" type="checkbox" id="showInstalledComponents" checked>
-        <label class="form-check-label fw-bold" for="showInstalledComponents">Show installed</label>
-    </div>
-    <div class="form-check form-switch me-4">
-        <input class="form-check-input filter-switch" type="checkbox" id="showNotInstalledComponents" checked>
-        <label class="form-check-label fw-bold" for="showNotInstalledComponents">Show not installed</label>
-    </div>
-    <div class="form-check form-switch">
-        <input class="form-check-input filter-switch" type="checkbox" id="showRetiredComponents">
-        <label class="form-check-label fw-bold" for="showRetiredComponents">Show retired</label>
+<div class="mb-3 ms-2">
+    <div class="small text-secondary d-flex align-items-center">
+      <span class="fw-bold" style="width: 170px;">Lifetime / service status:</span>
+      <span style="width: 50px;">🟢 OK</span>
+      <span style="width: 180px;">🟡 End of life approaching</span>
+      <span style="width: 160px;">🔴 Due for replacement</span>
+      <span style="width: 150px;">🟣 Lifetime exceeded</span>
+      <span>⚪ Not defined</span>
     </div>
 </div>
 <div class="card shadow mb-3">
-    <div class="card-header fw-bold">All components</div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold">All components</span>
+        <div class="d-flex gap-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showInstalledComponents" checked>
+                <label class="form-check-label fw-bold" for="showInstalledComponents">Show installed</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showNotInstalledComponents" checked>
+                <label class="form-check-label fw-bold" for="showNotInstalledComponents">Show not installed</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showRetiredComponents">
+                <label class="form-check-label fw-bold" for="showRetiredComponents">Show retired</label>
+            </div>
+        </div>
+    </div>
     <div class="card-body">
         <table class="table table-hover" id="componentsTable">
             <thead>
@@ -133,7 +85,7 @@
                     <th data-sort="lifetime">Lifetime <span class="sort-indicator"></span></th>
                     <th data-sort="service">Service <span class="sort-indicator"></span></th>
                     <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
-                    <th></th>
+                    <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
@@ -153,7 +105,7 @@
                                 {% endif %}
                                 {{ installation_status }}
                             </td>
-                            <td>
+                            <td class="text-center">
                                 {% if lifetime_status == "OK" %}
                                 🟢
                                 {% elif lifetime_status == "End of life approaching" %}
@@ -165,9 +117,8 @@
                                 {% elif lifetime_status == "Not defined" %}
                                 ⚪
                                 {% endif %}
-                                {{ lifetime_status }}
                             </td>
-                            <td>
+                            <td class="text-center">
                                 {% if service_status == "OK" %}
                                 🟢
                                 {% elif service_status == "Service approaching" %}
@@ -179,12 +130,11 @@
                                 {% elif service_status == "Not defined" %}
                                 ⚪
                                 {% endif %}
-                                {{ service_status }}
                             </td>
                             <td>
                                 {{ bike }}
                             </td>
-                            <td>
+                            <td class="text-end">
                                 <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}" onclick="event.stopPropagation();">🗑</button>
                             </td>
                         </tr>
