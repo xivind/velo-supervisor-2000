@@ -52,11 +52,11 @@
                         <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="">
                     </div>
                     <div class="col-md-2 mb-3">
-                        <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
+                        <label for="expected_lifetime" class="form-label fw-bold">Lifetime exp. (km)</label>
                         <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime" value="{{ duplicate_data.lifetime_expected if duplicate_data else '' }}">
                     </div>
                     <div class="col-md-2 mb-3">
-                        <label for="service_interval" class="form-label fw-bold">Service interval (km)</label>
+                        <label for="service_interval" class="form-label fw-bold">Service int. (km)</label>
                         <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="{{ duplicate_data.service_interval if duplicate_data else '' }}">
                     </div>
                     <div class="col-md-2 mb-3">
