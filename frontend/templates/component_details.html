@@ -305,7 +305,7 @@
                 <tbody>
                     {% if payload.component_history_data %}
                         {% for history_id, updated_date, update_reason, bike_id, bike_name, bike_total_distance, mileage in payload.component_history_data %}
-                        <tr>
+                        <tr {% if bike_name != "Not assigned" %} role="button" role="button" onclick="window.location='/bike_details/{{ bike_id }}';"{% endif %}>
                             <td>{{ updated_date }}</td>
                             <td>{% if update_reason == "Not installed" %}Uninstalled{% else %}{{ update_reason }}{% endif %}</td>
                             <td>{{ bike_name }}{% if bike_name != "Not assigned" %} ({{ bike_total_distance }} km){% endif %}</td>
@@ -315,12 +315,13 @@
                                         data-history-id="{{ history_id }}"
                                         data-updated-date="{{ updated_date }}"
                                         data-component-id="{{ payload.bike_component_data['component_id'] }}"
+                                        onclick="event.stopPropagation();"
                                         {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
                                         ✍
                                 </button>
                                 {% if loop.first %}
                                 <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
-                                        data-history-id="{{ history_id}}">
+                                        data-history-id="{{ history_id}}" onclick="event.stopPropagation();">
                                         🗑
                                 </button>
                                 {% endif %}
