@@ -16,7 +16,7 @@ The onboarding procedure is not ready yet, but you can start piloting already no
 - **Step 7:** You are all set and can now register your first components. The rest will hopefully be self explanatory. Reach out if you have any comments or questions, and create issues for bug reports and feature requests as needed
 ---
 
-**Whether you are part of the pilot group or not, join the work, either by forking the repo and contribute with PRs or simply by submitting <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issues</a> 🙋**
+**Whether you are part of the pilot group or not, join the work, either by forking the repo and contribute with PRs or simply by submitting <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issues</a> 🙋 Please prefix suggestions for improvements with FEATURE REUQEST. We will review them and remove the prefix when decided how to follow up. Bug reports should be prefixed with BUG**
 
 ## Setup and configuration
 TODO
