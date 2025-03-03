@@ -16,7 +16,7 @@ The onboarding procedure is not ready yet, but you can start piloting already no
 - **Step 7:** You are all set and can now register your first components. The rest will hopefully be self explanatory. Reach out if you have any comments or questions, and create issues for bug reports and feature requests as needed
 ---
 
-**Whether you are part of the pilot group or not, join the work, either by forking the repo and contribute with PRs or simply by submitting <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issues</a> 🙋**
+**Whether you are part of the pilot group or not, join the work, either by forking the repo and contribute with PRs or simply by submitting <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issues</a> 🙋 Please prefix suggestions for improvements with FEATURE REUQEST. We will review them and remove the prefix when decided how to follow up. Bug reports should be prefixed with BUG**
 
 ## Setup and configuration
 TODO
@@ -50,7 +50,7 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Improved GUI with less clutter and more emphasis on important information
 - Moved all user interaction to modals
 - More accurate calculation of page load time
-- Changed logic for bike statuses to be less miselading and more intuitive
+- Changed logic for bike statuses to be less misleading and more intuitive
 - More informative error page
 - Improved backend for handling deletion of records
 - Made it possible to service components that are not assigned to a bike
@@ -61,7 +61,6 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Fixed bug that prevented Strava activities to be saved properly
 - Preliminary onboarding instructions for pilot users
 - Minor GUI improvements
-- ...
 
 **v0.3.0**
 - Configured program to run in Docker
