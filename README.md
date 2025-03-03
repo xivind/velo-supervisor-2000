@@ -61,7 +61,6 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Fixed bug that prevented Strava activities to be saved properly
 - Preliminary onboarding instructions for pilot users
 - Minor GUI improvements
-- ...
 
 **v0.3.0**
 - Configured program to run in Docker
