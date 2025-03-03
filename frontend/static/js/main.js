@@ -91,6 +91,49 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
+// Utility function to get Tempus Dominus instance and handle dates properly
+function getDatePicker(inputElement) {
+    if (!inputElement) return null;
+    return inputElement._tempusDominus || null;
+}
+
+// Helper function to safely parse dates for Tempus Dominus
+function parseDateForPicker(dateString) {
+    if (!dateString) return null;
+    
+    // Handle different date formats
+    let date;
+    try {
+        // Try parsing with native Date
+        date = new Date(dateString);
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            // Try alternative formats
+            if (dateString.includes(' ')) {
+                // Handle "YYYY-MM-DD HH:MM" format
+                const [datePart, timePart] = dateString.split(' ');
+                const [year, month, day] = datePart.split('-');
+                const [hour, minute] = timePart.split(':');
+                
+                date = new Date(
+                    parseInt(year, 10),
+                    parseInt(month, 10) - 1, // Month is 0-based
+                    parseInt(day, 10),
+                    parseInt(hour, 10),
+                    parseInt(minute, 10)
+                );
+            }
+        }
+        
+        return date;
+    } catch (e) {
+        console.error("Error parsing date:", dateString, e);
+        return null;
+    }
+}
+
 // Global date picker function with validation
 function initializeDatePickers(container = document) {
     // Find all date picker input groups inside the provided container
@@ -100,57 +143,128 @@ function initializeDatePickers(container = document) {
         const dateInput = group.querySelector('.datepicker-input');
         const datePickerToggle = group.querySelector('.datepicker-toggle');
         
-        if (!dateInput || !datePickerToggle || dateInput._flatpickr) {
-            return; // Skip if already initialized or missing elements
+        if (!dateInput || !datePickerToggle) {
+            console.log('Missing elements for date picker:', dateInput, datePickerToggle);
+            return; // Skip if missing elements
+        }
+        
+        // Store the picker instance in a data attribute
+        if (dateInput._tempusDominus) {
+            console.log('Picker already initialized for:', dateInput.id || 'unnamed input');
+            return;
         }
 
-        // Initialize Flatpickr with strict formatting
-        const flatpickrInstance = flatpickr(dateInput, {
-            dateFormat: "Y-m-d H:i",
-            allowInput: false,
-            clickOpens: true,
-            enableTime: true,
-            time_24hr: true,
-            disableMobile: true,
-            maxDate: "today",
-            required: dateInput.hasAttribute('required'),
-            // Add validation on close
-            onClose: function(selectedDates, dateStr, instance) {
-                if (!dateStr && dateInput.hasAttribute('required')) {
-                    dateInput.classList.add('is-invalid');
-                } else {
-                    dateInput.classList.remove('is-invalid');
+        console.log('Initializing new picker for:', dateInput.id || 'unnamed input');
+
+        // Initialize Tempus Dominus with the correct configuration structure
+        const picker = new tempusDominus.TempusDominus(dateInput, {
+            localization: {
+                format: 'yyyy-MM-dd HH:mm'
+            },
+            display: {
+                icons: {
+                    time: 'bi bi-clock',
+                    date: 'bi bi-calendar',
+                    up: 'bi bi-arrow-up',
+                    down: 'bi bi-arrow-down',
+                    previous: 'bi bi-chevron-left',
+                    next: 'bi bi-chevron-right',
+                    today: 'bi bi-calendar-check',
+                    clear: 'bi bi-trash',
+                    close: 'bi bi-x'
+                },
+                components: {
+                    calendar: true,
+                    date: true,
+                    month: true,
+                    year: true,
+                    decades: true,
+                    clock: true,
+                    hours: true,
+                    minutes: true,
+                    seconds: false
                 }
+            },
+            restrictions: {
+                // Setting min and max dates explicitly to avoid validation errors
+                minDate: new Date('1970-01-01'),
+                maxDate: new Date()
+            }
+        });
+        
+        // Store the picker instance for later access
+        dateInput._tempusDominus = picker;
+
+        // Force the calendar picker toggle to be clickable
+        datePickerToggle.style.cursor = 'pointer';
+        datePickerToggle.style.pointerEvents = 'auto';
+        datePickerToggle.style.zIndex = '100';
+        datePickerToggle.style.position = 'relative';
+        
+        // Define the function to toggle the picker
+        function togglePicker(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Toggle clicked for:', dateInput.id || 'unnamed input');
+            
+            try {
+                // Use the stored picker instance directly 
+                if (dateInput._tempusDominus) {
+                    console.log('Found picker instance, toggling...');
+                    dateInput._tempusDominus.toggle();
+                } else {
+                    console.error('No picker instance found for', dateInput.id || 'unnamed input');
+                }
+            } catch (err) {
+                console.error('Error toggling picker:', err);
+            }
+            
+            return false;
+        }
+        
+        // Remove any existing click listeners and add new one
+        datePickerToggle.onclick = togglePicker;
+        
+        // Also make the input clickable to show picker
+        dateInput.addEventListener('click', function() {
+            try {
+                if (dateInput._tempusDominus) {
+                    dateInput._tempusDominus.show();
+                }
+            } catch (err) {
+                console.error('Error showing picker on input click:', err);
             }
         });
 
-        // Open calendar on icon click
-        datePickerToggle.addEventListener('click', function() {
-            flatpickrInstance.open();
+        // Add validation on change/hide
+        picker.subscribe(tempusDominus.Namespace.events.change, (e) => {
+            if (!dateInput.value && dateInput.hasAttribute('required')) {
+                dateInput.classList.add('is-invalid');
+            } else {
+                dateInput.classList.remove('is-invalid');
+            }
         });
 
-        // Add form validation if input is required
+        // Keep the same form validation logic
         if (dateInput.hasAttribute('required')) {
             const form = dateInput.closest('form');
-            if (form) {
-                if (!form.dataset.validationAdded) {
-                    form.addEventListener('submit', function(e) {
-                        let isValid = true;
-                        
-                        form.querySelectorAll('input[required]').forEach(input => {
-                            if (!input.value) {
-                                input.classList.add('is-invalid');
-                                isValid = false;
-                            }
-                        });
-                        
-                        if (!isValid) {
-                            e.preventDefault();
-                            return false;
+            if (form && !form.dataset.validationAdded) {
+                form.addEventListener('submit', function(e) {
+                    let isValid = true;
+                    
+                    form.querySelectorAll('input[required]').forEach(input => {
+                        if (!input.value) {
+                            input.classList.add('is-invalid');
+                            isValid = false;
                         }
                     });
-                    form.dataset.validationAdded = 'true';
-                }
+                    
+                    if (!isValid) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+                form.dataset.validationAdded = 'true';
             }
         }
     });
@@ -174,15 +288,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const serviceId = this.dataset.serviceId;
             const serviceDate = this.dataset.serviceDate;
             const serviceDescription = this.dataset.serviceDescription;
+            const componentId = this.dataset.componentId;
             
             // Populate the service modal
             document.getElementById('serviceId').value = serviceId;
-            document.getElementById('serviceDate').value = serviceDate;
+            document.getElementById('serviceComponentId').value = componentId || '';
             document.getElementById('serviceDescription').value = serviceDescription;
             
-            // Show the modal
+            // Show the modal FIRST
             const serviceModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
             serviceModal.show();
+            
+            // THEN set the date value AFTER the modal is shown
+            setTimeout(() => {
+                document.getElementById('serviceDate').value = serviceDate;
+            }, 100);
         });
     });
     
@@ -190,17 +310,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.edit-history-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             const historyId = this.dataset.historyId;
-            const historyDate = this.dataset.historyDate;
+            const historyDate = this.dataset.updatedDate || this.dataset.historyDate;
             const componentId = this.dataset.componentId;
             
             // Populate the history modal
             document.getElementById('editHistoryId').value = historyId;
             document.getElementById('editHistoryComponentId').value = componentId;
-            document.getElementById('editUpdatedDate').value = historyDate;
             
-            // Show the modal
+            // Show the modal FIRST
             const historyModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
             historyModal.show();
+            
+            // THEN set the date value AFTER the modal is shown
+            setTimeout(() => {
+                document.getElementById('editUpdatedDate').value = historyDate;
+            }, 100);
         });
     });
 });
@@ -565,9 +689,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear other form fields
         document.getElementById('serviceId').value = '';
         const serviceDate = document.getElementById('serviceDate');
-        if (serviceDate._flatpickr) {
-            serviceDate._flatpickr.clear();
+        const picker = getDatePicker(serviceDate);
+        if (picker) {
+            picker.clear();
         }
+        
         document.getElementById('serviceDescription').value = '';
         
         serviceRecordModal.show();
@@ -585,8 +711,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('serviceId').value = this.dataset.serviceId;
             
             const serviceDate = document.getElementById('serviceDate');
-            if (serviceDate._flatpickr) {
-                serviceDate._flatpickr.setDate(this.dataset.serviceDate);
+            const picker = getDatePicker(serviceDate);
+            if (picker) {
+                picker.dates.setValue(new Date(this.dataset.serviceDate));
             } else {
                 serviceDate.value = this.dataset.serviceDate;
             }
@@ -608,10 +735,11 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editHistoryId').value = historyId;
             
             const editUpdatedDate = document.getElementById('editUpdatedDate');
-            if (editUpdatedDate._flatpickr) {
-                editUpdatedDate._flatpickr.setDate(updatedDate);
+            const picker = getDatePicker(editUpdatedDate);
+            if (picker) {
+                picker.dates.setValue(new Date(this.dataset.editUpdatedDate));
             } else {
-                editUpdatedDate.value = updatedDate;
+                editUpdatedDate.value = this.dataset.editUpdatedDate;
             }
 
             editHistoryModal.show();

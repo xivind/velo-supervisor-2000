@@ -72,3 +72,11 @@ th[data-sort].sorted-desc .sort-indicator::after {
     transition: box-shadow 0.2s ease-in-out;
     transform: translateY(-1px);
 }
+
+/* Styling of calendar toggle */
+.date-toggle-clickable {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    z-index: 100;
+    position: relative;
+}
