@@ -665,7 +665,7 @@ class BusinessLogic():
 
             if component_status["breakdown_imminent"] > 0 or component_status["maintenance_required"] > 0:
                 service_status = "Components need attention"
-            elif component_status["ok"] > 0:
+            elif component_status["ok"] > 0 or component_status["maintenance_approaching"] > 0:
                 service_status = "All components healthy"
             elif all(value == 0 for value in component_status.values()) and count_installed > 0:
                 service_status = "Maintenance not defined"

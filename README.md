@@ -4,7 +4,7 @@ Velo Supervisor 2000 is a program to keep track of lifetime and service interval
 ---
 **📡 IMPORTANT INFORMATION TO USERS PARTICIPARTING IN PILOTING Q1 2025**
 
-🔴 There are currently some major limitations in this software, most notably that installation records and service records cannot be changed once they are created. The GUI does currently not work with mobile devices. Please take this into consideration if you are piloting. We are working on fixing this. See the [project board](https://github.com/users/xivind/projects/2/views/1) for a complete list of issues
+🔴 This software is currently under active development. Use it at your own risk, as there may be issues with data integrity. We do our best to solve bugs and make improvements, but cant promise you any support. The GUI does currently not work with mobile devices. Please take this into consideration if you are piloting. We are working on fixing this. See the [project board](https://github.com/users/xivind/projects/2/views/1) for a complete list of issues
 
 The onboarding procedure is not ready yet, but you can start piloting already now by setting up Velo Supervisor 2000 manually. Complete the following steps:
 - **Step 1:** Copy the file `backend/template_db.sqlite` and place it somewhere outside the repo
@@ -16,20 +16,20 @@ The onboarding procedure is not ready yet, but you can start piloting already no
 - **Step 7:** You are all set and can now register your first components. The rest will hopefully be self explanatory. Reach out if you have any comments or questions, and create issues for bug reports and feature requests as needed
 ---
 
-**Whether you are part of the pilot group or not, join the work, either by forking the repo and contribute with PRs or simply by submitting <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issues</a> 🙋**
+**Whether you are part of the pilot group or not, join the work, either by forking the repo and contribute with PRs or simply by submitting <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issues</a> 🙋 Please prefix suggestions for improvements with FEATURE REUQEST. We will review them and remove the prefix when decided how to follow up. Bug reports should be prefixed with BUG**
 
 ## Setup and configuration
 TODO
 
 ## Bugs
-There are currently quite a few bugs scattered around. If you find any, please submit them as an <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issue</a>.
+There are still some bugs scattered around. If you find any, please submit them as an <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issue</a>.
 
 ## Versioning and branches
 Velo Supervisor 2000 uses <a href="https://semver.org/" class="text-decoration-none">Semantic Versioning Specification (SemVer)</a> as versioning scheme. Versions are expressed as tags. A Github action runs each time the repository receives a commit or a pull request is accepted, and writes the current version to `current_version.txt`. Use these commands to create new tags:
 - `git tag -a vX.Y.Z -m "Version X.Y.Z"`
 - `git push --tags`
 
-As a principle, development is to be done in dev-branches and will be merged into the master branch as needed. Review the changes in the PR and create a new version tag accordingly before merging.
+As a principle, development is to be done in the dev-branch. When changes are ready for testing and quality assurance, they should be merged into the staging branch. If tests and quality assurance completes successfully, the changes shall be merged from staging branch into the master branch. Review the changes in the PR and create a new version tag, according to the SemVer scheme, before merging into master.
 
 ## Changelog
 
@@ -39,15 +39,28 @@ As a principle, development is to be done in dev-branches and will be merged int
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.4.0**
-- Installation history and service history can now be modified after creation
+**Planned for v0.4.1**
+- Bugfixes
 - ...
 
-**v0.3.1** - CURRENT
+**v0.4.0 (CURRENT)**
+- Installation history and service history can now be modified
+- Backend for distance calculation refactored
+- Improved input validation backend and frontend
+- Improved GUI with less clutter and more emphasis on important information
+- Moved all user interaction to modals
+- More accurate calculation of page load time
+- Changed logic for bike statuses to be less misleading and more intuitive
+- More informative error page
+- Improved backend for handling deletion of records
+- Made it possible to service components that are not assigned to a bike
+- Made it possible to register components without adding them to bike
+- Misc bugfixes
+
+**v0.3.1**
 - Fixed bug that prevented Strava activities to be saved properly
 - Preliminary onboarding instructions for pilot users
 - Minor GUI improvements
-- ...
 
 **v0.3.0**
 - Configured program to run in Docker
