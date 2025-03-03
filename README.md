@@ -50,7 +50,7 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Improved GUI with less clutter and more emphasis on important information
 - Moved all user interaction to modals
 - More accurate calculation of page load time
-- Changed logic for bike statuses to be less miselading and more intuitive
+- Changed logic for bike statuses to be less misleading and more intuitive
 - More informative error page
 - Improved backend for handling deletion of records
 - Made it possible to service components that are not assigned to a bike
