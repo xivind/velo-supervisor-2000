@@ -236,8 +236,11 @@ function initializeDatePickers(container = document) {
             }
         });
 
-        // Add validation on change/hide
-        picker.subscribe(tempusDominus.Namespace.events.change, (e) => {
+        // Remove any invalid styling initially
+        dateInput.classList.remove('is-invalid');
+
+        // Only add validation on hide/close of picker (like flatpickr did)
+        picker.subscribe(tempusDominus.Namespace.events.hide, (e) => {
             if (!dateInput.value && dateInput.hasAttribute('required')) {
                 dateInput.classList.add('is-invalid');
             } else {
@@ -245,7 +248,7 @@ function initializeDatePickers(container = document) {
             }
         });
 
-        // Keep the same form validation logic
+        // Also ensure validation happens on form submit
         if (dateInput.hasAttribute('required')) {
             const form = dateInput.closest('form');
             if (form && !form.dataset.validationAdded) {
@@ -265,6 +268,24 @@ function initializeDatePickers(container = document) {
                     }
                 });
                 form.dataset.validationAdded = 'true';
+            }
+            
+            // Ensure each individual submit button also triggers validation
+            // This ensures validation happens immediately with the Save button
+            const submitButtons = form?.querySelectorAll('button[type="submit"]');
+            if (submitButtons) {
+                submitButtons.forEach(button => {
+                    if (!button.dataset.validationAdded) {
+                        button.addEventListener('click', function(e) {
+                            if (!dateInput.value && dateInput.hasAttribute('required')) {
+                                dateInput.classList.add('is-invalid');
+                                e.preventDefault();
+                                return false;
+                            }
+                        });
+                        button.dataset.validationAdded = 'true';
+                    }
+                });
             }
         }
     });
