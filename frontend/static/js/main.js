@@ -187,13 +187,16 @@ function initializeDatePickers(container = document) {
             },
             restrictions: {
                 // Setting min and max dates explicitly to avoid validation errors
-                minDate: new Date('1970-01-01'),
+                minDate: new Date('1970-01-01 00:00'),
                 maxDate: new Date()
             }
         });
         
         // Store the picker instance for later access
         dateInput._tempusDominus = picker;
+
+        // Enforce picker usage
+        dateInput.setAttribute('readonly', true);
 
         // Force the calendar picker toggle to be clickable
         datePickerToggle.style.cursor = 'pointer';
