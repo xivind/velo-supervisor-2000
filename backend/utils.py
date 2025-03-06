@@ -136,3 +136,33 @@ def calculate_percentage_reached(total, remaining):
             return round(((total - remaining) / total) * 100, 2)
         
         return 1000
+
+def validate_date_format(date_string):
+    """Validates that a date string matches the required format YYYY-MM-DD HH:MM"""
+    if date_string is None:
+        return False, "Date cannot be empty. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
+    
+    if not date_string:
+        return False, "Date cannot be empty. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
+    
+    if date_string != date_string.strip():
+        return False, f"Date '{date_string}' contains leading or trailing whitespace. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
+    
+    if len(date_string) != 16:
+        return False, f"Invalid date format: '{date_string}'. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
+    
+    if (date_string[4] != '-' or date_string[7] != '-' or 
+        date_string[10] != ' ' or date_string[13] != ':'):
+        return False, f"Invalid date format: '{date_string}'. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
+    
+    for i, char in enumerate(date_string):
+        if i in [4, 7, 10, 13]:
+            continue
+        if not char.isdigit():
+            return False, f"Invalid date format: '{date_string}'. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
+    
+    try:
+        datetime.strptime(date_string, "%Y-%m-%d %H:%M")
+        return True, "Date format is valid"
+    except ValueError:
+        return False, f"Invalid date: '{date_string}'. The date provided is invalid or does not match the expected format (YYYY-MM-DD HH:MM). This is an error in the program code"
