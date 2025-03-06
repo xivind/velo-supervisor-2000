@@ -144,17 +144,17 @@ function initializeDatePickers(container = document) {
         const datePickerToggle = group.querySelector('.datepicker-toggle');
         
         if (!dateInput || !datePickerToggle) {
-            console.log('Missing elements for date picker:', dateInput, datePickerToggle);
+            //console.log('Missing elements for date picker:', dateInput, datePickerToggle);
             return; // Skip if missing elements
         }
         
         // Store the picker instance in a data attribute
         if (dateInput._tempusDominus) {
-            console.log('Picker already initialized for:', dateInput.id || 'unnamed input');
+            //console.log('Picker already initialized for:', dateInput.id || 'unnamed input');
             return;
         }
 
-        console.log('Initializing new picker for:', dateInput.id || 'unnamed input');
+        //console.log('Initializing new picker for:', dateInput.id || 'unnamed input');
 
         // Initialize Tempus Dominus with the correct configuration structure
         const picker = new tempusDominus.TempusDominus(dateInput, {
@@ -162,6 +162,7 @@ function initializeDatePickers(container = document) {
                 format: 'yyyy-MM-dd HH:mm'
             },
             display: {
+                theme: 'light',
                 icons: {
                     time: 'bi bi-clock',
                     date: 'bi bi-calendar',
@@ -208,12 +209,12 @@ function initializeDatePickers(container = document) {
         function togglePicker(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Toggle clicked for:', dateInput.id || 'unnamed input');
+            //console.log('Toggle clicked for:', dateInput.id || 'unnamed input');
             
             try {
                 // Use the stored picker instance directly 
                 if (dateInput._tempusDominus) {
-                    console.log('Found picker instance, toggling...');
+                    //console.log('Found picker instance, toggling...');
                     dateInput._tempusDominus.toggle();
                 } else {
                     console.error('No picker instance found for', dateInput.id || 'unnamed input');
