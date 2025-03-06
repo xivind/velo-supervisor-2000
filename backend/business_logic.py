@@ -930,7 +930,7 @@ class BusinessLogic():
             
             lastest_service_record = database_manager.read_latest_service_record(component_id)
             if lastest_service_record:
-                if updated_date <= lastest_service_record.service_date:
+                if updated_date <= lastest_service_record.service_date and installation_status == "Retired":
                     logging.warning(f"A retired component cannot be serviced. Set retire date after latest service date: {lastest_service_record.service_date}")
                     return False, f"A retired component cannot be serviced. Set retire date after latest service date: {lastest_service_record.service_date}"
        
