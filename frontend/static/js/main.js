@@ -712,12 +712,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Clear other form fields
         document.getElementById('serviceId').value = '';
-        const serviceDate = document.getElementById('serviceDate');
-        const picker = getDatePicker(serviceDate);
-        if (picker) {
-            picker.clear();
-        }
-        
+        document.getElementById('serviceDate').value = '';
         document.getElementById('serviceDescription').value = '';
         
         serviceRecordModal.show();
@@ -733,17 +728,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Fill in the form with existing data
             document.getElementById('serviceComponentId').value = this.dataset.componentId;
             document.getElementById('serviceId').value = this.dataset.serviceId;
-            
-            const serviceDate = document.getElementById('serviceDate');
-            const picker = getDatePicker(serviceDate);
-            if (picker) {
-                picker.dates.setValue(new Date(this.dataset.serviceDate));
-            } else {
-                serviceDate.value = this.dataset.serviceDate;
-            }
-            
             document.getElementById('serviceDescription').value = this.dataset.serviceDescription;
-
+            
+            // Simply set the input value directly and avoid using the API
+            document.getElementById('serviceDate').value = this.dataset.serviceDate;
+            
             serviceRecordModal.show();
         });
     });
@@ -758,14 +747,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editHistoryComponentId').value = componentId;
             document.getElementById('editHistoryId').value = historyId;
             
-            const editUpdatedDate = document.getElementById('editUpdatedDate');
-            const picker = getDatePicker(editUpdatedDate);
-            if (picker) {
-                picker.dates.setValue(new Date(this.dataset.editUpdatedDate));
-            } else {
-                editUpdatedDate.value = this.dataset.editUpdatedDate;
-            }
-
+            // Simply set the input value directly and avoid using the API
+            document.getElementById('editUpdatedDate').value = updatedDate;
+            
             editHistoryModal.show();
         });
     });
