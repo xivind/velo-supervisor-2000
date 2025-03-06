@@ -10,7 +10,8 @@ from utils import (read_config,
                    format_component_status,
                    format_cost,
                    get_component_statistics,
-                   get_formatted_datetime_now)
+                   get_formatted_datetime_now,
+                   validate_date_format)
 from strava import Strava
 from database_manager import DatabaseManager
 
@@ -897,6 +898,11 @@ class BusinessLogic():
             logging.warning(f"Associated component for history record not found for component {component.component_name}")
             return False, f"Associated component for history record not found for component {component.component_name}"
         
+        success, message = validate_date_format(updated_date)
+        if not success:
+            logging.warning(message)
+            return False, message
+        
         if updated_date > datetime.now().strftime("%Y-%m-%d %H:%M"):
             logging.warning(f"History date cannot be in the future. Component: {component.component_name}")
             return False, f"History date cannot be in the future. Component: {component.component_name}"
@@ -1158,6 +1164,11 @@ class BusinessLogic():
             logging.warning(f"Associated component for service record for component {component.component_name} not found")
             return False, f"Associated component for service record for component {component.component_name} not found"
 
+        success, message = validate_date_format(service_date)
+        if not success:
+            logging.warning(message)
+            return False, message
+        
         history_records = database_manager.read_subset_component_history(component.component_id)
         if not history_records:
             logging.warning(f"Services cannot be registered to components that have never been installed. Component: {component.component_name}")
