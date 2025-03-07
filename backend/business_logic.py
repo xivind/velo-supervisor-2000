@@ -114,6 +114,7 @@ class BusinessLogic():
                    "component_types_data": component_types_data,
                    "bike_components_data": bike_components_data,
                    "count_installed" : component_statistics["count_installed"],
+                   "count_retired" : component_statistics["count_retired"],
                    "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
                    "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
                    "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
