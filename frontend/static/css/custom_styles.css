@@ -1,12 +1,31 @@
 /* Custom CSS styles that extends Bootstrap framework*/
 
+/* Custom color palette */
 .bg-purple {
-    background-color: rgb(173, 15, 173) !important;}
+    background-color: rgb(173, 15, 173) !important;
+}
 
 .text-bg-purple {
     background-color: rgb(173, 15, 173) !important;
-    color: white !important;}
+    color: white !important;
+}
 
+.bike_no_components {
+    background-color: #979e9e !important; /* Enhance the secondary color for "no components" status */
+    color: white !important;
+}
+
+.bike_healthy {
+    background-color: #2967b9 !important; /* Enhance the info color for healthy components */
+    color: white !important;
+}
+
+.bike-critical {
+    background-color: #b98356 !important; /* Custom styling for the critical status bikes */
+    color: white !important;
+}    
+
+/* Styling of sorting */
 th[data-sort] {
     cursor: pointer;
     white-space: nowrap;} /* Prevent wrapping of text and arrow */
@@ -31,6 +50,7 @@ th[data-sort].sorted-desc .sort-indicator::after {
     content: '\25BC'; /* Down arrow */
     color: #333;} /* Darker color for active sort */
 
+/* Styling of card hover effect */
 .card.hover-effect {
     transition: transform 0.2s ease-in-out;
 }
@@ -38,21 +58,6 @@ th[data-sort].sorted-desc .sort-indicator::after {
     transform: translateY(-7px);
     transition: transform 0.3s ease;
     box-shadow: 0 10px 20px rgba(0,0,0,0.2)
-}
-
-.bike_no_components {
-    background-color: #979e9e !important; /* Enhance the secondary color for "no components" status */
-    color: white !important;
-}
-
-.bike_healthy {
-    background-color: #2967b9 !important; /* Enhance the info color for healthy components */
-    color: white !important;
-}
-
-.bike-critical {
-    background-color: #b98356 !important; /* Custom styling for the critical status bikes */
-    color: white !important;
 }
 
 /* Styling of input modals */

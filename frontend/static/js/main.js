@@ -426,45 +426,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function for component table filtering
-document.addEventListener('DOMContentLoaded', function() {
-    const componentsTable = document.getElementById('componentsTable');
-    if (!componentsTable) return;
-
-    const filterSwitches = document.querySelectorAll('.filter-switch');
-    const componentRows = componentsTable.querySelectorAll('tbody tr');
-
-    function updateComponentRowVisibility() {
-        // Get switch states
-        const showInstalled = document.getElementById('showInstalledComponents').checked;
-        const showRetired = document.getElementById('showRetiredComponents').checked;
-        const notInstalledSwitch = document.getElementById('showNotInstalledComponents');
-        const showNotInstalled = notInstalledSwitch ? notInstalledSwitch.checked : false;
-
-        componentRows.forEach(row => {
-            const statusCell = row.querySelector('td:nth-child(4)');
-            if (statusCell) {
-                const status = statusCell.textContent.trim();
-                const shouldShow = (
-                    (status.includes('⚡') && showInstalled) ||
-                    (status.includes('💤') && showNotInstalled) ||
-                    (status.includes('⛔') && showRetired)
-                );
-                row.style.display = shouldShow ? '' : 'none';
-            }
-        });
-    }
-
-    // Add event listeners
-    filterSwitches.forEach(switchElement => {
-        switchElement.addEventListener('change', updateComponentRowVisibility);
-    });
-
-    // Initial visibility update
-    updateComponentRowVisibility();
-});
-
-
 // ===== Bike overview page functions =====
 
 // Function to update visibility of bike cards
@@ -526,6 +487,179 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add appropriate class to clicked header
             header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
             
+            sortColumn(columnIndex, isAscending);
+        });
+    });
+});
+
+// Function for filtering table all components
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component overview page
+    if (document.querySelector('h1#component-overview') === null) return;
+    const componentsTable = document.getElementById('componentsTable');
+    if (!componentsTable) return;
+
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    const componentRows = componentsTable.querySelectorAll('tbody tr');
+
+    function updateComponentRowVisibility() {
+        // Get switch states
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+        const notInstalledSwitch = document.getElementById('showNotInstalledComponents');
+        const showNotInstalled = notInstalledSwitch ? notInstalledSwitch.checked : false;
+
+        componentRows.forEach(row => {
+            const statusCell = row.querySelector('td:nth-child(4)');
+            if (statusCell) {
+                const status = statusCell.textContent.trim();
+                const shouldShow = (
+                    (status.includes('⚡') && showInstalled) ||
+                    (status.includes('💤') && showNotInstalled) ||
+                    (status.includes('⛔') && showRetired)
+                );
+                row.style.display = shouldShow ? '' : 'none';
+            }
+        });
+    }
+
+    // Add event listeners
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateComponentRowVisibility);
+    });
+
+    // Initial visibility update
+    updateComponentRowVisibility();
+});
+
+// ===== Bike details page functions =====
+
+// Function for filtering table components for single bike
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component overview page
+    if (document.querySelector('h1#bike-details') === null) return;
+    
+    const componentsBikeTable = document.getElementById('componentsBikeTable');
+    if (!componentsBikeTable) return;
+
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    const componentRows = componentsBikeTable.querySelectorAll('tbody tr');
+
+    function updateComponentRowVisibility() {
+        // Get switch states
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+        const notInstalledSwitch = document.getElementById('showNotInstalledComponents');
+        const showNotInstalled = notInstalledSwitch ? notInstalledSwitch.checked : false;
+
+        componentRows.forEach(row => {
+            const statusCell = row.querySelector('td:nth-child(1)');
+            if (statusCell) {
+                const status = statusCell.textContent.trim();
+                const shouldShow = (
+                    (status.includes('⚡') && showInstalled) ||
+                    (status.includes('💤') && showNotInstalled) ||
+                    (status.includes('⛔') && showRetired)
+                );
+                row.style.display = shouldShow ? '' : 'none';
+            }
+        });
+    }
+
+    // Add event listeners
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateComponentRowVisibility);
+    });
+
+    // Initial visibility update
+    updateComponentRowVisibility();
+});
+
+// Script to sort bike component table
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the bike details page with the components table
+    const componentsBikeTable = document.getElementById('componentsBikeTable');
+    if (!componentsBikeTable) return;
+    
+    const headers = componentsBikeTable.querySelectorAll('th');
+    const tableBody = componentsBikeTable.querySelector('tbody');
+    const rows = tableBody.querySelectorAll('tr');
+
+    // Sorting function
+    const sortColumn = (index, asc = true) => {
+        // Skip sorting if the table is empty or has the "no components" message row
+        if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+        
+        const nodeList = Array.from(rows);
+        const compare = (rowA, rowB) => {
+            // Get text content from cells
+            let cellA = rowA.querySelectorAll('td')[index].innerText.trim();
+            let cellB = rowB.querySelectorAll('td')[index].innerText.trim();
+            
+            // Special handling for name column (remove emojis)
+            // Special handling for name column (remove emojis and normalize case)
+            if (index === 0) { // Name column
+                // Remove emoji characters, trim whitespace, and convert to lowercase
+                cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡⛔]/gu, '').trim().toLowerCase();
+                cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡⛔]/gu, '').trim().toLowerCase();
+            }
+            
+            // Special handling for distance column (extract numeric value)
+            if (index === 2) { // Distance column
+                cellA = parseFloat(cellA.replace(' km', '')) || 0;
+                cellB = parseFloat(cellB.replace(' km', '')) || 0;
+            } 
+            // Special handling for next life/srv column (numeric values)
+            else if (index === 4) { // Next life/srv column
+                cellA = cellA === '-' ? Infinity : parseFloat(cellA) || 0;
+                cellB = cellB === '-' ? Infinity : parseFloat(cellB) || 0;
+            }
+            // Special handling for cost column (extract numeric value)
+            else if (index === 5) { // Cost column
+                cellA = cellA === '-' ? 0 : parseFloat(cellA.replace(' kr', '')) || 0;
+                cellB = cellB === '-' ? 0 : parseFloat(cellB.replace(' kr', '')) || 0;
+            }
+            
+            // Compare based on parsed values or text
+            if (typeof cellA === 'number' && typeof cellB === 'number') {
+                return asc ? cellA - cellB : cellB - cellA;
+            } else {
+                return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+            }
+        };
+        
+        // Sort and reattach rows
+        nodeList.sort(compare);
+        nodeList.forEach(node => tableBody.appendChild(node));
+    };
+
+    // Add data-sort attribute and sort indicators to headers (except Life / srv column)
+    headers.forEach((header, index) => {
+        // Skip the "Life / srv" column (index 3)
+        if (index === 3) return;
+        
+        // Add data-sort attribute to make headers sortable
+        header.setAttribute('data-sort', '');
+        
+        // Add sort indicator span if it doesn't exist
+        if (!header.querySelector('.sort-indicator')) {
+            const indicator = document.createElement('span');
+            indicator.className = 'sort-indicator';
+            header.appendChild(indicator);
+        }
+
+        // Add click event to headers
+        header.addEventListener('click', () => {
+            const columnIndex = header.cellIndex;
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Remove sorted classes from all headers
+            headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+            
+            // Add appropriate class to clicked header
+            header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+            
+            // Sort the column
             sortColumn(columnIndex, isAscending);
         });
     });

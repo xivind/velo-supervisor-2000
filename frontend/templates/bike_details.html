@@ -136,32 +136,31 @@
                 </div>
             </div>
             <div class="card-body">
-                <table class="table table-hover" id="componentsTable">
+                <table class="table table-hover" id="componentsBikeTable">
                     <thead>
                         <tr>
                             <th>Name</th>
                             <th>Type</th>
                             <th>Distance</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-center">Lifetime</th>
-                            <th class="text-center">Service</th>
+                            <th class="text-center text-nowrap">Life <span class="fw-bold">|</span> srv</th>
+                            <th class="text-center">Nxt life / srv</th>
                             <th>Cost</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if payload.bike_components_data %}
-                            {% for component_id, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_components_data %}
+                            {% for component_id, lifetime_remaining, service_next, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_components_data %}
                                 <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
-                                    <td>{{ name }}</td>
-                                    <td>{{ type }}</td>
-                                    <td>{{ component_distance }} km</td>
-                                    <td class="text-center">
+                                    <td>
                                         {% if installation_status == "Installed" %}
                                         ⚡
                                         {% elif installation_status == "Retired" %}
                                         ⛔
                                         {% endif %}
+                                        {{ name }}
                                     </td>
+                                    <td>{{ type }}</td>
+                                    <td>{{ component_distance }} km</td>
                                     <td class="text-center">
                                         {% if lifetime_status == "OK" %}
                                         🟢
@@ -174,8 +173,7 @@
                                         {% elif lifetime_status == "Not defined" %}
                                         ⚪
                                         {% endif %}
-                                    </td>
-                                    <td class="text-center">
+                                        <span class="fw-bold">|</span>
                                         {% if service_status == "OK" %}
                                         🟢
                                         {% elif service_status == "Service approaching" %}
@@ -186,6 +184,17 @@
                                         🟣
                                         {% elif service_status == "Not defined" %}
                                         ⚪
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if lifetime_remaining == "-" and service_next == "-" %}
+                                            -
+                                        {% elif lifetime_remaining == "-" %}
+                                            {{ service_next }}
+                                        {% elif service_next == "-" %}
+                                            {{ lifetime_remaining }}
+                                        {% else %}
+                                            {{ [lifetime_remaining, service_next]|min }}
                                         {% endif %}
                                     </td>
                                     <td>
