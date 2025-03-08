@@ -43,11 +43,17 @@
                 <h6 class="card-title fw-bold">
                     {% if payload.bike_component_data['installation_status'] == 'Installed' %}⚡ {{ payload.bike_component_data['installation_status'] }} at <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="text-decoration-none text-reset">{{ payload['bike_name'] }}</a>{% elif payload.bike_component_data['installation_status'] == 'Not installed' %}💤 {{ payload.bike_component_data['installation_status'] }}{% elif payload.bike_component_data['installation_status'] == 'Retired' %}⛔ {{ payload.bike_component_data['installation_status'] }}{% endif %}
                 </h6>
-                <h6 class="card-title">
+                <h6 class="card-title mt-1">
                     🕰 {% if payload.component_history_data|length <= 1 %}Not previously installed{% else %}Previously installed at <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="text-decoration-none text-reset">{{ payload.component_history_data[1][4] }}</a>{% endif %}
                 </h6>
                 <hr/>
                 <span class="fw-bold">📍 Mileage {{ payload.bike_component_data['component_distance'] }} km</span>
+                <h6 class="card-title mt-2">
+                    📅 {{ payload.elapsed_days.days_since_install }}
+                </h6>
+                <h6 class="card-title mt-2">
+                    🔧 {{ payload.elapsed_days.days_since_service }}
+                </h6>
                 <hr/>
                 <span class="fw-bold">🚳 {% if payload.bike_component_data['lifetime_status'] == 'Not defined' %}Expected lifetime not defined{% elif payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded' %}Lifetime exceeded with {{ payload.bike_component_data['lifetime_remaining'] * -1}} km{% else %}Lifetime reached in {{ payload.bike_component_data['lifetime_remaining'] }} km{% endif %}</span>
                 <div class="progress" role="progressbar" aria-label="Lifetime bar" aria-valuemin="0" aria-valuemax="100">

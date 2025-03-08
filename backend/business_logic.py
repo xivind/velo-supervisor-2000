@@ -11,7 +11,8 @@ from utils import (read_config,
                    format_cost,
                    get_component_statistics,
                    get_formatted_datetime_now,
-                   validate_date_format)
+                   validate_date_format,
+                   calculate_elapsed_days)
 from strava import Strava
 from database_manager import DatabaseManager
 
@@ -273,12 +274,36 @@ class BusinessLogic():
         else:
             service_history_data = None
 
+        oldest_history_record = database_manager.read_oldest_history_record(component_id)
+        if oldest_history_record:
+            success, message = calculate_elapsed_days(oldest_history_record.updated_date, get_formatted_datetime_now())
+            if success:
+                days_since_install = f"{message} days since first installation"
+            else:
+                days_since_install = message
+        else:
+            days_since_install = "Component has never been installed"
+        
+        latest_service_record = database_manager.read_latest_service_record(component_id)
+        if latest_service_record:
+            success, message = calculate_elapsed_days(latest_service_record.service_date, get_formatted_datetime_now())
+            if success:
+                days_since_service = f"{message} days since last service"
+            else:
+                days_since_service = message
+        else:
+            days_since_service = "Component has never been serviced"
+
+        elapsed_days = {"days_since_install": days_since_install,
+                        "days_since_service": days_since_service}
+
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
                    "bike_component_data": bike_component_data,
                    "bike_name": database_manager.read_bike_name(bike_component.bike_id),
                    "component_history_data": component_history_data,
-                   "service_history_data": service_history_data}
+                   "service_history_data": service_history_data,
+                   "elapsed_days": elapsed_days}
         
         return payload
 

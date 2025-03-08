@@ -165,4 +165,13 @@ def validate_date_format(date_string):
         datetime.strptime(date_string, "%Y-%m-%d %H:%M")
         return True, "Date format is valid"
     except ValueError:
-        return False, f"Invalid date: '{date_string}'. The date provided is invalid or does not match the expected format (YYYY-MM-DD HH:MM). This is an error in the program code"
+        return False, f"Invalid date: '{date_string}'. The date provided is invalid or does not match the expected format (YYYY-MM-DD HH:MM). This is a system error"
+    
+def calculate_elapsed_days(start_date, end_date):
+    """Calculates the number of days between two dates"""
+    try:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d %H:%M")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d %H:%M")
+        return True, (end_date - start_date).days
+    except ValueError:
+        return False, "Failed to calculate elapsed days"
