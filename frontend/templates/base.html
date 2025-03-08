@@ -29,12 +29,17 @@
     <!-- Toast container for GUI feedback -->
     <div class="container position-relative">
         <div class="toast-container position-absolute top-0 end-0 px-3 pb-3">
-            <div id="messageToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div id="messageToast" class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-header">
                     <strong class="me-auto" id="toastTitle"></strong>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
-                <div class="toast-body" id="toastMessage"></div>
+                <div class="toast-body bg-light">
+                    <span id="toastMessage"></span>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar bg-secondary" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" id="toastProgressBar"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

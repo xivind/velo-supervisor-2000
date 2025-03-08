@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
 });
 
-
 // ===== Functions used on multiple pages =====
 
 // Toast handler
@@ -30,30 +29,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Toast behaviour
 function showToast(message, success = true) {
-    // console.log('Toast function called:', message, success);  // Debug log
     const toast = document.getElementById('messageToast');
+    const toastHeader = toast.querySelector('.toast-header');
     const toastTitle = document.getElementById('toastTitle');
     const toastMessage = document.getElementById('toastMessage');
-    
-    // Set title and message
+    const progressBar = document.getElementById('toastProgressBar'); // Get the progress bar
+
     toastTitle.textContent = success ? 'Success' : 'Error';
     toastMessage.textContent = message;
-    
-    // Set bootstrap classes based on success/error
-    toast.classList.remove('bg-danger', 'text-white', 'bg-success');
-    if (!success) {
-        toast.classList.add('bg-danger', 'text-white');
+
+    // Reset all classes first
+    toast.classList.remove('border-success', 'border-danger');
+    toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+
+    // Set appropriate styling based on success/error
+    if (success) {
+        toast.classList.add('border-success');
+        toastHeader.classList.add('bg-success', 'text-white');
     } else {
-        toast.classList.add('bg-success', 'text-white');
+        toast.classList.add('border-danger');
+        toastHeader.classList.add('bg-danger', 'text-white');
     }
-    
-    // Create and show the toast
+
     const bsToast = new bootstrap.Toast(toast, {
         animation: true,
         autohide: true,
         delay: 6000
     });
+
     bsToast.show();
+
+    // Progress Bar Countdown
+    let remainingTime = 6000;
+    const interval = 10;
+    const step = (interval / remainingTime) * 100;
+    let currentWidth = 100;
+
+    const countdownInterval = setInterval(() => {
+        currentWidth -= step;
+        if (currentWidth <= 0) {
+            clearInterval(countdownInterval);
+            progressBar.style.width = '0%';
+        } else {
+            progressBar.style.width = `${currentWidth}%`;
+        }
+    }, interval);
+
+    toast.addEventListener('hidden.bs.toast', () => {
+        clearInterval(countdownInterval);
+    });
 }
 
 // Function to prefill data related to component types
