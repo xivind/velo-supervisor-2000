@@ -482,25 +482,95 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component overview page
     if (document.querySelector('h1#component-overview') === null) return;
     
-    const table = document.querySelector('table');
+    const table = document.querySelector('#componentsTable');
     const headers = table.querySelectorAll('th');
     const tableBody = table.querySelector('tbody');
     const rows = tableBody.querySelectorAll('tr');
+
+    // Skip if there are no rows or just one "no components" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
 
     // Sorting function
     const sortColumn = (index, asc = true) => {
         const nodeList = Array.from(rows);
         const compare = (rowA, rowB) => {
-            const cellA = rowA.querySelectorAll('td')[index].innerText;
-            const cellB = rowB.querySelectorAll('td')[index].innerText;
-            return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+            // Skip if td doesn't exist in row (for the "no components registered" row)
+            if (!rowA.querySelectorAll('td')[index] || !rowB.querySelectorAll('td')[index]) return 0;
+            
+            // Get cell content and prepare for comparison
+            let cellA = rowA.querySelectorAll('td')[index].innerText.trim();
+            let cellB = rowB.querySelectorAll('td')[index].innerText.trim();
+            
+            // Different handling based on column type
+            switch(index) {
+                case 0: // Name column
+                case 1: // Type column
+                case 6: // Bike column
+                    // Remove emojis and compare case-insensitively for text columns
+                    cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim().toLowerCase();
+                    cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim().toLowerCase();
+                    break;
+                    
+                case 2: // Distance column
+                    // Extract numeric value from "X km" format
+                    cellA = parseFloat(cellA.replace(/[^\d.-]/g, '')) || 0;
+                    cellB = parseFloat(cellB.replace(/[^\d.-]/g, '')) || 0;
+                    break;
+                    
+                case 3: // Status column
+                    // Remove emojis, then normalize status for comparison
+                    cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim();
+                    cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim();
+                    
+                    // Create custom order for statuses
+                    const statusOrder = {
+                        "Installed": 1,
+                        "Not installed": 2,
+                        "Retired": 3
+                    };
+                    
+                    cellA = statusOrder[cellA] || 999;
+                    cellB = statusOrder[cellB] || 999;
+                    break;
+                    
+                case 4: // Lifetime column
+                case 5: // Service column
+                    // Sort by color indicator severity (already center-aligned in cells)
+                    const severityOrder = {
+                        "🟢": 1, // OK
+                        "🟡": 2, // Approaching
+                        "🔴": 3, // Due
+                        "🟣": 4, // Exceeded
+                        "⚪": 5  // Not defined
+                    };
+                    
+                    // Find emoji in the cell
+                    const emojiA = cellA.trim().match(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟢🟡🔴🟣⚪]/u);
+                    const emojiB = cellB.trim().match(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟢🟡🔴🟣⚪]/u);
+                    
+                    cellA = emojiA ? severityOrder[emojiA[0]] || 999 : 999;
+                    cellB = emojiB ? severityOrder[emojiB[0]] || 999 : 999;
+                    break;
+            }
+            
+            // Compare based on formatted values
+            if (typeof cellA === 'number' && typeof cellB === 'number') {
+                return asc ? cellA - cellB : cellB - cellA;
+            } else {
+                return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+            }
         };
+        
+        // Sort and reattach rows
         nodeList.sort(compare);
         nodeList.forEach(node => tableBody.appendChild(node));
-    }
+    };
 
-    // Add click event to table headers
-    headers.forEach(header => {
+    // Add click event to table headers (skip the last column with delete button)
+    headers.forEach((header, index) => {
+        // Skip the last column with delete buttons
+        if (index === headers.length - 1) return;
+        
         header.addEventListener('click', () => {
             const columnIndex = header.cellIndex;
             const isAscending = !header.classList.contains('sorted-asc');
@@ -514,6 +584,15 @@ document.addEventListener('DOMContentLoaded', function() {
             sortColumn(columnIndex, isAscending);
         });
     });
+
+    // Initial sort by Name column (index 0) in ascending order
+    if (headers.length > 0 && rows.length > 1) {
+        // Add sorted-asc class to the Name column header
+        headers[0].classList.add('sorted-asc');
+        
+        // Sort by Name column (index 0) in ascending order
+        sortColumn(0, true);
+    }
 });
 
 // Function for filtering table all components
