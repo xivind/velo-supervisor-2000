@@ -855,6 +855,15 @@ document.addEventListener('DOMContentLoaded', function() {
             sortColumn(columnIndex, isAscending);
         });
     });
+
+    // Initial sort by Next service column (index 4) in ascending order
+    if (headers.length > 0 && rows.length > 1) {
+        // Add sorted-asc class to the Next service column header
+        headers[4].classList.add('sorted-asc');
+        
+        // Sort by Next service column (index 4) in ascending order
+        sortColumn(4, true);
+    }
 });
 
 // Add search filtering functionality for bike details component table
