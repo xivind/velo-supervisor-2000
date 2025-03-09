@@ -745,6 +745,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const showNotInstalled = notInstalledSwitch ? notInstalledSwitch.checked : false;
 
         componentRows.forEach(row => {
+            // Check if this is the "no components" message row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                // Always keep the "no components" message visible
+                return;
+            }
+            
             const statusCell = row.querySelector('td:nth-child(1)');
             if (statusCell) {
                 const status = statusCell.textContent.trim();
