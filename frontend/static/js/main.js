@@ -635,6 +635,95 @@ document.addEventListener('DOMContentLoaded', function() {
     updateComponentRowVisibility();
 });
 
+// Add search filtering functionality for all components table
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component overview page
+    if (document.querySelector('h1#component-overview') === null) return;
+    
+    const searchInput = document.getElementById('allComponentsSearchInput');
+    if (!searchInput) return;
+    
+    const table = document.querySelector('#componentsTable');
+    const rows = table.querySelectorAll('tbody tr');
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    
+    // Skip if there are no rows or just one "no components" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+    
+    // Function to update row visibility based on both filters and search
+    function updateRowVisibility() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        // Get current filter states
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+        const notInstalledSwitch = document.getElementById('showNotInstalledComponents');
+        const showNotInstalled = notInstalledSwitch ? notInstalledSwitch.checked : false;
+        
+        rows.forEach(row => {
+            // Skip the "no components registered" row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                return;
+            }
+            
+            // Check if row should be visible based on status filter
+            let visibleByFilter = false;
+            const status = row.getAttribute('data-status');
+            
+            if ((status === 'Installed' && showInstalled) ||
+                (status === 'Not installed' && showNotInstalled) ||
+                (status === 'Retired' && showRetired)) {
+                visibleByFilter = true;
+            }
+            
+            // Check if row matches search term
+            const name = row.cells[0].textContent.toLowerCase();
+            const type = row.cells[1].textContent.toLowerCase();
+            const bike = row.cells[6].textContent.toLowerCase();
+            const rowText = `${name} ${type} ${bike}`;
+            const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
+            
+            // Show row only if it matches both filter and search criteria
+            row.style.display = (visibleByFilter && matchesSearch) ? '' : 'none';
+        });
+        
+        // Show a message if no results found
+        const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+        const noResultsRow = table.querySelector('.no-results-row');
+        
+        if (visibleRows.length === 0 && (searchTerm !== '' || showInstalled || showNotInstalled || showRetired)) {
+            if (!noResultsRow) {
+                const tbody = table.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-results-row';
+                newRow.innerHTML = '<td colspan="8" class="text-center">No components match your criteria</td>';
+                tbody.appendChild(newRow);
+            } else {
+                noResultsRow.style.display = '';
+            }
+        } else if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+    }
+    
+    // Listen for search input changes
+    searchInput.addEventListener('input', updateRowVisibility);
+    
+    // Listen for filter changes
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateRowVisibility);
+    });
+    
+    // Clear search button
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.value = '';
+            // Update visibility after clearing
+            updateRowVisibility();
+        }
+    });
+});
+
 // ===== Bike details page functions =====
 
 // Function for filtering table components for single bike
@@ -765,6 +854,96 @@ document.addEventListener('DOMContentLoaded', function() {
             // Sort the column
             sortColumn(columnIndex, isAscending);
         });
+    });
+});
+
+// Add search filtering functionality for bike details component table
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the bike details page
+    if (document.querySelector('h1#bike-details') === null) return;
+    
+    const componentsBikeTable = document.getElementById('componentsBikeTable');
+    if (!componentsBikeTable) return;
+    
+    const searchInput = document.getElementById('singleBikeComponentsSearchInput');
+    if (!searchInput) return;
+    
+    const rows = componentsBikeTable.querySelectorAll('tbody tr');
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    
+    // Skip if there are no rows or just one "no components" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+    
+    // Function to update row visibility based on both filters and search
+    function updateRowVisibility() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        // Get current filter states
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+        
+        rows.forEach(row => {
+            // Skip the "no components registered" row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                return;
+            }
+            
+            // Check if row should be visible based on existing filter
+            let visibleByFilter = true;
+            const statusCell = row.querySelector('td:nth-child(1)');
+            
+            if (statusCell) {
+                const statusText = statusCell.textContent.trim();
+                visibleByFilter = (
+                    (statusText.includes('⚡') && showInstalled) ||
+                    (statusText.includes('⛔') && showRetired)
+                );
+            }
+            
+            // Check if row matches search term
+            const name = row.cells[0].textContent.toLowerCase();
+            const type = row.cells[1].textContent.toLowerCase();
+            const rowText = `${name} ${type}`;
+            const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
+            
+            // Show row only if it matches both filter and search criteria
+            row.style.display = (visibleByFilter && matchesSearch) ? '' : 'none';
+        });
+        
+        // Show a message if no results found
+        const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+        let noResultsRow = componentsBikeTable.querySelector('.no-results-row');
+        
+        if (visibleRows.length === 0 && rows.length > 0) {
+            if (!noResultsRow) {
+                const tbody = componentsBikeTable.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-results-row';
+                newRow.innerHTML = '<td colspan="6" class="text-center">No components match your criteria</td>';
+                tbody.appendChild(newRow);
+            } else {
+                noResultsRow.style.display = '';
+            }
+        } else if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+    }
+    
+    // Listen for search input changes
+    searchInput.addEventListener('input', updateRowVisibility);
+    
+    // Listen for filter changes
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateRowVisibility);
+    });
+    
+    // Clear search button
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.value = '';
+            // Update visibility after clearing
+            updateRowVisibility();
+        }
     });
 });
 
