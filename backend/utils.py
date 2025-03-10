@@ -130,6 +130,14 @@ def get_component_statistics(component_list):
         
     return component_statistics
 
+def get_formatted_bikes_list(bikes):
+    """Method to get list of all bikes, with prefix for retired bikes"""
+    bikes_data = [(bike.bike_name + (" (Retired)" if bike.bike_retired == "True" else ""),
+                  bike.bike_id)
+                  for bike in bikes]
+    
+    return sorted(bikes_data, key=lambda x: (("(Retired)" in x[0]), x[0].lower()))
+
 def calculate_percentage_reached(total, remaining):
         """Method to calculate remaining service interval or remaining lifetime as percentage"""
         if isinstance(total, int) and isinstance(remaining, int):

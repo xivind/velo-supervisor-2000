@@ -12,7 +12,8 @@ from utils import (read_config,
                    get_component_statistics,
                    get_formatted_datetime_now,
                    validate_date_format,
-                   calculate_elapsed_days)
+                   calculate_elapsed_days,
+                   get_formatted_bikes_list)
 from strava import Strava
 from database_manager import DatabaseManager
 
@@ -72,10 +73,8 @@ class BusinessLogic():
     def get_bike_details(self, bike_id):
         """Method to get bike details"""
         bikes = database_manager.read_bikes()
-        bikes_data = [(bike.bike_name,
-                       bike.bike_id)
-                       for bike in bikes if bike.bike_retired == "False"]
-        
+        bikes_data = get_formatted_bikes_list(bikes)
+
         bike = database_manager.read_single_bike(bike_id)
         bike_data = {"bike_name": bike.bike_name,
                     "bike_id": bike.bike_id,
@@ -159,9 +158,7 @@ class BusinessLogic():
         component_statistics = get_component_statistics(rearranged_component_data)
 
         bikes = database_manager.read_bikes()
-        bikes_data = [(bike.bike_name,
-                       bike.bike_id)
-                       for bike in bikes if bike.bike_retired == "False"]
+        bikes_data = get_formatted_bikes_list(bikes)
 
         component_types_data = database_manager.read_all_component_types()
 
@@ -188,10 +185,8 @@ class BusinessLogic():
     def get_component_details(self, component_id):
         """Method to get component details"""
         bikes = database_manager.read_bikes()
-        bikes_data = [(bike.bike_name,
-                       bike.bike_id)
-                       for bike in bikes if bike.bike_retired == "False"]
-        
+        bikes_data = get_formatted_bikes_list(bikes)
+
         component_types_data = database_manager.read_all_component_types()
         
         bike_component = database_manager.read_component(component_id)
