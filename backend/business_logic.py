@@ -724,7 +724,7 @@ class BusinessLogic():
                      component_notes):
         """Method to create component"""
         try:
-            component_bike_id = None if component_bike_id == 'None' else component_bike_id
+            component_bike_id = None if component_bike_id == 'None' or component_bike_id == '' else component_bike_id
             expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
             service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
             cost = int(cost) if cost and cost.isdigit() else None
@@ -785,7 +785,7 @@ class BusinessLogic():
                                  component_notes):
         """Method to update component details"""
         try:
-            component_bike_id = None if component_bike_id == 'None' else component_bike_id
+            component_bike_id = None if component_bike_id == 'None' or component_bike_id == '' else component_bike_id
             expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
             service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
             cost = int(cost) if cost and cost.isdigit() else None
