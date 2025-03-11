@@ -32,9 +32,12 @@
         </div>
         <div class="card shadow mb-4">
             <div class="card-body">
-                <h5 class="card-title">Summary installed components</h5>
+                <h5 class="card-title">Summary components</h5>
                 <p class="card-text d-flex justify-content-between align-items-center">
                     <span>⚡ Installed:</span><span class="fw-bold">{{ payload.count_installed }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>⛔ Retired:</span><span class="fw-bold">{{ payload.count_retired }}</span>
                 </p>
                 <hr/>
                 <p class="card-text d-flex justify-content-between align-items-center">
@@ -76,7 +79,7 @@
         </div>
         <div class="card shadow mb-4">
             <div class="card-body text-center btn-outline-primary">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createComponentModal" {% if payload.bike_data['bike_retired'] == 'True' %}disabled{% endif %}>
+                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createComponentModal">
                     <span>⚙ New component</span>
                 </button>
             </div>
@@ -133,32 +136,35 @@
                 </div>
             </div>
             <div class="card-body">
-                <table class="table table-hover" id="componentsTable">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">🔍</span>
+                    <input type="text" class="form-control" id="singleBikeComponentsSearchInput" placeholder="Search components registered on this bike... (use status filters to narrow results)" aria-label="Search components">
+                </div>
+                <table class="table table-hover" id="componentsBikeTable">
                     <thead>
                         <tr>
                             <th>Name</th>
                             <th>Type</th>
                             <th>Distance</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-center">Lifetime</th>
-                            <th class="text-center">Service</th>
+                            <th class="text-center text-nowrap">Life <span class="fw-bold">|</span> srv</th>
+                            <th class="text-center">Next service</th>
                             <th>Cost</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if payload.bike_components_data %}
-                            {% for component_id, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_components_data %}
+                            {% for component_id, lifetime_remaining, service_next, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_components_data %}
                                 <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
-                                    <td>{{ name }}</td>
-                                    <td>{{ type }}</td>
-                                    <td>{{ component_distance }} km</td>
-                                    <td class="text-center">
+                                    <td>
                                         {% if installation_status == "Installed" %}
                                         ⚡
                                         {% elif installation_status == "Retired" %}
                                         ⛔
                                         {% endif %}
+                                        {{ name }}
                                     </td>
+                                    <td>{{ type }}</td>
+                                    <td>{{ component_distance }} km</td>
                                     <td class="text-center">
                                         {% if lifetime_status == "OK" %}
                                         🟢
@@ -171,8 +177,7 @@
                                         {% elif lifetime_status == "Not defined" %}
                                         ⚪
                                         {% endif %}
-                                    </td>
-                                    <td class="text-center">
+                                        <span class="fw-bold">|</span>
                                         {% if service_status == "OK" %}
                                         🟢
                                         {% elif service_status == "Service approaching" %}
@@ -183,6 +188,17 @@
                                         🟣
                                         {% elif service_status == "Not defined" %}
                                         ⚪
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if lifetime_remaining == "-" and service_next == "-" %}
+                                            -
+                                        {% elif lifetime_remaining == "-" %}
+                                            {{ service_next }}
+                                        {% elif service_next == "-" %}
+                                            {{ lifetime_remaining }}
+                                        {% else %}
+                                            {{ [lifetime_remaining, service_next]|min }}
                                         {% endif %}
                                     </td>
                                     <td>
