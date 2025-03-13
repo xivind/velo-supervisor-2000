@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
 });
 
-
 // ===== Functions used on multiple pages =====
 
 // Toast handler
@@ -30,30 +29,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Toast behaviour
 function showToast(message, success = true) {
-    // console.log('Toast function called:', message, success);  // Debug log
     const toast = document.getElementById('messageToast');
+    const toastHeader = toast.querySelector('.toast-header');
     const toastTitle = document.getElementById('toastTitle');
     const toastMessage = document.getElementById('toastMessage');
-    
-    // Set title and message
+    const progressBar = document.getElementById('toastProgressBar'); // Get the progress bar
+
     toastTitle.textContent = success ? 'Success' : 'Error';
     toastMessage.textContent = message;
-    
-    // Set bootstrap classes based on success/error
-    toast.classList.remove('bg-danger', 'text-white', 'bg-success');
-    if (!success) {
-        toast.classList.add('bg-danger', 'text-white');
+
+    // Reset all classes first
+    toast.classList.remove('border-success', 'border-danger');
+    toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+
+    // Set appropriate styling based on success/error
+    if (success) {
+        toast.classList.add('border-success');
+        toastHeader.classList.add('bg-success', 'text-white');
     } else {
-        toast.classList.add('bg-success', 'text-white');
+        toast.classList.add('border-danger');
+        toastHeader.classList.add('bg-danger', 'text-white');
     }
-    
-    // Create and show the toast
+
     const bsToast = new bootstrap.Toast(toast, {
         animation: true,
         autohide: true,
         delay: 6000
     });
+
     bsToast.show();
+
+    // Progress Bar Countdown
+    let remainingTime = 6000;
+    const interval = 10;
+    const step = (interval / remainingTime) * 100;
+    let currentWidth = 100;
+
+    const countdownInterval = setInterval(() => {
+        currentWidth -= step;
+        if (currentWidth <= 0) {
+            clearInterval(countdownInterval);
+            progressBar.style.width = '0%';
+        } else {
+            progressBar.style.width = `${currentWidth}%`;
+        }
+    }, interval);
+
+    toast.addEventListener('hidden.bs.toast', () => {
+        clearInterval(countdownInterval);
+    });
 }
 
 // Function to prefill data related to component types
@@ -91,6 +115,49 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
+// Utility function to get Tempus Dominus instance and handle dates properly
+function getDatePicker(inputElement) {
+    if (!inputElement) return null;
+    return inputElement._tempusDominus || null;
+}
+
+// Helper function to safely parse dates for Tempus Dominus
+function parseDateForPicker(dateString) {
+    if (!dateString) return null;
+    
+    // Handle different date formats
+    let date;
+    try {
+        // Try parsing with native Date
+        date = new Date(dateString);
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            // Try alternative formats
+            if (dateString.includes(' ')) {
+                // Handle "YYYY-MM-DD HH:MM" format
+                const [datePart, timePart] = dateString.split(' ');
+                const [year, month, day] = datePart.split('-');
+                const [hour, minute] = timePart.split(':');
+                
+                date = new Date(
+                    parseInt(year, 10),
+                    parseInt(month, 10) - 1, // Month is 0-based
+                    parseInt(day, 10),
+                    parseInt(hour, 10),
+                    parseInt(minute, 10)
+                );
+            }
+        }
+        
+        return date;
+    } catch (e) {
+        console.error("Error parsing date:", dateString, e);
+        return null;
+    }
+}
+
 // Global date picker function with validation
 function initializeDatePickers(container = document) {
     // Find all date picker input groups inside the provided container
@@ -100,57 +167,153 @@ function initializeDatePickers(container = document) {
         const dateInput = group.querySelector('.datepicker-input');
         const datePickerToggle = group.querySelector('.datepicker-toggle');
         
-        if (!dateInput || !datePickerToggle || dateInput._flatpickr) {
-            return; // Skip if already initialized or missing elements
+        if (!dateInput || !datePickerToggle) {
+            //console.log('Missing elements for date picker:', dateInput, datePickerToggle);
+            return; // Skip if missing elements
+        }
+        
+        // Store the picker instance in a data attribute
+        if (dateInput._tempusDominus) {
+            //console.log('Picker already initialized for:', dateInput.id || 'unnamed input');
+            return;
         }
 
-        // Initialize Flatpickr with strict formatting
-        const flatpickrInstance = flatpickr(dateInput, {
-            dateFormat: "Y-m-d H:i",
-            allowInput: false,
-            clickOpens: true,
-            enableTime: true,
-            time_24hr: true,
-            disableMobile: true,
-            maxDate: "today",
-            required: dateInput.hasAttribute('required'),
-            // Add validation on close
-            onClose: function(selectedDates, dateStr, instance) {
-                if (!dateStr && dateInput.hasAttribute('required')) {
-                    dateInput.classList.add('is-invalid');
-                } else {
-                    dateInput.classList.remove('is-invalid');
+        //console.log('Initializing new picker for:', dateInput.id || 'unnamed input');
+
+        // Initialize Tempus Dominus with the correct configuration structure
+        const picker = new tempusDominus.TempusDominus(dateInput, {
+            localization: {
+                format: 'yyyy-MM-dd HH:mm'
+            },
+            display: {
+                theme: 'light',
+                icons: {
+                    time: 'bi bi-clock',
+                    date: 'bi bi-calendar',
+                    up: 'bi bi-arrow-up',
+                    down: 'bi bi-arrow-down',
+                    previous: 'bi bi-chevron-left',
+                    next: 'bi bi-chevron-right',
+                    today: 'bi bi-calendar-check',
+                    clear: 'bi bi-trash',
+                    close: 'bi bi-x'
+                },
+                components: {
+                    calendar: true,
+                    date: true,
+                    month: true,
+                    year: true,
+                    decades: true,
+                    clock: true,
+                    hours: true,
+                    minutes: true,
+                    seconds: false
                 }
+            },
+            restrictions: {
+                // Setting min and max dates explicitly to avoid validation errors
+                minDate: new Date('1970-01-01 00:00'),
+                maxDate: new Date()
+            }
+        });
+        
+        // Store the picker instance for later access
+        dateInput._tempusDominus = picker;
+
+        // Enforce picker usage
+        dateInput.setAttribute('readonly', true);
+
+        // Force the calendar picker toggle to be clickable
+        datePickerToggle.style.cursor = 'pointer';
+        datePickerToggle.style.pointerEvents = 'auto';
+        datePickerToggle.style.zIndex = '100';
+        datePickerToggle.style.position = 'relative';
+        
+        // Define the function to toggle the picker
+        function togglePicker(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            //console.log('Toggle clicked for:', dateInput.id || 'unnamed input');
+            
+            try {
+                // Use the stored picker instance directly 
+                if (dateInput._tempusDominus) {
+                    //console.log('Found picker instance, toggling...');
+                    dateInput._tempusDominus.toggle();
+                } else {
+                    console.error('No picker instance found for', dateInput.id || 'unnamed input');
+                }
+            } catch (err) {
+                console.error('Error toggling picker:', err);
+            }
+            
+            return false;
+        }
+        
+        // Remove any existing click listeners and add new one
+        datePickerToggle.onclick = togglePicker;
+        
+        // Also make the input clickable to show picker
+        dateInput.addEventListener('click', function() {
+            try {
+                if (dateInput._tempusDominus) {
+                    dateInput._tempusDominus.show();
+                }
+            } catch (err) {
+                console.error('Error showing picker on input click:', err);
             }
         });
 
-        // Open calendar on icon click
-        datePickerToggle.addEventListener('click', function() {
-            flatpickrInstance.open();
+        // Remove any invalid styling initially
+        dateInput.classList.remove('is-invalid');
+
+        // Only add validation on hide/close of picker (like flatpickr did)
+        picker.subscribe(tempusDominus.Namespace.events.hide, (e) => {
+            if (!dateInput.value && dateInput.hasAttribute('required')) {
+                dateInput.classList.add('is-invalid');
+            } else {
+                dateInput.classList.remove('is-invalid');
+            }
         });
 
-        // Add form validation if input is required
+        // Also ensure validation happens on form submit
         if (dateInput.hasAttribute('required')) {
             const form = dateInput.closest('form');
-            if (form) {
-                if (!form.dataset.validationAdded) {
-                    form.addEventListener('submit', function(e) {
-                        let isValid = true;
-                        
-                        form.querySelectorAll('input[required]').forEach(input => {
-                            if (!input.value) {
-                                input.classList.add('is-invalid');
-                                isValid = false;
-                            }
-                        });
-                        
-                        if (!isValid) {
-                            e.preventDefault();
-                            return false;
+            if (form && !form.dataset.validationAdded) {
+                form.addEventListener('submit', function(e) {
+                    let isValid = true;
+                    
+                    form.querySelectorAll('input[required]').forEach(input => {
+                        if (!input.value) {
+                            input.classList.add('is-invalid');
+                            isValid = false;
                         }
                     });
-                    form.dataset.validationAdded = 'true';
-                }
+                    
+                    if (!isValid) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+                form.dataset.validationAdded = 'true';
+            }
+            
+            // Ensure each individual submit button also triggers validation
+            // This ensures validation happens immediately with the Save button
+            const submitButtons = form?.querySelectorAll('button[type="submit"]');
+            if (submitButtons) {
+                submitButtons.forEach(button => {
+                    if (!button.dataset.validationAdded) {
+                        button.addEventListener('click', function(e) {
+                            if (!dateInput.value && dateInput.hasAttribute('required')) {
+                                dateInput.classList.add('is-invalid');
+                                e.preventDefault();
+                                return false;
+                            }
+                        });
+                        button.dataset.validationAdded = 'true';
+                    }
+                });
             }
         }
     });
@@ -174,15 +337,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const serviceId = this.dataset.serviceId;
             const serviceDate = this.dataset.serviceDate;
             const serviceDescription = this.dataset.serviceDescription;
+            const componentId = this.dataset.componentId;
             
             // Populate the service modal
             document.getElementById('serviceId').value = serviceId;
-            document.getElementById('serviceDate').value = serviceDate;
+            document.getElementById('serviceComponentId').value = componentId || '';
             document.getElementById('serviceDescription').value = serviceDescription;
             
-            // Show the modal
+            // Show the modal FIRST
             const serviceModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
             serviceModal.show();
+            
+            // THEN set the date value AFTER the modal is shown
+            setTimeout(() => {
+                document.getElementById('serviceDate').value = serviceDate;
+            }, 100);
         });
     });
     
@@ -190,17 +359,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.edit-history-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             const historyId = this.dataset.historyId;
-            const historyDate = this.dataset.historyDate;
+            const historyDate = this.dataset.updatedDate || this.dataset.historyDate;
             const componentId = this.dataset.componentId;
             
             // Populate the history modal
             document.getElementById('editHistoryId').value = historyId;
             document.getElementById('editHistoryComponentId').value = componentId;
-            document.getElementById('editUpdatedDate').value = historyDate;
             
-            // Show the modal
+            // Show the modal FIRST
             const historyModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
             historyModal.show();
+            
+            // THEN set the date value AFTER the modal is shown
+            setTimeout(() => {
+                document.getElementById('editUpdatedDate').value = historyDate;
+            }, 100);
         });
     });
 });
@@ -277,8 +450,155 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function for component table filtering
+// ===== Bike overview page functions =====
+
+// Function to update visibility of bike cards
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the bike overview page
+    if (document.querySelector('h1#bike-overview') === null) return;
+    
+    const showRetiredBikesSwitch = document.getElementById('showRetiredBikes');
+    const bikeCards = document.querySelectorAll('.card[data-bike-status]');
+
+    function updateBikeVisibility() {
+        bikeCards.forEach(card => {
+            if (card.dataset.bikeStatus === 'True') {
+                card.closest('.col-md-4').style.display = showRetiredBikesSwitch.checked ? '' : 'none';
+            }
+        });
+    }
+
+    // Initial state: hide retired bikes
+    updateBikeVisibility();
+
+    // Update visibility when switch is toggled
+    showRetiredBikesSwitch.addEventListener('change', updateBikeVisibility);
+});
+
+// ===== Component overview page functions =====
+
+// Script to sort component table
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component overview page
+    if (document.querySelector('h1#component-overview') === null) return;
+    
+    const table = document.querySelector('#componentsTable');
+    const headers = table.querySelectorAll('th');
+    const tableBody = table.querySelector('tbody');
+    const rows = tableBody.querySelectorAll('tr');
+
+    // Skip if there are no rows or just one "no components" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+
+    // Sorting function
+    const sortColumn = (index, asc = true) => {
+        const nodeList = Array.from(rows);
+        const compare = (rowA, rowB) => {
+            // Skip if td doesn't exist in row (for the "no components registered" row)
+            if (!rowA.querySelectorAll('td')[index] || !rowB.querySelectorAll('td')[index]) return 0;
+            
+            // Get cell content and prepare for comparison
+            let cellA = rowA.querySelectorAll('td')[index].innerText.trim();
+            let cellB = rowB.querySelectorAll('td')[index].innerText.trim();
+            
+            // Different handling based on column type
+            switch(index) {
+                case 0: // Name column
+                case 1: // Type column
+                case 6: // Bike column
+                    // Remove emojis and compare case-insensitively for text columns
+                    cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim().toLowerCase();
+                    cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim().toLowerCase();
+                    break;
+                    
+                case 2: // Distance column
+                    // Extract numeric value from "X km" format
+                    cellA = parseFloat(cellA.replace(/[^\d.-]/g, '')) || 0;
+                    cellB = parseFloat(cellB.replace(/[^\d.-]/g, '')) || 0;
+                    break;
+                    
+                case 3: // Status column
+                    // Remove emojis, then normalize status for comparison
+                    cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim();
+                    cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim();
+                    
+                    // Create custom order for statuses
+                    const statusOrder = {
+                        "Installed": 1,
+                        "Not installed": 2,
+                        "Retired": 3
+                    };
+                    
+                    cellA = statusOrder[cellA] || 999;
+                    cellB = statusOrder[cellB] || 999;
+                    break;
+                    
+                case 4: // Lifetime column
+                case 5: // Service column
+                    // Sort by color indicator severity (already center-aligned in cells)
+                    const severityOrder = {
+                        "🟢": 1, // OK
+                        "🟡": 2, // Approaching
+                        "🔴": 3, // Due
+                        "🟣": 4, // Exceeded
+                        "⚪": 5  // Not defined
+                    };
+                    
+                    // Find emoji in the cell
+                    const emojiA = cellA.trim().match(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟢🟡🔴🟣⚪]/u);
+                    const emojiB = cellB.trim().match(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟢🟡🔴🟣⚪]/u);
+                    
+                    cellA = emojiA ? severityOrder[emojiA[0]] || 999 : 999;
+                    cellB = emojiB ? severityOrder[emojiB[0]] || 999 : 999;
+                    break;
+            }
+            
+            // Compare based on formatted values
+            if (typeof cellA === 'number' && typeof cellB === 'number') {
+                return asc ? cellA - cellB : cellB - cellA;
+            } else {
+                return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+            }
+        };
+        
+        // Sort and reattach rows
+        nodeList.sort(compare);
+        nodeList.forEach(node => tableBody.appendChild(node));
+    };
+
+    // Add click event to table headers (skip the last column with delete button)
+    headers.forEach((header, index) => {
+        // Skip the last column with delete buttons
+        if (index === headers.length - 1) return;
+        
+        header.addEventListener('click', () => {
+            const columnIndex = header.cellIndex;
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Remove sorted classes from all headers
+            headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+            
+            // Add appropriate class to clicked header
+            header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+            
+            sortColumn(columnIndex, isAscending);
+        });
+    });
+
+    // Initial sort by Name column (index 0) in ascending order
+    if (headers.length > 0 && rows.length > 1) {
+        // Add sorted-asc class to the Name column header
+        headers[0].classList.add('sorted-asc');
+        
+        // Sort by Name column (index 0) in ascending order
+        sortColumn(0, true);
+    }
+});
+
+// Function for filtering table all components
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component overview page
+    if (document.querySelector('h1#component-overview') === null) return;
     const componentsTable = document.getElementById('componentsTable');
     if (!componentsTable) return;
 
@@ -315,58 +635,218 @@ document.addEventListener('DOMContentLoaded', function() {
     updateComponentRowVisibility();
 });
 
-
-// ===== Bike overview page functions =====
-
-// Function to update visibility of bike cards
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the bike overview page
-    if (document.querySelector('h1#bike-overview') === null) return;
-    
-    const showRetiredBikesSwitch = document.getElementById('showRetiredBikes');
-    const bikeCards = document.querySelectorAll('.card[data-bike-status]');
-
-    function updateBikeVisibility() {
-        bikeCards.forEach(card => {
-            if (card.dataset.bikeStatus === 'True') {
-                card.closest('.col-md-4').style.display = showRetiredBikesSwitch.checked ? '' : 'none';
-            }
-        });
-    }
-
-    // Initial state: hide retired bikes
-    updateBikeVisibility();
-
-    // Update visibility when switch is toggled
-    showRetiredBikesSwitch.addEventListener('change', updateBikeVisibility);
-});
-
-// ===== Component overview page functions =====
-
-// Script to sort component table
+// Add search filtering functionality for all components table
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component overview page
     if (document.querySelector('h1#component-overview') === null) return;
     
-    const table = document.querySelector('table');
-    const headers = table.querySelectorAll('th');
-    const tableBody = table.querySelector('tbody');
+    const searchInput = document.getElementById('allComponentsSearchInput');
+    if (!searchInput) return;
+    
+    const table = document.querySelector('#componentsTable');
+    const rows = table.querySelectorAll('tbody tr');
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    
+    // Skip if there are no rows or just one "no components" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+    
+    // Function to update row visibility based on both filters and search
+    function updateRowVisibility() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        // Get current filter states
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+        const notInstalledSwitch = document.getElementById('showNotInstalledComponents');
+        const showNotInstalled = notInstalledSwitch ? notInstalledSwitch.checked : false;
+        
+        rows.forEach(row => {
+            // Skip the "no components registered" row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                return;
+            }
+            
+            // Check if row should be visible based on status filter
+            let visibleByFilter = false;
+            const status = row.getAttribute('data-status');
+            
+            if ((status === 'Installed' && showInstalled) ||
+                (status === 'Not installed' && showNotInstalled) ||
+                (status === 'Retired' && showRetired)) {
+                visibleByFilter = true;
+            }
+            
+            // Check if row matches search term
+            const name = row.cells[0].textContent.toLowerCase();
+            const type = row.cells[1].textContent.toLowerCase();
+            const bike = row.cells[6].textContent.toLowerCase();
+            const rowText = `${name} ${type} ${bike}`;
+            const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
+            
+            // Show row only if it matches both filter and search criteria
+            row.style.display = (visibleByFilter && matchesSearch) ? '' : 'none';
+        });
+        
+        // Show a message if no results found
+        const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+        const noResultsRow = table.querySelector('.no-results-row');
+        
+        if (visibleRows.length === 0 && (searchTerm !== '' || showInstalled || showNotInstalled || showRetired)) {
+            if (!noResultsRow) {
+                const tbody = table.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-results-row';
+                newRow.innerHTML = '<td colspan="8" class="text-center">No components match your criteria</td>';
+                tbody.appendChild(newRow);
+            } else {
+                noResultsRow.style.display = '';
+            }
+        } else if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+    }
+    
+    // Listen for search input changes
+    searchInput.addEventListener('input', updateRowVisibility);
+    
+    // Listen for filter changes
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateRowVisibility);
+    });
+    
+    // Clear search button
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.value = '';
+            // Update visibility after clearing
+            updateRowVisibility();
+        }
+    });
+});
+
+// ===== Bike details page functions =====
+
+// Function for filtering table components for single bike
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component overview page
+    if (document.querySelector('h1#bike-details') === null) return;
+    
+    const componentsBikeTable = document.getElementById('componentsBikeTable');
+    if (!componentsBikeTable) return;
+
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    const componentRows = componentsBikeTable.querySelectorAll('tbody tr');
+
+    function updateComponentRowVisibility() {
+        // Get switch states
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+        const notInstalledSwitch = document.getElementById('showNotInstalledComponents');
+        const showNotInstalled = notInstalledSwitch ? notInstalledSwitch.checked : false;
+
+        componentRows.forEach(row => {
+            // Check if this is the "no components" message row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                // Always keep the "no components" message visible
+                return;
+            }
+            
+            const statusCell = row.querySelector('td:nth-child(1)');
+            if (statusCell) {
+                const status = statusCell.textContent.trim();
+                const shouldShow = (
+                    (status.includes('⚡') && showInstalled) ||
+                    (status.includes('💤') && showNotInstalled) ||
+                    (status.includes('⛔') && showRetired)
+                );
+                row.style.display = shouldShow ? '' : 'none';
+            }
+        });
+    }
+
+    // Add event listeners
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateComponentRowVisibility);
+    });
+
+    // Initial visibility update
+    updateComponentRowVisibility();
+});
+
+// Script to sort bike component table
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the bike details page with the components table
+    const componentsBikeTable = document.getElementById('componentsBikeTable');
+    if (!componentsBikeTable) return;
+    
+    const headers = componentsBikeTable.querySelectorAll('th');
+    const tableBody = componentsBikeTable.querySelector('tbody');
     const rows = tableBody.querySelectorAll('tr');
 
     // Sorting function
     const sortColumn = (index, asc = true) => {
+        // Skip sorting if the table is empty or has the "no components" message row
+        if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+        
         const nodeList = Array.from(rows);
         const compare = (rowA, rowB) => {
-            const cellA = rowA.querySelectorAll('td')[index].innerText;
-            const cellB = rowB.querySelectorAll('td')[index].innerText;
-            return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+            // Get text content from cells
+            let cellA = rowA.querySelectorAll('td')[index].innerText.trim();
+            let cellB = rowB.querySelectorAll('td')[index].innerText.trim();
+            
+            // Special handling for name column (remove emojis)
+            // Special handling for name column (remove emojis and normalize case)
+            if (index === 0) { // Name column
+                // Remove emoji characters, trim whitespace, and convert to lowercase
+                cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡⛔]/gu, '').trim().toLowerCase();
+                cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡⛔]/gu, '').trim().toLowerCase();
+            }
+            
+            // Special handling for distance column (extract numeric value)
+            if (index === 2) { // Distance column
+                cellA = parseFloat(cellA.replace(' km', '')) || 0;
+                cellB = parseFloat(cellB.replace(' km', '')) || 0;
+            } 
+            // Special handling for next life/srv column (numeric values)
+            else if (index === 4) { // Next life/srv column
+                cellA = cellA === '-' ? Infinity : parseFloat(cellA) || 0;
+                cellB = cellB === '-' ? Infinity : parseFloat(cellB) || 0;
+            }
+            // Special handling for cost column (extract numeric value)
+            else if (index === 5) { // Cost column
+                cellA = cellA === '-' ? 0 : parseFloat(cellA.replace(' kr', '')) || 0;
+                cellB = cellB === '-' ? 0 : parseFloat(cellB.replace(' kr', '')) || 0;
+            }
+            
+            // Compare based on parsed values or text
+            if (typeof cellA === 'number' && typeof cellB === 'number') {
+                return asc ? cellA - cellB : cellB - cellA;
+            } else {
+                return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+            }
         };
+        
+        // Sort and reattach rows
         nodeList.sort(compare);
         nodeList.forEach(node => tableBody.appendChild(node));
-    }
+    };
 
-    // Add click event to table headers
-    headers.forEach(header => {
+    // Add data-sort attribute and sort indicators to headers (except Life / srv column)
+    headers.forEach((header, index) => {
+        // Skip the "Life / srv" column (index 3)
+        if (index === 3) return;
+        
+        // Add data-sort attribute to make headers sortable
+        header.setAttribute('data-sort', '');
+        
+        // Add sort indicator span if it doesn't exist
+        if (!header.querySelector('.sort-indicator')) {
+            const indicator = document.createElement('span');
+            indicator.className = 'sort-indicator';
+            header.appendChild(indicator);
+        }
+
+        // Add click event to headers
         header.addEventListener('click', () => {
             const columnIndex = header.cellIndex;
             const isAscending = !header.classList.contains('sorted-asc');
@@ -377,8 +857,108 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add appropriate class to clicked header
             header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
             
+            // Sort the column
             sortColumn(columnIndex, isAscending);
         });
+    });
+
+    // Initial sort by Next service column (index 4) in ascending order
+    if (headers.length > 0 && rows.length > 1) {
+        // Add sorted-asc class to the Next service column header
+        headers[4].classList.add('sorted-asc');
+        
+        // Sort by Next service column (index 4) in ascending order
+        sortColumn(4, true);
+    }
+});
+
+// Add search filtering functionality for bike details component table
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the bike details page
+    if (document.querySelector('h1#bike-details') === null) return;
+    
+    const componentsBikeTable = document.getElementById('componentsBikeTable');
+    if (!componentsBikeTable) return;
+    
+    const searchInput = document.getElementById('singleBikeComponentsSearchInput');
+    if (!searchInput) return;
+    
+    const rows = componentsBikeTable.querySelectorAll('tbody tr');
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    
+    // Skip if there are no rows or just one "no components" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+    
+    // Function to update row visibility based on both filters and search
+    function updateRowVisibility() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        // Get current filter states
+        const showInstalled = document.getElementById('showInstalledComponents').checked;
+        const showRetired = document.getElementById('showRetiredComponents').checked;
+        
+        rows.forEach(row => {
+            // Skip the "no components registered" row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                return;
+            }
+            
+            // Check if row should be visible based on existing filter
+            let visibleByFilter = true;
+            const statusCell = row.querySelector('td:nth-child(1)');
+            
+            if (statusCell) {
+                const statusText = statusCell.textContent.trim();
+                visibleByFilter = (
+                    (statusText.includes('⚡') && showInstalled) ||
+                    (statusText.includes('⛔') && showRetired)
+                );
+            }
+            
+            // Check if row matches search term
+            const name = row.cells[0].textContent.toLowerCase();
+            const type = row.cells[1].textContent.toLowerCase();
+            const rowText = `${name} ${type}`;
+            const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
+            
+            // Show row only if it matches both filter and search criteria
+            row.style.display = (visibleByFilter && matchesSearch) ? '' : 'none';
+        });
+        
+        // Show a message if no results found
+        const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+        let noResultsRow = componentsBikeTable.querySelector('.no-results-row');
+        
+        if (visibleRows.length === 0 && rows.length > 0) {
+            if (!noResultsRow) {
+                const tbody = componentsBikeTable.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-results-row';
+                newRow.innerHTML = '<td colspan="6" class="text-center">No components match your criteria</td>';
+                tbody.appendChild(newRow);
+            } else {
+                noResultsRow.style.display = '';
+            }
+        } else if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+    }
+    
+    // Listen for search input changes
+    searchInput.addEventListener('input', updateRowVisibility);
+    
+    // Listen for filter changes
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateRowVisibility);
+    });
+    
+    // Clear search button
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.value = '';
+            // Update visibility after clearing
+            updateRowVisibility();
+        }
     });
 });
 
@@ -564,10 +1144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Clear other form fields
         document.getElementById('serviceId').value = '';
-        const serviceDate = document.getElementById('serviceDate');
-        if (serviceDate._flatpickr) {
-            serviceDate._flatpickr.clear();
-        }
+        document.getElementById('serviceDate').value = '';
         document.getElementById('serviceDescription').value = '';
         
         serviceRecordModal.show();
@@ -583,16 +1160,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Fill in the form with existing data
             document.getElementById('serviceComponentId').value = this.dataset.componentId;
             document.getElementById('serviceId').value = this.dataset.serviceId;
-            
-            const serviceDate = document.getElementById('serviceDate');
-            if (serviceDate._flatpickr) {
-                serviceDate._flatpickr.setDate(this.dataset.serviceDate);
-            } else {
-                serviceDate.value = this.dataset.serviceDate;
-            }
-            
             document.getElementById('serviceDescription').value = this.dataset.serviceDescription;
-
+            
+            // Simply set the input value directly and avoid using the API
+            document.getElementById('serviceDate').value = this.dataset.serviceDate;
+            
             serviceRecordModal.show();
         });
     });
@@ -607,13 +1179,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editHistoryComponentId').value = componentId;
             document.getElementById('editHistoryId').value = historyId;
             
-            const editUpdatedDate = document.getElementById('editUpdatedDate');
-            if (editUpdatedDate._flatpickr) {
-                editUpdatedDate._flatpickr.setDate(updatedDate);
-            } else {
-                editUpdatedDate.value = updatedDate;
-            }
-
+            // Simply set the input value directly and avoid using the API
+            document.getElementById('editUpdatedDate').value = updatedDate;
+            
             editHistoryModal.show();
         });
     });

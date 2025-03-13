@@ -10,7 +10,10 @@ from utils import (read_config,
                    format_component_status,
                    format_cost,
                    get_component_statistics,
-                   get_formatted_datetime_now)
+                   get_formatted_datetime_now,
+                   validate_date_format,
+                   calculate_elapsed_days,
+                   get_formatted_bikes_list)
 from strava import Strava
 from database_manager import DatabaseManager
 
@@ -70,10 +73,8 @@ class BusinessLogic():
     def get_bike_details(self, bike_id):
         """Method to get bike details"""
         bikes = database_manager.read_bikes()
-        bikes_data = [(bike.bike_name,
-                       bike.bike_id)
-                       for bike in bikes if bike.bike_retired == "False"]
-        
+        bikes_data = get_formatted_bikes_list(bikes)
+
         bike = database_manager.read_single_bike(bike_id)
         bike_data = {"bike_name": bike.bike_name,
                     "bike_id": bike.bike_id,
@@ -87,6 +88,8 @@ class BusinessLogic():
 
         bike_components = database_manager.read_subset_components(bike_id)
         bike_components_data = [(component.component_id,
+                                 "-" if component.lifetime_remaining is None else round(component.lifetime_remaining),
+                                 "-" if component.service_next is None else round(component.service_next),
                                  component.installation_status,
                                  component.component_type,
                                  component.component_name,
@@ -96,7 +99,7 @@ class BusinessLogic():
                                  format_cost(component.cost)
                                  ) for component in bike_components]
 
-        component_statistics = get_component_statistics([tuple(component[1:])
+        component_statistics = get_component_statistics([tuple(component[3:])
                                                          for component in bike_components_data])
 
         recent_rides = database_manager.read_recent_rides(bike_id)
@@ -113,6 +116,7 @@ class BusinessLogic():
                    "component_types_data": component_types_data,
                    "bike_components_data": bike_components_data,
                    "count_installed" : component_statistics["count_installed"],
+                   "count_retired" : component_statistics["count_retired"],
                    "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
                    "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
                    "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
@@ -154,9 +158,7 @@ class BusinessLogic():
         component_statistics = get_component_statistics(rearranged_component_data)
 
         bikes = database_manager.read_bikes()
-        bikes_data = [(bike.bike_name,
-                       bike.bike_id)
-                       for bike in bikes if bike.bike_retired == "False"]
+        bikes_data = get_formatted_bikes_list(bikes)
 
         component_types_data = database_manager.read_all_component_types()
 
@@ -183,10 +185,8 @@ class BusinessLogic():
     def get_component_details(self, component_id):
         """Method to get component details"""
         bikes = database_manager.read_bikes()
-        bikes_data = [(bike.bike_name,
-                       bike.bike_id)
-                       for bike in bikes if bike.bike_retired == "False"]
-        
+        bikes_data = get_formatted_bikes_list(bikes)
+
         component_types_data = database_manager.read_all_component_types()
         
         bike_component = database_manager.read_component(component_id)
@@ -269,12 +269,36 @@ class BusinessLogic():
         else:
             service_history_data = None
 
+        oldest_history_record = database_manager.read_oldest_history_record(component_id)
+        if oldest_history_record:
+            success, message = calculate_elapsed_days(oldest_history_record.updated_date, get_formatted_datetime_now())
+            if success:
+                days_since_install = f"{message} days since first installation"
+            else:
+                days_since_install = message
+        else:
+            days_since_install = "Component has never been installed"
+        
+        latest_service_record = database_manager.read_latest_service_record(component_id)
+        if latest_service_record:
+            success, message = calculate_elapsed_days(latest_service_record.service_date, get_formatted_datetime_now())
+            if success:
+                days_since_service = f"{message} days since last service"
+            else:
+                days_since_service = message
+        else:
+            days_since_service = "Component has never been serviced"
+
+        elapsed_days = {"days_since_install": days_since_install,
+                        "days_since_service": days_since_service}
+
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
                    "bike_component_data": bike_component_data,
                    "bike_name": database_manager.read_bike_name(bike_component.bike_id),
                    "component_history_data": component_history_data,
-                   "service_history_data": service_history_data}
+                   "service_history_data": service_history_data,
+                   "elapsed_days": elapsed_days}
         
         return payload
 
@@ -700,7 +724,7 @@ class BusinessLogic():
                      component_notes):
         """Method to create component"""
         try:
-            component_bike_id = None if component_bike_id == 'None' else component_bike_id
+            component_bike_id = None if component_bike_id == 'None' or component_bike_id == '' else component_bike_id
             expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
             service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
             cost = int(cost) if cost and cost.isdigit() else None
@@ -761,7 +785,7 @@ class BusinessLogic():
                                  component_notes):
         """Method to update component details"""
         try:
-            component_bike_id = None if component_bike_id == 'None' else component_bike_id
+            component_bike_id = None if component_bike_id == 'None' or component_bike_id == '' else component_bike_id
             expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
             service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
             cost = int(cost) if cost and cost.isdigit() else None
@@ -897,6 +921,11 @@ class BusinessLogic():
             logging.warning(f"Associated component for history record not found for component {component.component_name}")
             return False, f"Associated component for history record not found for component {component.component_name}"
         
+        success, message = validate_date_format(updated_date)
+        if not success:
+            logging.warning(message)
+            return False, message
+        
         if updated_date > datetime.now().strftime("%Y-%m-%d %H:%M"):
             logging.warning(f"History date cannot be in the future. Component: {component.component_name}")
             return False, f"History date cannot be in the future. Component: {component.component_name}"
@@ -930,7 +959,7 @@ class BusinessLogic():
             
             lastest_service_record = database_manager.read_latest_service_record(component_id)
             if lastest_service_record:
-                if updated_date <= lastest_service_record.service_date:
+                if updated_date <= lastest_service_record.service_date and installation_status == "Retired":
                     logging.warning(f"A retired component cannot be serviced. Set retire date after latest service date: {lastest_service_record.service_date}")
                     return False, f"A retired component cannot be serviced. Set retire date after latest service date: {lastest_service_record.service_date}"
        
@@ -1158,6 +1187,11 @@ class BusinessLogic():
             logging.warning(f"Associated component for service record for component {component.component_name} not found")
             return False, f"Associated component for service record for component {component.component_name} not found"
 
+        success, message = validate_date_format(service_date)
+        if not success:
+            logging.warning(message)
+            return False, message
+        
         history_records = database_manager.read_subset_component_history(component.component_id)
         if not history_records:
             logging.warning(f"Services cannot be registered to components that have never been installed. Component: {component.component_name}")
