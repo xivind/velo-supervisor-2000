@@ -1,15 +1,14 @@
-<div class="modal fade" id="serviceRecordModal" tabindex="-1" aria-labelledby="serviceRecordModalLabel" aria-hidden="true">
+<div class="modal fade" id="componentTypeModal" tabindex="-1" aria-labelledby="componentTypeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header input-modal-header">
-                <h5 class="modal-title input-modal-title" id="serviceRecordModalLabel">Service Record</h5>
+                <h5 class="modal-title input-modal-title" id="componentTypeModalLabel">Service Record</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="serviceRecordForm" method="POST">
                 <div class="modal-body">
                     <input type="hidden" id="serviceComponentId" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
                     <input type="hidden" id="serviceId" name="service_id">
-                    
                     <div class="mb-3">
                         <label for="serviceDate" class="form-label fw-bold">Service date</label>
                         <div class="input-group date-input-group">
