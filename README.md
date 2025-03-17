@@ -39,11 +39,19 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.4.1**
-- Bugfixes
-- ...
+**Planned for v0.4.2**
+- TBD
 
-**v0.4.0 (CURRENT)**
+**Planned for v0.4.1 (CURRENT)**
+- Made it possible to add components to retired bikes and change status on components assigned to retired bikes
+- Switched date picker library from Flatpickr to Tempus Dominus (enables use on mobile devices)
+- Added type ahead search in component tables
+- Added distance to reached lifetime or service interval (whichever is closest) to components table in bike details
+- Improved sorting of component tables
+- Minor GUI improvements
+- Misc bugfixes
+
+**v0.4.0**
 - Installation history and service history can now be modified
 - Backend for distance calculation refactored
 - Improved input validation backend and frontend
