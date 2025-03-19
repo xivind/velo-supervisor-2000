@@ -32,9 +32,12 @@
         <table class="table table-hover">
             <thead>
                 <tr>
+                    <th>In use</th>
                     <th>Type</th>
                     <th>Expected lifetime (km)</th>
                     <th>Service interval (km)</th>
+                    <th>Mandatory</th>
+                    <th>Max qty</th>
                     <th class="text-end"></th>
                 </tr>
             </thead>
@@ -42,9 +45,12 @@
                 {% if payload.component_types %}
                     {% for component_type, expected_lifetime, service_interval in payload.component_types %}
                     <tr data-row-id="{{ loop.index0 }}">
+                        <td>🟩 Yes</td>
                         <td>{{ component_type }}</td>
                         <td>{% if expected_lifetime == None %}Not defined{% else %}{{ expected_lifetime }}{% endif %}</td>
                         <td>{% if service_interval == None %}Not defined{% else %}{{ service_interval }}{% endif %}</td>
+                        <td>No</td>
+                        <td>0</td>
                         <td class="text-end">                    
                             <button type="button" class="mb-1 btn btn-outline-success btn-sm modify-record"
                                     component_type="{{ component_type }}"
