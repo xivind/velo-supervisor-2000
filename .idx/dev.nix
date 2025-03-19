@@ -6,11 +6,14 @@
 
   # Use https://search.nixos.org/packages to find packages
   packages = [
-    # pkgs.go
-    # pkgs.python311
-    # pkgs.python311Packages.pip
-    # pkgs.nodejs_20
-    # pkgs.nodePackages.nodemon
+    pkgs.python311
+    pkgs.python311Packages.uvicorn
+    pkgs.python311Packages.fastapi
+    pkgs.python311Packages.jinja2
+    pkgs.python311Packages.requests_oauthlib
+    pkgs.python311Packages.peewee
+    pkgs.python311Packages.python-multipart
+    pkgs.python311Packages.pylint
   ];
 
   # Sets environment variables in the workspace
@@ -19,6 +22,7 @@
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
       # "vscodevim.vim"
+      "ms-python.python"
     ];
 
     # Enable previews
