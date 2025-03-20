@@ -3,57 +3,30 @@
 { pkgs, ... }: {
   # Which nixpkgs channel to use.
   channel = "stable-24.05"; # or "unstable"
-
   # Use https://search.nixos.org/packages to find packages
-  packages = [
-    pkgs.python311
-    pkgs.python311Packages.uvicorn
-    pkgs.python311Packages.fastapi
-    pkgs.python311Packages.jinja2
-    pkgs.python311Packages.requests_oauthlib
-    pkgs.python311Packages.peewee
-    pkgs.python311Packages.python-multipart
-    pkgs.python311Packages.pylint
-  ];
-
-  # Sets environment variables in the workspace
-  env = {};
+  packages = [ pkgs.python3 ];
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
-    extensions = [
-      # "vscodevim.vim"
-      "ms-python.python"
-    ];
-
-    # Enable previews
-    previews = {
-      enable = true;
-      previews = {
-        # web = {
-        #   # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
-        #   # and show it in IDX's web preview panel
-        #   command = ["npm" "run" "dev"];
-        #   manager = "web";
-        #   env = {
-        #     # Environment variables to set for your server
-        #     PORT = "$PORT";
-        #   };
-        # };
-      };
-    };
-
-    # Workspace lifecycle hooks
+    extensions = [ "ms-python.python" ];
     workspace = {
-      # Runs when a workspace is first created
+      # Runs when a workspace is first created with this `dev.nix` file
       onCreate = {
-        # Example: install JS dependencies from NPM
-        # npm-install = "npm install";
-      };
-      # Runs when the workspace is (re)started
-      onStart = {
-        # Example: start a background task to watch and re-build backend code
-        # watch-backend = "npm run watch-backend";
-      };
+        install =
+          "python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt";
+        # Open editors for the following files by default, if they exist:
+        # default.openFiles = [ "README.md" "src/index.html" "main.py" ];
+      }; # To run something each time the workspace is (re)started, use the `onStart` hook
     };
+    # Enable previews and customize configuration
+    #previews = {
+    #  enable = true;
+    #  previews = {
+    #    web = {
+    #      command = [ "./devserver.sh" ];
+    #      env = { PORT = "$PORT"; };
+    #      manager = "web";
+    #    };
+    #  };
+    #};
   };
 }
