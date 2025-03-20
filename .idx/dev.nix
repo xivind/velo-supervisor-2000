@@ -9,10 +9,16 @@
     python-multipart
   ] ++ [pkgs.python311];
   idx = {
-    extensions = [ "ms-python.python" ];
+    extensions = [
+      "ms-python.python"
+      "ms-python.pylint"
+    ];
     workspace = {
       onCreate = {
         install = "";
+      };
+      onStart = {
+        shellCommand = "export PYTHONPATH=$(pwd)/backend";
       };
     };
   };
