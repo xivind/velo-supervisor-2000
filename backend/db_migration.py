@@ -4,6 +4,7 @@
 import sqlite3
 import json
 import sys
+from database_manager import DatabaseManager
 
 def read_config():
     """Function to read configuration file"""
@@ -26,6 +27,9 @@ def migrate_component_types():
     
     print(f"Proceeding with migration on database: {db_path}")
     
+    # Create DatabaseManager instance for counting components
+    db_manager = DatabaseManager()
+    
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
@@ -38,8 +42,19 @@ def migrate_component_types():
     # Add new columns with specific default values
     if 'in_use' not in columns:
         print("Adding 'in_use' column...")
-        cursor.execute("ALTER TABLE component_types ADD COLUMN in_use TEXT")
-        # Leave in_use blank for existing records
+        cursor.execute("ALTER TABLE component_types ADD COLUMN in_use INTEGER")
+        # Set in_use to the actual count for each component type
+        print("Counting components for each component type...")
+        # Get all component types
+        cursor.execute("SELECT component_type FROM component_types")
+        component_types = [row[0] for row in cursor.fetchall()]
+        
+        # Update in_use count for each type
+        for component_type in component_types:
+            count = db_manager.count_component_types_in_use(component_type)
+            print(f"Component type '{component_type}' is used by {count} components")
+            cursor.execute("UPDATE component_types SET in_use = ? WHERE component_type = ?", 
+                           (count, component_type))
     else:
         print("Column 'in_use' already exists, skipping.")
     
@@ -54,7 +69,7 @@ def migrate_component_types():
     if 'max_quantity' not in columns:
         print("Adding 'max_quantity' column...")
         cursor.execute("ALTER TABLE component_types ADD COLUMN max_quantity INTEGER")
-        # Leave in_use blank for existing records
+        # Set max_quantity to NULL (None) for existing records
     else:
         print("Column 'max_quantity' already exists, skipping.")
     
@@ -68,6 +83,7 @@ def migrate_component_types():
     
     print("\nDatabase migration completed successfully.")
     print("New columns have been added to the component_types table.")
+    print("Component counts have been populated in the 'in_use' column.")
 
 if __name__ == "__main__":
     migrate_component_types()

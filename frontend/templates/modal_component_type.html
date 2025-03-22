@@ -29,3 +29,27 @@
         </div>
     </div>
 </div>
+
+OLD
+<div class="mt-5 card shadow mb-3">
+    <div class="card-header fw-bold">Add or modify component type</div>
+    <div class="card-body">
+        <form id="component_type_form" class="row" action="/component_types_modify" method="post" enctype="application/x-www-form-urlencoded">
+            <div class="col mb-3">
+                <label for="component_type" class="form-label fw-bold">Type</label>
+                <input type="text" class="form-control" id="component_type" name="component_type" required>
+            </div>
+            <div class="col mb-3">
+                <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
+                <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime">
+            </div>
+            <div class="col mb-3">
+                <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
+                <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>

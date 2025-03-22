@@ -49,7 +49,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
-    #asyncio.create_task(business_logic.pull_strava_background("recent"))
+    #asyncio.create_task(business_logic.pull_strava_background("recent")) #Remove before production
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
@@ -136,12 +136,16 @@ async def config_overview(request: Request,
 @app.post("/component_types_modify", response_class=HTMLResponse)
 async def component_types_modify(component_type: str = Form(...),
                                  expected_lifetime: Optional[str] = Form(None),
-                                 service_interval: Optional[str] = Form(None)):
+                                 service_interval: Optional[str] = Form(None),
+                                 mandatory: Optional[str] = Form(None),
+                                 max_quantity: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
 
     success, message = business_logic.modify_component_type(component_type,
                                                             expected_lifetime,
-                                                            service_interval)
+                                                            service_interval,
+                                                            mandatory,
+                                                            max_quantity)
 
     response = RedirectResponse(
         url=f"/component_types_overview?success={success}&message={message}",

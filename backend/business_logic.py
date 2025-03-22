@@ -301,7 +301,7 @@ class BusinessLogic():
                    "elapsed_days": elapsed_days}
         
         return payload
-
+ 
     def get_component_types(self):
         """Method to get all component types"""
         payload = {"component_types": database_manager.read_all_component_types()}
@@ -1363,14 +1363,22 @@ class BusinessLogic():
     def modify_component_type(self,
                               component_type,
                               expected_lifetime,
-                              service_interval):
+                              service_interval,
+                              mandatory,
+                              max_quantity):
         """Method to create or update component types"""
         expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
         service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
+        max_quantity = int(max_quantity) if max_quantity and max_quantity.isdigit() else None
 
+        in_use = database_manager.count_component_types_in_use(component_type)
+        
         component_type_data = {"component_type": component_type,
                             "service_interval": service_interval,
-                            "expected_lifetime": expected_lifetime}
+                            "expected_lifetime": expected_lifetime,
+                            "in_use": in_use,
+                            "mandatory": mandatory,
+                            "max_quantity": max_quantity}
 
         success, message = database_manager.write_component_type(component_type_data)
 
