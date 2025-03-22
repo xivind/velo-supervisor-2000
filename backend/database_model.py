@@ -53,6 +53,9 @@ class ComponentTypes(BaseModel):
     component_type = CharField(primary_key=True, unique=True)
     service_interval = IntegerField()
     expected_lifetime = IntegerField()
+    in_use = CharField()
+    mandatory = CharField()
+    max_quantity = IntegerField()
 
     class Meta:
         """Extends model with extra attributes"""
