@@ -106,7 +106,10 @@ class DatabaseManager:
 
         component_types_data = [(component_type.component_type,
                                  component_type.expected_lifetime,
-                                 component_type.service_interval) for component_type in component_types]
+                                 component_type.service_interval,
+                                 component_type.in_use,
+                                 component_type.mandatory,
+                                 component_type.max_quantity) for component_type in component_types]
 
         component_types_data.sort(key=lambda x: x[0])
 
