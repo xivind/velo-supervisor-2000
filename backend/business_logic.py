@@ -299,13 +299,13 @@ class BusinessLogic():
                    "component_history_data": component_history_data,
                    "service_history_data": service_history_data,
                    "elapsed_days": elapsed_days}
-        
+
         return payload
- 
+
     def get_component_types(self):
         """Method to get all component types"""
         payload = {"component_types": database_manager.read_all_component_types()}
-        
+
         return payload
     
     async def pull_strava_background(self, mode):
