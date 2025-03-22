@@ -1136,7 +1136,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle "New Service" button click
     document.querySelector('[data-bs-target="#serviceRecordModal"]')?.addEventListener('click', function() {
         // Set up modal for creating new service
-        document.getElementById('serviceRecordModalLabel').textContent = 'New Service Record';
+        document.getElementById('serviceRecordModalLabel').textContent = 'New service record';
         document.getElementById('serviceRecordForm').action = '/add_service_record';
         
         // Ensure component_id is set for new service
@@ -1154,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.edit-service-btn').forEach(button => {
         button.addEventListener('click', function() {
             // Set up modal for editing service
-            document.getElementById('serviceRecordModalLabel').textContent = 'Edit Service Record';
+            document.getElementById('serviceRecordModalLabel').textContent = 'Edit service record';
             document.getElementById('serviceRecordForm').action = '/update_service_record';
             
             // Fill in the form with existing data
