@@ -119,6 +119,13 @@ class DatabaseManager:
         """Method to retrieve record for a single component type"""
         return (ComponentTypes
                 .get_or_none(ComponentTypes.component_type == component_type))
+
+    def count_component_types_in_use(self, component_type):
+        """Method to count how many components that references a given component type"""
+        return (Components
+                .select()
+                .where(Components.component_type == component_type)
+                .count())
     
     def read_all_components(self):
         """Method to read content of components table"""
