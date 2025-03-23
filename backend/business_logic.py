@@ -1389,6 +1389,31 @@ class BusinessLogic():
 
         return success, message
 
+    def update_component_type_count(self, component_type):
+        """Method to update only the count of components for a given component type"""
+        existing_type = database_manager.read_single_component_type(component_type)
+        
+        if existing_type:
+            in_use = database_manager.count_component_types_in_use(component_type)
+            
+            component_type_data = {"component_type": component_type,
+                                   "service_interval": existing_type.service_interval,
+                                   "expected_lifetime": existing_type.expected_lifetime,
+                                   "in_use": in_use,
+                                   "mandatory": existing_type.mandatory,
+                                   "max_quantity": existing_type.max_quantity}
+            
+            success, message = database_manager.write_component_type(component_type_data)
+            
+            if success:
+                logging.info(f"Component type count updated: {component_type} used by {in_use} components")
+            else:
+                logging.error(f"Component type count update failed: {message}")
+            
+            return success, message
+        
+        return False, f"Component type not found: {component_type}"
+    
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         logging.info(f"Attempting to delete record with id {record_id} from table {table_selector}")
