@@ -375,11 +375,11 @@ class DatabaseManager:
                      .update(**component_type_data)
                      .where(ComponentTypes.component_type == component_type_data["component_type"])
                      .execute())
-                    return True, f"Updated {component_type_data['component_type']}."
+                    return True, f"Updated component type {component_type_data['component_type']}"
             
                 else:
                     ComponentTypes.create(**component_type_data)
-                    return True, f"Created {component_type_data['component_type']}."
+                    return True, f"Created component type {component_type_data['component_type']}"
         
         except peewee.OperationalError as error:
             return False, f"{component_type_data['component_type']}: {str(error)}."
