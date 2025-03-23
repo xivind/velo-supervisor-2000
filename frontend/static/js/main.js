@@ -1259,7 +1259,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('component_type_form').reset();
         
         // Reset modal title to indicate creating new type
-        document.getElementById('componentTypeModalLabel').textContent = 'New Component Type';
+        document.getElementById('componentTypeModalLabel').textContent = 'New component type';
 
         // Enable the component_type field for new records
         const componentTypeInput = document.getElementById('component_type');
