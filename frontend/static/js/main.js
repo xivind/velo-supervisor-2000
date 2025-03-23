@@ -1190,7 +1190,13 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===== Component types page functions =====
 
 // Function to modify component types
-window.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component types page
+    if (document.querySelector('h1#component-types') === null) return;
+    
+    // Get the component type modal
+    const componentTypeModal = new bootstrap.Modal(document.getElementById('componentTypeModal'));
+    
     // Modify record function: get all modify record buttons
     const modifyRecordButtons = document.querySelectorAll('.modify-record');
 
@@ -1198,24 +1204,232 @@ window.addEventListener('DOMContentLoaded', function() {
     modifyRecordButtons.forEach(button => {
         button.addEventListener('click', () => {
             const rowId = button.dataset.rowId;
-            modifyRecord(rowId);
+            const componentType = button.getAttribute('component_type');
+            modifyRecord(rowId, componentType);
+            
+            // Update modal title to indicate editing
+            document.getElementById('componentTypeModalLabel').textContent = 'Edit component type';
+
+            // Disable the component_type field since it's a primary key
+            document.getElementById('component_type').disabled = true;
+            
+            // Show the modal after data is populated
+            componentTypeModal.show();
         });
     });
 
     // Define the modifyRecord function
-    function modifyRecord(rowId) {
+    function modifyRecord(rowId, componentType) {
         const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
         if (row) {
-            const componentType = row.cells[0].textContent;
-            const expectedLifetime = row.cells[1].textContent;
-            const serviceInterval = row.cells[2].textContent;
-
+            // Set component type (from column 1)
             document.getElementById('component_type').value = componentType;
-            document.getElementById('expected_lifetime').value = expectedLifetime;
-            document.getElementById('service_interval').value = serviceInterval;
+            
+            // Set max quantity (from column 2)
+            const maxQuantityCell = row.cells[2].textContent.trim();
+            document.getElementById('max_quantity').value = maxQuantityCell !== 'Not defined' ? 
+                maxQuantityCell : '';
+            
+            // Set mandatory radio buttons (from column 0)
+            const hasStar = row.cells[0].textContent.includes('⭐');
+            document.getElementById('mandatory_yes').checked = hasStar;
+            document.getElementById('mandatory_no').checked = !hasStar;
+            
+            // Set expected lifetime (from column 4)
+            const expectedLifetimeCell = row.cells[4].textContent.trim();
+            document.getElementById('expected_lifetime').value = expectedLifetimeCell !== 'Not defined' ? 
+                expectedLifetimeCell : '';
+            
+            // Set service interval (from column 5)
+            const serviceIntervalCell = row.cells[5].textContent.trim();
+            document.getElementById('service_interval').value = serviceIntervalCell !== 'Not defined' ? 
+                serviceIntervalCell : '';
+            
+            // No need to set service_interval_days since it's currently only a a placeholder
         } else {
             console.error(`Row with ID ${rowId} not found.`);
         }
+    }
+    
+    // Add handler for the "New component type" button
+    document.querySelector('[data-bs-toggle="modal"][data-bs-target="#componentTypeModal"]')?.addEventListener('click', function() {
+        // Reset the form
+        document.getElementById('component_type_form').reset();
+        
+        // Reset modal title to indicate creating new type
+        document.getElementById('componentTypeModalLabel').textContent = 'New Component Type';
+
+        // Enable the component_type field for new records
+        document.getElementById('component_type').disabled = false;
+    });
+});
+
+// Add search filtering and sorting for component types table
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component types page
+    if (document.querySelector('h1#component-types') === null) return;
+    
+    const searchInput = document.getElementById('componentTypeSearchInput');
+    if (!searchInput) return;
+    
+    const table = document.querySelector('.card-body .table');
+    const headers = table.querySelectorAll('thead th');
+    const tableBody = table.querySelector('tbody');
+    const rows = tableBody.querySelectorAll('tr');
+    
+    // Skip if there are no rows or just one "no component types" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+    
+    // Add data-sort attribute and sort indicators to headers
+    headers.forEach((header, index) => {
+        // Skip only the last column (with action buttons)
+        if (index === headers.length - 1) return;
+        
+        // Add data-sort attribute to make headers sortable
+        header.setAttribute('data-sort', '');
+        
+        // Add sort indicator span if it doesn't exist
+        if (!header.querySelector('.sort-indicator')) {
+            const indicator = document.createElement('span');
+            indicator.className = 'sort-indicator';
+            header.appendChild(indicator);
+        }
+    });
+    
+    // Sorting function
+    const sortColumn = (index, asc = true) => {
+        const nodeList = Array.from(rows);
+        const compare = (rowA, rowB) => {
+            // Skip if td doesn't exist in row (for the "no component types defined" row)
+            if (!rowA.querySelectorAll('td')[index] || !rowB.querySelectorAll('td')[index]) return 0;
+            
+            // Get cell content and prepare for comparison
+            let cellA = rowA.querySelectorAll('td')[index].innerText.trim();
+            let cellB = rowB.querySelectorAll('td')[index].innerText.trim();
+            
+            // Different handling based on column type
+            switch(index) {
+                case 0: // Star (mandatory) column
+                    // Sort by presence of star (⭐)
+                    cellA = cellA.includes('⭐') ? 1 : 0;
+                    cellB = cellB.includes('⭐') ? 1 : 0;
+                    break;
+                    
+                case 1: // Type column
+                    // Compare case-insensitively for text
+                    cellA = cellA.toLowerCase();
+                    cellB = cellB.toLowerCase();
+                    break;
+                    
+                case 2: // Max per bike column
+                    // Extract numeric value or set to Infinity if "Not defined"
+                    cellA = cellA === 'Not defined' ? Infinity : parseInt(cellA, 10) || 0;
+                    cellB = cellB === 'Not defined' ? Infinity : parseInt(cellB, 10) || 0;
+                    break;
+                    
+                case 3: // Status use column
+                    // Extract number of components or set to 0 if none
+                    const numA = cellA.match(/(\d+) components/);
+                    const numB = cellB.match(/(\d+) components/);
+                    cellA = numA ? parseInt(numA[1], 10) : 0;
+                    cellB = numB ? parseInt(numB[1], 10) : 0;
+                    break;
+                    
+                case 4: // Expected life column
+                case 5: // Service interval (km) column
+                case 6: // Service interval (days) column
+                    // Extract numeric value or set to Infinity if "Not defined"
+                    cellA = cellA === 'Not defined' || cellA === 'N/A' ? Infinity : parseInt(cellA, 10) || 0;
+                    cellB = cellB === 'Not defined' || cellB === 'N/A' ? Infinity : parseInt(cellB, 10) || 0;
+                    break;
+            }
+            
+            // Compare based on formatted values
+            if (typeof cellA === 'number' && typeof cellB === 'number') {
+                return asc ? cellA - cellB : cellB - cellA;
+            } else {
+                return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+            }
+        };
+        
+        // Sort and reattach rows
+        nodeList.sort(compare);
+        nodeList.forEach(node => tableBody.appendChild(node));
+    };
+    
+    // Add click event to table headers
+    headers.forEach((header, index) => {
+        // Skip the last column (with action buttons)
+        if (index === headers.length - 1) return;
+        
+        header.addEventListener('click', () => {
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Remove sorted classes from all headers
+            headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+            
+            // Add appropriate class to clicked header
+            header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+            
+            sortColumn(index, isAscending);
+        });
+    });
+    
+    // Function to update row visibility based on search
+    function updateRowVisibility() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        rows.forEach(row => {
+            // Skip the "no component types defined" row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                return;
+            }
+            
+            // Get text from type column (column 1)
+            const type = row.cells[1].textContent.toLowerCase();
+            const matchesSearch = searchTerm === '' || type.includes(searchTerm);
+            
+            // Show/hide row based on search match
+            row.style.display = matchesSearch ? '' : 'none';
+        });
+        
+        // Show a message if no results found
+        const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+        const noResultsRow = table.querySelector('.no-results-row');
+        
+        if (visibleRows.length === 0 && searchTerm !== '') {
+            if (!noResultsRow) {
+                const tbody = table.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-results-row';
+                newRow.innerHTML = '<td colspan="8" class="text-center">No component types match your search</td>';
+                tbody.appendChild(newRow);
+            } else {
+                noResultsRow.style.display = '';
+            }
+        } else if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+    }
+    
+    // Listen for search input changes
+    searchInput.addEventListener('input', updateRowVisibility);
+    
+    // Clear search with Escape key
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.value = '';
+            updateRowVisibility();
+        }
+    });
+    
+    // Initial sort by Type column (index 1) in ascending order
+    if (headers.length > 1 && rows.length > 1) {
+        // Add sorted-asc class to the Type column header
+        headers[1].classList.add('sorted-asc');
+        
+        // Sort by Type column (index 1) in ascending order
+        sortColumn(1, true);
     }
 });
 
