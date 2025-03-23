@@ -762,6 +762,8 @@ class BusinessLogic():
                                                                                         new_component_data["service_interval"],
                                                                                         new_component_data["component_distance_offset"])
 
+                self.update_component_type_count(component_type)
+
             else:
                 logging.error(message)
 
@@ -813,6 +815,10 @@ class BusinessLogic():
                 logging.info(message)
                 updated_component = database_manager.read_component(component_id)
                 self.update_component_distance(component_id, updated_component.component_distance - component.component_distance_offset)
+
+                if component.component_type != new_component_data["component_type"]:
+                    self.update_component_type_count(component.component_type)
+                    self.update_component_type_count(new_component_data["component_type"])
             else:
                 logging.error(message)
 
@@ -1434,6 +1440,8 @@ class BusinessLogic():
                 return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id
         
         elif table_selector == "Components":
+            component = database_manager.read_component(record_id)
+            component_type = component.component_type
             bike_id = database_manager.read_component(record_id).bike_id
 
         success, message = database_manager.write_delete_record(table_selector, record_id)
@@ -1483,6 +1491,7 @@ class BusinessLogic():
                     return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id
                 
             elif table_selector == "Components":
+                self.update_component_type_count(component_type)
                 if bike_id:
                     self.update_bike_status(bike_id)
         
