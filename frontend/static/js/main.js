@@ -1211,7 +1211,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('componentTypeModalLabel').textContent = 'Edit component type';
 
             // Disable the component_type field since it's a primary key
-            document.getElementById('component_type').disabled = true;
+            const componentTypeInput = document.getElementById('component_type');
+            componentTypeInput.readOnly = true;
+            componentTypeInput.classList.add('bg-light');
             
             // Show the modal after data is populated
             componentTypeModal.show();
@@ -1260,7 +1262,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('componentTypeModalLabel').textContent = 'New Component Type';
 
         // Enable the component_type field for new records
-        document.getElementById('component_type').disabled = false;
+        const componentTypeInput = document.getElementById('component_type');
+        componentTypeInput.readOnly = false;
+        componentTypeInput.classList.remove('bg-light');
     });
 });
 
