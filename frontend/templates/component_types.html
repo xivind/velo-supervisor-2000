@@ -5,20 +5,22 @@
 {% block content %}
 <h1 id="component-types" class="display-5 mt-5 text-center">Component types</h1>
 
-<button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#createComponentModal">
-    <span>⚙ New component type</span>
+<button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#componentTypeModal">
+    <span>🏷 New component type</span>
 </button>
+
+{% include "modal_component_type.html" %}
 
 <hr/>
 <div class="mb-3 ms-2">
     <div class="small text-secondary d-flex align-items-center">
-      <span style="width: 180px;">⭐ Mandatory to use</span>
-      <span style="width: 270px;">🟩 In use on one or more components</span>
-      <span style="width: 250px;">🟥 Not used on any components</span>
+      <span style="width: 190px;">⭐ Mandatory on all bikes</span>
+      <span style="width: 270px;">🟩 In use by one or more components</span>
+      <span style="width: 250px;">🟥 Not used by any components</span>
     </div>
 </div>
 <div class="card shadow mb-3">
-    <div class="card-header fw-bold">Available component types</div>
+    <div class="card-header fw-bold">All component types</div>
     <div class="card-body">
         <div class="input-group mb-3">
             <span class="input-group-text">🔍</span>
@@ -27,12 +29,13 @@
         <table class="table table-hover">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Type</th>
-                    <th>Status</th>
-                    <th>Expected lifetime (km)</th>
-                    <th>Service interval (km)</th>
-                    <th class="text-center">Mandatory</th>
-                    <th>Max qty</th>
+                    <th>Max pr bike</th>
+                    <th>Status use</th>
+                    <th>Expected life (km)</th>
+                    <th>Service int (km)</th>
+                    <th>Service int (days)</th>
                     <th class="text-end"></th>
                 </tr>
             </thead>
@@ -40,12 +43,13 @@
                 {% if payload.component_types %}
                     {% for component_type, expected_lifetime, service_interval, in_use, mandatory, max_quantity in payload.component_types %}
                     <tr data-row-id="{{ loop.index0 }}">
+                        <td>{% if mandatory == "Yes" %}⭐{% endif %}</td>
                         <td>{{ component_type }}</td>
+                        <td>{% if max_quantity == None %}Not defined{% else %}{{ max_quantity }}{% endif %}</td>
                         <td>{% if in_use > 0 %}🟩 {{ in_use }} components{% else %}🟥 No components{% endif %}</td>
                         <td>{% if expected_lifetime == None %}Not defined{% else %}{{ expected_lifetime }}{% endif %}</td>
                         <td>{% if service_interval == None %}Not defined{% else %}{{ service_interval }}{% endif %}</td>
-                        <td class="text-center">{% if mandatory == "Yes" %}⭐{% endif %}</td>
-                        <td>{% if max_quantity == None %}Not defined{% else %}{{ max_quantity }}{% endif %}</td>
+                        <td class="text-secondary">N/A</td>
                         <td class="text-end">                    
                             <button type="button" class="mb-1 btn btn-outline-success btn-sm modify-record"
                                     component_type="{{ component_type }}"
