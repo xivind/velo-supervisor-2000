@@ -57,6 +57,9 @@
                             <span>🟣 Lifetime / service exceeded:</span>
                             <span class="fw-bold">{{ critical_count|default(0) }}</span>
                         </div>
+                        <hr class="my-2">
+                        <span class="small">
+                            {% if bike_status == 'True' %} Component types are only validated on active bikes{% elif bike_status == 'False' %}⚠✔ Issues with one or more component types{% endif %}</span>
                     </div>
                 </div>
             </a>
