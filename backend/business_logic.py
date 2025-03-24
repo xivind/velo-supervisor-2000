@@ -1368,17 +1368,13 @@ class BusinessLogic():
 
     def verify_bike_component_compliance(self, bike_id):
         """Method to check if a bike has all mandatory components and respects max quantities"""
-        # Initialize the results dictionary
-        compliance = {"all_mandatory_present": True,
-        "no_max_quantity_exceeded": True,  # Assume compliant until proven otherwise
-            "missing_mandatory": [],  # List to store missing mandatory component types
-            "exceeding_max_quantity": {}  # Dict to store component types exceeding max quantity
-        }
+        compliance_report = {"all_mandatory_present": True,
+                             "no_max_quantity_exceeded": True,
+                             "missing_mandatory": [],
+                             "exceeding_max_quantity": {}}
 
-        # Get all component types
         component_types_data = database_manager.read_all_component_types()
 
-        # Create a dictionary for quick lookup of component type properties
         component_types_dict = {
             comp_type[0]: {
                 'expected_lifetime': comp_type[1],
