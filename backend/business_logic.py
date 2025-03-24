@@ -1365,35 +1365,101 @@ class BusinessLogic():
                 status = "Lifetime exceeded"
 
         return status
-    
-    def modify_component_type(self,
-                              component_type,
-                              expected_lifetime,
-                              service_interval,
-                              mandatory,
-                              max_quantity):
-        """Method to create or update component types"""
-        expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
-        service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
-        max_quantity = int(max_quantity) if max_quantity and max_quantity.isdigit() else None
 
-        in_use = database_manager.count_component_types_in_use(component_type)
+    def verify_bike_component_compliance(self, bike_id):
+        """Method to check if a bike has all mandatory components and respects max quantities"""
+        # Initialize the results dictionary
+        compliance = {"all_mandatory_present": True,
+        "no_max_quantity_exceeded": True,  # Assume compliant until proven otherwise
+            "missing_mandatory": [],  # List to store missing mandatory component types
+            "exceeding_max_quantity": {}  # Dict to store component types exceeding max quantity
+        }
+
+        # Get all component types
+        component_types_data = database_manager.read_all_component_types()
+
+        # Create a dictionary for quick lookup of component type properties
+        component_types_dict = {
+            comp_type[0]: {
+                'expected_lifetime': comp_type[1],
+                'service_interval': comp_type[2],
+                'in_use': comp_type[3],
+                'mandatory': comp_type[4],
+                'max_quantity': comp_type[5]
+            } for comp_type in component_types_data
+        }
         
-        component_type_data = {"component_type": component_type,
-                            "service_interval": service_interval,
-                            "expected_lifetime": expected_lifetime,
-                            "in_use": in_use,
-                            "mandatory": mandatory,
-                            "max_quantity": max_quantity}
-
-        success, message = database_manager.write_component_type(component_type_data)
-
-        if success:
-            logging.info(f"Component type update successful: {message}")
+        # Get all installed components for this bike
+        installed_components = database_manager.read_subset_installed_components(bike_id)
+        
+        # Count number of components by type
+        component_counts = {}
+        for component in installed_components:
+            comp_type = component.component_type
+            if comp_type in component_counts:
+                component_counts[comp_type] += 1
+            else:
+                component_counts[comp_type] = 1
+        
+        # Check for mandatory components
+        for comp_type, properties in component_types_dict.items():
+            # Check if component type is mandatory and in use
+            if properties['mandatory'] == 'Yes' and properties['in_use'] == 1:
+                if comp_type not in component_counts or component_counts[comp_type] == 0:
+                    compliance["all_mandatory_present"] = False
+                    compliance["missing_mandatory"].append(comp_type)
+            
+            # Check if max quantity is exceeded
+            if properties['max_quantity'] is not None and properties['max_quantity'] > 0:
+                if comp_type in component_counts and component_counts[comp_type] > properties['max_quantity']:
+                    compliance["no_max_quantity_exceeded"] = False
+                    compliance["exceeding_max_quantity"][comp_type] = {
+                        "current": component_counts[comp_type],
+                        "max_allowed": properties['max_quantity']
+                    }
+        
+        # Convert lists to comma-separated strings
+        compliance["missing_mandatory"] = ", ".join(compliance["missing_mandatory"]) if compliance["missing_mandatory"] else "None"
+        
+        # Format exceeding max quantity as a string
+        if compliance["exceeding_max_quantity"]:
+            exceeded_strings = []
+            for comp_type, details in compliance["exceeding_max_quantity"].items():
+                exceeded_strings.append(f"{comp_type} ({details['current']}/{details['max_allowed']})")
+            compliance["exceeding_max_quantity"] = ", ".join(exceeded_strings)
         else:
-            logging.error(f"Component type update failed: {message}")
+            compliance["exceeding_max_quantity"] = "None"
+        
+        return compliance
 
-        return success, message
+        def modify_component_type(self,
+                                component_type,
+                                expected_lifetime,
+                                service_interval,
+                                mandatory,
+                                max_quantity):
+            """Method to create or update component types"""
+            expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
+            service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
+            max_quantity = int(max_quantity) if max_quantity and max_quantity.isdigit() else None
+
+            in_use = database_manager.count_component_types_in_use(component_type)
+            
+            component_type_data = {"component_type": component_type,
+                                "service_interval": service_interval,
+                                "expected_lifetime": expected_lifetime,
+                                "in_use": in_use,
+                                "mandatory": mandatory,
+                                "max_quantity": max_quantity}
+
+            success, message = database_manager.write_component_type(component_type_data)
+
+            if success:
+                logging.info(f"Component type update successful: {message}")
+            else:
+                logging.error(f"Component type update failed: {message}")
+
+            return success, message
 
     def update_component_type_count(self, component_type):
         """Method to update only the count of components for a given component type"""
