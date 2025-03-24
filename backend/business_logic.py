@@ -882,7 +882,7 @@ class BusinessLogic():
             current_history = database_manager.read_single_history_record(history_id)
             component = database_manager.read_component(current_history.component_id)
 
-            success, message = self.validate_history_record("edit history", current_history.component_id, history_id, updated_date, current_history.update_reason, current_history.bike_id) #What is sent when bike_id is not assigned, None or 'None'?
+            success, message = self.validate_history_record("edit history", current_history.component_id, history_id, updated_date, current_history.update_reason, current_history.bike_id)
             if not success:
                 logging.error(f"Validation of history record failed: {message}")
                 return success, message
