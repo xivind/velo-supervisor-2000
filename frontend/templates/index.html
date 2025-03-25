@@ -17,7 +17,7 @@
     </div>
 </div>
 <div class="row">
-    {% for name, bike_id, bike_status, service_status, distance, count_installed, critical_count, warning_count in payload.bikes_data %}
+    {% for name, bike_id, bike_status, service_status, distance, count_installed, critical_count, warning_count, compliance_report in payload.bikes_data %}
         <div class="col-md-4 mb-4">
             <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">
                 <div class="card shadow hover-effect" data-bike-status="{{ bike_status }}">
@@ -59,7 +59,14 @@
                         </div>
                         <hr class="my-2">
                         <span class="small">
-                            {% if bike_status == 'True' %} Component types are only validated on active bikes{% elif bike_status == 'False' %}⚠✔ Issues with one or more component types{% endif %}</span>
+                            {% if bike_status == 'True' %}
+                                🚫 Component types are not validated on retired bikes
+                            {% elif not compliance_report.all_mandatory_present or not compliance_report.no_max_quantity_exceeded %}
+                                ❌ Non-compliant use of component types
+                            {% else %}
+                                ✔ Compliant use of component types
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
             </a>

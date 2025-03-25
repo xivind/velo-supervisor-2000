@@ -56,7 +56,9 @@ class BusinessLogic():
                             if component.installation_status == "Installed" and
                             (component.lifetime_status == "Due for replacement" or
                             component.service_status == "Due for service"))
-            
+
+            compliance_report = self.process_bike_compliance_report(bike_id)
+
             bikes_data.append((bike_name,
                                bike_id,
                                bike_retired,
@@ -64,7 +66,8 @@ class BusinessLogic():
                                total_distance,
                                count_installed,
                                critical_count,
-                               warning_count))
+                               warning_count,
+                               compliance_report))
 
         payload = {"bikes_data": bikes_data}
 
