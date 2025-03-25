@@ -29,7 +29,7 @@
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th></th>
+                    <th class="text-center"></th>
                     <th>Type</th>
                     <th>Max pr bike</th>
                     <th>Status use</th>
@@ -43,7 +43,7 @@
                 {% if payload.component_types %}
                     {% for component_type, expected_lifetime, service_interval, in_use, mandatory, max_quantity in payload.component_types %}
                     <tr data-row-id="{{ loop.index0 }}">
-                        <td>{% if mandatory == "Yes" %}⭐{% endif %}</td>
+                        <td class="text-center">{% if mandatory == "Yes" %}⭐{% endif %}</td>
                         <td>{{ component_type }}</td>
                         <td>{% if max_quantity == None or max_quantity == 0 %}Not defined{% else %}{{ max_quantity }}{% endif %}</td>
                         <td>{% if in_use > 0 %}🟩 {{ in_use }} components{% else %}🟥 No components{% endif %}</td>
