@@ -113,6 +113,8 @@ class BusinessLogic():
                               ride.commute
                               ) for ride in recent_rides]
 
+        compliance_report = self.process_bike_compliance_report(bike_id)
+
         payload = {"recent_rides": recent_rides_data,
                    "bikes_data": bikes_data,
                    "bike_data": bike_data,
@@ -130,7 +132,8 @@ class BusinessLogic():
                    "count_service_status_red" : component_statistics["count_service_status_red"],
                    "count_service_status_purple" : component_statistics["count_service_status_purple"],
                    "count_service_status_grey" : component_statistics["count_service_status_grey"],
-                   "sum_cost" : component_statistics["sum_cost"]}
+                   "sum_cost" : component_statistics["sum_cost"],
+                   "compliance_report": compliance_report}
         
         return payload
     
@@ -1105,7 +1108,6 @@ class BusinessLogic():
             return True, "Successfully processed history records and related services"
 
         except Exception as error:
-            print(f"Error message: {error}")
             logging.error(f"An error occurred processing history records for component {component_id}: {str(error)}")
             return False, f"Error processing history records for component {component_id}: {str(error)}"
       
@@ -1413,7 +1415,7 @@ class BusinessLogic():
         if compliance_report["exceeding_max_quantity"]:
             exceeded_strings = []
             for comp_type, details in compliance_report["exceeding_max_quantity"].items():
-                exceeded_strings.append(f"{comp_type} ({details['current']}/{details['max_allowed']})")
+                exceeded_strings.append(f"{comp_type} (has {details['current']} / max {details['max_allowed']})")
             compliance_report["exceeding_max_quantity"] = ", ".join(exceeded_strings)
         else:
             compliance_report["exceeding_max_quantity"] = "None"
