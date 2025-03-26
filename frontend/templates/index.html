@@ -62,9 +62,9 @@
                             {% if bike_status == 'True' %}
                                 🚫 Component types are not validated on retired bikes
                             {% elif not compliance_report.all_mandatory_present or not compliance_report.no_max_quantity_exceeded %}
-                                ❌ Non-compliant use of component types
+                                ❌ Non-compliant component types
                             {% else %}
-                                ✔ Compliant use of component types
+                                ✔ Component types OK
                             {% endif %}
                         </span>
                     </div>
