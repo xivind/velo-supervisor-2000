@@ -42,8 +42,9 @@ As a principle, development is to be done in the dev-branch. When changes are re
 
 **Planned for v0.4.2**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.1 OR EARLIER, USE PROVIDED MIGRATION SCRIPT.*
+- See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
-**Planned for v0.4.1 (CURRENT)**
+**v0.4.1 (CURRENT)**
 - Made it possible to add components to retired bikes and change status on components assigned to retired bikes
 - Switched date picker library from Flatpickr to Tempus Dominus (enables use on mobile devices)
 - Added type ahead search in component tables
