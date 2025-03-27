@@ -1442,6 +1442,12 @@ class BusinessLogic():
                             "mandatory": mandatory,
                             "max_quantity": max_quantity}
 
+        all_component_types_raw = database_manager.read_all_component_types()
+        lowercase_component_types = [item[0].lower() for item in all_component_types_raw]
+        if component_type.lower() in lowercase_component_types:
+            logging.warning(f"Component type '{component_type}' already exists. Duplicate component types are not allowed. New component type not created.")
+            return False, f"Component type '{component_type}' already exists. Duplicate component types are not allowed. New component type not created."
+
         success, message = database_manager.write_component_type(component_type_data)
 
         if success:
@@ -1499,6 +1505,12 @@ class BusinessLogic():
             component = database_manager.read_component(record_id)
             component_type = component.component_type
             bike_id = database_manager.read_component(record_id).bike_id
+        
+        elif table_selector == "ComponentTypes":
+            component_type = database_manager.read_single_component_type(record_id)
+            if component_type.in_use > 0:
+                logging.warning(f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted")
+                return False, f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted", component_id
 
         success, message = database_manager.write_delete_record(table_selector, record_id)
 
