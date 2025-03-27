@@ -23,33 +23,43 @@ document.addEventListener('DOMContentLoaded', function() {
     // If we have a message, show the toast
     if (message) {
         // console.log('Showing toast:', message, success);  // Debug log
-        showToast(message, success === 'True');
+        // console.log("Success parameter:", success, typeof success);
+        showToast(message, success);
     }
 });
 
 // Toast behaviour
 function showToast(message, success = true) {
+    console.log("Success value:", success, typeof success); // Debug log
+    
     const toast = document.getElementById('messageToast');
     const toastHeader = toast.querySelector('.toast-header');
     const toastTitle = document.getElementById('toastTitle');
     const toastMessage = document.getElementById('toastMessage');
-    const progressBar = document.getElementById('toastProgressBar'); // Get the progress bar
-
-    toastTitle.textContent = success ? 'Success' : 'Error';
-    toastMessage.textContent = message;
+    const progressBar = document.getElementById('toastProgressBar');
 
     // Reset all classes first
-    toast.classList.remove('border-success', 'border-danger');
-    toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+    toast.classList.remove('border-success', 'border-danger', 'border-warning');
+    toastHeader.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-white');
 
-    // Set appropriate styling based on success/error
-    if (success) {
+    // Set the appropriate title and styling based on status
+    if (success === "warning") {
+        toastTitle.textContent = 'Warning';
+        toast.classList.add('border-warning');
+        toastHeader.classList.add('bg-warning', 'text-white');
+    }
+    else if (success === "True" || success === "true" || success === true) {
+        toastTitle.textContent = 'Success';
         toast.classList.add('border-success');
         toastHeader.classList.add('bg-success', 'text-white');
-    } else {
-        toast.classList.add('border-danger');
+    }
+    else {
+        toastTitle.textContent = 'Error';
+        toast.classList.add('border-danger'); 
         toastHeader.classList.add('bg-danger', 'text-white');
     }
+    
+    toastMessage.textContent = message;
 
     const bsToast = new bootstrap.Toast(toast, {
         animation: true,
@@ -1209,6 +1219,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update modal title to indicate editing
             document.getElementById('componentTypeModalLabel').textContent = 'Edit component type';
+
+            // Set mode to "update" when editing
+            document.getElementById('mode').value = "update";
 
             // Disable the component_type field since it's a primary key
             const componentTypeInput = document.getElementById('component_type');

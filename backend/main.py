@@ -138,14 +138,16 @@ async def component_types_modify(component_type: str = Form(...),
                                  expected_lifetime: Optional[str] = Form(None),
                                  service_interval: Optional[str] = Form(None),
                                  mandatory: Optional[str] = Form(None),
-                                 max_quantity: Optional[str] = Form(None)):
+                                 max_quantity: Optional[str] = Form(None),
+                                 mode: str = Form("create")):
     """Endpoint to modify component types"""
 
     success, message = business_logic.modify_component_type(component_type,
                                                             expected_lifetime,
                                                             service_interval,
                                                             mandatory,
-                                                            max_quantity)
+                                                            max_quantity,
+                                                            mode)
 
     response = RedirectResponse(
         url=f"/component_types_overview?success={success}&message={message}",

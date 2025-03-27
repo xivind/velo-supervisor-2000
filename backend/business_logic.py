@@ -773,7 +773,19 @@ class BusinessLogic():
             else:
                 logging.error(message)
 
-            return success, f"Component {component_name} successfully created" if success else f"Creation of component {component_name} failed", component_id
+            if success:
+                if component_bike_id:
+                    bike = database_manager.read_single_bike(component_bike_id)
+                    if bike.bike_retired == "False":
+                        compliance_report = self.process_bike_compliance_report(component_bike_id)
+                        if not compliance_report["all_mandatory_present"] or not compliance_report["no_max_quantity_exceeded"]:
+                            logging.warning(f"Component {component_name} successfully created, but use of component types are not compliant")
+                            return "warning", f"Component {component_name} successfully created, but use of component types are not compliant. See bike details fore more information", component_id
+                
+                return success, f"Component {component_name} successfully created", component_id
+
+            else:
+                return f"Creation of component {component_name} failed", component_id
 
         except Exception as error:
             logging.error(f"An error occurred creating component {component_name}: {str(error)}")
@@ -828,7 +840,19 @@ class BusinessLogic():
             else:
                 logging.error(message)
 
-            return success, message, component_id
+            if success:
+                if component_bike_id:
+                    bike = database_manager.read_single_bike(component_bike_id)
+                    if bike.bike_retired == "False":
+                        compliance_report = self.process_bike_compliance_report(component_bike_id)
+                        if not compliance_report["all_mandatory_present"] or not compliance_report["no_max_quantity_exceeded"]:
+                            logging.warning(f"Component {component_name} successfully updated, but use of component types are not compliant")
+                            return "warning", f"Component {component_name} successfully updated, but use of component types are not compliant. See bike details fore more information", component_id
+                
+                return success, message, component_id
+
+            else:
+                return success, message, component_id
 
         except Exception as error:
             logging.error(f"An error occurred modifying component details {component_name}: {str(error)}")
@@ -1427,7 +1451,8 @@ class BusinessLogic():
                             expected_lifetime,
                             service_interval,
                             mandatory,
-                            max_quantity):
+                            max_quantity,
+                            mode):
         """Method to create or update component types"""
         expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
         service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
@@ -1442,11 +1467,12 @@ class BusinessLogic():
                             "mandatory": mandatory,
                             "max_quantity": max_quantity}
 
-        all_component_types_raw = database_manager.read_all_component_types()
-        lowercase_component_types = [item[0].lower() for item in all_component_types_raw]
-        if component_type.lower() in lowercase_component_types:
-            logging.warning(f"Component type '{component_type}' already exists. Duplicate component types are not allowed. New component type not created.")
-            return False, f"Component type '{component_type}' already exists. Duplicate component types are not allowed. New component type not created."
+        if mode == "create":
+            all_component_types_raw = database_manager.read_all_component_types()
+            lowercase_component_types = [item[0].lower() for item in all_component_types_raw]
+            if component_type.lower() in lowercase_component_types:
+                logging.warning(f"Component type '{component_type}' already exists. Duplicate component types are not allowed. New component type not created")
+                return False, f"Component type '{component_type}' already exists. Duplicate component types are not allowed. New component type not created"
 
         success, message = database_manager.write_component_type(component_type_data)
 
