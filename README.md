@@ -32,6 +32,7 @@ Velo Supervisor 2000 uses <a href="https://semver.org/" class="text-decoration-n
 As a principle, development is to be done in the dev-branch. When changes are ready for testing and quality assurance, they should be merged into the staging branch. If tests and quality assurance completes successfully, the changes shall be merged from staging branch into the master branch. Review the changes in the PR and create a new version tag, according to the SemVer scheme, before merging into master.
 
 ## Changelog
+**To see whats coming in the next release, check out the [project board](https://github.com/users/xivind/projects/2/views/1). All items marked as P1 are planned for the next release**
 
 **Future releases**
 - GUI optimized for mobile devices
@@ -40,7 +41,7 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - ... and much more
 
 **Planned for v0.4.2**
-- TBD
+*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. USE PROVIDED MIGRATION SCRIPT"
 
 **Planned for v0.4.1 (CURRENT)**
 - Made it possible to add components to retired bikes and change status on components assigned to retired bikes
