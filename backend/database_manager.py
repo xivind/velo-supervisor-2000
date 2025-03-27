@@ -111,7 +111,7 @@ class DatabaseManager:
                                  component_type.mandatory,
                                  component_type.max_quantity) for component_type in component_types]
 
-        component_types_data.sort(key=lambda x: x[0])
+        component_types_data.sort(key=lambda x: x[0].lower())
 
         return component_types_data
 
