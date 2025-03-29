@@ -865,7 +865,7 @@ class BusinessLogic():
                               component_updated_date):
         """Method to create installation history record"""
         try:
-            history_id = f'{component_updated_date} {component_id}'
+            history_id = generate_unique_id()
             component = database_manager.read_component(component_id)
 
             success, message = self.validate_history_record("create history", component_id, history_id, component_updated_date, installation_status, component_bike_id)
