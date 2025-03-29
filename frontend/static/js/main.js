@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
+// Global configuration of date pickers, including helper functions
 // Utility function to get Tempus Dominus instance and handle dates properly
 function getDatePicker(inputElement) {
     if (!inputElement) return null;
@@ -168,7 +168,79 @@ function parseDateForPicker(dateString) {
     }
 }
 
-// Global date picker function with validation
+// Function to validate date format (YYYY-MM-DD HH:MM)
+function validateDateInput(input) {
+    if (!input.value && input.hasAttribute('required')) {
+        input.classList.add('is-invalid');
+        return false;
+    }
+    
+    if (!input.value) {
+        // Empty but not required is valid
+        input.classList.remove('is-invalid');
+        return true;
+    }
+    
+    // Validate format (YYYY-MM-DD HH:MM)
+    const datePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+    if (!datePattern.test(input.value)) {
+        input.classList.add('is-invalid');
+        return false;
+    }
+    
+    // Validate that the date is real
+    try {
+        const parts = input.value.split(/[- :]/);
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // JS months are 0-based
+        const day = parseInt(parts[2], 10);
+        const hour = parseInt(parts[3], 10);
+        const minute = parseInt(parts[4], 10);
+        
+        // Check ranges
+        if (month < 0 || month > 11) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        if (day < 1 || day > 31) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        if (hour < 0 || hour > 23) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        if (minute < 0 || minute > 59) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        // Check for valid date (e.g., no February 31)
+        const date = new Date(year, month, day, hour, minute);
+        if (
+            date.getFullYear() !== year ||
+            date.getMonth() !== month ||
+            date.getDate() !== day ||
+            date.getHours() !== hour ||
+            date.getMinutes() !== minute
+        ) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        input.classList.remove('is-invalid');
+        return true;
+    } catch (err) {
+        console.error('Date validation error:', err);
+        input.classList.add('is-invalid');
+        return false;
+    }
+}
+
+// Updated date picker initialization with improved validation
 function initializeDatePickers(container = document) {
     // Find all date picker input groups inside the provided container
     const dateInputGroups = container.querySelectorAll('.date-input-group');
@@ -178,25 +250,40 @@ function initializeDatePickers(container = document) {
         const datePickerToggle = group.querySelector('.datepicker-toggle');
         
         if (!dateInput || !datePickerToggle) {
-            //console.log('Missing elements for date picker:', dateInput, datePickerToggle);
             return; // Skip if missing elements
         }
         
         // Store the picker instance in a data attribute
         if (dateInput._tempusDominus) {
-            //console.log('Picker already initialized for:', dateInput.id || 'unnamed input');
-            return;
+            return; // Already initialized
         }
 
-        //console.log('Initializing new picker for:', dateInput.id || 'unnamed input');
+        // Set current date/time by default for new forms
+        // We only do this for empty inputs, not for pre-filled ones
+        if (!dateInput.value) {
+            const now = new Date();
+            // Format as YYYY-MM-DD HH:MM
+            const formattedDate = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(now.getDate()).padStart(2, '0') + ' ' + 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0');
+            
+            dateInput.value = formattedDate;
+        }
 
-        // Initialize Tempus Dominus with the correct configuration structure
+        // Initialize Tempus Dominus with improved configuration
         const picker = new tempusDominus.TempusDominus(dateInput, {
             localization: {
                 format: 'yyyy-MM-dd HH:mm'
             },
             display: {
-                theme: 'light',
+                theme: 'auto', // Use system theme (light/dark)
+                buttons: {
+                    today: true,
+                    clear: true,
+                    close: true
+                },
                 icons: {
                     time: 'bi bi-clock',
                     date: 'bi bi-calendar',
@@ -221,37 +308,35 @@ function initializeDatePickers(container = document) {
                 }
             },
             restrictions: {
-                // Setting min and max dates explicitly to avoid validation errors
                 minDate: new Date('1970-01-01 00:00'),
                 maxDate: new Date()
-            }
+            },
+            // Allow viewing the calendar without selecting anything
+            useCurrent: false
         });
         
         // Store the picker instance for later access
         dateInput._tempusDominus = picker;
 
-        // Enforce picker usage
-        dateInput.setAttribute('readonly', true);
+        // IMPORTANT: Remove readonly - allow manual typing
+        dateInput.removeAttribute('readonly');
 
-        // Force the calendar picker toggle to be clickable
-        datePickerToggle.style.cursor = 'pointer';
-        datePickerToggle.style.pointerEvents = 'auto';
-        datePickerToggle.style.zIndex = '100';
-        datePickerToggle.style.position = 'relative';
+        // Style the toggle for better visibility
+        datePickerToggle.classList.add('date-toggle-clickable');
+        
+        // ONLY open the date picker when the calendar icon is clicked
+        dateInput.removeEventListener('click', () => {
+            picker.show();
+        });
         
         // Define the function to toggle the picker
         function togglePicker(e) {
             e.preventDefault();
             e.stopPropagation();
-            //console.log('Toggle clicked for:', dateInput.id || 'unnamed input');
             
             try {
-                // Use the stored picker instance directly 
                 if (dateInput._tempusDominus) {
-                    //console.log('Found picker instance, toggling...');
                     dateInput._tempusDominus.toggle();
-                } else {
-                    console.error('No picker instance found for', dateInput.id || 'unnamed input');
                 }
             } catch (err) {
                 console.error('Error toggling picker:', err);
@@ -262,69 +347,132 @@ function initializeDatePickers(container = document) {
         
         // Remove any existing click listeners and add new one
         datePickerToggle.onclick = togglePicker;
-        
-        // Also make the input clickable to show picker
-        dateInput.addEventListener('click', function() {
-            try {
-                if (dateInput._tempusDominus) {
-                    dateInput._tempusDominus.show();
-                }
-            } catch (err) {
-                console.error('Error showing picker on input click:', err);
+
+        // Add validation for manually typed dates
+        dateInput.addEventListener('blur', function() {
+            validateDateInput(this);
+        });
+
+        // Also validate on input change
+        dateInput.addEventListener('input', function() {
+            // Don't add invalid class while typing,
+            // but do remove it if it becomes valid
+            if (validateDateInput(this)) {
+                this.classList.remove('is-invalid');
             }
+        });
+
+        // Ensure validation happens when the picker sets a date
+        picker.subscribe(tempusDominus.Namespace.events.change, (e) => {
+            validateDateInput(dateInput);
         });
 
         // Remove any invalid styling initially
         dateInput.classList.remove('is-invalid');
 
-        // Only add validation on hide/close of picker (like flatpickr did)
-        picker.subscribe(tempusDominus.Namespace.events.hide, (e) => {
-            if (!dateInput.value && dateInput.hasAttribute('required')) {
-                dateInput.classList.add('is-invalid');
-            } else {
-                dateInput.classList.remove('is-invalid');
-            }
-        });
-
-        // Also ensure validation happens on form submit
-        if (dateInput.hasAttribute('required')) {
-            const form = dateInput.closest('form');
-            if (form && !form.dataset.validationAdded) {
-                form.addEventListener('submit', function(e) {
-                    let isValid = true;
-                    
-                    form.querySelectorAll('input[required]').forEach(input => {
-                        if (!input.value) {
-                            input.classList.add('is-invalid');
-                            isValid = false;
-                        }
-                    });
-                    
-                    if (!isValid) {
-                        e.preventDefault();
-                        return false;
+        // Add validation to the form
+        const form = dateInput.closest('form');
+        if (form && !form.dataset.dateValidationAdded) {
+            // Store original submit handler if it exists
+            const originalSubmit = form.onsubmit;
+            
+            // Replace with our enhanced submit handler
+            form.onsubmit = function(e) {
+                // First, prevent default and stop propagation immediately
+                e.preventDefault();
+                e.stopPropagation();
+                
+                let isValid = true;
+                
+                // Validate all date inputs in this form
+                form.querySelectorAll('.datepicker-input').forEach(input => {
+                    if (!validateDateInput(input)) {
+                        isValid = false;
                     }
                 });
-                form.dataset.validationAdded = 'true';
-            }
+                
+                // Also validate other required inputs
+                form.querySelectorAll('input[required]:not(.datepicker-input)').forEach(input => {
+                    if (!input.value) {
+                        input.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                });
+                
+                // Prevent submission if invalid
+                if (!isValid) {
+                    // Show validation modal with message
+                    const validationModal = document.getElementById('validationModal');
+                    if (validationModal) {
+                        document.getElementById('validationModalBody').textContent = 
+                            'Please correct the invalid date format. Required format: YYYY-MM-DD HH:MM';
+                        new bootstrap.Modal(validationModal).show();
+                    }
+                    
+                    return false;
+                }
+                
+                // If we're valid, submit the form manually
+                if (originalSubmit && typeof originalSubmit === 'function') {
+                    // Call original handler
+                    const result = originalSubmit.call(this, e);
+                    if (result !== false) {
+                        form.submit();
+                    }
+                } else {
+                    // No original handler, just submit
+                    form.submit();
+                }
+                
+                // Always return false to prevent default form submission
+                return false;
+            };
             
-            // Ensure each individual submit button also triggers validation
-            // This ensures validation happens immediately with the Save button
-            const submitButtons = form?.querySelectorAll('button[type="submit"]');
-            if (submitButtons) {
-                submitButtons.forEach(button => {
-                    if (!button.dataset.validationAdded) {
-                        button.addEventListener('click', function(e) {
-                            if (!dateInput.value && dateInput.hasAttribute('required')) {
-                                dateInput.classList.add('is-invalid');
-                                e.preventDefault();
-                                return false;
+            form.dataset.dateValidationAdded = 'true';
+        }
+
+        // Ensure each submit button also triggers validation
+        const submitButtons = form?.querySelectorAll('button[type="submit"]');
+        if (submitButtons) {
+            submitButtons.forEach(button => {
+                if (!button.dataset.dateValidationAdded) {
+                    const originalClick = button.onclick;
+                    
+                    button.onclick = function(e) {
+                        const dateInputs = form.querySelectorAll('.datepicker-input');
+                        let isValid = true;
+                        
+                        dateInputs.forEach(input => {
+                            if (!validateDateInput(input)) {
+                                isValid = false;
                             }
                         });
-                        button.dataset.validationAdded = 'true';
-                    }
-                });
-            }
+                        
+                        if (!isValid) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Show validation modal with message
+                            const validationModal = document.getElementById('validationModal');
+                            if (validationModal) {
+                                document.getElementById('validationModalBody').textContent = 
+                                    'Invalid date format. Required format: YYYY-MM-DD HH:MM';
+                                new bootstrap.Modal(validationModal).show();
+                            }
+                            
+                            return false;
+                        }
+                        
+                        if (originalClick && typeof originalClick === 'function') {
+                            return originalClick.call(this, e);
+                        }
+                        
+                        return true;
+                    };
+                    
+                    button.dataset.dateValidationAdded = 'true';
+                }
+            });
         }
     });
 }
@@ -1032,8 +1180,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const editComponentStatusModal = document.getElementById('editComponentStatusModal');
     if (editComponentStatusModal) {
+        // Keep the existing functionality
         editComponentStatusModal.addEventListener('shown.bs.modal', function() {
             initializeComponentForm(componentStatusForm);
+        });
+        
+        // Add new functionality to set the current date when modal is about to be shown
+        editComponentStatusModal.addEventListener('show.bs.modal', function() {
+            // Set current date/time
+            const now = new Date();
+            const formattedDate = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(now.getDate()).padStart(2, '0') + ' ' + 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0');
+            
+            // Find the date input specifically within this modal
+            const dateInput = document.querySelector('#editComponentStatusModal #component_updated_date');
+            if (dateInput) {
+                dateInput.value = formattedDate;
+                console.log('Set date in status modal to:', formattedDate); // Debug log
+            }
         });
     }
 });
@@ -1154,8 +1321,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Clear other form fields
         document.getElementById('serviceId').value = '';
-        document.getElementById('serviceDate').value = '';
         document.getElementById('serviceDescription').value = '';
+
+        // Set current date/time by default
+        const now = new Date();
+        const formattedDate = now.getFullYear() + '-' + 
+        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(now.getDate()).padStart(2, '0') + ' ' + 
+        String(now.getHours()).padStart(2, '0') + ':' + 
+        String(now.getMinutes()).padStart(2, '0');
+
+        // Set this using setTimeout to ensure the value sticks
+        setTimeout(() => {
+            document.getElementById('serviceDate').value = formattedDate;
+        }, 100);
         
         serviceRecordModal.show();
     });
