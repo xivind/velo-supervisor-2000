@@ -5,10 +5,54 @@ let confirmModal;
 let loadingModal;
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize modal instances
-    validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+    // Initialize modal instances with their specific options
+    validationModal = new bootstrap.Modal(document.getElementById('validationModal'), {
+        backdrop: 'static',  // Prevent closing when clicking outside
+        keyboard: false      // Prevent closing with keyboard
+    });
+    
+    // These should behave normally
     confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
     loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+
+    // Add validation to all forms with date picker inputs
+    document.querySelectorAll('form').forEach(form => {
+        const dateInputs = form.querySelectorAll('.datepicker-input');
+        
+        if (dateInputs.length > 0) {
+            form.addEventListener('submit', function(e) {
+                let hasDateError = false;
+                
+                // Check all date inputs in this form
+                dateInputs.forEach(input => {
+                    if (input.hasAttribute('required') && !input.value) {
+                        input.classList.add('is-invalid');
+                        hasDateError = true;
+                    } else if (input.value) {
+                        // Validate date format (YYYY-MM-DD HH:MM)
+                        const datePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+                        if (!datePattern.test(input.value)) {
+                            input.classList.add('is-invalid');
+                            hasDateError = true;
+                        } else {
+                            input.classList.remove('is-invalid');
+                        }
+                    }
+                });
+                
+                // If any date error, prevent form submission and show validation message
+                if (hasDateError) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const modalBody = document.getElementById('validationModalBody');
+                    modalBody.innerHTML = 'Please enter valid dates in the format YYYY-MM-DD HH:MM';
+                    validationModal.show();
+                    return false;
+                }
+            }, true); // Use capturing phase to ensure this runs before other handlers
+        }
+    });
 });
 
 // ===== Functions used on multiple pages =====
@@ -30,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Toast behaviour
 function showToast(message, success = true) {
-    console.log("Success value:", success, typeof success); // Debug log
+    // console.log("Success value:", success, typeof success); // Debug log
     
     const toast = document.getElementById('messageToast');
     const toastHeader = toast.querySelector('.toast-header');
@@ -1180,12 +1224,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const editComponentStatusModal = document.getElementById('editComponentStatusModal');
     if (editComponentStatusModal) {
-        // Keep the existing functionality
         editComponentStatusModal.addEventListener('shown.bs.modal', function() {
             initializeComponentForm(componentStatusForm);
         });
         
-        // Add new functionality to set the current date when modal is about to be shown
+        // Enhanced version that stores original values and sets current date
         editComponentStatusModal.addEventListener('show.bs.modal', function() {
             // Set current date/time
             const now = new Date();
@@ -1195,11 +1238,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 String(now.getHours()).padStart(2, '0') + ':' + 
                 String(now.getMinutes()).padStart(2, '0');
             
-            // Find the date input specifically within this modal
+            // Find the form elements
             const dateInput = document.querySelector('#editComponentStatusModal #component_updated_date');
+            const statusSelect = document.querySelector('#editComponentStatusModal #component_installation_status');
+            const bikeSelect = document.querySelector('#editComponentStatusModal #component_bike_id');
+            
+            // Store original values before changing anything
             if (dateInput) {
+                dateInput.dataset.originalValue = dateInput.value;
                 dateInput.value = formattedDate;
-                console.log('Set date in status modal to:', formattedDate); // Debug log
+            }
+            
+            if (statusSelect) {
+                statusSelect.dataset.originalValue = statusSelect.value;
+            }
+            
+            if (bikeSelect) {
+                bikeSelect.dataset.originalValue = bikeSelect.value;
             }
         });
     }
@@ -1209,60 +1264,68 @@ document.addEventListener('DOMContentLoaded', function() {
 function addFormValidation(form) {
     if (!form) return;
 
-    form.addEventListener('submit', function(e) {
+    // Replace the submit event listener with a more robust approach
+    form.onsubmit = function(e) {
+        // Immediately prevent the default action
+        e.preventDefault();
+        
         const statusSelect = this.querySelector('[name="component_installation_status"]');
         const installationStatus = statusSelect.value;
         const bikeIdSelect = this.querySelector('[name="component_bike_id"]');
         const bikeId = bikeIdSelect.value;
-        //Switch for debugging to prevent form to submit
-        //e.preventDefault();
         
         // For status update modal, we need to check additional conditions
         if (form.id === 'component_status_form') {
-            const initialSelectedStatus = statusSelect.options[statusSelect.selectedIndex].defaultSelected ? statusSelect.value : null;
-            const initialBikeId = form.dataset.initialBikeId; 
+            // Use the stored original values from data attributes
+            const originalStatus = statusSelect.dataset.originalValue;
+            const originalBikeId = bikeIdSelect.dataset.originalValue || form.dataset.initialBikeId;
             const dateInput = this.querySelector('#component_updated_date');
-            const initialDate = dateInput.defaultValue;
+            const originalDate = dateInput.dataset.originalValue;
 
-            if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
-                e.preventDefault();
+            // Rule 1: Can't keep the same status
+            if (installationStatus === originalStatus) {
                 const modalBody = document.getElementById('validationModalBody');
-                modalBody.innerHTML = `Status cannot be changed to "${statusSelect.value}" since status is already "${installationStatus}"`;
+                modalBody.innerHTML = `Status cannot be changed to "${statusSelect.value}" since status is already "${originalStatus}"`;
                 validationModal.show();
-                return;
+                return false;
+            }
             
-            } else if (dateInput.value === initialDate) {
-                e.preventDefault();
+            // Rule 2: Date must change from original
+            if (dateInput.value === originalDate) {
                 const modalBody = document.getElementById('validationModalBody');
-                modalBody.innerHTML = `Updated date must be changed when updating status. Last updated date is ${initialDate}. Select a date after this date`;
+                modalBody.innerHTML = `Updated date must be changed when updating status. Last updated date is ${originalDate}. Select a date after this date`;
                 validationModal.show();
-                return;
+                return false;
+            }
 
-            } else if (installationStatus !== initialSelectedStatus && dateInput.value === initialDate) {
-                e.preventDefault();
+            // Rule 3: Status change requires date change (keeping this as fallback)
+            if (installationStatus !== originalStatus && dateInput.value === originalDate) {
                 const modalBody = document.getElementById('validationModalBody');
                 modalBody.innerHTML = `Status cannot be changed unless you also update record date`;
                 validationModal.show();
-                return;
-                // This rule is kept for fallback, but is not triggered due to rule above
+                return false;
+            }
 
-            } else if (installationStatus === 'Retired' && initialBikeId !== bikeId) {
-                e.preventDefault();
+            // Rule 4: Can't change bike assignment during retirement
+            if (installationStatus === 'Retired' && originalBikeId !== bikeId) {
                 const modalBody = document.getElementById('validationModalBody');
                 modalBody.innerHTML = `Bike assignment cannot be changed at time of retirement. If you need to unassign or change bike prior to retiring, uninstall or install component first`;
                 validationModal.show();
-                return;
+                return false;
             }
         }
 
         // Common validation for both forms
         if (installationStatus === 'Installed' && !bikeId) {
-            e.preventDefault();
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = 'Status cannot be set to "Installed" if no bike is selected';
             validationModal.show();
+            return false;
         }
-    });
+        
+        // If we got here, validation passed - manually submit the form
+        this.submit();
+    };
 }
 
 document.addEventListener('DOMContentLoaded', function() {
