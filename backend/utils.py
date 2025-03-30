@@ -122,8 +122,7 @@ def get_component_statistics(component_list):
         if component[5] == "Not defined" and component[0] == "Installed":
             component_statistics["count_service_status_grey"] += 1
         if component[6] is not None and isinstance(component[6], int) and component[0] == "Installed":
-            if ((component[4] == "Due for replacement" or component[4] == "Lifetime exceeded") or
-                (component[5] == "Due for service" or component[5] == "Service interval exceeded")):
+            if (component[4] == "Due for replacement" or component[4] == "Lifetime exceeded"):
                 component_statistics["sum_cost"] += component[6]
 
     if component_statistics["sum_cost"] == 0:
