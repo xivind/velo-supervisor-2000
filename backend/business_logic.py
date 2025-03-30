@@ -779,13 +779,13 @@ class BusinessLogic():
                     if bike.bike_retired == "False":
                         compliance_report = self.process_bike_compliance_report(component_bike_id)
                         if not compliance_report["all_mandatory_present"] or not compliance_report["no_max_quantity_exceeded"]:
-                            logging.warning(f"Component {component_name} successfully created, but use of component types on {bike.bike_name} are not compliant")
-                            return "warning", f"Component {component_name} successfully created, but use of component types on on {bike.bike_name} are not compliant. See bike details fore more information", component_id
+                            logging.warning(f"Component {component_name} successfully created. Use of component types on {bike.bike_name} are not compliant")
+                            return "warning", f"Component {component_name} successfully created. Use of component types on {bike.bike_name} are not compliant. See bike details for more information", component_id
                 
                 return success, f"Component {component_name} successfully created", component_id
 
             else:
-                return f"Creation of component {component_name} failed", component_id
+                return success, f"Creation of component {component_name} failed", component_id
 
         except Exception as error:
             logging.error(f"An error occurred creating component {component_name}: {str(error)}")
@@ -846,8 +846,8 @@ class BusinessLogic():
                     if bike.bike_retired == "False":
                         compliance_report = self.process_bike_compliance_report(component_bike_id)
                         if not compliance_report["all_mandatory_present"] or not compliance_report["no_max_quantity_exceeded"]:
-                            logging.warning(f"Component {component_name} successfully updated, but use of component types on {bike.bike_name} are not compliant")
-                            return "warning", f"Component {component_name} successfully updated, but use of component types on {bike.bike_name} are not compliant. See bike details fore more information", component_id
+                            logging.warning(f"Component {component_name} successfully updated. Use of component types on {bike.bike_name} are not compliant")
+                            return "warning", f"Component {component_name} successfully updated. Use of component types on {bike.bike_name} are not compliant. See bike details for more information", component_id
                 
                 return success, message, component_id
 
@@ -900,8 +900,8 @@ class BusinessLogic():
                     if bike.bike_retired == "False":
                         compliance_report = self.process_bike_compliance_report(component_bike_id)
                         if not compliance_report["all_mandatory_present"] or not compliance_report["no_max_quantity_exceeded"]:
-                            logging.warning(f"{message}. But use of component types on {bike.bike_name} are not compliant")
-                            return "warning", f"{message}. But use of component types on {bike.bike_name} are not compliant. See bike details fore more information"
+                            logging.warning(f"{message}. Use of component types on {bike.bike_name} are not compliant")
+                            return "warning", f"{message}. Use of component types on {bike.bike_name} are not compliant. See bike details for more information"
                 
                 logging.info(f"Creation of history record successful: {message}")
             else:
