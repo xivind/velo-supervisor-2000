@@ -322,7 +322,7 @@ function initializeDatePickers(container = document) {
                 format: 'yyyy-MM-dd HH:mm'
             },
             display: {
-                theme: 'auto', // Use system theme (light/dark)
+                theme: 'light',
                 buttons: {
                     today: true,
                     clear: true,

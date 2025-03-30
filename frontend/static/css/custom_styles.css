@@ -115,11 +115,12 @@ th[data-sort].sorted-desc .sort-indicator::after {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     border-radius: 0.5rem;
     border: 1px solid rgba(0, 0, 0, 0.125);
+    background-color: #f0f7ff !important;
 }
 
 /* Style the header of the calendar */
 .tempus-dominus-widget .date-container-days .date-container-header {
-    background-color: #f8f9fa;
+    background-color: #e6f2ff !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
     border-top-left-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
@@ -127,7 +128,7 @@ th[data-sort].sorted-desc .sort-indicator::after {
 
 /* Improve the today button visibility */
 .tempus-dominus-widget .date-container-days .date-container-days-today {
-    background-color: #e9ecef;
+    background-color: #daeaff !important;
     font-weight: bold;
 }
 
@@ -140,7 +141,7 @@ th[data-sort].sorted-desc .sort-indicator::after {
 
 /* Style for hover effect on dates */
 .tempus-dominus-widget .date-container-days .date-container-days-day:hover {
-    background-color: #e9ecef;
+    background-color: #daeaff !important;
     border-radius: 50%;
     transition: background-color 0.15s ease-in-out;
 }
@@ -168,4 +169,36 @@ th[data-sort].sorted-desc .sort-indicator::after {
 
 .tempus-dominus-widget button:hover {
     background-color: #e9ecef;
+}
+
+/* Additional date picker selectors for comprehensive styling */
+.tempus-dominus-widget header {
+    background-color: #e6f2ff !important;
+}
+
+.tempus-dominus-widget .date-container-days,
+.tempus-dominus-widget .time-container {
+    background-color: #f0f7ff !important;
+}
+
+.tempus-dominus-widget .active,
+.tempus-dominus-widget .date-container-days .active {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+.tempus-dominus-widget .month:hover,
+.tempus-dominus-widget .year:hover,
+.tempus-dominus-widget .decade:hover {
+    background-color: #daeaff !important;
+}
+
+.tempus-dominus-widget footer button {
+    background-color: #e6f2ff !important;
+    border: 1px solid #c9e2ff !important;
+    color: #0d6efd !important;
+}
+
+.tempus-dominus-widget footer button:hover {
+    background-color: #c9e2ff !important;
 }
