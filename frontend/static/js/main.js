@@ -5,10 +5,54 @@ let confirmModal;
 let loadingModal;
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize modal instances
-    validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+    // Initialize modal instances with their specific options
+    validationModal = new bootstrap.Modal(document.getElementById('validationModal'), {
+        backdrop: 'static',  // Prevent closing when clicking outside
+        keyboard: false      // Prevent closing with keyboard
+    });
+    
+    // These should behave normally
     confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
     loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+
+    // Add validation to all forms with date picker inputs
+    document.querySelectorAll('form').forEach(form => {
+        const dateInputs = form.querySelectorAll('.datepicker-input');
+        
+        if (dateInputs.length > 0) {
+            form.addEventListener('submit', function(e) {
+                let hasDateError = false;
+                
+                // Check all date inputs in this form
+                dateInputs.forEach(input => {
+                    if (input.hasAttribute('required') && !input.value) {
+                        input.classList.add('is-invalid');
+                        hasDateError = true;
+                    } else if (input.value) {
+                        // Validate date format (YYYY-MM-DD HH:MM)
+                        const datePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+                        if (!datePattern.test(input.value)) {
+                            input.classList.add('is-invalid');
+                            hasDateError = true;
+                        } else {
+                            input.classList.remove('is-invalid');
+                        }
+                    }
+                });
+                
+                // If any date error, prevent form submission and show validation message
+                if (hasDateError) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const modalBody = document.getElementById('validationModalBody');
+                    modalBody.innerHTML = 'Please enter valid dates in the format YYYY-MM-DD HH:MM';
+                    validationModal.show();
+                    return false;
+                }
+            }, true); // Use capturing phase to ensure this runs before other handlers
+        }
+    });
 });
 
 // ===== Functions used on multiple pages =====
@@ -23,33 +67,43 @@ document.addEventListener('DOMContentLoaded', function() {
     // If we have a message, show the toast
     if (message) {
         // console.log('Showing toast:', message, success);  // Debug log
-        showToast(message, success === 'True');
+        // console.log("Success parameter:", success, typeof success);
+        showToast(message, success);
     }
 });
 
 // Toast behaviour
 function showToast(message, success = true) {
+    // console.log("Success value:", success, typeof success); // Debug log
+    
     const toast = document.getElementById('messageToast');
     const toastHeader = toast.querySelector('.toast-header');
     const toastTitle = document.getElementById('toastTitle');
     const toastMessage = document.getElementById('toastMessage');
-    const progressBar = document.getElementById('toastProgressBar'); // Get the progress bar
-
-    toastTitle.textContent = success ? 'Success' : 'Error';
-    toastMessage.textContent = message;
+    const progressBar = document.getElementById('toastProgressBar');
 
     // Reset all classes first
-    toast.classList.remove('border-success', 'border-danger');
-    toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+    toast.classList.remove('border-success', 'border-danger', 'border-warning');
+    toastHeader.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-white');
 
-    // Set appropriate styling based on success/error
-    if (success) {
+    // Set the appropriate title and styling based on status
+    if (success === "warning") {
+        toastTitle.textContent = 'Warning';
+        toast.classList.add('border-warning');
+        toastHeader.classList.add('bg-warning', 'text-white');
+    }
+    else if (success === "True" || success === "true" || success === true) {
+        toastTitle.textContent = 'Success';
         toast.classList.add('border-success');
         toastHeader.classList.add('bg-success', 'text-white');
-    } else {
-        toast.classList.add('border-danger');
+    }
+    else {
+        toastTitle.textContent = 'Error';
+        toast.classList.add('border-danger'); 
         toastHeader.classList.add('bg-danger', 'text-white');
     }
+    
+    toastMessage.textContent = message;
 
     const bsToast = new bootstrap.Toast(toast, {
         animation: true,
@@ -115,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
+// Global configuration of date pickers, including helper functions
 // Utility function to get Tempus Dominus instance and handle dates properly
 function getDatePicker(inputElement) {
     if (!inputElement) return null;
@@ -158,7 +212,79 @@ function parseDateForPicker(dateString) {
     }
 }
 
-// Global date picker function with validation
+// Function to validate date format (YYYY-MM-DD HH:MM)
+function validateDateInput(input) {
+    if (!input.value && input.hasAttribute('required')) {
+        input.classList.add('is-invalid');
+        return false;
+    }
+    
+    if (!input.value) {
+        // Empty but not required is valid
+        input.classList.remove('is-invalid');
+        return true;
+    }
+    
+    // Validate format (YYYY-MM-DD HH:MM)
+    const datePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+    if (!datePattern.test(input.value)) {
+        input.classList.add('is-invalid');
+        return false;
+    }
+    
+    // Validate that the date is real
+    try {
+        const parts = input.value.split(/[- :]/);
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // JS months are 0-based
+        const day = parseInt(parts[2], 10);
+        const hour = parseInt(parts[3], 10);
+        const minute = parseInt(parts[4], 10);
+        
+        // Check ranges
+        if (month < 0 || month > 11) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        if (day < 1 || day > 31) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        if (hour < 0 || hour > 23) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        if (minute < 0 || minute > 59) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        // Check for valid date (e.g., no February 31)
+        const date = new Date(year, month, day, hour, minute);
+        if (
+            date.getFullYear() !== year ||
+            date.getMonth() !== month ||
+            date.getDate() !== day ||
+            date.getHours() !== hour ||
+            date.getMinutes() !== minute
+        ) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        input.classList.remove('is-invalid');
+        return true;
+    } catch (err) {
+        console.error('Date validation error:', err);
+        input.classList.add('is-invalid');
+        return false;
+    }
+}
+
+// Updated date picker initialization with improved validation
 function initializeDatePickers(container = document) {
     // Find all date picker input groups inside the provided container
     const dateInputGroups = container.querySelectorAll('.date-input-group');
@@ -168,25 +294,40 @@ function initializeDatePickers(container = document) {
         const datePickerToggle = group.querySelector('.datepicker-toggle');
         
         if (!dateInput || !datePickerToggle) {
-            //console.log('Missing elements for date picker:', dateInput, datePickerToggle);
             return; // Skip if missing elements
         }
         
         // Store the picker instance in a data attribute
         if (dateInput._tempusDominus) {
-            //console.log('Picker already initialized for:', dateInput.id || 'unnamed input');
-            return;
+            return; // Already initialized
         }
 
-        //console.log('Initializing new picker for:', dateInput.id || 'unnamed input');
+        // Set current date/time by default for new forms
+        // We only do this for empty inputs, not for pre-filled ones
+        if (!dateInput.value) {
+            const now = new Date();
+            // Format as YYYY-MM-DD HH:MM
+            const formattedDate = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(now.getDate()).padStart(2, '0') + ' ' + 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0');
+            
+            dateInput.value = formattedDate;
+        }
 
-        // Initialize Tempus Dominus with the correct configuration structure
+        // Initialize Tempus Dominus with improved configuration
         const picker = new tempusDominus.TempusDominus(dateInput, {
             localization: {
                 format: 'yyyy-MM-dd HH:mm'
             },
             display: {
                 theme: 'light',
+                buttons: {
+                    today: true,
+                    clear: true,
+                    close: true
+                },
                 icons: {
                     time: 'bi bi-clock',
                     date: 'bi bi-calendar',
@@ -211,37 +352,35 @@ function initializeDatePickers(container = document) {
                 }
             },
             restrictions: {
-                // Setting min and max dates explicitly to avoid validation errors
                 minDate: new Date('1970-01-01 00:00'),
                 maxDate: new Date()
-            }
+            },
+            // Allow viewing the calendar without selecting anything
+            useCurrent: false
         });
         
         // Store the picker instance for later access
         dateInput._tempusDominus = picker;
 
-        // Enforce picker usage
-        dateInput.setAttribute('readonly', true);
+        // IMPORTANT: Remove readonly - allow manual typing
+        dateInput.removeAttribute('readonly');
 
-        // Force the calendar picker toggle to be clickable
-        datePickerToggle.style.cursor = 'pointer';
-        datePickerToggle.style.pointerEvents = 'auto';
-        datePickerToggle.style.zIndex = '100';
-        datePickerToggle.style.position = 'relative';
+        // Style the toggle for better visibility
+        datePickerToggle.classList.add('date-toggle-clickable');
+        
+        // ONLY open the date picker when the calendar icon is clicked
+        dateInput.removeEventListener('click', () => {
+            picker.show();
+        });
         
         // Define the function to toggle the picker
         function togglePicker(e) {
             e.preventDefault();
             e.stopPropagation();
-            //console.log('Toggle clicked for:', dateInput.id || 'unnamed input');
             
             try {
-                // Use the stored picker instance directly 
                 if (dateInput._tempusDominus) {
-                    //console.log('Found picker instance, toggling...');
                     dateInput._tempusDominus.toggle();
-                } else {
-                    console.error('No picker instance found for', dateInput.id || 'unnamed input');
                 }
             } catch (err) {
                 console.error('Error toggling picker:', err);
@@ -252,69 +391,132 @@ function initializeDatePickers(container = document) {
         
         // Remove any existing click listeners and add new one
         datePickerToggle.onclick = togglePicker;
-        
-        // Also make the input clickable to show picker
-        dateInput.addEventListener('click', function() {
-            try {
-                if (dateInput._tempusDominus) {
-                    dateInput._tempusDominus.show();
-                }
-            } catch (err) {
-                console.error('Error showing picker on input click:', err);
+
+        // Add validation for manually typed dates
+        dateInput.addEventListener('blur', function() {
+            validateDateInput(this);
+        });
+
+        // Also validate on input change
+        dateInput.addEventListener('input', function() {
+            // Don't add invalid class while typing,
+            // but do remove it if it becomes valid
+            if (validateDateInput(this)) {
+                this.classList.remove('is-invalid');
             }
+        });
+
+        // Ensure validation happens when the picker sets a date
+        picker.subscribe(tempusDominus.Namespace.events.change, (e) => {
+            validateDateInput(dateInput);
         });
 
         // Remove any invalid styling initially
         dateInput.classList.remove('is-invalid');
 
-        // Only add validation on hide/close of picker (like flatpickr did)
-        picker.subscribe(tempusDominus.Namespace.events.hide, (e) => {
-            if (!dateInput.value && dateInput.hasAttribute('required')) {
-                dateInput.classList.add('is-invalid');
-            } else {
-                dateInput.classList.remove('is-invalid');
-            }
-        });
-
-        // Also ensure validation happens on form submit
-        if (dateInput.hasAttribute('required')) {
-            const form = dateInput.closest('form');
-            if (form && !form.dataset.validationAdded) {
-                form.addEventListener('submit', function(e) {
-                    let isValid = true;
-                    
-                    form.querySelectorAll('input[required]').forEach(input => {
-                        if (!input.value) {
-                            input.classList.add('is-invalid');
-                            isValid = false;
-                        }
-                    });
-                    
-                    if (!isValid) {
-                        e.preventDefault();
-                        return false;
+        // Add validation to the form
+        const form = dateInput.closest('form');
+        if (form && !form.dataset.dateValidationAdded) {
+            // Store original submit handler if it exists
+            const originalSubmit = form.onsubmit;
+            
+            // Replace with our enhanced submit handler
+            form.onsubmit = function(e) {
+                // First, prevent default and stop propagation immediately
+                e.preventDefault();
+                e.stopPropagation();
+                
+                let isValid = true;
+                
+                // Validate all date inputs in this form
+                form.querySelectorAll('.datepicker-input').forEach(input => {
+                    if (!validateDateInput(input)) {
+                        isValid = false;
                     }
                 });
-                form.dataset.validationAdded = 'true';
-            }
+                
+                // Also validate other required inputs
+                form.querySelectorAll('input[required]:not(.datepicker-input)').forEach(input => {
+                    if (!input.value) {
+                        input.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                });
+                
+                // Prevent submission if invalid
+                if (!isValid) {
+                    // Show validation modal with message
+                    const validationModal = document.getElementById('validationModal');
+                    if (validationModal) {
+                        document.getElementById('validationModalBody').textContent = 
+                            'Please correct the invalid date format. Required format: YYYY-MM-DD HH:MM';
+                        new bootstrap.Modal(validationModal).show();
+                    }
+                    
+                    return false;
+                }
+                
+                // If we're valid, submit the form manually
+                if (originalSubmit && typeof originalSubmit === 'function') {
+                    // Call original handler
+                    const result = originalSubmit.call(this, e);
+                    if (result !== false) {
+                        form.submit();
+                    }
+                } else {
+                    // No original handler, just submit
+                    form.submit();
+                }
+                
+                // Always return false to prevent default form submission
+                return false;
+            };
             
-            // Ensure each individual submit button also triggers validation
-            // This ensures validation happens immediately with the Save button
-            const submitButtons = form?.querySelectorAll('button[type="submit"]');
-            if (submitButtons) {
-                submitButtons.forEach(button => {
-                    if (!button.dataset.validationAdded) {
-                        button.addEventListener('click', function(e) {
-                            if (!dateInput.value && dateInput.hasAttribute('required')) {
-                                dateInput.classList.add('is-invalid');
-                                e.preventDefault();
-                                return false;
+            form.dataset.dateValidationAdded = 'true';
+        }
+
+        // Ensure each submit button also triggers validation
+        const submitButtons = form?.querySelectorAll('button[type="submit"]');
+        if (submitButtons) {
+            submitButtons.forEach(button => {
+                if (!button.dataset.dateValidationAdded) {
+                    const originalClick = button.onclick;
+                    
+                    button.onclick = function(e) {
+                        const dateInputs = form.querySelectorAll('.datepicker-input');
+                        let isValid = true;
+                        
+                        dateInputs.forEach(input => {
+                            if (!validateDateInput(input)) {
+                                isValid = false;
                             }
                         });
-                        button.dataset.validationAdded = 'true';
-                    }
-                });
-            }
+                        
+                        if (!isValid) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Show validation modal with message
+                            const validationModal = document.getElementById('validationModal');
+                            if (validationModal) {
+                                document.getElementById('validationModalBody').textContent = 
+                                    'Invalid date format. Required format: YYYY-MM-DD HH:MM';
+                                new bootstrap.Modal(validationModal).show();
+                            }
+                            
+                            return false;
+                        }
+                        
+                        if (originalClick && typeof originalClick === 'function') {
+                            return originalClick.call(this, e);
+                        }
+                        
+                        return true;
+                    };
+                    
+                    button.dataset.dateValidationAdded = 'true';
+                }
+            });
         }
     });
 }
@@ -1025,6 +1227,36 @@ document.addEventListener('DOMContentLoaded', function() {
         editComponentStatusModal.addEventListener('shown.bs.modal', function() {
             initializeComponentForm(componentStatusForm);
         });
+        
+        // Enhanced version that stores original values and sets current date
+        editComponentStatusModal.addEventListener('show.bs.modal', function() {
+            // Set current date/time
+            const now = new Date();
+            const formattedDate = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(now.getDate()).padStart(2, '0') + ' ' + 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0');
+            
+            // Find the form elements
+            const dateInput = document.querySelector('#editComponentStatusModal #component_updated_date');
+            const statusSelect = document.querySelector('#editComponentStatusModal #component_installation_status');
+            const bikeSelect = document.querySelector('#editComponentStatusModal #component_bike_id');
+            
+            // Store original values before changing anything
+            if (dateInput) {
+                dateInput.dataset.originalValue = dateInput.value;
+                dateInput.value = formattedDate;
+            }
+            
+            if (statusSelect) {
+                statusSelect.dataset.originalValue = statusSelect.value;
+            }
+            
+            if (bikeSelect) {
+                bikeSelect.dataset.originalValue = bikeSelect.value;
+            }
+        });
     }
 });
 
@@ -1032,60 +1264,68 @@ document.addEventListener('DOMContentLoaded', function() {
 function addFormValidation(form) {
     if (!form) return;
 
-    form.addEventListener('submit', function(e) {
+    // Replace the submit event listener with a more robust approach
+    form.onsubmit = function(e) {
+        // Immediately prevent the default action
+        e.preventDefault();
+        
         const statusSelect = this.querySelector('[name="component_installation_status"]');
         const installationStatus = statusSelect.value;
         const bikeIdSelect = this.querySelector('[name="component_bike_id"]');
         const bikeId = bikeIdSelect.value;
-        //Switch for debugging to prevent form to submit
-        //e.preventDefault();
         
         // For status update modal, we need to check additional conditions
         if (form.id === 'component_status_form') {
-            const initialSelectedStatus = statusSelect.options[statusSelect.selectedIndex].defaultSelected ? statusSelect.value : null;
-            const initialBikeId = form.dataset.initialBikeId; 
+            // Use the stored original values from data attributes
+            const originalStatus = statusSelect.dataset.originalValue;
+            const originalBikeId = bikeIdSelect.dataset.originalValue || form.dataset.initialBikeId;
             const dateInput = this.querySelector('#component_updated_date');
-            const initialDate = dateInput.defaultValue;
+            const originalDate = dateInput.dataset.originalValue;
 
-            if (installationStatus === initialSelectedStatus && dateInput.value !== initialDate) {
-                e.preventDefault();
+            // Rule 1: Can't keep the same status
+            if (installationStatus === originalStatus) {
                 const modalBody = document.getElementById('validationModalBody');
-                modalBody.innerHTML = `Status cannot be changed to "${statusSelect.value}" since status is already "${installationStatus}"`;
+                modalBody.innerHTML = `Status cannot be changed to "${statusSelect.value}" since status is already "${originalStatus}"`;
                 validationModal.show();
-                return;
+                return false;
+            }
             
-            } else if (dateInput.value === initialDate) {
-                e.preventDefault();
+            // Rule 2: Date must change from original
+            if (dateInput.value === originalDate) {
                 const modalBody = document.getElementById('validationModalBody');
-                modalBody.innerHTML = `Updated date must be changed when updating status. Last updated date is ${initialDate}. Select a date after this date`;
+                modalBody.innerHTML = `Updated date must be changed when updating status. Last updated date is ${originalDate}. Select a date after this date`;
                 validationModal.show();
-                return;
+                return false;
+            }
 
-            } else if (installationStatus !== initialSelectedStatus && dateInput.value === initialDate) {
-                e.preventDefault();
+            // Rule 3: Status change requires date change (keeping this as fallback)
+            if (installationStatus !== originalStatus && dateInput.value === originalDate) {
                 const modalBody = document.getElementById('validationModalBody');
                 modalBody.innerHTML = `Status cannot be changed unless you also update record date`;
                 validationModal.show();
-                return;
-                // This rule is kept for fallback, but is not triggered due to rule above
+                return false;
+            }
 
-            } else if (installationStatus === 'Retired' && initialBikeId !== bikeId) {
-                e.preventDefault();
+            // Rule 4: Can't change bike assignment during retirement
+            if (installationStatus === 'Retired' && originalBikeId !== bikeId) {
                 const modalBody = document.getElementById('validationModalBody');
                 modalBody.innerHTML = `Bike assignment cannot be changed at time of retirement. If you need to unassign or change bike prior to retiring, uninstall or install component first`;
                 validationModal.show();
-                return;
+                return false;
             }
         }
 
         // Common validation for both forms
         if (installationStatus === 'Installed' && !bikeId) {
-            e.preventDefault();
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = 'Status cannot be set to "Installed" if no bike is selected';
             validationModal.show();
+            return false;
         }
-    });
+        
+        // If we got here, validation passed - manually submit the form
+        this.submit();
+    };
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1136,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle "New Service" button click
     document.querySelector('[data-bs-target="#serviceRecordModal"]')?.addEventListener('click', function() {
         // Set up modal for creating new service
-        document.getElementById('serviceRecordModalLabel').textContent = 'New Service Record';
+        document.getElementById('serviceRecordModalLabel').textContent = 'New service record';
         document.getElementById('serviceRecordForm').action = '/add_service_record';
         
         // Ensure component_id is set for new service
@@ -1144,8 +1384,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Clear other form fields
         document.getElementById('serviceId').value = '';
-        document.getElementById('serviceDate').value = '';
         document.getElementById('serviceDescription').value = '';
+
+        // Set current date/time by default
+        const now = new Date();
+        const formattedDate = now.getFullYear() + '-' + 
+        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(now.getDate()).padStart(2, '0') + ' ' + 
+        String(now.getHours()).padStart(2, '0') + ':' + 
+        String(now.getMinutes()).padStart(2, '0');
+
+        // Set this using setTimeout to ensure the value sticks
+        setTimeout(() => {
+            document.getElementById('serviceDate').value = formattedDate;
+        }, 100);
         
         serviceRecordModal.show();
     });
@@ -1154,7 +1406,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.edit-service-btn').forEach(button => {
         button.addEventListener('click', function() {
             // Set up modal for editing service
-            document.getElementById('serviceRecordModalLabel').textContent = 'Edit Service Record';
+            document.getElementById('serviceRecordModalLabel').textContent = 'Edit service record';
             document.getElementById('serviceRecordForm').action = '/update_service_record';
             
             // Fill in the form with existing data
@@ -1190,7 +1442,13 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===== Component types page functions =====
 
 // Function to modify component types
-window.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component types page
+    if (document.querySelector('h1#component-types') === null) return;
+    
+    // Get the component type modal
+    const componentTypeModal = new bootstrap.Modal(document.getElementById('componentTypeModal'));
+    
     // Modify record function: get all modify record buttons
     const modifyRecordButtons = document.querySelectorAll('.modify-record');
 
@@ -1198,24 +1456,239 @@ window.addEventListener('DOMContentLoaded', function() {
     modifyRecordButtons.forEach(button => {
         button.addEventListener('click', () => {
             const rowId = button.dataset.rowId;
-            modifyRecord(rowId);
+            const componentType = button.getAttribute('component_type');
+            modifyRecord(rowId, componentType);
+            
+            // Update modal title to indicate editing
+            document.getElementById('componentTypeModalLabel').textContent = 'Edit component type';
+
+            // Set mode to "update" when editing
+            document.getElementById('mode').value = "update";
+
+            // Disable the component_type field since it's a primary key
+            const componentTypeInput = document.getElementById('component_type');
+            componentTypeInput.readOnly = true;
+            componentTypeInput.classList.add('bg-light');
+            
+            // Show the modal after data is populated
+            componentTypeModal.show();
         });
     });
 
     // Define the modifyRecord function
-    function modifyRecord(rowId) {
+    function modifyRecord(rowId, componentType) {
         const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
         if (row) {
-            const componentType = row.cells[0].textContent;
-            const expectedLifetime = row.cells[1].textContent;
-            const serviceInterval = row.cells[2].textContent;
-
+            // Set component type (from column 1)
             document.getElementById('component_type').value = componentType;
-            document.getElementById('expected_lifetime').value = expectedLifetime;
-            document.getElementById('service_interval').value = serviceInterval;
+            
+            // Set max quantity (from column 2)
+            const maxQuantityCell = row.cells[2].textContent.trim();
+            document.getElementById('max_quantity').value = maxQuantityCell !== 'Not defined' ? 
+                maxQuantityCell : '';
+            
+            // Set mandatory radio buttons (from column 0)
+            const hasStar = row.cells[0].textContent.includes('⭐');
+            document.getElementById('mandatory_yes').checked = hasStar;
+            document.getElementById('mandatory_no').checked = !hasStar;
+            
+            // Set expected lifetime (from column 4)
+            const expectedLifetimeCell = row.cells[4].textContent.trim();
+            document.getElementById('expected_lifetime').value = expectedLifetimeCell !== 'Not defined' ? 
+                expectedLifetimeCell : '';
+            
+            // Set service interval (from column 5)
+            const serviceIntervalCell = row.cells[5].textContent.trim();
+            document.getElementById('service_interval').value = serviceIntervalCell !== 'Not defined' ? 
+                serviceIntervalCell : '';
+            
+            // No need to set service_interval_days since it's currently only a a placeholder
         } else {
             console.error(`Row with ID ${rowId} not found.`);
         }
+    }
+    
+    // Add handler for the "New component type" button
+    document.querySelector('[data-bs-toggle="modal"][data-bs-target="#componentTypeModal"]')?.addEventListener('click', function() {
+        // Reset the form
+        document.getElementById('component_type_form').reset();
+        
+        // Reset modal title to indicate creating new type
+        document.getElementById('componentTypeModalLabel').textContent = 'New component type';
+
+        // Enable the component_type field for new records
+        const componentTypeInput = document.getElementById('component_type');
+        componentTypeInput.readOnly = false;
+        componentTypeInput.classList.remove('bg-light');
+    });
+});
+
+// Add search filtering and sorting for component types table
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component types page
+    if (document.querySelector('h1#component-types') === null) return;
+    
+    const searchInput = document.getElementById('componentTypeSearchInput');
+    if (!searchInput) return;
+    
+    const table = document.querySelector('.card-body .table');
+    const headers = table.querySelectorAll('thead th');
+    const tableBody = table.querySelector('tbody');
+    const rows = tableBody.querySelectorAll('tr');
+    
+    // Skip if there are no rows or just one "no component types" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+    
+    // Add data-sort attribute and sort indicators to headers
+    headers.forEach((header, index) => {
+        // Skip only the last column (with action buttons)
+        if (index === headers.length - 1) return;
+        
+        // Add data-sort attribute to make headers sortable
+        header.setAttribute('data-sort', '');
+        
+        // Add sort indicator span if it doesn't exist
+        if (!header.querySelector('.sort-indicator')) {
+            const indicator = document.createElement('span');
+            indicator.className = 'sort-indicator';
+            header.appendChild(indicator);
+        }
+    });
+    
+    // Sorting function
+    const sortColumn = (index, asc = true) => {
+        const nodeList = Array.from(rows);
+        const compare = (rowA, rowB) => {
+            // Skip if td doesn't exist in row (for the "no component types defined" row)
+            if (!rowA.querySelectorAll('td')[index] || !rowB.querySelectorAll('td')[index]) return 0;
+            
+            // Get cell content and prepare for comparison
+            let cellA = rowA.querySelectorAll('td')[index].innerText.trim();
+            let cellB = rowB.querySelectorAll('td')[index].innerText.trim();
+            
+            // Different handling based on column type
+            switch(index) {
+                case 0: // Star (mandatory) column
+                    // Sort by presence of star (⭐)
+                    cellA = cellA.includes('⭐') ? 1 : 0;
+                    cellB = cellB.includes('⭐') ? 1 : 0;
+                    break;
+                    
+                case 1: // Type column
+                    // Compare case-insensitively for text
+                    cellA = cellA.toLowerCase();
+                    cellB = cellB.toLowerCase();
+                    break;
+                    
+                case 2: // Max per bike column
+                    // Extract numeric value or set to Infinity if "Not defined"
+                    cellA = cellA === 'Not defined' ? Infinity : parseInt(cellA, 10) || 0;
+                    cellB = cellB === 'Not defined' ? Infinity : parseInt(cellB, 10) || 0;
+                    break;
+                    
+                case 3: // Status use column
+                    // Extract number of components or set to 0 if none
+                    const numA = cellA.match(/(\d+) components/);
+                    const numB = cellB.match(/(\d+) components/);
+                    cellA = numA ? parseInt(numA[1], 10) : 0;
+                    cellB = numB ? parseInt(numB[1], 10) : 0;
+                    break;
+                    
+                case 4: // Expected life column
+                case 5: // Service interval (km) column
+                case 6: // Service interval (days) column
+                    // Extract numeric value or set to Infinity if "Not defined"
+                    cellA = cellA === 'Not defined' || cellA === 'N/A' ? Infinity : parseInt(cellA, 10) || 0;
+                    cellB = cellB === 'Not defined' || cellB === 'N/A' ? Infinity : parseInt(cellB, 10) || 0;
+                    break;
+            }
+            
+            // Compare based on formatted values
+            if (typeof cellA === 'number' && typeof cellB === 'number') {
+                return asc ? cellA - cellB : cellB - cellA;
+            } else {
+                return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+            }
+        };
+        
+        // Sort and reattach rows
+        nodeList.sort(compare);
+        nodeList.forEach(node => tableBody.appendChild(node));
+    };
+    
+    // Add click event to table headers
+    headers.forEach((header, index) => {
+        // Skip the last column (with action buttons)
+        if (index === headers.length - 1) return;
+        
+        header.addEventListener('click', () => {
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Remove sorted classes from all headers
+            headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+            
+            // Add appropriate class to clicked header
+            header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+            
+            sortColumn(index, isAscending);
+        });
+    });
+    
+    // Function to update row visibility based on search
+    function updateRowVisibility() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        rows.forEach(row => {
+            // Skip the "no component types defined" row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                return;
+            }
+            
+            // Get text from type column (column 1)
+            const type = row.cells[1].textContent.toLowerCase();
+            const matchesSearch = searchTerm === '' || type.includes(searchTerm);
+            
+            // Show/hide row based on search match
+            row.style.display = matchesSearch ? '' : 'none';
+        });
+        
+        // Show a message if no results found
+        const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+        const noResultsRow = table.querySelector('.no-results-row');
+        
+        if (visibleRows.length === 0 && searchTerm !== '') {
+            if (!noResultsRow) {
+                const tbody = table.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-results-row';
+                newRow.innerHTML = '<td colspan="8" class="text-center">No component types match your search</td>';
+                tbody.appendChild(newRow);
+            } else {
+                noResultsRow.style.display = '';
+            }
+        } else if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+    }
+    
+    // Listen for search input changes
+    searchInput.addEventListener('input', updateRowVisibility);
+    
+    // Clear search with Escape key
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.value = '';
+            updateRowVisibility();
+        }
+    });
+    
+    // Initial sort by Type column (index 1) in ascending order
+    if (headers.length > 1 && rows.length > 1) {
+        // Add sorted-asc class to the Type column header
+        headers[1].classList.add('sorted-asc');
+        
+        // Sort by Type column (index 1) in ascending order
+        sortColumn(1, true);
     }
 });
 

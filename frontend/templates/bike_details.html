@@ -121,6 +121,24 @@
         </div>
     </div>
     <div class="col-md-8">
+        {% if payload.bike_data.bike_retired == 'False' and (not payload.compliance_report.all_mandatory_present or not payload.compliance_report.no_max_quantity_exceeded) %}
+        <div class="card shadow mb-4">
+            <div class="alert alert-warning m-0">
+                <div class="d-flex align-items-center">
+                    <div class="fs-2 me-3">⚠</div>
+                    <div>
+                        <h5 class="card-title mb-2">Component type compliance issues</h5>
+                        {% if not payload.compliance_report.all_mandatory_present %}
+                        <p class="mb-1"><strong>Missing mandatory components:</strong> {{ payload.compliance_report.missing_mandatory }}</p>
+                        {% endif %}
+                        {% if not payload.compliance_report.no_max_quantity_exceeded %}
+                        <p class="mb-1"><strong>Components exceeding maximum quantity:</strong> {{ payload.compliance_report.exceeding_max_quantity }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span class="fw-bold">Components</span>
@@ -146,7 +164,7 @@
                             <th>Name</th>
                             <th>Type</th>
                             <th>Distance</th>
-                            <th class="text-center text-nowrap">Life <span class="fw-bold">|</span> srv</th>
+                            <th class="text-center text-nowrap">Life <span class="fw-bold">|</span> Srv</th>
                             <th class="text-center">Next service</th>
                             <th>Cost</th>
                         </tr>

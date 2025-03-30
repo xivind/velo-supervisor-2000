@@ -18,3 +18,7 @@ backend/config.json.example
 *.sh
 DOCKERFILE
 .dockerignore
+.gitignore
+.github
+.idx
+.venv

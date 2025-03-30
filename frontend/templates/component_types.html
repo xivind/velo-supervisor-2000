@@ -4,47 +4,52 @@
 
 {% block content %}
 <h1 id="component-types" class="display-5 mt-5 text-center">Component types</h1>
-<div class="mt-5 card shadow mb-3">
-    <div class="card-header fw-bold">Add or modify component type</div>
-    <div class="card-body">
-        <form id="component_type_form" class="row" action="/component_types_modify" method="post" enctype="application/x-www-form-urlencoded">
-            <div class="col mb-3">
-                <label for="component_type" class="form-label fw-bold">Type</label>
-                <input type="text" class="form-control" id="component_type" name="component_type" required>
-            </div>
-            <div class="col mb-3">
-                <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
-                <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime">
-            </div>
-            <div class="col mb-3">
-                <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
-                <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval">
-            </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary" form="component_type_form" id="submit_btn">Save</button>
-            </div>
-        </form>
+
+<button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#componentTypeModal">
+    <span>🏷 New component type</span>
+</button>
+
+{% include "modal_component_type.html" %}
+
+<hr/>
+<div class="mb-3 ms-2">
+    <div class="small text-secondary d-flex align-items-center">
+      <span style="width: 190px;">⭐ Mandatory on all bikes</span>
+      <span style="width: 270px;">🟩 In use by one or more components</span>
+      <span style="width: 250px;">🟥 Not used by any components</span>
     </div>
 </div>
-<div class="mt-5 card shadow mb-3">
-    <div class="card-header fw-bold">Available component types</div>
+<div class="card shadow mb-3">
+    <div class="card-header fw-bold">All component types</div>
     <div class="card-body">
+        <div class="input-group mb-3">
+            <span class="input-group-text">🔍</span>
+            <input type="text" class="form-control" id="componentTypeSearchInput" placeholder="Search component types..." aria-label="Search component types">
+        </div>
         <table class="table table-hover">
             <thead>
                 <tr>
+                    <th class="text-center"></th>
                     <th>Type</th>
-                    <th>Expected lifetime (km)</th>
-                    <th>Service interval (km)</th>
+                    <th>Max pr bike</th>
+                    <th>Status use</th>
+                    <th>Expected life (km)</th>
+                    <th>Service int (km)</th>
+                    <th>Service int (days)</th>
                     <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
                 {% if payload.component_types %}
-                    {% for component_type, expected_lifetime, service_interval in payload.component_types %}
+                    {% for component_type, expected_lifetime, service_interval, in_use, mandatory, max_quantity in payload.component_types %}
                     <tr data-row-id="{{ loop.index0 }}">
+                        <td class="text-center">{% if mandatory == "Yes" %}⭐{% endif %}</td>
                         <td>{{ component_type }}</td>
-                        <td>{% if expected_lifetime == None %}Not defined{% else %}{{ expected_lifetime }}{% endif %}</td>
-                        <td>{% if service_interval == None %}Not defined{% else %}{{ service_interval }}{% endif %}</td>
+                        <td>{% if max_quantity == None or max_quantity == 0 %}Not defined{% else %}{{ max_quantity }}{% endif %}</td>
+                        <td>{% if in_use > 0 %}🟩 {{ in_use }} components{% else %}🟥 No components{% endif %}</td>
+                        <td>{% if expected_lifetime == None or expected_lifetime == 0 %}Not defined{% else %}{{ expected_lifetime }}{% endif %}</td>
+                        <td>{% if service_interval == None or service_interval == 0 %}Not defined{% else %}{{ service_interval }}{% endif %}</td>
+                        <td class="text-secondary">N/A</td>
                         <td class="text-end">                    
                             <button type="button" class="mb-1 btn btn-outline-success btn-sm modify-record"
                                     component_type="{{ component_type }}"

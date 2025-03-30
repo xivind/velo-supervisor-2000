@@ -4,3 +4,4 @@
 backend/__pycache__/*
 backend/.mypy_cache/*
 backend/config.json
+.venv

@@ -106,9 +106,12 @@ class DatabaseManager:
 
         component_types_data = [(component_type.component_type,
                                  component_type.expected_lifetime,
-                                 component_type.service_interval) for component_type in component_types]
+                                 component_type.service_interval,
+                                 component_type.in_use,
+                                 component_type.mandatory,
+                                 component_type.max_quantity) for component_type in component_types]
 
-        component_types_data.sort(key=lambda x: x[0])
+        component_types_data.sort(key=lambda x: x[0].lower())
 
         return component_types_data
 
@@ -116,6 +119,13 @@ class DatabaseManager:
         """Method to retrieve record for a single component type"""
         return (ComponentTypes
                 .get_or_none(ComponentTypes.component_type == component_type))
+
+    def count_component_types_in_use(self, component_type):
+        """Method to count how many components that references a given component type"""
+        return (Components
+                .select()
+                .where(Components.component_type == component_type)
+                .count())
     
     def read_all_components(self):
         """Method to read content of components table"""
@@ -365,11 +375,11 @@ class DatabaseManager:
                      .update(**component_type_data)
                      .where(ComponentTypes.component_type == component_type_data["component_type"])
                      .execute())
-                    return True, f"Updated {component_type_data['component_type']}."
+                    return True, f"Updated component type {component_type_data['component_type']}"
             
                 else:
                     ComponentTypes.create(**component_type_data)
-                    return True, f"Created {component_type_data['component_type']}."
+                    return True, f"Created component type {component_type_data['component_type']}"
         
         except peewee.OperationalError as error:
             return False, f"{component_type_data['component_type']}: {str(error)}."
