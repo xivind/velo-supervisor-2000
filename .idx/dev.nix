@@ -13,6 +13,8 @@
     extensions = [
       "ms-python.python"
       "ms-python.pylint"
+      "ms-python.autopep8"
+      "ms-python.mypy-type-checker"
     ];
     workspace = {
       # Runs when a workspace is first created with this `dev.nix` file
