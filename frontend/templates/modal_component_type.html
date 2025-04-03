@@ -1,0 +1,54 @@
+<div class="modal fade" id="componentTypeModal" tabindex="-1" aria-labelledby="componentTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="componentTypeModalLabel">Component type</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="component_type_form" action="/component_types_modify" method="post" enctype="application/x-www-form-urlencoded">
+                <div class="modal-body">
+                    <input type="hidden" id="mode" name="mode" value="create">
+                    <div class="row">
+                        <!-- First row -->
+                        <div class="col-md-4 mb-3">
+                            <label for="component_type" class="form-label fw-bold">Type name</label>
+                            <input type="text" class="form-control" id="component_type" name="component_type" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="max_quantity" class="form-label fw-bold">Max per bike</label>
+                            <input type="number" min="0" step="1" class="form-control" id="max_quantity" name="max_quantity">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold d-block">Mandatory</label>
+                            <div class="form-check form-check-inline mt-2">
+                                <input class="form-check-input" type="radio" name="mandatory" id="mandatory_yes" value="Yes">
+                                <label class="form-check-label" for="mandatory_yes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="mandatory" id="mandatory_no" value="No" checked>
+                                <label class="form-check-label" for="mandatory_no">No</label>
+                            </div>
+                        </div>
+                        <!-- Second row -->
+                        <div class="col-md-4 mb-3">
+                            <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
+                            <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="service_interval" class="form-label fw-bold">Service interval (km)</label>
+                            <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="service_interval_days" class="form-label fw-bold">Service interval (days)</label>
+                            <input type="text" min="0" step="1" class="form-control" id="service_interval_days" name="service_interval_days" value="N/A" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submit_btn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

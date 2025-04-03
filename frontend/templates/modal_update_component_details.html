@@ -18,7 +18,7 @@
                     <div class="col-md-4 mb-3">
                         <label for="component_type" class="form-label fw-bold">Type</label>
                         <select class="form-select" id="component_type" name="component_type" required>
-                            {% for component_type, suggested_lifetime_expected, suggested_service_interval in payload.component_types_data %}
+                            {% for component_type, suggested_lifetime_expected, suggested_service_interval, in_use, mandatory, max_quantity in payload.component_types_data %}
                                 <option value="{{ component_type }}"
                                     expected_lifetime="{{ suggested_lifetime_expected }}"
                                     service_interval="{{ suggested_service_interval }}"
@@ -37,7 +37,7 @@
                         <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime" value="{{ payload.bike_component_data['lifetime_expected'] }}">
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label for="service_interval" class="form-label fw-bold">Serivce interval (km)</label>
+                        <label for="service_interval" class="form-label fw-bold">Service interval (km)</label>
                         <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="{{ payload.bike_component_data['service_interval'] }}">
                     </div>
                     <div class="col-md-3 mb-3">

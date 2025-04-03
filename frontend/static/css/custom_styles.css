@@ -78,10 +78,127 @@ th[data-sort].sorted-desc .sort-indicator::after {
     transform: translateY(-1px);
 }
 
+/* Date Picker Styling */
+
 /* Styling of calendar toggle */
 .date-toggle-clickable {
     cursor: pointer !important;
     pointer-events: auto !important;
     z-index: 100;
     position: relative;
+}
+
+/* Style for the date input */
+.date-input-group .datepicker-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Improve the calendar icon appearance */
+.date-input-group .datepicker-toggle {
+    cursor: pointer;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-left: none;
+    padding: 0.375rem 0.75rem;
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.date-input-group .datepicker-toggle:hover {
+    background-color: #e9ecef;
+}
+
+/* Style the Tempus Dominus calendar */
+.tempus-dominus-widget {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    background-color: #f0f7ff !important;
+}
+
+/* Style the header of the calendar */
+.tempus-dominus-widget .date-container-days .date-container-header {
+    background-color: #e6f2ff !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+
+/* Improve the today button visibility */
+.tempus-dominus-widget .date-container-days .date-container-days-today {
+    background-color: #daeaff !important;
+    font-weight: bold;
+}
+
+/* Style the selected date */
+.tempus-dominus-widget .date-container-days .date-container-days-selected {
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 50%;
+}
+
+/* Style for hover effect on dates */
+.tempus-dominus-widget .date-container-days .date-container-days-day:hover {
+    background-color: #daeaff !important;
+    border-radius: 50%;
+    transition: background-color 0.15s ease-in-out;
+}
+
+/* Make invalid date inputs more visible */
+.datepicker-input.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Fix to prevent date picker from being cut off at the bottom of modals */
+.modal .tempus-dominus-widget {
+    z-index: 1056 !important; /* Higher than modal backdrop */
+}
+
+/* Improved button styles in the date picker */
+.tempus-dominus-widget button {
+    border-radius: 0.25rem;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.tempus-dominus-widget button:hover {
+    background-color: #e9ecef;
+}
+
+/* Additional date picker selectors for comprehensive styling */
+.tempus-dominus-widget header {
+    background-color: #e6f2ff !important;
+}
+
+.tempus-dominus-widget .date-container-days,
+.tempus-dominus-widget .time-container {
+    background-color: #f0f7ff !important;
+}
+
+.tempus-dominus-widget .active,
+.tempus-dominus-widget .date-container-days .active {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+.tempus-dominus-widget .month:hover,
+.tempus-dominus-widget .year:hover,
+.tempus-dominus-widget .decade:hover {
+    background-color: #daeaff !important;
+}
+
+.tempus-dominus-widget footer button {
+    background-color: #e6f2ff !important;
+    border: 1px solid #c9e2ff !important;
+    color: #0d6efd !important;
+}
+
+.tempus-dominus-widget footer button:hover {
+    background-color: #c9e2ff !important;
 }

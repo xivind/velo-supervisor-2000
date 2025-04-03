@@ -56,7 +56,9 @@ class BusinessLogic():
                             if component.installation_status == "Installed" and
                             (component.lifetime_status == "Due for replacement" or
                             component.service_status == "Due for service"))
-            
+
+            compliance_report = self.process_bike_compliance_report(bike_id)
+
             bikes_data.append((bike_name,
                                bike_id,
                                bike_retired,
@@ -64,7 +66,8 @@ class BusinessLogic():
                                total_distance,
                                count_installed,
                                critical_count,
-                               warning_count))
+                               warning_count,
+                               compliance_report))
 
         payload = {"bikes_data": bikes_data}
 
@@ -110,6 +113,8 @@ class BusinessLogic():
                               ride.commute
                               ) for ride in recent_rides]
 
+        compliance_report = self.process_bike_compliance_report(bike_id)
+
         payload = {"recent_rides": recent_rides_data,
                    "bikes_data": bikes_data,
                    "bike_data": bike_data,
@@ -127,7 +132,8 @@ class BusinessLogic():
                    "count_service_status_red" : component_statistics["count_service_status_red"],
                    "count_service_status_purple" : component_statistics["count_service_status_purple"],
                    "count_service_status_grey" : component_statistics["count_service_status_grey"],
-                   "sum_cost" : component_statistics["sum_cost"]}
+                   "sum_cost" : component_statistics["sum_cost"],
+                   "compliance_report": compliance_report}
         
         return payload
     
@@ -299,13 +305,13 @@ class BusinessLogic():
                    "component_history_data": component_history_data,
                    "service_history_data": service_history_data,
                    "elapsed_days": elapsed_days}
-        
+
         return payload
 
     def get_component_types(self):
         """Method to get all component types"""
         payload = {"component_types": database_manager.read_all_component_types()}
-        
+
         return payload
     
     async def pull_strava_background(self, mode):
@@ -762,10 +768,24 @@ class BusinessLogic():
                                                                                         new_component_data["service_interval"],
                                                                                         new_component_data["component_distance_offset"])
 
+                self.update_component_type_count(component_type)
+
             else:
                 logging.error(message)
 
-            return success, f"Component {component_name} successfully created" if success else f"Creation of component {component_name} failed", component_id
+            if success:
+                if component_bike_id:
+                    bike = database_manager.read_single_bike(component_bike_id)
+                    if bike.bike_retired == "False":
+                        compliance_report = self.process_bike_compliance_report(component_bike_id)
+                        if not compliance_report["all_mandatory_present"] or not compliance_report["no_max_quantity_exceeded"]:
+                            logging.warning(f"Component {component_name} successfully created. Use of component types on {bike.bike_name} are not compliant")
+                            return "warning", f"Component {component_name} successfully created. Use of component types on {bike.bike_name} are not compliant. See bike details for more information", component_id
+                
+                return success, f"Component {component_name} successfully created", component_id
+
+            else:
+                return success, f"Creation of component {component_name} failed", component_id
 
         except Exception as error:
             logging.error(f"An error occurred creating component {component_name}: {str(error)}")
@@ -813,10 +833,26 @@ class BusinessLogic():
                 logging.info(message)
                 updated_component = database_manager.read_component(component_id)
                 self.update_component_distance(component_id, updated_component.component_distance - component.component_distance_offset)
+
+                if component.component_type != new_component_data["component_type"]:
+                    self.update_component_type_count(component.component_type)
+                    self.update_component_type_count(new_component_data["component_type"])
             else:
                 logging.error(message)
 
-            return success, message, component_id
+            if success:
+                if component_bike_id:
+                    bike = database_manager.read_single_bike(component_bike_id)
+                    if bike.bike_retired == "False":
+                        compliance_report = self.process_bike_compliance_report(component_bike_id)
+                        if not compliance_report["all_mandatory_present"] or not compliance_report["no_max_quantity_exceeded"]:
+                            logging.warning(f"Component {component_name} successfully updated. Use of component types on {bike.bike_name} are not compliant")
+                            return "warning", f"Component {component_name} successfully updated. Use of component types on {bike.bike_name} are not compliant. See bike details for more information", component_id
+                
+                return success, message, component_id
+
+            else:
+                return success, message, component_id
 
         except Exception as error:
             logging.error(f"An error occurred modifying component details {component_name}: {str(error)}")
@@ -829,7 +865,7 @@ class BusinessLogic():
                               component_updated_date):
         """Method to create installation history record"""
         try:
-            history_id = f'{component_updated_date} {component_id}'
+            history_id = generate_unique_id()
             component = database_manager.read_component(component_id)
 
             success, message = self.validate_history_record("create history", component_id, history_id, component_updated_date, installation_status, component_bike_id)
@@ -859,6 +895,14 @@ class BusinessLogic():
                 return success, message
             
             if success:
+                if component_bike_id and installation_status != "Not installed":
+                    bike = database_manager.read_single_bike(component_bike_id)
+                    if bike.bike_retired == "False":
+                        compliance_report = self.process_bike_compliance_report(component_bike_id)
+                        if not compliance_report["all_mandatory_present"] or not compliance_report["no_max_quantity_exceeded"]:
+                            logging.warning(f"{message}. Use of component types on {bike.bike_name} are not compliant")
+                            return "warning", f"{message}. Use of component types on {bike.bike_name} are not compliant. See bike details for more information"
+                
                 logging.info(f"Creation of history record successful: {message}")
             else:
                 logging.error(f"Creation of history record failed: {message}")
@@ -876,7 +920,7 @@ class BusinessLogic():
             current_history = database_manager.read_single_history_record(history_id)
             component = database_manager.read_component(current_history.component_id)
 
-            success, message = self.validate_history_record("edit history", current_history.component_id, history_id, updated_date, current_history.update_reason, current_history.bike_id) #What is sent when bike_id is not assigned, None or 'None'?
+            success, message = self.validate_history_record("edit history", current_history.component_id, history_id, updated_date, current_history.update_reason, current_history.bike_id)
             if not success:
                 logging.error(f"Validation of history record failed: {message}")
                 return success, message
@@ -927,8 +971,8 @@ class BusinessLogic():
             return False, message
         
         if updated_date > datetime.now().strftime("%Y-%m-%d %H:%M"):
-            logging.warning(f"History date cannot be in the future. Component: {component.component_name}")
-            return False, f"History date cannot be in the future. Component: {component.component_name}"
+            logging.warning(f"Updated date cannot be in the future. Component: {component.component_name}")
+            return False, f"Updated date cannot be in the future. Component: {component.component_name}"
 
         if mode == "create history":
             logging.info(f"Running validation rules for creation of history records: {history_id}.")
@@ -1096,7 +1140,6 @@ class BusinessLogic():
             return True, "Successfully processed history records and related services"
 
         except Exception as error:
-            print(f"Error message: {error}")
             logging.error(f"An error occurred processing history records for component {component_id}: {str(error)}")
             return False, f"Error processing history records for component {component_id}: {str(error)}"
       
@@ -1359,18 +1402,85 @@ class BusinessLogic():
                 status = "Lifetime exceeded"
 
         return status
-    
+
+    def process_bike_compliance_report(self, bike_id):
+        """Method to check if a bike has all mandatory components and respects max quantities"""
+        compliance_report = {"all_mandatory_present": True,
+                             "no_max_quantity_exceeded": True,
+                             "missing_mandatory": [],
+                             "exceeding_max_quantity": {}}
+
+        component_types_raw = database_manager.read_all_component_types()
+
+        component_types = {component_type[0]:
+                                {'expected_lifetime': component_type[1],
+                                 'service_interval': component_type[2],
+                                 'in_use': component_type[3],
+                                 'mandatory': component_type[4],
+                                 'max_quantity': component_type[5]} for component_type in component_types_raw}
+
+        installed_components_raw = database_manager.read_subset_installed_components(bike_id)
+        installed_components = list(installed_components_raw)
+
+        component_counts = {}
+        for component in installed_components:
+            component_type = component.component_type
+            if component_type in component_counts:
+                component_counts[component_type] += 1
+            else:
+                component_counts[component_type] = 1
+        
+        for component_type, properties in component_types.items():
+            if properties['mandatory'] == 'Yes':
+                if component_type not in component_counts:
+                    compliance_report["all_mandatory_present"] = False
+                    compliance_report["missing_mandatory"].append(component_type)
+
+            if properties['max_quantity'] is not None and properties['max_quantity'] > 0:
+                if component_type in component_counts and component_counts[component_type] > properties['max_quantity']:
+                    compliance_report["no_max_quantity_exceeded"] = False
+                    compliance_report["exceeding_max_quantity"][component_type] = {"current": component_counts[component_type],
+                                                                                   "max_allowed": properties['max_quantity']}
+        
+        compliance_report["missing_mandatory"] = ", ".join(compliance_report["missing_mandatory"]) if compliance_report["missing_mandatory"] else "None"
+        
+        if compliance_report["exceeding_max_quantity"]:
+            exceeded_strings = []
+            for comp_type, details in compliance_report["exceeding_max_quantity"].items():
+                exceeded_strings.append(f"{comp_type} (has {details['current']} / max {details['max_allowed']})")
+            compliance_report["exceeding_max_quantity"] = ", ".join(exceeded_strings)
+        else:
+            compliance_report["exceeding_max_quantity"] = "None"
+        
+        return compliance_report
+
     def modify_component_type(self,
-                              component_type,
-                              expected_lifetime,
-                              service_interval):
+                            component_type,
+                            expected_lifetime,
+                            service_interval,
+                            mandatory,
+                            max_quantity,
+                            mode):
         """Method to create or update component types"""
         expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
         service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
+        max_quantity = int(max_quantity) if max_quantity and max_quantity.isdigit() else None
 
+        in_use = database_manager.count_component_types_in_use(component_type)
+        
         component_type_data = {"component_type": component_type,
                             "service_interval": service_interval,
-                            "expected_lifetime": expected_lifetime}
+                            "expected_lifetime": expected_lifetime,
+                            "in_use": in_use,
+                            "mandatory": mandatory,
+                            "max_quantity": max_quantity}
+
+        if mode == "create":
+            all_component_types_raw = database_manager.read_all_component_types()
+            lowercase_component_types = [item[0].lower() for item in all_component_types_raw]
+            if component_type.lower() in lowercase_component_types:
+                logging.warning(f"Component type '{component_type}' already exists. Duplicate component types are not allowed. New component type not created")
+                return False, f"Component type '{component_type}' already exists. Duplicate component types are not allowed. New component type not created"
 
         success, message = database_manager.write_component_type(component_type_data)
 
@@ -1381,6 +1491,31 @@ class BusinessLogic():
 
         return success, message
 
+    def update_component_type_count(self, component_type):
+        """Method to update only the count of components for a given component type"""
+        existing_type = database_manager.read_single_component_type(component_type)
+        
+        if existing_type:
+            in_use = database_manager.count_component_types_in_use(component_type)
+            
+            component_type_data = {"component_type": component_type,
+                                   "service_interval": existing_type.service_interval,
+                                   "expected_lifetime": existing_type.expected_lifetime,
+                                   "in_use": in_use,
+                                   "mandatory": existing_type.mandatory,
+                                   "max_quantity": existing_type.max_quantity}
+            
+            success, message = database_manager.write_component_type(component_type_data)
+            
+            if success:
+                logging.info(f"Component type count updated: {component_type} used by {in_use} components")
+            else:
+                logging.error(f"Component type count update failed: {message}")
+            
+            return success, message
+        
+        return False, f"Component type not found: {component_type}"
+    
     def delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         logging.info(f"Attempting to delete record with id {record_id} from table {table_selector}")
@@ -1401,7 +1536,15 @@ class BusinessLogic():
                 return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id
         
         elif table_selector == "Components":
+            component = database_manager.read_component(record_id)
+            component_type = component.component_type
             bike_id = database_manager.read_component(record_id).bike_id
+        
+        elif table_selector == "ComponentTypes":
+            component_type = database_manager.read_single_component_type(record_id)
+            if component_type.in_use > 0:
+                logging.warning(f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted")
+                return False, f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted", component_id
 
         success, message = database_manager.write_delete_record(table_selector, record_id)
 
@@ -1450,6 +1593,7 @@ class BusinessLogic():
                     return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id
                 
             elif table_selector == "Components":
+                self.update_component_type_count(component_type)
                 if bike_id:
                     self.update_bike_status(bike_id)
         
