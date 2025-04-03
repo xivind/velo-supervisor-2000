@@ -40,11 +40,20 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.4.2**  
-*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.1 OR EARLIER, USE PROVIDED MIGRATION SCRIPT.*
+**Planned for v0.4.3**  
 - See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
-**v0.4.1 (CURRENT)**
+**v0.4.2 (CURRENT)**  
+*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.1 OR EARLIER, USE PROVIDED MIGRATION SCRIPT.*
+- The updates in this version require a database migration. Use python3 to run the script db_migration.py from the backend folder. The script will check config.json to find the database, optionally the user will be prompted by the script to enter the path manually. Remember to backup the database first.  
+- Possible to define mandatory component types and max quantities for any component type. Compliance for each bike is showed on landing page and bike details page. Remember to configure mandatory components and max quantities from component type page
+- Improved handling of component types with better data validation and more intuitive GUI, sorting / searching of table etc
+- Improved generation of unique IDs for installation history records. Ids no longer contain any information, except the ID itself
+- Improvements in date picker functionality: dates can now be entered directly without using the picker, todays date time are prefilled for new records while date time is inherited from existing records when editing, improve gui for picker
+- Fixed a bug that caused estimates for next service to be too high
+- Fixed a bug that prevented services to be added using date time now
+
+**v0.4.1**
 - Made it possible to add components to retired bikes and change status on components assigned to retired bikes
 - Switched date picker library from Flatpickr to Tempus Dominus (enables use on mobile devices)
 - Added type ahead search in component tables
