@@ -32,6 +32,7 @@ Velo Supervisor 2000 uses <a href="https://semver.org/" class="text-decoration-n
 As a principle, development is to be done in the dev-branch. When changes are ready for testing and quality assurance, they should be merged into the staging branch. If tests and quality assurance completes successfully, the changes shall be merged from staging branch into the master branch. Review the changes in the PR and create a new version tag, according to the SemVer scheme, before merging into master.
 
 ## Changelog
+*To see whats coming in the next release, check out the [project board](https://github.com/users/xivind/projects/2/views/1). All items marked as P0 are planned for the next release.*
 
 **Future releases**
 - GUI optimized for mobile devices
@@ -39,10 +40,11 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.4.2**
-- TBD
+**Planned for v0.4.2**  
+*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.1 OR EARLIER, USE PROVIDED MIGRATION SCRIPT.*
+- See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
-**Planned for v0.4.1 (CURRENT)**
+**v0.4.1 (CURRENT)**
 - Made it possible to add components to retired bikes and change status on components assigned to retired bikes
 - Switched date picker library from Flatpickr to Tempus Dominus (enables use on mobile devices)
 - Added type ahead search in component tables
