@@ -47,7 +47,7 @@ As a principle, development is to be done in the dev-branch. When changes are re
 **v0.4.2 (CURRENT)**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.1 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
 
-- The updates in this version require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://www.python.org/downloads/). The script will check config.json to find the database, optionally the user will be prompted by the script to enter the path manually. Remember to backup the database first.  
+- The updates in this version require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script will check config.json to find the database, optionally the user will be prompted by the script to enter the path manually. Remember to backup the database first.  
 - Possible to define mandatory component types and max quantities for any component type. Compliance for each bike is showed on landing page and bike details page. Remember to configure mandatory components and max quantities from component type page
 - Improved handling of component types with better data validation and more intuitive GUI, sorting / searching of table etc
 - Improved generation of unique IDs for installation history records. Ids no longer contain any information, except the ID itself
