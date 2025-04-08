@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Incident reports - Velo Supervisor 2000{% endblock %}
+
+{% block content %}
+<h1 id="component-overview" class="display-5 mt-5 text-center">Incident reports</h1>
+  
+<button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+    <span>🚨 New incident</span>
+</button>
+
+{% include "modal_incident_record.html" %}
+
+<hr/>
+<div class="mb-3 ms-2">
+    <div class="small text-secondary d-flex align-items-center">
+      <span class="fw-bold" style="width: 170px;">Lifetime / service status:</span>
+      <span style="width: 50px;">🟢 OK</span>
+      <span style="width: 240px;">🟡 End of life / service approaching</span>
+      <span style="width: 220px;">🔴 Due for replacement / service</span>
+      <span style="width: 200px;">🟣 Lifetime / service exceeded</span>
+      <span>⚪ Lifetime / serivce not defined</span>
+    </div>
+</div>
+<div class="card shadow mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold">All components</span>
+        <div class="d-flex gap-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showInstalledComponents" checked>
+                <label class="form-check-label fw-bold" for="showInstalledComponents">Show installed</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showNotInstalledComponents" checked>
+                <label class="form-check-label fw-bold" for="showNotInstalledComponents">Show not installed</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showRetiredComponents">
+                <label class="form-check-label fw-bold" for="showRetiredComponents">Show retired</label>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="input-group mb-3">
+            <span class="input-group-text">🔍</span>
+            <input type="text" class="form-control" id="allComponentsSearchInput" placeholder="Search all components... (use status filters to narrow results)" aria-label="Search components">
+        </div>
+        <table class="table table-hover" id="componentsTable">
+            <thead>
+                <tr>
+                    <th data-sort="name">Status <span class="sort-indicator"></span></th>
+                    <th data-sort="type">Severity <span class="sort-indicator"></span></th>
+                    <th data-sort="distance">Description <span class="sort-indicator"></span></th>
+                    <th data-sort="status">Last updated <span class="sort-indicator"></span></th>
+                    <th data-sort="lifetime">Lifetime <span class="sort-indicator"></span></th>
+                    <th data-sort="service">Service <span class="sort-indicator"></span></th>
+                    <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if payload.component_data %}
+                    {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.component_data %}
+                        <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
+                            <td>{{ name }}</td>
+                            <td>{{ type }}</td>
+                            <td>{{ component_distance }} km</td>
+                            <td>
+                                {% if installation_status == "Installed" %}
+                                ⚡
+                                {% elif installation_status == "Not installed" %}
+                                💤
+                                {% elif installation_status == "Retired" %}
+                                ⛔
+                                {% endif %}
+                                {{ installation_status }}
+                            </td>
+                            <td class="text-center">
+                                {% if lifetime_status == "OK" %}
+                                🟢
+                                {% elif lifetime_status == "End of life approaching" %}
+                                🟡
+                                {% elif lifetime_status == "Due for replacement" %}
+                                🔴
+                                {% elif lifetime_status == "Lifetime exceeded" %}
+                                🟣
+                                {% elif lifetime_status == "Not defined" %}
+                                ⚪
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if service_status == "OK" %}
+                                🟢
+                                {% elif service_status == "Service approaching" %}
+                                🟡
+                                {% elif service_status == "Due for service" %}
+                                🔴
+                                {% elif service_status == "Service interval exceeded" %}
+                                🟣
+                                {% elif service_status == "Not defined" %}
+                                ⚪
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ bike }}
+                            </td>
+                            <td class="text-end">
+                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}" onclick="event.stopPropagation();">🗑</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No components registered</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
