@@ -49,7 +49,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
-    asyncio.create_task(business_logic.pull_strava_background("recent"))
+    #asyncio.create_task(business_logic.pull_strava_background("recent"))
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
@@ -77,7 +77,7 @@ async def bike_details(request: Request,
 
 @app.get("/component_overview", response_class=HTMLResponse)
 async def component_overview(request: Request):
-    """Endpoint for components page"""
+    """Endpoint for components overview page"""
     
     payload = business_logic.get_component_overview()
     template_path = "component_overview.html"
@@ -85,6 +85,28 @@ async def component_overview(request: Request):
     return templates.TemplateResponse(template_path,
                                       {"request": request,
                                        "payload": payload})
+
+@app.get("/incident_reports", response_class=HTMLResponse)
+async def incident_reports(request: Request):
+    """Endpoint for incident reports page"""
+    
+    #payload = business_logic.get_component_overview()
+    template_path = "incident_reports.html"
+    
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "payload": "payload"}) #Alter later
+
+@app.get("/workplan", response_class=HTMLResponse)
+async def workplan(request: Request):
+    """Endpoint for incident reports page"""
+    
+    #payload = business_logic.get_component_overview()
+    template_path = "component_overview.html" #Alter later
+    
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "payload": "payload"}) #Alter later
 
 @app.get("/component_details/{component_id}", response_class=HTMLResponse)
 async def component_details(request: Request,
