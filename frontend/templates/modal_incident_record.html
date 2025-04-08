@@ -1,0 +1,81 @@
+<div class="modal fade" id="createComponentModal" tabindex="-1" aria-labelledby="createComponentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">  <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="createComponentModalLabel">Create component</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="component_overview_form" class="row" action="/create_component" method="post" enctype="application/x-www-form-urlencoded">
+                    <div class="col-md-3 mb-3">
+                        <label for="component_updated_date" class="form-label fw-bold">Updated date</label>
+                        <div class="input-group date-input-group">
+                            <input type="text" class="form-control datepicker-input" id="component_updated_date" name="component_updated_date" value="" required>
+                            <span class="input-group-text datepicker-toggle">🗓</span>
+                        </div>
+                    </div>  
+                    <div class="col-md-3 mb-3">
+                        <label for="component_name" class="form-label fw-bold">Name</label>
+                        <input type="text" class="form-control" id="component_name" name="component_name" value="{{ duplicate_data.component_name if duplicate_data else '' }}" required>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="component_type" class="form-label fw-bold">Type</label>
+                        <select class="form-select" id="component_type" name="component_type" required>
+                            <option value="" {% if not duplicate_data %}selected{% endif %}></option>
+                            {% for component_type, suggested_lifetime_expected, suggested_service_interval, in_use, mandatory, max_quantity in payload.component_types_data %}
+                                <option value="{{ component_type }}" 
+                                        expected_lifetime="{{ suggested_lifetime_expected }}" 
+                                        service_interval="{{ suggested_service_interval }}"
+                                        {% if duplicate_data and component_type == duplicate_data.component_type %}selected{% endif %}>
+                                    {{ component_type }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="component_bike_id" class="form-label fw-bold">Bike</label>
+                        <select class="form-select" id="component_bike_id" name="component_bike_id">
+                            <option value="" {% if not duplicate_data or not duplicate_data.bike_id %}selected{% endif %}></option>
+                                {% for bike_name, bike_id in payload.bikes_data %}
+                                    <option value="{{ bike_id }}"
+                                        {% if duplicate_data and bike_id == duplicate_data.bike_id %}selected{% endif %}>
+                                        {{ bike_name }}
+                                    </option>
+                                {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-1 mb-3">
+                        <label for="cost" class="form-label fw-bold">Cost</label>
+                        <input type="number" min="0" step="1" class="form-control" id="cost" name="cost" value="{{ duplicate_data.cost if duplicate_data else '' }}">
+                    </div>
+                    <div class="col-md-1 mb-3">
+                        <label for="offset" class="form-label fw-bold">Offset</label>
+                        <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="expected_lifetime" class="form-label fw-bold">Lifetime exp. (km)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime" value="{{ duplicate_data.lifetime_expected if duplicate_data else '' }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="service_interval" class="form-label fw-bold">Service int. (km)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="{{ duplicate_data.service_interval if duplicate_data else '' }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="component_installation_status" class="form-label fw-bold">Status</label>
+                        <select class="form-select" id="component_installation_status" name="component_installation_status" required>
+                            <option value="Installed" {% if duplicate_data and duplicate_data.bike_id %}selected{% endif %}>Installed</option>
+                            <option value="Not installed" {% if not duplicate_data or (duplicate_data and not duplicate_data.bike_id) %}selected{% endif %}>Not installed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="component_notes" class="form-label fw-bold">Notes</label>
+                        <textarea class="form-control" id="component_notes" name="component_notes" rows="1">{{ duplicate_data.component_notes if duplicate_data else '' }}</textarea>
+                    </div>
+                </form>
+                <div class="modal-footer px-0 pb-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" form="component_overview_form" id="submit_btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
