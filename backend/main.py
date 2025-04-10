@@ -97,7 +97,7 @@ async def incident_reports(request: Request):
                                       {"request": request,
                                        "payload": "payload"}) #Alter later
 
-@app.get("/workplan", response_class=HTMLResponse)
+@app.get("/workplan", response_class=HTMLResponse) #Placeholder
 async def workplan(request: Request):
     """Endpoint for incident reports page"""
     
