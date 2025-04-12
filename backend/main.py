@@ -90,19 +90,19 @@ async def component_overview(request: Request):
 async def incident_reports(request: Request):
     """Endpoint for incident reports page"""
     
-    #payload = business_logic.get_component_overview()
+    #payload = business_logic.get_incident_reports()
     template_path = "incident_reports.html"
     
     return templates.TemplateResponse(template_path,
                                       {"request": request,
                                        "payload": "payload"}) #Alter later
 
-@app.get("/workplan", response_class=HTMLResponse) #Placeholder
-async def workplan(request: Request):
-    """Endpoint for incident reports page"""
+@app.get("/workplans", response_class=HTMLResponse) #Placeholder
+async def workplan_all(request: Request):
+    """Endpoint for workplan page"""
     
     #payload = business_logic.get_component_overview()
-    template_path = "component_overview.html" #Alter later
+    template_path = "workplans.html" #Alter later
     
     return templates.TemplateResponse(template_path,
                                       {"request": request,
@@ -309,6 +309,44 @@ async def update_service_record(component_id: str = Form(...),
 
     return response
 
+@app.post("/add_incident_record", response_class=HTMLResponse) #IN PROGRESS
+async def add_incident_record(incident_date: str = Form(...),
+                              incident_status: str = Form(...),
+                              incident_severity: str = Form(...),
+                              affected_component_ids: Optional[str] = Form(None),
+                              affected_bike_id: Optional[str] = Form(None),
+                              incident_description: Optional[str] = Form(None),
+                              resolution_date: Optional[str] = Form(None),
+                              resolution_notes: Optional[str] = Form(None)):
+    """Endpoint to update an existing component history record"""
+
+    success, message = business_logic.create_incident_record(TBD)
+
+    response = RedirectResponse(
+        url=f"/incident_reports?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
+@app.post("/update_incident_record", response_class=HTMLResponse) #IN PROGRESS
+async def update_incident_record(incident_id: str = Form(...),
+                              incident_date: str = Form(...),
+                              incident_status: str = Form(...),
+                              incident_severity: str = Form(...),
+                              affected_component_ids: Optional[str] = Form(None),
+                              affected_bike_id: Optional[str] = Form(None),
+                              incident_description: Optional[str] = Form(None),
+                              resolution_date: Optional[str] = Form(None),
+                              resolution_notes: Optional[str] = Form(None)):
+    """Endpoint to update an existing component history record"""
+
+    success, message = business_logic.update_incident_record(TBD)
+
+    response = RedirectResponse(
+        url=f"/incident_reports?success={success}&message={message}",
+        status_code=303)
+
+    return response
 
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
 async def refresh_all_bikes(request: Request):
