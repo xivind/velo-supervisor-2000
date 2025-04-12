@@ -3,58 +3,51 @@
 {% block title %}Incident reports - Velo Supervisor 2000{% endblock %}
 
 {% block content %}
-<h1 id="component-overview" class="display-5 mt-5 text-center">Incident reports</h1>
+<h1 id="incident-reports" class="display-5 mt-5 text-center">Incident reports</h1>
   
 <button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
     <span>🚨 New incident</span>
 </button>
 
 {% include "modal_incident_record.html" %}
-USE BADGE IN TABLE TO INDICATE SEVERITY, include days open in table, resolved date and more
 <hr/>
 <div class="mb-3 ms-2">
     <div class="small text-secondary d-flex align-items-center">
-      <span class="fw-bold" style="width: 170px;">Lifetime / service status:</span>
-      <span style="width: 50px;">🟢 OK</span>
-      <span style="width: 240px;">🟡 End of life / service approaching</span>
-      <span style="width: 220px;">🔴 Due for replacement / service</span>
-      <span style="width: 200px;">🟣 Lifetime / service exceeded</span>
-      <span>⚪ Lifetime / serivce not defined</span>
+      <span style="width: 240px;">🟡 Open</span>
+      <span style="width: 220px;">🔴 Resolved</span>
+      <span style="width: 200px;">🟣 Other things?</span>
+      <span>⚪ Something else</span>
     </div>
 </div>
 <div class="card shadow mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="fw-bold">All components</span>
+        <span class="fw-bold">All incidents</span>
         <div class="d-flex gap-3">
             <div class="form-check form-switch">
-                <input class="form-check-input filter-switch" type="checkbox" id="showInstalledComponents" checked>
-                <label class="form-check-label fw-bold" for="showInstalledComponents">Show installed</label>
+                <input class="form-check-input filter-switch" type="checkbox" id="showOpenIncidents" checked>
+                <label class="form-check-label fw-bold" for="showOpenIncidents">Show open</label>
             </div>
             <div class="form-check form-switch">
-                <input class="form-check-input filter-switch" type="checkbox" id="showNotInstalledComponents" checked>
-                <label class="form-check-label fw-bold" for="showNotInstalledComponents">Show not installed</label>
-            </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input filter-switch" type="checkbox" id="showRetiredComponents">
-                <label class="form-check-label fw-bold" for="showRetiredComponents">Show retired</label>
+                <input class="form-check-input filter-switch" type="checkbox" id="showResolvedIncidents" checked>
+                <label class="form-check-label fw-bold" for="showResolvedIncidents">Show resolved</label>
             </div>
         </div>
     </div>
     <div class="card-body">
         <div class="input-group mb-3">
             <span class="input-group-text">🔍</span>
-            <input type="text" class="form-control" id="allComponentsSearchInput" placeholder="Search all components... (use status filters to narrow results)" aria-label="Search components">
+            <input type="text" class="form-control" id="allIncidentsSearchInput" placeholder="Search all incidents... (use status filters to narrow results)" aria-label="Search incidents">
         </div>
-        <table class="table table-hover" id="componentsTable">
+        <table class="table table-hover" id="incidentsTable">
             <thead>
                 <tr>
-                    <th data-sort="name">Status <span class="sort-indicator"></span></th>
-                    <th data-sort="type">Severity <span class="sort-indicator"></span></th>
-                    <th data-sort="distance">Description <span class="sort-indicator"></span></th>
-                    <th data-sort="status">Last updated <span class="sort-indicator"></span></th>
-                    <th data-sort="lifetime">Lifetime <span class="sort-indicator"></span></th>
-                    <th data-sort="service">Service <span class="sort-indicator"></span></th>
+                    <th data-sort="status">Status <span class="sort-indicator"></span></th>
+                    <th data-sort="severity">Severity <span class="sort-indicator"></span></th>
+                    <th data-sort="components">Components <span class="sort-indicator"></span></th>
                     <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
+                    <th data-sort="incident_date">Incident date <span class="sort-indicator"></span></th>
+                    <th data-sort="resolved_date">Resolved date<span class="sort-indicator"></span></th>
+                    <th data-sort="resolved_date">Days open<span class="sort-indicator"></span></th>
                     <th class="text-end"></th>
                 </tr>
             </thead>
@@ -87,6 +80,7 @@ USE BADGE IN TABLE TO INDICATE SEVERITY, include days open in table, resolved da
                                 {% elif lifetime_status == "Not defined" %}
                                 ⚪
                                 {% endif %}
+                                BADGE
                             </td>
                             <td class="text-center">
                                 {% if service_status == "OK" %}
@@ -111,7 +105,7 @@ USE BADGE IN TABLE TO INDICATE SEVERITY, include days open in table, resolved da
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="8" class="text-center">No components registered</td>
+                        <td colspan="8" class="text-center">No incidents registered</td>
                     </tr>
                 {% endif %}
             </tbody>

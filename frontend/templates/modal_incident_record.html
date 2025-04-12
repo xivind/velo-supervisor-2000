@@ -8,8 +8,7 @@
             <div class="modal-body">
                 <form id="incident_form" class="row" action="/add_incident_record" method="post" enctype="application/x-www-form-urlencoded">
                     <!-- Hidden fields -->
-                    <input type="hidden" id="incident_id" name="incident_id">
-                    <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] if payload.bike_component_data else '' }}">
+                    <input type="hidden" id="incident_id" name="incident_id"> <!-- Should be set automatically, and is required -->
                     
                     <!-- First row: Date, Status (as radio), Severity -->
                     <div class="col-md-4 mb-3">
@@ -81,7 +80,7 @@
                     <!-- Description row (full width) -->
                     <div class="col-12 mb-3">
                         <label for="incident_description" class="form-label fw-bold">Description</label>
-                        <textarea class="form-control" id="incident_description" name="incident_description" rows="3" required></textarea>
+                        <textarea class="form-control" id="incident_description" name="incident_description" rows="3"></textarea>
                     </div>
                     
                     <!-- Resolution section with date and notes -->
