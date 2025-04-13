@@ -85,34 +85,23 @@ def create_incidents_table(cursor):
         print("Table 'incidents' not found. Creating it now...")
         cursor.execute("""
             CREATE TABLE incidents (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                component_id INTEGER,
-                incident_date TEXT NOT NULL,
-                report_date TEXT,
-                description TEXT,
-                reporter TEXT,
-                status TEXT,
-                FOREIGN KEY (component_id) REFERENCES components(id)
+                incident_id TEXT PRIMARY KEY UNIQUE,
+                incident_date TEXT,
+                incident_status TEXT,
+                incident_severity TEXT,
+                affected_component_ids TEXT,
+                affected_bike_id TEXT,
+                incident_description TEXT,
+                resolution_date TEXT,
+                resolution_notes TEXT
             )
         """)
         print("Table 'incidents' created successfully.")
     else:
         print("Table 'incidents' already exists. Skipping creation.")
 
-
-def migrate_database():
-    """Main function to handle the database migration."""
-    db_path = get_db_path()
-    print(f"Proceeding with migration on database: {db_path}")
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    # Create the 'incidents' table if it doesn't exist
-    create_incidents_table(cursor)
-    conn.commit()
-    migrate_component_types(cursor, conn)
-    
-def migrate_component_types():
+def migrate_component_types(cursor, conn):
+    """Migrate the component_types table to add new columns"""
     # Safety check - require explicit backup confirmation
     print("IMPORTANT: This script will modify your database schema.")
     print("Please ensure you have taken a backup of your database before proceeding.")
@@ -121,7 +110,6 @@ def migrate_component_types():
     if confirmation != "yes":
         print("Migration cancelled. Please take a backup and run the script again.")
         sys.exit(1)
-    
     
     try:
         # Check if the component_types table exists
@@ -188,7 +176,7 @@ def migrate_component_types():
             cursor.execute(update_sql)
         
         conn.commit()
-        print("\nDatabase migration completed successfully.")
+        print("\nComponent types migration completed successfully.")
         print("New columns have been added to the component_types table.")
         print("Component counts have been populated in the 'in_use' column.")
         
@@ -197,8 +185,35 @@ def migrate_component_types():
         print(f"Error during migration: {str(e)}")
         print("Migration failed, database rolled back to previous state.")
         sys.exit(1)
+
+def migrate_database():
+    """Main function to handle the database migration."""
+    db_path = get_db_path()
+    print(f"Proceeding with migration on database: {db_path}")
+    
+    # Connect to the database
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Create the 'incidents' table if it doesn't exist
+        create_incidents_table(cursor)
+        conn.commit()
+        
+        # Migrate component_types table
+        migrate_component_types(cursor, conn)
+        
+        print("\nDatabase migration completed successfully!")
+        
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        sys.exit(1)
     finally:
-        conn.close()
+        if 'conn' in locals():
+            conn.close()
 
 if __name__ == "__main__":
     migrate_database()
