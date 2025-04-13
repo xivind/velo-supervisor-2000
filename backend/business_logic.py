@@ -32,7 +32,7 @@ class BusinessLogic():
         self.app_state = app_state
 
     def get_bike_overview(self):
-        """Method to get bike overview"""
+        """Method to produce payload for page bike overview"""
         bikes = database_manager.read_bikes()
         bikes_data = []
         
@@ -74,7 +74,7 @@ class BusinessLogic():
         return payload
     
     def get_bike_details(self, bike_id):
-        """Method to get bike details"""
+        """Method to produce payload for page bike details"""
         bikes = database_manager.read_bikes()
         bikes_data = get_formatted_bikes_list(bikes)
 
@@ -138,7 +138,7 @@ class BusinessLogic():
         return payload
     
     def get_component_overview(self):
-        """Method to get component overview"""
+        """Method to produce payload for page component overview"""
         components = database_manager.read_all_components()
         component_data = [(component.component_id,
                            component.component_type,
@@ -189,7 +189,7 @@ class BusinessLogic():
         return payload
     
     def get_component_details(self, component_id):
-        """Method to get component details"""
+        """Method to produce payload for page component details"""
         bikes = database_manager.read_bikes()
         bikes_data = get_formatted_bikes_list(bikes)
 
@@ -308,8 +308,59 @@ class BusinessLogic():
 
         return payload
 
+    def get_incident_reports(self):
+        """Method to produce payload for page incident reports"""
+        components = database_manager.read_all_components()
+        component_data = [(component.component_id,
+                           component.component_type,
+                           component.component_name,
+                           round(component.component_distance),
+                           component.installation_status,
+                           format_component_status(component.lifetime_status),
+                           format_component_status(component.service_status),
+                           database_manager.read_bike_name(component.bike_id),
+                           format_cost(component.cost)
+                           ) for component in components]
+
+        rearranged_component_data = [(comp[4],
+                                        None,
+                                        None,
+                                        None,
+                                        comp[5],
+                                        comp[6],
+                                        comp[8],
+                                        None,
+                                        comp[7]) for comp in component_data]
+
+        component_statistics = get_component_statistics(rearranged_component_data)
+
+        bikes = database_manager.read_bikes()
+        bikes_data = get_formatted_bikes_list(bikes)
+
+        component_types_data = database_manager.read_all_component_types()
+
+        payload = {"component_data": component_data,
+                   "bikes_data": bikes_data,
+                   "component_types_data": component_types_data,
+                   "count_installed" : component_statistics["count_installed"],
+                   "count_not_installed" : component_statistics["count_not_installed"],
+                   "count_retired" : component_statistics["count_retired"],
+                   "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
+                   "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
+                   "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
+                   "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
+                   "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
+                   "count_service_status_green" : component_statistics["count_service_status_green"],
+                   "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
+                   "count_service_status_red" : component_statistics["count_service_status_red"],
+                   "count_service_status_purple" : component_statistics["count_service_status_purple"],
+                   "count_service_status_grey" : component_statistics["count_service_status_grey"],
+                   "sum_cost" : component_statistics["sum_cost"]}
+        
+        return payload
+    
     def get_component_types(self):
-        """Method to get all component types"""
+        """Method to produce payload for page component types"""
         payload = {"component_types": database_manager.read_all_component_types()}
 
         return payload
