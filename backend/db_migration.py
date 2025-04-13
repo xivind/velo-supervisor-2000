@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Script to migrate the database to add new component type fields"""
+"""Script to migrate the database, including adding new tables and fields"""
 
 import sqlite3
 import json
@@ -77,6 +77,41 @@ def count_component_types_in_use(cursor, component_type):
     )
     return cursor.fetchone()[0]
 
+def create_incidents_table(cursor):
+    """Creates the incidents table if it doesn't exist."""
+    print("Checking for the 'incidents' table...")
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='incidents'")
+    if not cursor.fetchone():
+        print("Table 'incidents' not found. Creating it now...")
+        cursor.execute("""
+            CREATE TABLE incidents (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                component_id INTEGER,
+                incident_date TEXT NOT NULL,
+                report_date TEXT,
+                description TEXT,
+                reporter TEXT,
+                status TEXT,
+                FOREIGN KEY (component_id) REFERENCES components(id)
+            )
+        """)
+        print("Table 'incidents' created successfully.")
+    else:
+        print("Table 'incidents' already exists. Skipping creation.")
+
+
+def migrate_database():
+    """Main function to handle the database migration."""
+    db_path = get_db_path()
+    print(f"Proceeding with migration on database: {db_path}")
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # Create the 'incidents' table if it doesn't exist
+    create_incidents_table(cursor)
+    conn.commit()
+    migrate_component_types(cursor, conn)
+    
 def migrate_component_types():
     # Safety check - require explicit backup confirmation
     print("IMPORTANT: This script will modify your database schema.")
@@ -87,11 +122,6 @@ def migrate_component_types():
         print("Migration cancelled. Please take a backup and run the script again.")
         sys.exit(1)
     
-    db_path = get_db_path()
-    print(f"Proceeding with migration on database: {db_path}")
-    
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
     
     try:
         # Check if the component_types table exists
@@ -130,6 +160,7 @@ def migrate_component_types():
                 print(f"Component type '{component_type}' is used by {count} components")
                 cursor.execute("UPDATE component_types SET in_use = ? WHERE component_type = ?", 
                                (count, component_type))
+            conn.commit()
         else:
             print("Column 'in_use' already exists, skipping.")
         
@@ -137,6 +168,7 @@ def migrate_component_types():
             print("Adding 'mandatory' column...")
             cursor.execute("ALTER TABLE component_types ADD COLUMN mandatory TEXT")
             # Set mandatory to "No" for existing records
+            conn.commit()
             column_updates.append("UPDATE component_types SET mandatory = 'No'")
         else:
             print("Column 'mandatory' already exists, skipping.")
@@ -144,6 +176,7 @@ def migrate_component_types():
         if 'max_quantity' not in columns:
             print("Adding 'max_quantity' column...")
             cursor.execute("ALTER TABLE component_types ADD COLUMN max_quantity INTEGER")
+            conn.commit()
             # No update needed - SQLite defaults new columns to NULL
             print("Column 'max_quantity' added with NULL values for existing records")
         else:
@@ -168,4 +201,4 @@ def migrate_component_types():
         conn.close()
 
 if __name__ == "__main__":
-    migrate_component_types()
+    migrate_database()
