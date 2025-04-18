@@ -1448,11 +1448,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const incidentModal = document.getElementById('incidentRecordModal');
     if (incidentModal) {
         incidentModal.addEventListener('shown.bs.modal', function() {
+            // Initialize date pickers first
+            initializeDatePickers(incidentModal);
+            
+            // Then initialize the component selector and form
             initializeComponentSelector();
             initializeIncidentForm();
         });
     }
-});
+}); 
 
 // Function to initialize the component selector with search capability
 function initializeComponentSelector() {
@@ -1511,92 +1515,41 @@ function initializeIncidentForm() {
         }
     }
 
-    // Set up form validation without replacing the form element
-    if (incidentForm.getAttribute('data-validation-initialized') !== 'true') {
-        // Add our submit handler
-        incidentForm.addEventListener('submit', function(e) {
-            // Always prevent the default submission first
+    // Set up form validation that works with the global validation
+    if (incidentForm.getAttribute('data-incident-validation-initialized') !== 'true') {
+        // Store original submit handler
+        const originalSubmit = incidentForm.onsubmit;
+        
+        // Add our enhanced submit handler
+        incidentForm.onsubmit = function(e) {
+            // Always prevent default submission first
             e.preventDefault();
             e.stopPropagation();
             
-            // Run validation
-            if (validateIncidentForm(this)) {
-                // If valid, manually submit the form
-                // Use a timeout to ensure this happens after all other events
+            // Validate all date inputs in this form
+            let dateValid = true;
+            incidentForm.querySelectorAll('.datepicker-input').forEach(input => {
+                if (!validateDateInput(input)) {
+                    dateValid = false;
+                }
+            });
+            
+            // If dates are valid, check incident-specific validation
+            if (dateValid && validateIncidentForm(this)) {
+                // Use regular form submission (not bypassing handlers)
+                // Wrap in timeout to ensure other handlers have run
                 setTimeout(() => {
-                    // Use the raw form submit method to bypass event handlers
-                    HTMLFormElement.prototype.submit.call(this);
+                    this.submit();
                 }, 10);
             }
             
-            // Always return false to prevent any other handlers
+            // Always return false to prevent default submission
             return false;
-        }, true); // Use capturing phase to ensure this runs first
+        };
         
-        // Mark the form as initialized
-        incidentForm.setAttribute('data-validation-initialized', 'true');
+        // Mark form as initialized with our enhanced handler
+        incidentForm.setAttribute('data-incident-validation-initialized', 'true');
     }
-
-    // Handle global date picker validation by adding a capture phase handler on all submit buttons
-    const submitButtons = incidentForm.querySelectorAll('button[type="submit"]');
-    if (submitButtons) {
-        submitButtons.forEach(button => {
-            // Remove any existing click handlers by cloning and replacing
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
-            
-            // Add our capture-phase validation handler first
-            newButton.addEventListener('click', function(e) {
-                // Always prevent default action first
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const dateInputs = incidentForm.querySelectorAll('.datepicker-input');
-                let isValid = true;
-                
-                // Validate all date inputs in the form
-                dateInputs.forEach(input => {
-                    if (input.required && !input.value) {
-                        input.classList.add('is-invalid');
-                        isValid = false;
-                    } else if (input.value) {
-                        // Validate date format (YYYY-MM-DD HH:MM)
-                        const datePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
-                        if (!datePattern.test(input.value)) {
-                            input.classList.add('is-invalid');
-                            isValid = false;
-                        }
-                    }
-                });
-                
-                if (!isValid) {
-                    // Show validation modal
-                    const modalBody = document.getElementById('validationModalBody');
-                    if (modalBody) {
-                        modalBody.innerHTML = 'Please enter valid dates in the format YYYY-MM-DD HH:MM';
-                        validationModal.show();
-                    }
-                    
-                    return false;
-                }
-                
-                // If valid, run the rest of the form validation
-                if (validateIncidentForm(incidentForm)) {
-                    // Submit the form directly without using any handlers
-                    setTimeout(() => {
-                        HTMLFormElement.prototype.submit.call(incidentForm);
-                    }, 10);
-                }
-            }, true);
-        });
-    }
-
-    // Disable the default form submit handler since we're handling everything in the button click
-    incidentForm.onsubmit = function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    };
 
     // Add listener for status change to handle resolution date
     const statusRadios = incidentForm.querySelectorAll('input[name="incident_status"]');
