@@ -1456,7 +1456,10 @@ document.addEventListener('DOMContentLoaded', function() {
             initializeIncidentForm();
         });
     }
-}); 
+
+    // Initialize the incident table functionality
+    initializeIncidentTable();
+});
 
 // Function to initialize the component selector with search capability
 function initializeComponentSelector() {
@@ -1705,6 +1708,265 @@ function validateIncidentForm(form) {
     }
     
     return isValid;
+}
+
+// Function to initialize the incident table with sorting, filtering and search
+function initializeIncidentTable() {
+    // Check if we're on the incidents page
+    if (document.querySelector('h1#incident-reports') === null) return;
+    
+    // Set up table sorting
+    setupIncidentTableSorting();
+    
+    // Set up search functionality
+    setupIncidentSearch();
+    
+    // Set up status filtering
+    setupIncidentStatusFiltering();
+}
+
+// Function to set up incident table sorting
+function setupIncidentTableSorting() {
+    const table = document.getElementById('incidentsTable');
+    if (!table) return;
+    
+    const headers = table.querySelectorAll('th[data-sort]');
+    const tableBody = table.querySelector('tbody');
+    const rows = tableBody.querySelectorAll('tr');
+    
+    // Skip if there are no rows or just one "no incidents" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+    
+    // Sorting function
+    const sortColumn = (index, asc = true) => {
+        const nodeList = Array.from(rows);
+        const compare = (rowA, rowB) => {
+            // Skip if td doesn't exist in row
+            if (!rowA.querySelectorAll('td')[index] || !rowB.querySelectorAll('td')[index]) return 0;
+            
+            // Get cell content and prepare for comparison
+            let cellA = rowA.querySelectorAll('td')[index].innerText.trim();
+            let cellB = rowB.querySelectorAll('td')[index].innerText.trim();
+            
+            // Different handling based on column type
+            switch(index) {
+                case 0: // Status column
+                    // Sort by status - open comes before resolved
+                    cellA = cellA.includes('Open') ? 0 : 1;
+                    cellB = cellB.includes('Open') ? 0 : 1;
+                    break;
+                    
+                case 1: // Bike column
+                case 2: // Components column
+                    // Simple text comparison, case-insensitive
+                    cellA = cellA.toLowerCase();
+                    cellB = cellB.toLowerCase();
+                    break;
+                    
+                case 3: // Severity column
+                    // Custom order: Critical > Priority > Monitor
+                    const severityOrder = {
+                        "Critical": 0,
+                        "Priority": 1,
+                        "Monitor": 2
+                    };
+                    cellA = severityOrder[cellA] !== undefined ? severityOrder[cellA] : 999;
+                    cellB = severityOrder[cellB] !== undefined ? severityOrder[cellB] : 999;
+                    break;
+                    
+                case 4: // Incident date column
+                case 5: // Resolution date column
+                    // Parse dates, handling "-" for empty dates
+                    if (cellA === "-") cellA = asc ? "9999-12-31" : "0000-01-01";
+                    if (cellB === "-") cellB = asc ? "9999-12-31" : "0000-01-01";
+                    
+                    // Compare as strings (YYYY-MM-DD format sorts correctly)
+                    break;
+                    
+                case 6: // Days open column
+                    // Parse as number
+                    cellA = parseInt(cellA) || 0;
+                    cellB = parseInt(cellB) || 0;
+                    break;
+            }
+            
+            // Compare based on formatted values
+            if (typeof cellA === 'number' && typeof cellB === 'number') {
+                return asc ? cellA - cellB : cellB - cellA;
+            } else {
+                return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+            }
+        };
+        
+        // Sort and reattach rows
+        nodeList.sort(compare);
+        nodeList.forEach(node => tableBody.appendChild(node));
+    };
+
+    // Add click event to table headers
+    headers.forEach((header, index) => {
+        header.addEventListener('click', () => {
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Remove sorted classes from all headers
+            headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+            
+            // Add appropriate class to clicked header
+            header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+            
+            // Sort the column
+            sortColumn(header.cellIndex, isAscending);
+        });
+    });
+
+    // Initial sort by Incident Date (index 4) in descending order
+    if (headers.length > 4 && rows.length > 1) {
+        const dateHeader = Array.from(headers).find(h => h.getAttribute('data-sort') === 'incident_date');
+        if (dateHeader) {
+            dateHeader.classList.add('sorted-desc');
+            sortColumn(dateHeader.cellIndex, false);
+        }
+    }
+}
+
+// Function for filtering incident table by status
+function setupIncidentStatusFiltering() {
+    // Check if we're on the incidents page
+    const incidentsTable = document.getElementById('incidentsTable');
+    if (!incidentsTable) return;
+
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    const incidentRows = incidentsTable.querySelectorAll('tbody tr');
+
+    function updateIncidentRowVisibility() {
+        // Get switch states
+        const showOpen = document.getElementById('showOpenIncidents').checked;
+        const showResolved = document.getElementById('showResolvedIncidents').checked;
+
+        incidentRows.forEach(row => {
+            // Skip the "no incidents" message row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                return;
+            }
+            
+            const statusCell = row.querySelector('td:nth-child(1)');
+            if (statusCell) {
+                const status = statusCell.textContent.trim();
+                const shouldShow = (
+                    (status.includes('Open') && showOpen) ||
+                    (status.includes('Resolved') && showResolved)
+                );
+                row.style.display = shouldShow ? '' : 'none';
+            }
+        });
+        
+        // Update search results count
+        updateSearchResults();
+    }
+
+    // Add event listeners to filter switches
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateIncidentRowVisibility);
+    });
+
+    // Initial visibility update
+    updateIncidentRowVisibility();
+}
+
+// Function to handle search across incidents
+function setupIncidentSearch() {
+    // Check if we're on the incidents page
+    const searchInput = document.getElementById('allIncidentsSearchInput');
+    if (!searchInput) return;
+    
+    const table = document.getElementById('incidentsTable');
+    const rows = table.querySelectorAll('tbody tr');
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+    
+    // Skip if there are no rows or just one "no incidents" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+    
+    // Function to update row visibility based on both filters and search
+    function updateRowVisibility() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        // Get current filter states
+        const showOpen = document.getElementById('showOpenIncidents').checked;
+        const showResolved = document.getElementById('showResolvedIncidents').checked;
+        
+        rows.forEach(row => {
+            // Skip the "no incidents registered" row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                return;
+            }
+            
+            // Check if row should be visible based on status filter
+            let visibleByFilter = false;
+            const statusCell = row.cells[0];
+            const statusText = statusCell.textContent.trim();
+            
+            if ((statusText.includes('Open') && showOpen) ||
+                (statusText.includes('Resolved') && showResolved)) {
+                visibleByFilter = true;
+            }
+            
+            // Check if row matches search term
+            const bikeText = row.cells[1].textContent.toLowerCase();
+            const componentsText = row.cells[2].textContent.toLowerCase();
+            const severityText = row.cells[3].textContent.toLowerCase();
+            
+            // Get hidden content from data attributes
+            const descriptionText = (row.dataset.description || '').toLowerCase();
+            const notesText = (row.dataset.notes || '').toLowerCase();
+            
+            // Include all text fields in the search
+            const rowText = `${bikeText} ${componentsText} ${severityText} ${descriptionText} ${notesText}`;
+            const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
+            
+            // Show row only if it matches both filter and search criteria
+            row.style.display = (visibleByFilter && matchesSearch) ? '' : 'none';
+        });
+        
+        // Update search results count
+        updateSearchResults();
+    }
+    
+    // Function to update search results count
+    window.updateSearchResults = function() {
+        const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+        const noResultsRow = table.querySelector('.no-results-row');
+        
+        if (visibleRows.length === 0 && rows.length > 1) {
+            if (!noResultsRow) {
+                const tbody = table.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-results-row';
+                newRow.innerHTML = '<td colspan="8" class="text-center">No incidents match your criteria</td>';
+                tbody.appendChild(newRow);
+            } else {
+                noResultsRow.style.display = '';
+            }
+        } else if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+    };
+    
+    // Listen for search input changes
+    searchInput.addEventListener('input', updateRowVisibility);
+    
+    // Listen for filter changes
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateRowVisibility);
+    });
+    
+    // Clear search button with Escape key
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.value = '';
+            // Update visibility after clearing
+            updateRowVisibility();
+        }
+    });
 }
 
 // ===== Component types page functions =====
