@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Route handlers for Velo Supervisor 2000"""
 
-from typing import Optional
+from typing import Optional, List
 import asyncio
 from middleware import Middleware
 from fastapi import FastAPI, Request, Form
@@ -90,15 +90,15 @@ async def component_overview(request: Request):
 async def incident_reports(request: Request):
     """Endpoint for incident reports page"""
     
-    #payload = business_logic.get_incident_reports()
+    payload = business_logic.get_incident_reports()
     template_path = "incident_reports.html"
     
     return templates.TemplateResponse(template_path,
                                       {"request": request,
-                                       "payload": "payload"}) #Alter later
+                                       "payload": payload})
 
 @app.get("/workplans", response_class=HTMLResponse) #Placeholder
-async def workplan_all(request: Request):
+async def workplans(request: Request):
     """Endpoint for workplan page"""
     
     #payload = business_logic.get_component_overview()
@@ -155,28 +155,6 @@ async def config_overview(request: Request,
                                        "success": success,
                                        "message": message})
 
-@app.post("/component_types_modify", response_class=HTMLResponse)
-async def component_types_modify(component_type: str = Form(...),
-                                 expected_lifetime: Optional[str] = Form(None),
-                                 service_interval: Optional[str] = Form(None),
-                                 mandatory: Optional[str] = Form(None),
-                                 max_quantity: Optional[str] = Form(None),
-                                 mode: str = Form("create")):
-    """Endpoint to modify component types"""
-
-    success, message = business_logic.modify_component_type(component_type,
-                                                            expected_lifetime,
-                                                            service_interval,
-                                                            mandatory,
-                                                            max_quantity,
-                                                            mode)
-
-    response = RedirectResponse(
-        url=f"/component_types_overview?success={success}&message={message}",
-        status_code=303)
-
-    return response
-
 @app.post("/create_component", response_class=HTMLResponse)
 async def create_component(component_id: Optional[str] = Form(None),
                            component_installation_status: str = Form(...),
@@ -223,7 +201,7 @@ async def component_modify(component_id: Optional[str] = Form(None),
                            offset: Optional[int] = Form(0),
                            component_notes: Optional[str] = Form(None)):
     """Endpoint to modify component types"""
-    
+
     success, message, component_id = (business_logic.modify_component_details
                                       (component_id,
                                        component_installation_status,
@@ -309,19 +287,26 @@ async def update_service_record(component_id: str = Form(...),
 
     return response
 
-@app.post("/add_incident_record", response_class=HTMLResponse) #IN PROGRESS
+@app.post("/add_incident_record", response_class=HTMLResponse)
 async def add_incident_record(incident_date: str = Form(...),
                               incident_status: str = Form(...),
                               incident_severity: str = Form(...),
-                              affected_component_ids: Optional[str] = Form(None),
+                              affected_component_ids: Optional[List[str]] = Form(None),
                               affected_bike_id: Optional[str] = Form(None),
                               incident_description: Optional[str] = Form(None),
                               resolution_date: Optional[str] = Form(None),
                               resolution_notes: Optional[str] = Form(None)):
     """Endpoint to update an existing component history record"""
 
-    success, message = business_logic.create_incident_record(TBD)
-
+    success, message = business_logic.create_incident_record(incident_date,
+                                                             incident_status,
+                                                             incident_severity,
+                                                             affected_component_ids,
+                                                             affected_bike_id,
+                                                             incident_description,
+                                                             resolution_date,
+                                                             resolution_notes)
+    
     response = RedirectResponse(
         url=f"/incident_reports?success={success}&message={message}",
         status_code=303)
@@ -356,6 +341,29 @@ async def refresh_all_bikes(request: Request):
 
     return JSONResponse({"success": success,
                          "message": message})
+
+@app.post("/component_types_modify", response_class=HTMLResponse)
+async def component_types_modify(component_type: str = Form(...),
+                                 expected_lifetime: Optional[str] = Form(None),
+                                 service_interval: Optional[str] = Form(None),
+                                 mandatory: Optional[str] = Form(None),
+                                 max_quantity: Optional[str] = Form(None),
+                                 mode: str = Form("create")):
+    """Endpoint to modify component types"""
+
+    success, message = business_logic.modify_component_type(component_type,
+                                                            expected_lifetime,
+                                                            service_interval,
+                                                            mandatory,
+                                                            max_quantity,
+                                                            mode)
+
+    response = RedirectResponse(
+        url=f"/component_types_overview?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
 
 @app.get("/refresh_rides/{mode}", response_class=HTMLResponse)
 async def refresh_rides(request: Request, mode: str):
