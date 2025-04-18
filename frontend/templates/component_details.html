@@ -150,7 +150,7 @@
                 <fieldset disabled>
                 <form id="component_status_form" class="row" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label for="component_installation_status" class="form-label fw-bold">Status</label>
                         <select class="form-select" id="component_installation_status" name="component_installation_status">
                             <option value="Installed" {% if payload.bike_component_data['installation_status'] == "Installed" %}selected{% endif %}>Installed</option>
@@ -158,11 +158,7 @@
                             <option value="Retired" {% if payload.bike_component_data['installation_status'] == "Retired" %}selected{% endif %}>Retired</option>
                         </select>
                     </div>
-                    <div class="col-md-2 mb-3">
-                        <label for="broken" class="form-label fw-bold">Broken</label>
-                        <input class="form-control" id="offset" name="broken" value="N/A" disabled>
-                    </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label for="component_bike_id" class="form-label fw-bold">Bike</label>
                         <select class="form-select" id="component_bike_id" name="component_bike_id">
                             <option value="">Not assigned</option>
