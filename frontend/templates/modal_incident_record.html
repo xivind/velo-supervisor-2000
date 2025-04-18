@@ -32,48 +32,31 @@
                     <div class="col-md-4 mb-3">
                         <label for="incident_severity" class="form-label fw-bold">Severity</label>
                         <select class="form-select" id="incident_severity" name="incident_severity" required>
-                            <option value="Low" selected>Monitor</option>
-                            <option value="Medium">Next service</option>
-                            <option value="High">Critical</option>
+                            <option value="Monitor" selected>Monitor</option>
+                            <option value="Priority">Priority</option>
+                            <option value="Critical">Critical</option>
                         </select>
                     </div>
                     
                     <!-- Second row: Multiple component selection and Bike selection -->
                     <div class="col-md-6 mb-3">
-                        <label for="affected_component_ids" class="form-label fw-bold">Affected Components</label>
-                        <select class="form-select" id="affected_component_ids" name="affected_component_ids" multiple size="4">
-                            {% if payload.bike_component_data %}
-                                <option value="{{ payload.bike_component_data['component_id'] }}" selected>
-                                    {{ payload.bike_component_data['component_name'] }} ({{ payload.bike_component_data['component_type'] }})
-                                </option>
-                                {% if payload.bike_components_data %}
-                                    {% for comp_id, _, _, installation_status, type, name, _, _, _, _ in payload.bike_components_data %}
-                                        {% if installation_status == "Installed" and comp_id != payload.bike_component_data['component_id'] %}
-                                            <option value="{{ comp_id }}">{{ name }} ({{ type }})</option>
-                                        {% endif %}
-                                    {% endfor %}
+                        <label for="affected_component_ids" class="form-label fw-bold">Affected components</label>
+                        <select class="form-select" id="affected_component_ids" name="affected_component_ids" multiple placeholder="Search to add more components...">
+                            {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.component_data %}
+                                {% if status != "Retired" %}
+                                    <option value="{{ component_id }}">{{ name }} ({{ type }}) - {{ bike }}</option>
                                 {% endif %}
-                            {% else %}
-                                {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.component_data %}
-                                    {% if status == "Installed" %}
-                                        <option value="{{ component_id }}">{{ name }} ({{ type }})</option>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
+                            {% endfor %}
                         </select>
-                        <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple components</small>
+                        <small class="form-text text-muted">Select 0..* components</small>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="affected_bike_id" class="form-label fw-bold">Bike</label>
+                        <label for="affected_bike_id" class="form-label fw-bold">Affected bike</label>
                         <select class="form-select" id="affected_bike_id" name="affected_bike_id">
-                            {% if payload.bike_component_data and payload.bike_component_data['bike_id'] %}
-                                <option value="{{ payload.bike_component_data['bike_id'] }}" selected>{{ payload.bike_name }}</option>
-                            {% else %}
-                                <option value="" selected>Select bike</option>
-                                {% for bike_name, bike_id in payload.bikes_data %}
-                                    <option value="{{ bike_id }}">{{ bike_name }}</option>
-                                {% endfor %}
-                            {% endif %}
+                            <option value="" selected></option>
+                            {% for bike_name, bike_id in payload.bikes_data %}
+                                <option value="{{ bike_id }}">{{ bike_name }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     

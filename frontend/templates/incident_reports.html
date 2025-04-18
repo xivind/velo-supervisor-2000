@@ -13,10 +13,7 @@
 <hr/>
 <div class="mb-3 ms-2">
     <div class="small text-secondary d-flex align-items-center">
-      <span style="width: 240px;">🟡 Open</span>
-      <span style="width: 220px;">🔴 Resolved</span>
-      <span style="width: 200px;">🟣 Other things?</span>
-      <span>⚪ Something else</span>
+      <span class="fw-bold">To go directly to bike or component detail pages, click the names of bikes or components</span>
     </div>
 </div>
 <div class="card shadow mb-3">
@@ -41,64 +38,73 @@
         <table class="table table-hover" id="incidentsTable">
             <thead>
                 <tr>
-                    <th data-sort="status">Status <span class="sort-indicator"></span></th>
-                    <th data-sort="severity">Severity <span class="sort-indicator"></span></th>
-                    <th data-sort="components">Components <span class="sort-indicator"></span></th>
+                    <th class="text-center" data-sort="status"><span class="sort-indicator"></span></th>
                     <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
+                    <th data-sort="components">Components <span class="sort-indicator"></span></th>
+                    <th class="text-center" data-sort="severity">Severity <span class="sort-indicator"></span></th>
                     <th data-sort="incident_date">Incident date <span class="sort-indicator"></span></th>
-                    <th data-sort="resolved_date">Resolved date<span class="sort-indicator"></span></th>
-                    <th data-sort="resolved_date">Days open<span class="sort-indicator"></span></th>
+                    <th data-sort="resolution_date">Resolution date<span class="sort-indicator"></span></th>
+                    <th class="text-center" data-sort="days_open">Days open<span class="sort-indicator"></span></th>
                     <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
-                {% if payload.component_data %}
-                    {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.component_data %}
-                        <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
-                            <td>{{ name }}</td>
-                            <td>{{ type }}</td>
-                            <td>{{ component_distance }} km</td>
-                            <td>
-                                {% if installation_status == "Installed" %}
-                                ⚡
-                                {% elif installation_status == "Not installed" %}
-                                💤
-                                {% elif installation_status == "Retired" %}
-                                ⛔
-                                {% endif %}
-                                {{ installation_status }}
-                            </td>
+                {% if payload.incident_reports_data %}
+                    {% for incident_id, incident_date, incident_status, incident_severity, affected_components, affected_bike, incident_description, resolution_date, resolution_notes, elapsed_days in payload.incident_reports_data %}
+                        <tr>
                             <td class="text-center">
-                                {% if lifetime_status == "OK" %}
-                                🟢
-                                {% elif lifetime_status == "End of life approaching" %}
-                                🟡
-                                {% elif lifetime_status == "Due for replacement" %}
-                                🔴
-                                {% elif lifetime_status == "Lifetime exceeded" %}
-                                🟣
-                                {% elif lifetime_status == "Not defined" %}
-                                ⚪
-                                {% endif %}
-                                BADGE
-                            </td>
-                            <td class="text-center">
-                                {% if service_status == "OK" %}
-                                🟢
-                                {% elif service_status == "Service approaching" %}
-                                🟡
-                                {% elif service_status == "Due for service" %}
-                                🔴
-                                {% elif service_status == "Service interval exceeded" %}
-                                🟣
-                                {% elif service_status == "Not defined" %}
-                                ⚪
+                                {% if incident_status == "Open" %}
+                                <span class="badge rounded-pill text-bg-info fixed-width-badge-incident-status">Open</span>
+                                {% elif incident_status == "Resolved" %}
+                                <span class="badge rounded-pill text-bg-secondary fixed-width-badge-incident-status">Resolved</span>
                                 {% endif %}
                             </td>
                             <td>
-                                {{ bike }}
+                                {% if affected_bike != "Not assigned" %}
+                                    {% set bike_parts = affected_bike.split('|BIKE-ID:') %}
+                                    {% set bike_name = bike_parts[0] %}
+                                    {% set bike_id = bike_parts[1] %}
+                                    <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">{{ bike_name }}</a>
+                                {% else %}
+                                    {{ affected_bike }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if affected_components != "Not assigned" %}
+                                    {% for component_info in affected_components.split(', ') %}
+                                        {% if "COMPONENT-ID:" in component_info %}
+                                            {% set component_parts = component_info.split('|COMPONENT-ID:') %}
+                                            {% set component_name = component_parts[0] %}
+                                            {% set component_id = component_parts[1] %}
+                                            <a href="/component_details/{{ component_id }}" class="text-decoration-none text-reset">{{ component_name }}</a>{% if not loop.last %}, {% endif %}
+                                        {% else %}
+                                            {{ component_info }}{% if not loop.last %}, {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    {{ affected_components }}
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if incident_severity == "Critical" %}
+                                <span class="badge text-bg-danger fixed-width-badge-incident-severity">Critical</span>
+                                {% elif incident_severity == "Priority" %}
+                                <span class="badge text-bg-warning fixed-width-badge-incident-severity">Priority</span>
+                                {% elif incident_severity == "Monitor" %}
+                                <span class="badge text-bg-success fixed-width-badge-incident-severity">Monitor</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ incident_date.split(' ')[0] if incident_date else "-" }}
+                            </td>
+                            <td>
+                                {{ resolution_date.split(' ')[0] if resolution_date else "-" }}
+                            </td>
+                            <td class="text-center">
+                                {{ elapsed_days }}
                             </td>
                             <td class="text-end">
+                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}" onclick="event.stopPropagation();">✍</button>
                                 <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}" onclick="event.stopPropagation();">🗑</button>
                             </td>
                         </tr>
