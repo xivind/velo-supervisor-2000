@@ -2,13 +2,15 @@
 """Module for interaction with a Sqlite database"""
 
 import peewee
+import json
 from database_model import (database,
                             Bikes,
                             Rides,
                             ComponentTypes,
                             Components,
                             ComponentHistory,
-                            Services)
+                            Services,
+                            Incidents)
 
 class DatabaseManager:
     """Class to interact with a SQLite database through Peewee"""
@@ -34,6 +36,16 @@ class DatabaseManager:
 
         return "Not assigned"
 
+    def read_bike_name_id(self, bike_id):
+        """Method to get the name of a bike based on bike id, includes bike id on return"""
+        bike = self.read_single_bike(bike_id)
+
+        if bike:
+            if bike.bike_name is not None:
+                return f'{bike.bike_name}|BIKE-ID:{bike.bike_id}'
+
+        return "Not assigned"
+
     def read_bike_id_recent_component_history(self, component_id):
         """Method to get bike id from most recent component history"""
         return (ComponentHistory
@@ -42,13 +54,13 @@ class DatabaseManager:
                 .order_by(ComponentHistory.updated_date.desc())
                 .first()
                 .bike_id)
-    
+
     def read_unique_bikes(self):
         """Method to query database and create list of unique bike ids"""
         unique_bike_ids = (Rides
                            .select(Rides.bike_id)
                            .distinct())
-        
+
         bike_id_set = {ride.bike_id
                        for ride in unique_bike_ids
                        if ride.bike_id != "None"}
@@ -120,13 +132,30 @@ class DatabaseManager:
         return (ComponentTypes
                 .get_or_none(ComponentTypes.component_type == component_type))
 
+    def read_component_names_id(self, component_ids_raw):
+        """Method to get component names based on list string, includes component id on return"""
+        if component_ids_raw is None:
+            return "Not assigned"
+
+        component_ids = json.loads(component_ids_raw)
+
+        component_names = []
+        for component_id in component_ids:
+            component = self.read_component(component_id)
+            if component:
+                component_names.append(f'{component.component_name}|COMPONENT-ID:{component.component_id}')
+            else:
+                component_names.append("Deleted component")
+
+        return ", ".join(component_names) if component_names else "Not assigned"
+    
     def count_component_types_in_use(self, component_type):
         """Method to count how many components that references a given component type"""
         return (Components
                 .select()
                 .where(Components.component_type == component_type)
                 .count())
-    
+
     def read_all_components(self):
         """Method to read content of components table"""
         return Components.select()
@@ -143,12 +172,12 @@ class DatabaseManager:
                 .select()
                 .where((Components.installation_status == 'Installed') &
                 (Components.bike_id == bike_id)))
-                
+
     def read_component(self, component_id):
         """Method to retrieve record for a specific component"""
         return (Components
                 .get_or_none(Components.component_id == component_id))
-    
+
     def read_subset_component_history(self, component_id):
         """Method to read a subset of records from the component history table"""
         return (ComponentHistory
@@ -207,7 +236,11 @@ class DatabaseManager:
                 .where(Services.component_id == component_id)
                 .order_by(Services.service_date.asc())
                 .first())
-    
+
+    def read_all_incidents(self):
+        """Method to read content of incidents table"""
+        return Incidents.select()
+        
     def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk to database"""
         try:
@@ -310,9 +343,9 @@ class DatabaseManager:
                 component.service_next = service_next
                 component.service_status = service_status
                 component.save()
-            
+
             return True, f"{component.component_name}."
-        
+
         except peewee.OperationalError as error:
             return False, f"{component.component_name}: {str(error)}."
 
@@ -322,9 +355,9 @@ class DatabaseManager:
             with database.atomic():
                 bike.service_status = service_status
                 bike.save()
-            
+
             return True, f"{bike.bike_name}."
-        
+
         except peewee.OperationalError as error:
             return False, f"{bike.bike_name}: {str(error)}."
 
@@ -363,7 +396,25 @@ class DatabaseManager:
 
         except peewee.OperationalError as error:
             return False, f"History record database error for {history_data['component_name']}: {str(error)}"
-            
+
+    def write_incident_record(self, incident_data):
+        """Method to write or update incident record to database"""
+        try:
+            with self.database.atomic():
+                existing_incident = Incidents.get_or_none(Incidents.incident_id == incident_data['incident_id'])
+                
+                if existing_incident:
+                    Incidents.update(**incident_data).where(
+                        Incidents.incident_id == incident_data['incident_id']
+                    ).execute()
+                    return True, f"Updated incident record with id {incident_data['incident_id']}"
+                else:
+                    Incidents.create(**incident_data)
+                    return True, f"Created new incident record with id {incident_data['incident_id']}"
+
+        except peewee.OperationalError as error:
+            return False, f"Incident record database error for record with id {incident_data['incident_id']}: {str(error)}"
+    
     def write_component_type(self, component_type_data):
         """Method to write component type record to database"""
         try:
@@ -376,14 +427,14 @@ class DatabaseManager:
                      .where(ComponentTypes.component_type == component_type_data["component_type"])
                      .execute())
                     return True, f"Updated component type {component_type_data['component_type']}"
-            
+
                 else:
                     ComponentTypes.create(**component_type_data)
                     return True, f"Created component type {component_type_data['component_type']}"
         
         except peewee.OperationalError as error:
             return False, f"{component_type_data['component_type']}: {str(error)}."
-    
+
     def write_delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         try:
