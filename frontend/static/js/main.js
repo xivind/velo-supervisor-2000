@@ -1439,6 +1439,321 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// ===== Workplan page functions =====
+// PLACEHOLDER
+
+// ===== Incident reports page functions =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize TomSelect for component selection when incident modal is shown
+    const incidentModal = document.getElementById('incidentRecordModal');
+    if (incidentModal) {
+        incidentModal.addEventListener('shown.bs.modal', function() {
+            initializeComponentSelector();
+            initializeIncidentForm();
+        });
+    }
+});
+
+// Function to initialize the component selector with search capability
+function initializeComponentSelector() {
+    const componentSelect = document.getElementById('affected_component_ids');
+    
+    // Check if element exists and hasn't been initialized yet
+    if (componentSelect && !componentSelect.tomSelect) {
+        try {
+            const tomSelect = new TomSelect(componentSelect, {
+                plugins: ['remove_button'],
+                maxItems: null,
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                create: false,
+                placeholder: 'Search to add more components...'
+            });
+            
+            // Add change handler for validation
+            tomSelect.on('change', function() {
+                const tomSelectControl = document.querySelector('.ts-control');
+                if (tomSelectControl) {
+                    tomSelectControl.style.borderColor = '';
+                }
+                
+                // Also remove error styling from bike select if components are selected
+                const bikeSelect = document.getElementById('affected_bike_id');
+                if (bikeSelect && tomSelect.getValue().length > 0) {
+                    bikeSelect.classList.remove('is-invalid');
+                }
+            });
+        } catch (e) {
+            console.warn('Tom Select initialization error:', e);
+        }
+    }
+}
+
+// Initialize the incident form and set up validation
+function initializeIncidentForm() {
+    const incidentForm = document.getElementById('incident_form');
+    if (!incidentForm) return;
+
+    // Clear the resolution date field
+    const resolutionDateInput = document.getElementById('resolution_date');
+    if (resolutionDateInput) {
+        // Force resolution date to be empty on form initialization
+        resolutionDateInput.value = '';
+        
+        // If the date picker has been initialized, try to update its value
+        if (resolutionDateInput._tempusDominus) {
+            try {
+                resolutionDateInput._tempusDominus.clear();
+            } catch (e) {
+                console.warn('Error clearing date picker:', e);
+            }
+        }
+    }
+
+    // Set up form validation without replacing the form element
+    if (incidentForm.getAttribute('data-validation-initialized') !== 'true') {
+        // Add our submit handler
+        incidentForm.addEventListener('submit', function(e) {
+            // Always prevent the default submission first
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Run validation
+            if (validateIncidentForm(this)) {
+                // If valid, manually submit the form
+                // Use a timeout to ensure this happens after all other events
+                setTimeout(() => {
+                    // Use the raw form submit method to bypass event handlers
+                    HTMLFormElement.prototype.submit.call(this);
+                }, 10);
+            }
+            
+            // Always return false to prevent any other handlers
+            return false;
+        }, true); // Use capturing phase to ensure this runs first
+        
+        // Mark the form as initialized
+        incidentForm.setAttribute('data-validation-initialized', 'true');
+    }
+
+    // Handle global date picker validation by adding a capture phase handler on all submit buttons
+    const submitButtons = incidentForm.querySelectorAll('button[type="submit"]');
+    if (submitButtons) {
+        submitButtons.forEach(button => {
+            // Remove any existing click handlers by cloning and replacing
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            // Add our capture-phase validation handler first
+            newButton.addEventListener('click', function(e) {
+                // Always prevent default action first
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const dateInputs = incidentForm.querySelectorAll('.datepicker-input');
+                let isValid = true;
+                
+                // Validate all date inputs in the form
+                dateInputs.forEach(input => {
+                    if (input.required && !input.value) {
+                        input.classList.add('is-invalid');
+                        isValid = false;
+                    } else if (input.value) {
+                        // Validate date format (YYYY-MM-DD HH:MM)
+                        const datePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+                        if (!datePattern.test(input.value)) {
+                            input.classList.add('is-invalid');
+                            isValid = false;
+                        }
+                    }
+                });
+                
+                if (!isValid) {
+                    // Show validation modal
+                    const modalBody = document.getElementById('validationModalBody');
+                    if (modalBody) {
+                        modalBody.innerHTML = 'Please enter valid dates in the format YYYY-MM-DD HH:MM';
+                        validationModal.show();
+                    }
+                    
+                    return false;
+                }
+                
+                // If valid, run the rest of the form validation
+                if (validateIncidentForm(incidentForm)) {
+                    // Submit the form directly without using any handlers
+                    setTimeout(() => {
+                        HTMLFormElement.prototype.submit.call(incidentForm);
+                    }, 10);
+                }
+            }, true);
+        });
+    }
+
+    // Disable the default form submit handler since we're handling everything in the button click
+    incidentForm.onsubmit = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    };
+
+    // Add listener for status change to handle resolution date
+    const statusRadios = incidentForm.querySelectorAll('input[name="incident_status"]');
+    statusRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'Resolved') {
+                // If status is resolved, make resolution date required
+                resolutionDateInput.setAttribute('required', '');
+                
+                // Only set current date if the field is empty
+                if (!resolutionDateInput.value) {
+                    const now = new Date();
+                    const formattedDate = now.getFullYear() + '-' + 
+                        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(now.getDate()).padStart(2, '0') + ' ' + 
+                        String(now.getHours()).padStart(2, '0') + ':' + 
+                        String(now.getMinutes()).padStart(2, '0');
+                    
+                    resolutionDateInput.value = formattedDate;
+                }
+            } else {
+                // If status is open, resolution date is not required AND should be cleared
+                resolutionDateInput.removeAttribute('required');
+                resolutionDateInput.value = '';
+                
+                // If date picker is initialized, clear it too
+                if (resolutionDateInput._tempusDominus) {
+                    try {
+                        resolutionDateInput._tempusDominus.clear();
+                    } catch (e) {
+                        console.warn('Error clearing date picker:', e);
+                    }
+                }
+            }
+        });
+    });
+
+    // Add handler for bike select validation
+    const bikeSelect = document.getElementById('affected_bike_id');
+    if (bikeSelect) {
+        bikeSelect.addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+            
+            // Also remove error styling from component select if bike is selected
+            if (this.value) {
+                const componentSelect = document.getElementById('affected_component_ids');
+                if (componentSelect && componentSelect.tomSelect) {
+                    const tomSelectControl = document.querySelector('.ts-control');
+                    if (tomSelectControl) {
+                        tomSelectControl.style.borderColor = '';
+                    }
+                } else if (componentSelect) {
+                    componentSelect.classList.remove('is-invalid');
+                }
+            }
+        });
+    }
+}
+
+// Function to validate the incident form
+function validateIncidentForm(form) {
+    // Reset any previous validation errors
+    form.querySelectorAll('.is-invalid').forEach(input => {
+        input.classList.remove('is-invalid');
+    });
+    
+    let isValid = true;
+    let errorMessage = "";
+    
+    // Get form values
+    const incidentStatus = form.querySelector('input[name="incident_status"]:checked').value;
+    const incidentDate = form.querySelector('#incident_date').value;
+    const resolutionDate = form.querySelector('#resolution_date').value;
+    
+    let affectedComponents = [];
+    const componentSelect = form.querySelector('#affected_component_ids');
+    if (componentSelect) {
+        if (componentSelect.tomSelect) {
+            affectedComponents = componentSelect.tomSelect.getValue();
+        } else {
+            affectedComponents = Array.from(componentSelect.selectedOptions).map(opt => opt.value);
+        }
+    }
+    
+    const affectedBikeId = form.querySelector('#affected_bike_id').value;
+    
+    // Validation rules
+    // If status is resolved, resolution date must be provided
+    if (incidentStatus === "Resolved" && !resolutionDate) {
+        form.querySelector('#resolution_date').classList.add('is-invalid');
+        errorMessage = "Resolution date is required when status is 'Resolved'";
+        isValid = false;
+    }
+    
+    // If status is Open, resolution date should be empty
+    if (incidentStatus === "Open" && resolutionDate) {
+        form.querySelector('#resolution_date').classList.add('is-invalid');
+        errorMessage = "Resolution date should be empty when status is 'Open'";
+        isValid = false;
+    }
+    
+    // Resolution date cannot be at or before incident date
+    if (resolutionDate && incidentDate) {
+        const incidentDateObj = new Date(incidentDate);
+        const resolutionDateObj = new Date(resolutionDate);
+        
+        if (resolutionDateObj <= incidentDateObj) {
+            form.querySelector('#resolution_date').classList.add('is-invalid');
+            errorMessage = "Resolution date must be after the incident date";
+            isValid = false;
+        }
+    }
+    
+    // Either affected components or affected bike must be selected
+    if ((!affectedComponents || affectedComponents.length === 0) && !affectedBikeId) {
+        if (componentSelect && componentSelect.tomSelect) {
+            // Add red border to TomSelect control
+            const tomSelectControl = document.querySelector('.ts-control');
+            if (tomSelectControl) {
+                tomSelectControl.style.borderColor = '#dc3545';
+            }
+        } else if (componentSelect) {
+            componentSelect.classList.add('is-invalid');
+        }
+        
+        if (form.querySelector('#affected_bike_id')) {
+            form.querySelector('#affected_bike_id').classList.add('is-invalid');
+        }
+        
+        errorMessage = "Either affected components or an affected bike must be selected";
+        isValid = false;
+    }
+    
+    // Show validation modal if there are errors
+    if (!isValid && errorMessage) {
+        const modalBody = document.getElementById('validationModalBody');
+        if (modalBody) {
+            modalBody.innerHTML = errorMessage;
+            if (typeof validationModal !== 'undefined' && validationModal) {
+                validationModal.show();
+            } else {
+                // Fallback if the global validation modal isn't available
+                const validationModalElement = document.getElementById('validationModal');
+                if (validationModalElement) {
+                    const bsValidationModal = new bootstrap.Modal(validationModalElement);
+                    bsValidationModal.show();
+                } else {
+                    // Last resort - alert
+                    alert(errorMessage);
+                }
+            }
+        }
+    }
+    
+    return isValid;
+}
+
 // ===== Component types page functions =====
 
 // Function to modify component types
