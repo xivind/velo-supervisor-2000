@@ -1525,15 +1525,15 @@ class BusinessLogic():
             success, message = database_manager.write_incident_record(incident_data)
 
             if success:
-                logging.info(f"Creation of incident record successful: {message}")
+                logging.info(f"Creation of incident report successful: {message}")
             else:
-                logging.error(f"Creation of incident record failed: {message}")
+                logging.error(f"Creation of incident report failed: {message}")
 
             return success, message
 
         except Exception as error:
-            logging.error(f"Error creating incident record with id {incident_id}: {str(error)}")
-            return False, f"Error creating incident record with id {incident_id}: {str(error)}"
+            logging.error(f"Error creating incident report with id {incident_id}: {str(error)}")
+            return False, f"Error creating incident report with id {incident_id}: {str(error)}"
     
     def modify_component_type(self,
                             component_type,

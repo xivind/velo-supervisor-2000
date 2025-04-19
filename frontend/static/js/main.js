@@ -612,7 +612,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 recordType = 'history record';
             } else if (button.dataset.incidentId) {
                 tableSelector = 'Incidents';
-                recordType = 'incident record';
+                recordType = 'incident report';
             }
             
             // Set up the modal

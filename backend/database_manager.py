@@ -403,7 +403,7 @@ class DatabaseManager:
             return False, f"History record database error for {history_data['component_name']}: {str(error)}"
 
     def write_incident_record(self, incident_data):
-        """Method to write or update incident record to database"""
+        """Method to create or update incident record to database"""
         try:
             with self.database.atomic():
                 existing_incident = Incidents.get_or_none(Incidents.incident_id == incident_data['incident_id'])
@@ -412,13 +412,13 @@ class DatabaseManager:
                     Incidents.update(**incident_data).where(
                         Incidents.incident_id == incident_data['incident_id']
                     ).execute()
-                    return True, f"Updated incident record with id {incident_data['incident_id']}"
+                    return True, f"Updated incident report with id {incident_data['incident_id']}"
                 else:
                     Incidents.create(**incident_data)
-                    return True, f"Created new incident record with id {incident_data['incident_id']}"
+                    return True, f"Created new incident report with id {incident_data['incident_id']}"
 
         except peewee.OperationalError as error:
-            return False, f"Incident record database error for record with id {incident_data['incident_id']}: {str(error)}"
+            return False, f"Incident record database error for report with id {incident_data['incident_id']}: {str(error)}"
     
     def write_component_type(self, component_type_data):
         """Method to write component type record to database"""
