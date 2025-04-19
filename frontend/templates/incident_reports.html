@@ -105,8 +105,8 @@
                                 {{ elapsed_days }}
                             </td>
                             <td class="text-end">
-                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}" onclick="event.stopPropagation();">✍</button>
-                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}" onclick="event.stopPropagation();">🗑</button>
+                                <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn" data-incident-id="{{ incident_id }}" onclick="event.stopPropagation();">✍</button>
+                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-incident-id="{{ incident_id }}" onclick="event.stopPropagation();">🗑</button>
                             </td>
                         </tr>
                     {% endfor %}

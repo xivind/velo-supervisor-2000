@@ -220,7 +220,7 @@ class DatabaseManager:
         """Method to retrieve record for a specific entry in the service log"""
         return (Services
                 .get_or_none(Services.service_id == service_id))
-    
+
     def read_latest_service_record(self, component_id):
         """Method to retrieve the most recent record from the service log of a given component"""
         return (Services
@@ -228,7 +228,7 @@ class DatabaseManager:
                 .where(Services.component_id == component_id)
                 .order_by(Services.service_date.desc())
                 .first())
-    
+
     def read_oldest_service_record(self, component_id):
         """Method to retrieve the oldest record from the service log of a given component"""
         return (Services
@@ -237,10 +237,15 @@ class DatabaseManager:
                 .order_by(Services.service_date.asc())
                 .first())
 
+    def read_single_incident_report(self, incident_id):
+        """Method to retrieve record for a specific incident report"""
+        return (Incidents
+                .get_or_none(Incidents.incident_id == incident_id))
+
     def read_all_incidents(self):
         """Method to read content of incidents table"""
         return Incidents.select()
-        
+
     def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk to database"""
         try:
@@ -443,7 +448,13 @@ class DatabaseManager:
                     record = self.read_single_component_type(record_id)
                     if record:
                         record.delete_instance()
-                        return True, f"Deleted component type: {record_id}."
+                        return True, f"Deleted component type: {record_id}"
+                
+                if table_selector == "Incidents":
+                    record = self.read_single_incident_report(record_id)
+                    if record:
+                        record.delete_instance()
+                        return True, f"Deleted incident report with id {record_id}"
                 
                 elif table_selector == "Components":
                     record = self.read_component(record_id)
@@ -457,13 +468,13 @@ class DatabaseManager:
                     record = self.read_single_service_record(record_id)
                     if record:
                         record.delete_instance()
-                        return True, f"Deleted service record: {record_id}."
+                        return True, f"Deleted service record with id {record_id}"
                 
                 elif table_selector == "ComponentHistory":
                     record = self.read_single_history_record(record_id)
                     if record:
                         record.delete_instance()
-                        return True, f"Deleted installation history record: {record_id}."
+                        return True, f"Deleted installation history record with id {record_id}"
 
                 else:
                     return False, "Invalid table selector"

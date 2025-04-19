@@ -1626,14 +1626,14 @@ class BusinessLogic():
             if component_type.in_use > 0:
                 logging.warning(f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted")
                 return False, f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted", component_id
-
+        
         success, message = database_manager.write_delete_record(table_selector, record_id)
 
         if success:
             logging.info(f"Deletion successful: {message}")
             if table_selector == "Services":
                 logging.info(f"Recalculating service records for component {component.component_name} after deletion")
-                
+
                 service_records = database_manager.read_subset_service_history(component_id)
                 if service_records:
                     first_service = service_records.first()

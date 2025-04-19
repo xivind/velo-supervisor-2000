@@ -593,7 +593,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const recordId = button.dataset.componentType || 
                            button.dataset.componentId || 
                            button.dataset.serviceId || 
-                           button.dataset.historyId;
+                           button.dataset.historyId ||
+                           button.dataset.incidentId;
 
             let tableSelector, recordType;
             
@@ -609,6 +610,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (button.dataset.historyId) {
                 tableSelector = 'ComponentHistory';
                 recordType = 'history record';
+            } else if (button.dataset.incidentId) {
+                tableSelector = 'Incidents';
+                recordType = 'incident record';
             }
             
             // Set up the modal
