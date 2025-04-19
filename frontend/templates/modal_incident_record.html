@@ -2,11 +2,11 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header input-modal-header">
-                <h5 class="modal-title input-modal-title" id="incidentRecordModalLabel">Incident report</h5>
+                <h5 class="modal-title input-modal-title" id="incidentRecordModalLabel">Incident report</h5><!-- Title set with JS -->
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="incident_form" class="row" action="/add_incident_record" method="post" enctype="application/x-www-form-urlencoded">
+                <form id="incident_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
                     <!-- Hidden fields -->
                     <input type="hidden" id="incident_id" name="incident_id"> <!-- Should be set automatically, and is required -->
                     

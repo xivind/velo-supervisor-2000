@@ -296,7 +296,7 @@ async def add_incident_record(incident_date: str = Form(...),
                               incident_description: Optional[str] = Form(None),
                               resolution_date: Optional[str] = Form(None),
                               resolution_notes: Optional[str] = Form(None)):
-    """Endpoint to update an existing component history record"""
+    """Endpoint to create an incident record"""
 
     success, message = business_logic.create_incident_record(incident_date,
                                                              incident_status,
@@ -313,20 +313,28 @@ async def add_incident_record(incident_date: str = Form(...),
 
     return response
 
-@app.post("/update_incident_record", response_class=HTMLResponse) #IN PROGRESS
+@app.post("/update_incident_record", response_class=HTMLResponse)
 async def update_incident_record(incident_id: str = Form(...),
-                              incident_date: str = Form(...),
-                              incident_status: str = Form(...),
-                              incident_severity: str = Form(...),
-                              affected_component_ids: Optional[str] = Form(None),
-                              affected_bike_id: Optional[str] = Form(None),
-                              incident_description: Optional[str] = Form(None),
-                              resolution_date: Optional[str] = Form(None),
-                              resolution_notes: Optional[str] = Form(None)):
-    """Endpoint to update an existing component history record"""
+                                 incident_date: str = Form(...),
+                                 incident_status: str = Form(...),
+                                 incident_severity: str = Form(...),
+                                 affected_component_ids: Optional[List[str]] = Form(None),
+                                 affected_bike_id: Optional[str] = Form(None),
+                                 incident_description: Optional[str] = Form(None),
+                                 resolution_date: Optional[str] = Form(None),
+                                 resolution_notes: Optional[str] = Form(None)):
+    """Endpoint to update an incident record"""
 
-    success, message = business_logic.update_incident_record(TBD)
-
+    success, message = business_logic.update_incident_record(incident_id,
+                                                             incident_date,
+                                                             incident_status,
+                                                             incident_severity,
+                                                             affected_component_ids,
+                                                             affected_bike_id,
+                                                             incident_description,
+                                                             resolution_date,
+                                                             resolution_notes)
+    
     response = RedirectResponse(
         url=f"/incident_reports?success={success}&message={message}",
         status_code=303)

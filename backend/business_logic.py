@@ -1534,6 +1534,46 @@ class BusinessLogic():
         except Exception as error:
             logging.error(f"Error creating incident report with id {incident_id}: {str(error)}")
             return False, f"Error creating incident report with id {incident_id}: {str(error)}"
+        
+    def update_incident_record(self,
+                               incident_id,
+                               incident_date,
+                               incident_status,
+                               incident_severity,
+                               affected_component_ids,
+                               affected_bike_id,
+                               incident_description,
+                               resolution_date,
+                               resolution_notes):
+        """Method to update incident record"""
+        try:
+            affected_bike_id = affected_bike_id if affected_bike_id else None
+            incident_description = incident_description if incident_description else None
+            resolution_date = resolution_date if resolution_date else None
+            resolution_notes = resolution_notes if resolution_notes else None
+
+            incident_data = {"incident_id": incident_id,
+                             "incident_date": incident_date,
+                             "incident_status": incident_status,
+                             "incident_severity": incident_severity,
+                             "affected_component_ids": json.dumps(affected_component_ids) if affected_component_ids else None,
+                             "affected_bike_id": affected_bike_id,
+                             "incident_description": incident_description,
+                             "resolution_date": resolution_date,
+                             "resolution_notes": resolution_notes}
+            
+            success, message = database_manager.write_incident_record(incident_data)
+
+            if success:
+                logging.info(f"Update of incident report successful: {message}")
+            else:
+                logging.error(f"Update of incident report failed: {message}")
+
+            return success, message
+
+        except Exception as error:
+            logging.error(f"Error updating incident report with id {incident_id}: {str(error)}")
+            return False, f"Error updating incident report with id {incident_id}: {str(error)}"
     
     def modify_component_type(self,
                             component_type,

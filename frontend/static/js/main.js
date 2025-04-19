@@ -1447,43 +1447,208 @@ document.addEventListener('DOMContentLoaded', function() {
 // PLACEHOLDER
 
 // ===== Incident reports page functions =====
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize TomSelect for component selection when incident modal is shown
-    const incidentModal = document.getElementById('incidentRecordModal');
-    if (incidentModal) {
-        incidentModal.addEventListener('shown.bs.modal', function() {
-            // Initialize date pickers first
-            initializeDatePickers(incidentModal);
-            
-            // Then initialize the component selector and form
-            initializeComponentSelector();
-            initializeIncidentForm();
-        });
+(function() {
+    // Only run this code if the incident modal is present
+    if (!document.getElementById('incidentRecordModal')) {
+        return;
     }
-
-    // Initialize the incident table functionality
-    initializeIncidentTable();
-});
-
-// Function to initialize the component selector with search capability
-function initializeComponentSelector() {
-    const componentSelect = document.getElementById('affected_component_ids');
     
-    // Check if element exists and hasn't been initialized yet
-    if (componentSelect && !componentSelect.tomSelect) {
+    // Local variables
+    let tomSelectInitialized = false;
+    let pendingComponentData = null;
+    let isNewIncident = false;
+    
+    // Initialize when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        const incidentModal = document.getElementById('incidentRecordModal');
+        if (incidentModal) {
+            // Setup modal shown event
+            incidentModal.addEventListener('shown.bs.modal', function() {
+                // console.log("Incident modal shown, isNewIncident:", isNewIncident);
+                initializeDatePickers(incidentModal);
+                
+                // If it's a new incident, we need special handling
+                if (isNewIncident) {
+                    initializeComponentSelector(null);
+                    
+                    // Set current date after pickers are initialized
+                    setTimeout(() => {
+                        const now = new Date();
+                        const formattedDate = now.getFullYear() + '-' + 
+                            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(now.getDate()).padStart(2, '0') + ' ' + 
+                            String(now.getHours()).padStart(2, '0') + ':' + 
+                            String(now.getMinutes()).padStart(2, '0');
+                        
+                        document.getElementById('incident_date').value = formattedDate;
+                    }, 100);
+                } else {
+                    // For editing incidents
+                    initializeComponentSelector(pendingComponentData);
+                }
+                
+                // Call the existing form initialization function
+                initializeIncidentForm();
+            });
+            
+            // Clean up when modal is hidden
+            incidentModal.addEventListener('hidden.bs.modal', function() {
+                // console.log("Incident modal hidden");
+                pendingComponentData = null;
+                isNewIncident = false;
+            });
+        }
+        
+        // Setup edit button click handlers
+        document.querySelectorAll('.edit-incident-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                isNewIncident = false;
+                
+                // Configure modal for editing
+                document.getElementById('incidentRecordModalLabel').textContent = 'Edit incident report';
+                document.getElementById('incident_form').action = '/update_incident_record';
+                
+                // Get data from the button
+                const incidentId = this.dataset.incidentId;
+                const incidentDate = this.dataset.incidentDate;
+                const incidentStatus = this.dataset.incidentStatus;
+                const incidentSeverity = this.dataset.incidentSeverity;
+                const affectedComponents = this.dataset.affectedComponents;
+                const affectedBikeId = this.dataset.affectedBikeId;
+                const description = this.dataset.description?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
+                const resolutionDate = this.dataset.resolutionDate;
+                const resolutionNotes = this.dataset.resolutionNotes?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
+
+                // Prepare component data
+                const componentList = [];
+                let hasComponents = false;
+                if (affectedComponents && affectedComponents !== 'Not assigned') {
+                    console.log("Processing components:", affectedComponents);
+                    hasComponents = true;
+                    
+                    affectedComponents.split(', ').forEach(comp => {
+                        if (comp.includes('COMPONENT-ID:')) {
+                            const compId = comp.split('|COMPONENT-ID:')[1].trim();
+                            componentList.push(compId);
+                            console.log("Extracted component ID:", compId);
+                        }
+                    });
+                }
+                
+                // Store data for use by the modal
+                pendingComponentData = {
+                    hasComponents: hasComponents,
+                    componentIds: componentList,
+                    formData: {
+                        incidentId: incidentId,
+                        incidentDate: incidentDate,
+                        incidentStatus: incidentStatus,
+                        incidentSeverity: incidentSeverity,
+                        affectedBikeId: affectedBikeId,
+                        description: description,
+                        resolutionDate: resolutionDate,
+                        resolutionNotes: resolutionNotes
+                    }
+                };
+                
+                // Show the modal (which will trigger the shown.bs.modal event)
+                const modal = new bootstrap.Modal(incidentModal);
+                modal.show();
+            });
+            
+            // Initialize incident table functionality (sorting, filtering, searching)
+            initializeIncidentTable();
+            
+        });
+        
+        // Setup new incident button
+        document.querySelector('[data-bs-target="#incidentRecordModal"]')?.addEventListener('click', function() {
+            // Flag as new incident
+            isNewIncident = true;
+            pendingComponentData = null;
+            
+            // Reset the form
+            document.getElementById('incidentRecordModalLabel').textContent = 'New incident report';
+            document.getElementById('incident_form').action = '/add_incident_record';
+            document.getElementById('incident_form').reset();
+            document.getElementById('incident_id').value = '';
+            document.getElementById('status_open').checked = true;
+            
+            // Clear TomSelect if it's already initialized
+            const componentSelect = document.getElementById('affected_component_ids');
+            if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
+                const ts = componentSelect.tomSelect || componentSelect.tomselect;
+                ts.clear();
+            }
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('incidentRecordModal'));
+            modal.show();
+        });
+    });
+    
+    // Initialize the component selector with delayed data loading
+    function initializeComponentSelector(pendingData) {
+        const componentSelect = document.getElementById('affected_component_ids');
+        if (!componentSelect) return;
+        
+        // If TomSelect is already initialized
+        if (componentSelect.tomSelect || componentSelect.tomselect) {
+            // console.log("TomSelect already initialized, updating values");
+            const ts = componentSelect.tomSelect || componentSelect.tomselect;
+            ts.clear();
+            
+            // Only set values if we have components to set
+            if (pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
+                // console.log("Setting component values:", pendingData.componentIds);
+                ts.setValue(pendingData.componentIds);
+            }
+            
+            // Update other form fields
+            if (pendingData && pendingData.formData) {
+                updateFormFields(pendingData.formData);
+            }
+            
+            return;
+        }
+        
+        // Initialize TomSelect if not already done
+        // console.log("Initializing TomSelect");
         try {
-            const tomSelect = new TomSelect(componentSelect, {
+            const ts = new TomSelect(componentSelect, {
                 plugins: ['remove_button'],
                 maxItems: null,
                 valueField: 'value',
                 labelField: 'text',
                 searchField: ['text'],
                 create: false,
-                placeholder: 'Search to add more components...'
+                placeholder: 'Search to add more components...',
+                onInitialize: function() {
+                    // console.log("TomSelect initialized");
+                    tomSelectInitialized = true;
+                    
+                    // For new incidents, we leave it empty
+                    // For edit incidents, we set values if applicable
+                    if (!isNewIncident && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
+                        // console.log("Setting initial component values:", pendingData.componentIds);
+                        setTimeout(() => {
+                            this.clear();
+                            this.setValue(pendingData.componentIds);
+                        }, 50);
+                    }
+                    
+                    // Update form fields for edit incidents
+                    if (!isNewIncident && pendingData && pendingData.formData) {
+                        updateFormFields(pendingData.formData);
+                    }
+                }
             });
             
             // Add change handler for validation
-            tomSelect.on('change', function() {
+            ts.on('change', function() {
                 const tomSelectControl = document.querySelector('.ts-control');
                 if (tomSelectControl) {
                     tomSelectControl.style.borderColor = '';
@@ -1491,15 +1656,61 @@ function initializeComponentSelector() {
                 
                 // Also remove error styling from bike select if components are selected
                 const bikeSelect = document.getElementById('affected_bike_id');
-                if (bikeSelect && tomSelect.getValue().length > 0) {
+                if (bikeSelect && ts.getValue().length > 0) {
                     bikeSelect.classList.remove('is-invalid');
                 }
             });
         } catch (e) {
-            console.warn('Tom Select initialization error:', e);
+            console.error('TomSelect initialization error:', e);
         }
     }
-}
+    
+    // Update form fields with data
+    function updateFormFields(data) {
+        // console.log("Form data received:", data);
+        
+        // Set basic form fields
+        document.getElementById('incident_id').value = data.incidentId || '';
+        
+        // Set status radio buttons
+        if (data.incidentStatus === 'Resolved') {
+            document.getElementById('status_resolved').checked = true;
+        } else {
+            document.getElementById('status_open').checked = true;
+        }
+        
+        // Set other fields, checking for any variation of 'none' (case-insensitive)
+        document.getElementById('incident_severity').value = data.incidentSeverity || 'Monitor';
+        
+        // Clean description
+        const description = data.description || '';
+        document.getElementById('incident_description').value = 
+            description.toLowerCase() === 'none' ? '' : description;
+        
+        document.getElementById('affected_bike_id').value = data.affectedBikeId || '';
+        
+        // Clean resolution notes
+        const resolutionNotes = data.resolutionNotes || '';
+        document.getElementById('resolution_notes').value = 
+            resolutionNotes.toLowerCase() === 'none' ? '' : resolutionNotes;
+        
+        // Set date fields with a slight delay to ensure pickers are initialized
+        setTimeout(() => {
+            if (data.incidentDate) {
+                document.getElementById('incident_date').value = data.incidentDate;
+            }
+            
+            const resolutionDate = data.resolutionDate || '';
+            if (resolutionDate && 
+                resolutionDate !== '-' && 
+                resolutionDate.toLowerCase() !== 'none') {
+                document.getElementById('resolution_date').value = resolutionDate;
+            } else {
+                document.getElementById('resolution_date').value = '';
+            }
+        }, 100);
+    }
+})();
 
 // Initialize the incident form and set up validation
 function initializeIncidentForm() {
@@ -1716,17 +1927,30 @@ function validateIncidentForm(form) {
 
 // Function to initialize the incident table with sorting, filtering and search
 function initializeIncidentTable() {
-    // Check if we're on the incidents page
-    if (document.querySelector('h1#incident-reports') === null) return;
+    // Check if incidents table is available
+    const table = document.getElementById('incidentsTable');
+    if (!table) return;
     
-    // Set up table sorting
-    setupIncidentTableSorting();
+    // Check for specific table types and initialize accordingly
+    if (document.querySelector('h1#incident-reports')) {
+        // Full incident page - use all functionality
+        
+        // Set up table sorting
+        setupIncidentTableSorting();
+        
+        // Set up search functionality
+        setupIncidentSearch();
+
+        // Set up status filtering
+        setupIncidentStatusFiltering();
+
+    } else {
+        // Simplified table on other pages - use simpler initialization
+        
+        // Set up status filtering
+        setupIncidentStatusFiltering();
+    }
     
-    // Set up search functionality
-    setupIncidentSearch();
-    
-    // Set up status filtering
-    setupIncidentStatusFiltering();
 }
 
 // Function to set up incident table sorting
@@ -1835,7 +2059,7 @@ function setupIncidentTableSorting() {
 
 // Function for filtering incident table by status
 function setupIncidentStatusFiltering() {
-    // Check if we're on the incidents page
+    // Check if the incidents table is available
     const incidentsTable = document.getElementById('incidentsTable');
     if (!incidentsTable) return;
 
