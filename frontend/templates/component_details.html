@@ -11,7 +11,7 @@
     'lifetime_expected': payload.bike_component_data['lifetime_expected'],
     'service_interval': payload.bike_component_data['service_interval'],
     'component_notes': payload.bike_component_data['component_notes']
-} if request.url.path.startswith('/component_details/') else None %}
+} %}
     {% include "modal_create_component.html" %}
 {% endwith %}
 
