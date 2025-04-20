@@ -89,7 +89,12 @@
             <div class="card-body">
                 <h5 class="card-title">Notes</h5>
                 <hr/>
-                <p class="card-text">{{ payload.bike_data.bike_notes }}</p>
+                <p class="card-text">{% if payload.bike_data.bike_notes %}
+                                        {{ payload.bike_data.bike_notes }}
+                                    {% else %}
+                                        <span class="text-secondary">No bike notes available. Bike notes added in Strava will appear here.</span>
+                                    {% endif %}
+                </p>
             </div>
         </div>
         <div class="card shadow">
