@@ -10,6 +10,7 @@
         <span class="me-3"><span class="badge bike_healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> All components healthy</span>
         <span class="me-3"><span class="badge bike-critical" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Components need attention</span>
         <span class="me-3"><span class="badge bike_no_components" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> No components registered / no active components</span>
+        <span class="me-3">🚨 Bike has open incidents</span>
     </div>
     <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" id="showRetiredBikes">
@@ -21,7 +22,7 @@
         <div class="col-md-4 mb-4">
             <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">
                 <div class="card shadow hover-effect" data-bike-status="{{ bike_status }}">
-                    <div class="card-header h5 fw-bold 
+                    <div class="card-header h5 fw-bold d-flex justify-content-between align-items-center
                         {%- if service_status == 'No components registered' or service_status == 'No active components' -%}
                             text-bg-dark bike_no_components
                         {%- elif service_status == 'Components need attention' -%}
@@ -29,7 +30,19 @@
                         {%- else -%}
                             text-bg-dark bike_healthy
                         {%- endif -%}">
-                        {{ name }}
+                        <span>{{ name }}</span>
+                        <span>
+                            {% for incident_id, incident_bike_id, component_ids, component_bike_ids, severity in payload.open_workplans %}
+                                {% if bike_id == incident_bike_id or bike_id in component_bike_ids %}
+                                    PLACEHOLDER FOR WORKPLAN
+                                {% endif %}
+                            {% endfor %}
+                            {% for incident_id, incident_bike_id, component_ids, component_bike_ids, severity in payload.open_incidents %}
+                                {% if bike_id == incident_bike_id or bike_id in component_bike_ids %}
+                                    🚨
+                                {% endif %}
+                            {% endfor %}
+                        </span>
                     </div>
                     <div class="card-body">
                         <h6 class="card-title fw-bold">

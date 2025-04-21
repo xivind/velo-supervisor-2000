@@ -70,7 +70,10 @@ class BusinessLogic():
                                warning_count,
                                compliance_report))
 
-        payload = {"bikes_data": bikes_data}
+        open_incidents = self.get_open_incidents()
+
+        payload = {"bikes_data": bikes_data,
+                   "open_incidents": open_incidents}
 
         return payload
 
@@ -348,6 +351,40 @@ class BusinessLogic():
 
         return payload
 
+    def get_open_incidents(self):
+        """Method to get all open incidents and their related information"""
+        incidents = database_manager.read_all_incidents()
+        open_incidents = []
+        
+        for incident in incidents:
+            if incident.incident_status != "Open":
+                continue
+            
+            incident_id = incident.incident_id
+            bike_id = incident.affected_bike_id if incident.affected_bike_id else None
+            severity = incident.incident_severity
+            
+            affected_component_ids = []
+            component_bike_ids = set()
+            
+            if incident.affected_component_ids:
+                affected_component_ids = json.loads(incident.affected_component_ids)
+
+                for component_id in affected_component_ids:
+                    component = database_manager.read_component(component_id)
+                    if component and component.installation_status != "Not installed" and component.bike_id:
+                        component_bike_ids.add(component.bike_id)
+
+            incident_tuple = (incident_id,
+                              bike_id,
+                              affected_component_ids,
+                              list(component_bike_ids),
+                              severity)
+            
+            open_incidents.append(incident_tuple)
+        
+        return open_incidents
+    
     def get_component_types(self):
         """Method to produce payload for page component types"""
         payload = {"component_types": database_manager.read_all_component_types()}
