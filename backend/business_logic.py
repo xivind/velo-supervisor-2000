@@ -118,6 +118,8 @@ class BusinessLogic():
                               ) for ride in recent_rides]
 
         compliance_report = self.process_bike_compliance_report(bike_id)
+        
+        open_incidents = self.get_open_incidents()
 
         payload = {"recent_rides": recent_rides_data,
                    "bikes_data": bikes_data,
@@ -137,7 +139,8 @@ class BusinessLogic():
                    "count_service_status_purple" : component_statistics["count_service_status_purple"],
                    "count_service_status_grey" : component_statistics["count_service_status_grey"],
                    "sum_cost" : component_statistics["sum_cost"],
-                   "compliance_report": compliance_report}
+                   "compliance_report": compliance_report,
+                   "open_incidents": open_incidents}
 
         return payload
 
@@ -302,13 +305,16 @@ class BusinessLogic():
         elapsed_days = {"days_since_install": days_since_install,
                         "days_since_service": days_since_service}
 
+        open_incidents = self.get_open_incidents()
+        
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
                    "bike_component_data": bike_component_data,
                    "bike_name": database_manager.read_bike_name(bike_component.bike_id),
                    "component_history_data": component_history_data,
                    "service_history_data": service_history_data,
-                   "elapsed_days": elapsed_days}
+                   "elapsed_days": elapsed_days,
+                   "open_incidents": open_incidents}
 
         return payload
 
@@ -352,38 +358,72 @@ class BusinessLogic():
         return payload
 
     def get_open_incidents(self):
-        """Method to get all open incidents and their related information"""
+        """Method to get all open incidents and  process date into summaries for bike id and component id"""
         incidents = database_manager.read_all_incidents()
-        open_incidents = []
+
+        bike_incidents = {}
+        component_incidents = {}
+        bike_incident_tracker = {}
+        
+        severity_ranks = {"Critical": 3, "Priority": 2, "Monitor": 1}
         
         for incident in incidents:
             if incident.incident_status != "Open":
                 continue
             
             incident_id = incident.incident_id
-            bike_id = incident.affected_bike_id if incident.affected_bike_id else None
             severity = incident.incident_severity
-            
-            affected_component_ids = []
-            component_bike_ids = set()
+
+            if incident.affected_bike_id:
+                bike_id = incident.affected_bike_id
+                
+                if bike_id not in bike_incidents:
+                    bike_incidents[bike_id] = {"incident_count": 0,
+                                               "max_severity": None}
+                    bike_incident_tracker[bike_id] = []
+                
+                if incident_id not in bike_incident_tracker[bike_id]:
+                    bike_incidents[bike_id]["incident_count"] += 1
+                    bike_incident_tracker[bike_id].append(incident_id)
+                    
+                    current_max_severity = bike_incidents[bike_id]["max_severity"]
+                    if current_max_severity is None or severity_ranks.get(severity, 0) > severity_ranks.get(current_max_severity, 0):
+                        bike_incidents[bike_id]["max_severity"] = severity
             
             if incident.affected_component_ids:
-                affected_component_ids = json.loads(incident.affected_component_ids)
-
-                for component_id in affected_component_ids:
+                component_ids = json.loads(incident.affected_component_ids)
+                
+                for component_id in component_ids:
+                    if component_id not in component_incidents:
+                        component_incidents[component_id] = {"incident_count": 0,
+                                                             "max_severity": None}
+                    
+                    component_incidents[component_id]["incident_count"] += 1
+                    
+                    current_max_severity = component_incidents[component_id]["max_severity"]
+                    if current_max_severity is None or severity_ranks.get(severity, 0) > severity_ranks.get(current_max_severity, 0):
+                        component_incidents[component_id]["max_severity"] = severity
+                    
                     component = database_manager.read_component(component_id)
                     if component and component.installation_status != "Not installed" and component.bike_id:
-                        component_bike_ids.add(component.bike_id)
-
-            incident_tuple = (incident_id,
-                              bike_id,
-                              affected_component_ids,
-                              list(component_bike_ids),
-                              severity)
-            
-            open_incidents.append(incident_tuple)
+                        bike_id = component.bike_id
+                        
+                        if bike_id not in bike_incidents:
+                            bike_incidents[bike_id] = {"incident_count": 0,
+                                                       "max_severity": None}
+                            bike_incident_tracker[bike_id] = []
+                        
+                        if incident_id not in bike_incident_tracker[bike_id]:
+                            bike_incidents[bike_id]["incident_count"] += 1
+                            bike_incident_tracker[bike_id].append(incident_id)
+                            
+                            # Update max severity if higher
+                            current_max_severity = bike_incidents[bike_id]["max_severity"]
+                            if current_max_severity is None or severity_ranks.get(severity, 0) > severity_ranks.get(current_max_severity, 0):
+                                bike_incidents[bike_id]["max_severity"] = severity
         
-        return open_incidents
+        return {"bike_incidents": bike_incidents,
+                "component_incidents": component_incidents}
     
     def get_component_types(self):
         """Method to produce payload for page component types"""
