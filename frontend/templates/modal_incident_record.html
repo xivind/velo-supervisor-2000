@@ -55,7 +55,10 @@
                         <select class="form-select" id="affected_bike_id" name="affected_bike_id">
                             <option value="" selected></option>
                             {% for bike_name, bike_id in payload.bikes_data %}
-                                <option value="{{ bike_id }}">{{ bike_name }}</option>
+                                <option value="{{ bike_id }}"
+                                    {% if duplicate_data and bike_id == duplicate_data.bike_id %}selected{% endif %}>
+                                {{ bike_name }}
+                                </option>
                             {% endfor %}
                         </select>
                     </div>

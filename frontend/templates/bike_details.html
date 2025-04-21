@@ -8,6 +8,10 @@
     'bike_id': payload.bike_data['bike_id']} %}
     {% include "modal_create_component.html" %}
 {% endwith %}
+{% with duplicate_data = {
+    'bike_id': payload.bike_data['bike_id']} %}
+    {% include "modal_incident_record.html" %}
+{% endwith %}
 
 <h1 id="bike-details" class="display-5 mt-5 text-center">Bike details</h1>
 <div class="row mt-5">
@@ -78,16 +82,28 @@
                 </p>  
             </div>
         </div>
-        <div class="card shadow mb-4">
-            <div class="card-body text-center btn-outline-primary">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createComponentModal">
-                    <span>⚙ New component</span>
-                </button>
+        <div class="col-12">
+            <div class="row g-2">
+                <div class="col-6 mb-2">
+                    <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+                        <span>⚙ New component</span>
+                    </button>
+                </div>
+                <div class="col-6 mb-2">
+                    <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+                        <span>📝 New workplan</span>
+                    </button>
+                </div>
+                <div class="col-6 mb-2">
+                    <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+                        <span>🚨 New incident</span>
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="card shadow mb-4">
+        <div class="card shadow mb-4 mt-2">
             <div class="card-body">
-                <h5 class="card-title">Notes</h5>
+                <h5 class="card-title">Open incidents</h5>
                 <hr/>
                 <p class="card-text">
                     {% if payload.bike_data.bike_notes %}
@@ -100,7 +116,7 @@
         </div>
         <div class="card shadow mb-4">
             <div class="card-body">
-                <h5 class="card-title">Open incidents</h5>
+                <h5 class="card-title">Notes</h5>
                 <hr/>
                 <p class="card-text">
                     {% if payload.bike_data.bike_notes %}
