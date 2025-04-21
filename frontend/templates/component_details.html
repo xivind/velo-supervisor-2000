@@ -142,8 +142,43 @@
                 </div>
         </div>    
     </div>
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Open incidents</h5>
+            <hr/>
+            <p class="card-text">
+                sds
+            </p>
+        </div>
+    </div>
 </div>
     <div class="col-md-8">
+        {% set current_component_id = payload.bike_component_data['component_id'] %}
+        {% if current_component_id in payload.open_incidents["component_incidents"] %}
+            {% set incident_data = payload.open_incidents["component_incidents"][current_component_id] %}
+            {% set incident_count = incident_data["incident_count"] %}
+            {% set highest_severity = incident_data["max_severity"] %}
+            {% set alert_class = "alert-success" %}
+            {% if highest_severity == "Critical" %}
+                {% set alert_class = "alert-danger" %}
+            {% elif highest_severity == "Priority" %}
+                {% set alert_class = "alert-warning" %}
+            {% endif %}
+            <div class="card shadow mb-4">
+                <div class="alert {{ alert_class }} m-0">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-2 me-3">🚨</div>
+                        <div>
+                            <h5 class="card-title mb-2">Component has open incidents</h5>
+                            <p class="mb-1">
+                                There {% if incident_count == 1 %}is{% else %}are{% endif %} <strong>{{ incident_count }}</strong> open incident{% if incident_count > 1 %}s{% endif %} referencing this component.
+                                The highest severity of the open incidents is <strong>{{ highest_severity }}</strong>. See incident card below for details and to update incidents.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         <div class="card shadow mb-4">
             <div class="card-header fw-bold">Component status</div>
             <div class="card-body">

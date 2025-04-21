@@ -98,6 +98,19 @@
                 </p>
             </div>
         </div>
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Open incidents</h5>
+                <hr/>
+                <p class="card-text">
+                    {% if payload.bike_data.bike_notes %}
+                        {{ payload.bike_data.bike_notes }}
+                    {% else %}
+                        <span class="text-secondary">No bike notes available. Bike notes added in Strava will appear here.</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
         <div class="card shadow">
             <div class="card-body">
                 <h5 class="card-title">Recent rides</h5>
@@ -130,23 +143,49 @@
         </div>
     </div>
     <div class="col-md-8">
-        {% if payload.bike_data.bike_retired == 'False' and (not payload.compliance_report.all_mandatory_present or not payload.compliance_report.no_max_quantity_exceeded) %}
-        <div class="card shadow mb-4">
-            <div class="alert alert-warning m-0">
-                <div class="d-flex align-items-center">
-                    <div class="fs-2 me-3">⚠</div>
-                    <div>
-                        <h5 class="card-title mb-2">Component type compliance issues</h5>
-                        {% if not payload.compliance_report.all_mandatory_present %}
-                        <p class="mb-1"><strong>Missing mandatory components:</strong> {{ payload.compliance_report.missing_mandatory }}</p>
-                        {% endif %}
-                        {% if not payload.compliance_report.no_max_quantity_exceeded %}
-                        <p class="mb-1"><strong>Components exceeding maximum quantity:</strong> {{ payload.compliance_report.exceeding_max_quantity }}</p>
-                        {% endif %}
+        {% set current_bike_id = payload.bike_data['bike_id'] %}
+        {% if current_bike_id in payload.open_incidents["bike_incidents"] %}
+            {% set incident_data = payload.open_incidents["bike_incidents"][current_bike_id] %}
+            {% set incident_count = incident_data["incident_count"] %}
+            {% set highest_severity = incident_data["max_severity"] %}
+            {% set alert_class = "alert-success" %}
+            {% if highest_severity == "Critical" %}
+                {% set alert_class = "alert-danger" %}
+            {% elif highest_severity == "Priority" %}
+                {% set alert_class = "alert-warning" %}
+            {% endif %}
+            <div class="card shadow mb-4">
+                <div class="alert {{ alert_class }} m-0">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-2 me-3">🚨</div>
+                        <div>
+                            <h5 class="card-title mb-2">Bike or installed components has open incidents</h5>
+                            <p class="mb-1">
+                                There {% if incident_count == 1 %}is{% else %}are{% endif %} <strong>{{ incident_count }}</strong> open incident{% if incident_count > 1 %}s{% endif %} referencing this bike, either directly or by installed components.
+                                The highest severity of the open incidents is <strong>{{ highest_severity }}</strong>. See incident card below for details and to update incidents.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
+        {% if payload.bike_data.bike_retired == 'False' and (not payload.compliance_report.all_mandatory_present or not payload.compliance_report.no_max_quantity_exceeded) %}
+            <div class="card shadow mb-4">
+                <div class="alert alert-warning m-0">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-2 me-3">🏷</div>
+                        <div>
+                            <h5 class="card-title mb-2">Component type compliance issues</h5>
+                            {% if not payload.compliance_report.all_mandatory_present %}
+                            <p class="mb-1"><strong>Missing mandatory components:</strong> {{ payload.compliance_report.missing_mandatory }}</p>
+                            {% endif %}
+                            {% if not payload.compliance_report.no_max_quantity_exceeded %}
+                            <p class="mb-1"><strong>Components exceeding maximum quantity:</strong> {{ payload.compliance_report.exceeding_max_quantity }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endif %}
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
