@@ -67,10 +67,10 @@ async def root(request: Request):
 async def bike_details(request: Request,
                        bike_id: str):
     """Endpoint for bike details page"""
-    
+
     payload = business_logic.get_bike_details(bike_id)
     template_path = "bike_details.html"
-    
+
     return templates.TemplateResponse(template_path,
                                       {"request": request,
                                        "payload": payload})
@@ -78,10 +78,10 @@ async def bike_details(request: Request,
 @app.get("/component_overview", response_class=HTMLResponse)
 async def component_overview(request: Request):
     """Endpoint for components overview page"""
-    
+
     payload = business_logic.get_component_overview()
     template_path = "component_overview.html"
-    
+
     return templates.TemplateResponse(template_path,
                                       {"request": request,
                                        "payload": payload})
@@ -89,10 +89,10 @@ async def component_overview(request: Request):
 @app.get("/incident_reports", response_class=HTMLResponse)
 async def incident_reports(request: Request):
     """Endpoint for incident reports page"""
-    
+
     payload = business_logic.get_incident_reports()
     template_path = "incident_reports.html"
-    
+
     return templates.TemplateResponse(template_path,
                                       {"request": request,
                                        "payload": payload})
