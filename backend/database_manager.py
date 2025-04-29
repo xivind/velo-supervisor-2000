@@ -36,16 +36,6 @@ class DatabaseManager:
 
         return "Not assigned"
 
-    def read_bike_name_id(self, bike_id):
-        """Method to get the name of a bike based on bike id, includes bike id on return"""
-        bike = self.read_single_bike(bike_id)
-
-        if bike:
-            if bike.bike_name is not None:
-                return f'{bike.bike_name}|BIKE-ID:{bike.bike_id}'
-
-        return "Not assigned"
-
     def read_bike_id_recent_component_history(self, component_id):
         """Method to get bike id from most recent component history"""
         return (ComponentHistory
@@ -132,10 +122,11 @@ class DatabaseManager:
         return (ComponentTypes
                 .get_or_none(ComponentTypes.component_type == component_type))
 
-    def read_component_names_id(self, component_ids_raw):
-        """Method to get component names based on list string, includes component id on return"""
+    def read_component_names(self, component_ids_raw):
+        """Method to get component names based on list of ids"""
+
         if component_ids_raw is None:
-            return "Not assigned"
+            return ["Not assigned"]
 
         component_ids = json.loads(component_ids_raw)
 
@@ -143,11 +134,11 @@ class DatabaseManager:
         for component_id in component_ids:
             component = self.read_component(component_id)
             if component:
-                component_names.append(f'{component.component_name}|COMPONENT-ID:{component.component_id}')
+                component_names.append(component.component_name)
             else:
                 component_names.append("Deleted component")
 
-        return ", ".join(component_names) if component_names else "Not assigned"
+        return component_names if component_names else ["Not assigned"]
     
     def count_component_types_in_use(self, component_type):
         """Method to count how many components that references a given component type"""
@@ -243,8 +234,15 @@ class DatabaseManager:
                 .get_or_none(Incidents.incident_id == incident_id))
 
     def read_all_incidents(self):
-        """Method to read content of incidents table"""
+        """Method to read all incident records"""
         return Incidents.select()
+
+    def read_open_incidents(self):
+        """Method to read incident records with status 'Open'"""
+        return (Incidents
+                .select()
+                .where(Incidents.incident_status == "Open")
+                .order_by(Incidents.incident_date.desc()))
 
     def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk to database"""
