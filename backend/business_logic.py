@@ -15,7 +15,7 @@ from utils import (read_config,
                    validate_date_format,
                    calculate_elapsed_days,
                    get_formatted_bikes_list,
-                   load_json_string)
+                   parse_json_string)
 from strava import Strava
 from database_manager import DatabaseManager
 
@@ -129,7 +129,7 @@ class BusinessLogic():
                                   incident.incident_date,
                                   incident.incident_status,
                                   incident.incident_severity,
-                                  load_json_string(incident.affected_component_ids),
+                                  parse_json_string(incident.affected_component_ids),
                                   database_manager.read_component_names(incident.affected_component_ids),
                                   incident.affected_bike_id,
                                   database_manager.read_bike_name(incident.affected_bike_id),
@@ -364,7 +364,7 @@ class BusinessLogic():
                                   incident.incident_date,
                                   incident.incident_status,
                                   incident.incident_severity,
-                                  load_json_string(incident.affected_component_ids),
+                                  parse_json_string(incident.affected_component_ids),
                                   database_manager.read_component_names(incident.affected_component_ids),
                                   incident.affected_bike_id,
                                   database_manager.read_bike_name(incident.affected_bike_id),

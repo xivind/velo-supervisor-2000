@@ -105,7 +105,7 @@
                                     data-incident-date="{{ incident_date }}" 
                                     data-incident-status="{{ incident_status }}"
                                     data-incident-severity="{{ incident_severity }}"
-                                    data-affected-components="{{ affected_component_ids }}"
+                                    data-affected-components='{{ affected_component_ids|tojson if affected_component_ids else "[]" }}'
                                     data-affected-bike-id="{% if affected_bike != 'Not assigned' %}{{ affected_bike_id }}{% endif %}"
                                     data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
                                     data-resolution-date="{{ resolution_date }}" 

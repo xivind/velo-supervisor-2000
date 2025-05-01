@@ -168,13 +168,13 @@ def validate_date_format(date_string):
             continue
         if not char.isdigit():
             return False, f"Invalid date format: '{date_string}'. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
-    
+
     try:
         datetime.strptime(date_string, "%Y-%m-%d %H:%M")
         return True, "Date format is valid"
     except ValueError:
         return False, f"Invalid date: '{date_string}'. The date provided is invalid or does not match the expected format (YYYY-MM-DD HH:MM)"
-    
+
 def calculate_elapsed_days(start_date, end_date):
     """Function to calculate the number of days between two dates"""
     try:
@@ -183,9 +183,9 @@ def calculate_elapsed_days(start_date, end_date):
         return True, (end_date - start_date).days
     except ValueError:
         return False, "Failed to calculate elapsed days"
-    
-def load_json_string(raw_json_string):
-    """Function to loads a JSON string and return the parsed data"""
+
+def parse_json_string(raw_json_string):
+    """Function to load a JSON string and return the parsed data as a python object"""
     if raw_json_string is None:
         return None
 

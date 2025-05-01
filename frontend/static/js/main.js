@@ -1529,11 +1529,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log("Processing components:", affectedComponents);
                     hasComponents = true;
                     
-                    affectedComponents.split(', ').forEach(comp => {
-                        if (comp.includes('COMPONENT-ID:')) {
-                            const compId = comp.split('|COMPONENT-ID:')[1].trim();
-                            componentList.push(compId);
-                            console.log("Extracted component ID:", compId);
+                    // Parse the JSON-like string back into an array
+                    const componentIds = JSON.parse(affectedComponents);
+                    componentIds.forEach(id => {
+                        if (id) {
+                            componentList.push(id);
+                            console.log("Added component ID:", id);
                         }
                     });
                 }
