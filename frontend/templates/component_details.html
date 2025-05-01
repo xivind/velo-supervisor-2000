@@ -23,8 +23,40 @@
 {% include "modal_service_record.html" %}
 {% include "modal_edit_installation_record.html" %}
 
-<h1 id="component-details" class="display-5 mt-5 text-center">Component details</h1>
-<div class="row mt-5">
+<h1 id="component-details" class="display-5 mt-5 mb-4 text-center">Component details</h1>
+{% if payload.bike_component_data['bike_id'] %}
+    <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary me-2">
+        <span>🚴 View bike</span>
+    </a>
+{% elif payload.component_history_data|length > 1 and payload.bike_component_data['installation_status'] != 'Installed'  %}
+    <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="btn btn-outline-primary me-2">
+        <span>🚴 View previous bike</span>
+    </a>    
+{% else %}
+    <button type="button" class="btn btn-outline-primary me-2" disabled>
+        <span>🚴 View bike</span>
+    </button>
+{% endif %}
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+    <span>⛓ Duplicate</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#replaceComponentModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>♻ Replace</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editCollectionModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>📦 Edit collection</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>🧑‍🔧 New service</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+    <span>📝 New workplan</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createIncidentModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>🚨 New incident</span>
+</button>
+<hr/>
+<div class="row">
     <div class="col-md-4">
         <div class="card shadow mb-4">
             <div class="card-header h5 fw-bold text-bg-
@@ -97,50 +129,6 @@
                 <span class="fw-bold">🔑 Component ID: {{ payload.bike_component_data['component_id'] }}</span>
             </p>  
         </div>
-    </div>
-    <div class="col-12">
-        <div class="row g-2">
-            <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-                    <span>🧑‍🔧 New service</span>
-                </button>
-            </div>
-            <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createIncidentModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-                    <span>🚨 New incident</span>
-                </button>
-            </div>
-            <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createComponentModal">
-                    <span>⛓ Duplicate</span>
-                </button>
-            </div>
-            <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#replaceComponentModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-                    <span>♻ Replace</span>
-                </button>
-            </div>
-            <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#editCollectionModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-                    <span>📦 Edit collection</span>
-                </button>
-            </div>
-                <div class="col-6 mb-2">
-                    {% if payload.bike_component_data['bike_id'] %}
-                        <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary w-100 mb-2">
-                            <span>🚴 View bike</span>
-                        </a>
-                    {% elif payload.component_history_data|length > 1 and payload.bike_component_data['installation_status'] != 'Installed'  %}
-                        <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="btn btn-outline-primary w-100 mb-2">
-                            <span>🚴 View previous bike</span>
-                        </a>    
-                    {% else %}
-                        <button type="button" class="btn btn-outline-primary w-100 mb-2" disabled>
-                            <span>🚴 View bike</span>
-                        </button>
-                    {% endif %}
-                </div>
-        </div>    
     </div>
     <div class="card shadow mb-4">
         <div class="card-body">

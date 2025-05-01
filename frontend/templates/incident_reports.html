@@ -5,7 +5,7 @@
 {% block content %}
 <h1 id="incident-reports" class="display-5 mt-5 text-center">Incident reports</h1>
   
-<button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+<button type="button" class="btn btn-outline-primary mt-4" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
     <span>🚨 New incident</span>
 </button>
 
@@ -51,7 +51,7 @@
             </thead>
             <tbody>
                 {% if payload.incident_reports_data %}
-                    {% for incident_id, incident_date, incident_status, incident_severity, affected_components, affected_bike, incident_description, resolution_date, resolution_notes, elapsed_days in payload.incident_reports_data %}
+                    {% for incident_id, incident_date, incident_status, incident_severity, affected_component_ids, affected_component_names, affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days in payload.incident_reports_data %}
                         <tr data-description="{{ incident_description }}" data-notes="{{ resolution_notes }}">
                             <td class="text-center">
                                 {% if incident_status == "Open" %}
@@ -61,29 +61,24 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if affected_bike != "Not assigned" %}
-                                    {% set bike_parts = affected_bike.split('|BIKE-ID:') %}
-                                    {% set bike_name = bike_parts[0] %}
-                                    {% set bike_id = bike_parts[1] %}
-                                    <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">{{ bike_name }}</a>
+                                {% if affected_bike_name != "Not assigned" %}
+                                    <a href="/bike_details/{{ affected_bike_id }}" class="text-decoration-none text-reset">{{ affected_bike_name }}</a>
                                 {% else %}
-                                    {{ affected_bike }}
+                                    {{ affected_bike_name }}
                                 {% endif %}
                             </td>
                             <td>
-                                {% if affected_components != "Not assigned" %}
-                                    {% for component_info in affected_components.split(', ') %}
-                                        {% if "COMPONENT-ID:" in component_info %}
-                                            {% set component_parts = component_info.split('|COMPONENT-ID:') %}
-                                            {% set component_name = component_parts[0] %}
-                                            {% set component_id = component_parts[1] %}
+                                {% if affected_component_ids %}
+                                    {% for component_id in affected_component_ids %}
+                                        {% set component_name = affected_component_names[loop.index0] %}
+                                        {% if component_name != "Deleted component" %}
                                             <a href="/component_details/{{ component_id }}" class="text-decoration-none text-reset">{{ component_name }}</a>{% if not loop.last %}, {% endif %}
                                         {% else %}
-                                            {{ component_info }}{% if not loop.last %}, {% endif %}
+                                            {{ component_name }}{% if not loop.last %}, {% endif %}
                                         {% endif %}
                                     {% endfor %}
                                 {% else %}
-                                    {{ affected_components }}
+                                    {{ affected_component_names[0] }}
                                 {% endif %}
                             </td>
                             <td class="text-center">
@@ -110,8 +105,8 @@
                                     data-incident-date="{{ incident_date }}" 
                                     data-incident-status="{{ incident_status }}"
                                     data-incident-severity="{{ incident_severity }}"
-                                    data-affected-components="{{ affected_components }}"
-                                    data-affected-bike-id="{% if affected_bike != 'Not assigned' %}{{ affected_bike.split('|BIKE-ID:')[1] }}{% endif %}"
+                                    data-affected-components="{{ affected_component_ids }}"
+                                    data-affected-bike-id="{% if affected_bike != 'Not assigned' %}{{ affected_bike_id }}{% endif %}"
                                     data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
                                     data-resolution-date="{{ resolution_date }}" 
                                     data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"

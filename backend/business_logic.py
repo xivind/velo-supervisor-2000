@@ -14,7 +14,8 @@ from utils import (read_config,
                    get_formatted_datetime_now,
                    validate_date_format,
                    calculate_elapsed_days,
-                   get_formatted_bikes_list)
+                   get_formatted_bikes_list,
+                   load_json_string)
 from strava import Strava
 from database_manager import DatabaseManager
 
@@ -70,7 +71,7 @@ class BusinessLogic():
                                warning_count,
                                compliance_report))
 
-        open_incidents = self.get_open_incidents()
+        open_incidents = self.process_incidents(database_manager.read_open_incidents())
 
         payload = {"bikes_data": bikes_data,
                    "open_incidents": open_incidents}
@@ -119,7 +120,25 @@ class BusinessLogic():
 
         compliance_report = self.process_bike_compliance_report(bike_id)
         
-        open_incidents = self.get_open_incidents()
+        
+        open_incidents = self.process_incidents(database_manager.read_open_incidents())
+
+        open_incident_reports = database_manager.read_open_incidents() #What happens if none are open? Could be other places this need to be checked also
+
+        incident_reports_data = [(incident.incident_id,
+                                  incident.incident_date,
+                                  incident.incident_status,
+                                  incident.incident_severity,
+                                  load_json_string(incident.affected_component_ids),
+                                  database_manager.read_component_names(incident.affected_component_ids),
+                                  incident.affected_bike_id,
+                                  database_manager.read_bike_name(incident.affected_bike_id),
+                                  incident.incident_description,
+                                  incident.resolution_date,
+                                  incident.resolution_notes,
+                                  calculate_elapsed_days(incident.incident_date,
+                                                         incident.resolution_date if incident.resolution_date
+                                                         else get_formatted_datetime_now())[1]) for incident in open_incident_reports]
 
         payload = {"recent_rides": recent_rides_data,
                    "bikes_data": bikes_data,
@@ -140,7 +159,8 @@ class BusinessLogic():
                    "count_service_status_grey" : component_statistics["count_service_status_grey"],
                    "sum_cost" : component_statistics["sum_cost"],
                    "compliance_report": compliance_report,
-                   "open_incidents": open_incidents}
+                   "open_incidents": open_incidents,
+                   "incident_reports_data": incident_reports_data}
 
         return payload
 
@@ -175,6 +195,8 @@ class BusinessLogic():
 
         component_types_data = database_manager.read_all_component_types()
 
+        open_incidents = self.process_incidents(database_manager.read_open_incidents())
+
         payload = {"component_data": component_data,
                    "bikes_data": bikes_data,
                    "component_types_data": component_types_data,
@@ -191,7 +213,8 @@ class BusinessLogic():
                    "count_service_status_red" : component_statistics["count_service_status_red"],
                    "count_service_status_purple" : component_statistics["count_service_status_purple"],
                    "count_service_status_grey" : component_statistics["count_service_status_grey"],
-                   "sum_cost" : component_statistics["sum_cost"]}
+                   "sum_cost" : component_statistics["sum_cost"],
+                   "open_incidents": open_incidents}
 
         return payload
 
@@ -305,7 +328,7 @@ class BusinessLogic():
         elapsed_days = {"days_since_install": days_since_install,
                         "days_since_service": days_since_service}
 
-        open_incidents = self.get_open_incidents()
+        open_incidents = self.process_incidents(database_manager.read_open_incidents())
         
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
@@ -337,13 +360,14 @@ class BusinessLogic():
 
         incident_reports = database_manager.read_all_incidents()
 
-
         incident_reports_data = [(incident.incident_id,
                                   incident.incident_date,
                                   incident.incident_status,
                                   incident.incident_severity,
-                                  database_manager.read_component_names_id(incident.affected_component_ids),
-                                  database_manager.read_bike_name_id(incident.affected_bike_id),
+                                  load_json_string(incident.affected_component_ids),
+                                  database_manager.read_component_names(incident.affected_component_ids),
+                                  incident.affected_bike_id,
+                                  database_manager.read_bike_name(incident.affected_bike_id),
                                   incident.incident_description,
                                   incident.resolution_date,
                                   incident.resolution_notes,
@@ -356,75 +380,54 @@ class BusinessLogic():
                    "incident_reports_data": incident_reports_data}
 
         return payload
-
-    def get_open_incidents(self):
-        """Method to get all open incidents and  process date into summaries for bike id and component id"""
-        incidents = database_manager.read_all_incidents()
+    
+    def process_incidents(self, incidents):
+        """Method to build dictionaries of bike and component ids referenced in received incidents"""
 
         bike_incidents = {}
         component_incidents = {}
-        bike_incident_tracker = {}
-        
-        severity_ranks = {"Critical": 3, "Priority": 2, "Monitor": 1}
-        
-        for incident in incidents:
-            if incident.incident_status != "Open":
-                continue
-            
-            incident_id = incident.incident_id
-            severity = incident.incident_severity
 
-            if incident.affected_bike_id:
-                bike_id = incident.affected_bike_id
-                
-                if bike_id not in bike_incidents:
-                    bike_incidents[bike_id] = {"incident_count": 0,
-                                               "max_severity": None}
-                    bike_incident_tracker[bike_id] = []
-                
-                if incident_id not in bike_incident_tracker[bike_id]:
-                    bike_incidents[bike_id]["incident_count"] += 1
-                    bike_incident_tracker[bike_id].append(incident_id)
-                    
-                    current_max_severity = bike_incidents[bike_id]["max_severity"]
-                    if current_max_severity is None or severity_ranks.get(severity, 0) > severity_ranks.get(current_max_severity, 0):
-                        bike_incidents[bike_id]["max_severity"] = severity
-            
-            if incident.affected_component_ids:
-                component_ids = json.loads(incident.affected_component_ids)
-                
-                for component_id in component_ids:
-                    if component_id not in component_incidents:
-                        component_incidents[component_id] = {"incident_count": 0,
-                                                             "max_severity": None}
-                    
-                    component_incidents[component_id]["incident_count"] += 1
-                    
-                    current_max_severity = component_incidents[component_id]["max_severity"]
-                    if current_max_severity is None or severity_ranks.get(severity, 0) > severity_ranks.get(current_max_severity, 0):
-                        component_incidents[component_id]["max_severity"] = severity
-                    
-                    component = database_manager.read_component(component_id)
-                    if component and component.installation_status != "Not installed" and component.bike_id:
-                        bike_id = component.bike_id
-                        
-                        if bike_id not in bike_incidents:
-                            bike_incidents[bike_id] = {"incident_count": 0,
-                                                       "max_severity": None}
-                            bike_incident_tracker[bike_id] = []
-                        
-                        if incident_id not in bike_incident_tracker[bike_id]:
-                            bike_incidents[bike_id]["incident_count"] += 1
-                            bike_incident_tracker[bike_id].append(incident_id)
+        if incidents:
+            for incident in incidents:
+                incident_id = incident.incident_id
+
+                if incident.affected_bike_id:
+                    bike_id = incident.affected_bike_id
+
+                    if bike_id not in bike_incidents:
+                        bike_incidents[bike_id] = {
+                            "incident_count": 0,
+                            "incident_ids": []
+                        }
+
+                    if incident_id not in bike_incidents[bike_id]["incident_ids"]:
+                        bike_incidents[bike_id]["incident_count"] += 1
+                        bike_incidents[bike_id]["incident_ids"].append(incident_id)
+
+                if incident.affected_component_ids:
+                    component_ids = json.loads(incident.affected_component_ids)
+
+                    for component_id in component_ids:
+                        if component_id not in component_incidents:
+                            component_incidents[component_id] = {"incident_count": 0}
+
+                        component_incidents[component_id]["incident_count"] += 1
+
+                        component = database_manager.read_component(component_id)
+                        if component and component.installation_status != "Not installed" and component.bike_id:
+                            bike_id = component.bike_id
+
+                            if bike_id not in bike_incidents:
+                                bike_incidents[bike_id] = {"incident_count": 0,
+                                                           "incident_ids": []}
                             
-                            # Update max severity if higher
-                            current_max_severity = bike_incidents[bike_id]["max_severity"]
-                            if current_max_severity is None or severity_ranks.get(severity, 0) > severity_ranks.get(current_max_severity, 0):
-                                bike_incidents[bike_id]["max_severity"] = severity
-        
+                            if incident_id not in bike_incidents[bike_id]["incident_ids"]:
+                                bike_incidents[bike_id]["incident_count"] += 1
+                                bike_incidents[bike_id]["incident_ids"].append(incident_id)
+
         return {"bike_incidents": bike_incidents,
                 "component_incidents": component_incidents}
-    
+
     def get_component_types(self):
         """Method to produce payload for page component types"""
         payload = {"component_types": database_manager.read_all_component_types()}
