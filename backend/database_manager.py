@@ -58,7 +58,7 @@ class DatabaseManager:
                        if ride.bike_id != "None"}
 
         return bike_id_set
-    
+
     def read_recent_rides(self, bike_id):
         """Method to read recent rides for a specific bike"""
         return (Rides
@@ -73,7 +73,7 @@ class DatabaseManager:
                 .select()
                 .where((Rides.bike_id == bike_id) &
                 (Rides.record_time >= latest_updated_date)))
-    
+
     def read_latest_ride_record(self):
         """Method to retrieve the most recent ride"""
         return (Rides
@@ -101,9 +101,9 @@ class DatabaseManager:
                                  (Rides.record_time <= stop_date)))
         if matching_rides:
             return sum(ride.ride_distance for ride in matching_rides)
-                   
+
         return 0
-    
+
     def read_all_component_types(self):
         """Method to read and sort content of component_types table"""
         component_types = ComponentTypes.select()
@@ -141,7 +141,7 @@ class DatabaseManager:
                 component_names.append("Deleted component")
 
         return component_names if component_names else ["Not assigned"]
-    
+
     def count_component_types_in_use(self, component_type):
         """Method to count how many components that references a given component type"""
         return (Components
@@ -152,7 +152,7 @@ class DatabaseManager:
     def read_all_components(self):
         """Method to read content of components table"""
         all_components = Components.select()
-        
+
         all_components_data = [(component.component_id,
                                 component.component_type,
                                 component.component_name,
@@ -162,7 +162,7 @@ class DatabaseManager:
                                 format_component_status(component.service_status),
                                 self.read_bike_name(component.bike_id),
                                 format_cost(component.cost)) for component in all_components]
-        
+
         return all_components_data
 
     def read_subset_components(self, bike_id):
@@ -194,14 +194,14 @@ class DatabaseManager:
         """Method to retrieve record for a specific entry in the installation log"""
         return (ComponentHistory
                 .get_or_none(ComponentHistory.history_id == history_id))
-    
+
     def read_latest_history_record(self, component_id):
         """Method to retrieve the most recent record from the installation log of a given component"""
         return (ComponentHistory
                 .select().where(ComponentHistory.component_id == component_id)
                 .order_by(ComponentHistory.updated_date.desc())
                 .first())
-    
+
     def read_oldest_history_record(self, component_id):
         """Method to retrieve the oldest record from the installation log of a given component"""
         return (ComponentHistory
@@ -213,7 +213,7 @@ class DatabaseManager:
         """Method to retrieve a specific service record"""
         return (Services
                 .get_or_none(Services.service_id == service_id))
-        
+
     def read_subset_service_history(self, component_id):
         """Method to read a subset of receords from the component history table"""
         return (Services.
@@ -264,7 +264,7 @@ class DatabaseManager:
             with database.atomic():
                 batch_size = 50
                 total_processed = 0
-                
+
                 for i in range(0, len(ride_list), batch_size):
                     batch = ride_list[i:i + batch_size]
                     rides_tuples_list = [(dictionary['ride_id'],
