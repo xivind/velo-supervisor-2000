@@ -1565,29 +1565,31 @@ document.addEventListener('DOMContentLoaded', function() {
             
         });
         
-        // Setup new incident button
-        document.querySelector('[data-bs-target="#incidentRecordModal"]')?.addEventListener('click', function() {
-            // Flag as new incident
-            isNewIncident = true;
-            pendingComponentData = null;
-            
-            // Reset the form
-            document.getElementById('incidentRecordModalLabel').textContent = 'New incident report';
-            document.getElementById('incident_form').action = '/add_incident_record';
-            document.getElementById('incident_form').reset();
-            document.getElementById('incident_id').value = '';
-            document.getElementById('status_open').checked = true;
-            
-            // Clear TomSelect if it's already initialized
-            const componentSelect = document.getElementById('affected_component_ids');
-            if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
-                const ts = componentSelect.tomSelect || componentSelect.tomselect;
-                ts.clear();
-            }
-            
-            // Show the modal
-            const modal = new bootstrap.Modal(document.getElementById('incidentRecordModal'));
-            modal.show();
+        // Setup new incident button - UPDATED PART
+        document.querySelectorAll('[data-bs-target="#incidentRecordModal"]').forEach(button => {
+            button.addEventListener('click', function() {
+                // Flag as new incident
+                isNewIncident = true;
+                pendingComponentData = null;
+                
+                // Reset the form
+                document.getElementById('incidentRecordModalLabel').textContent = 'New incident report';
+                document.getElementById('incident_form').action = '/add_incident_record';
+                document.getElementById('incident_form').reset();
+                document.getElementById('incident_id').value = '';
+                document.getElementById('status_open').checked = true;
+                
+                // Clear TomSelect if it's already initialized
+                const componentSelect = document.getElementById('affected_component_ids');
+                if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
+                    const ts = componentSelect.tomSelect || componentSelect.tomselect;
+                    ts.clear();
+                }
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('incidentRecordModal'));
+                modal.show();
+            });
         });
     });
     
