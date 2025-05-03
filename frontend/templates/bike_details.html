@@ -101,7 +101,7 @@
                         <tr>
                             <th>Severity</th>
                             <th>Incident date</th>
-                            <th>Days open</th>
+                            <th class="text-center">Days open</th>
                             <th class="text-end"></th>
                         </tr>
                     </thead>
@@ -110,7 +110,7 @@
                             {% for incident_id, incident_date, incident_status, incident_severity, affected_component_ids, affected_component_names, affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days in payload.incident_reports_data %}
                                 {% if payload.bike_data['bike_id'] in payload.open_incidents["bike_incidents"] and incident_id in payload.open_incidents["bike_incidents"][payload.bike_data['bike_id']]["incident_ids"] %}
                                     <tr>
-                                        <td class="text-center">
+                                        <td>
                                             {% if incident_severity == "Critical" %}
                                             <span class="badge text-bg-danger fixed-width-badge-incident-severity">Critical</span>
                                             {% elif incident_severity == "Priority" %}
