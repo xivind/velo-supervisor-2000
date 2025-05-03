@@ -1627,21 +1627,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 searchField: ['text'],
                 create: false,
                 placeholder: 'Search to add more components...',
+                // Only show dropdown when user has typed something or the input is focused
+                shouldOpen: function() {
+                    return this.isFocused && this.inputValue.length > 0;
+                },
+                // Prevent dropdown from opening automatically on focus
+                openOnFocus: false,
+                // Keep the dropdown closed until user types
+                closeAfterSelect: true,
+                // Ensure other functionality works
                 onInitialize: function() {
-                    // console.log("TomSelect initialized");
                     tomSelectInitialized = true;
                     
-                    // For new incidents, we leave it empty
-                    // For edit incidents, we set values if applicable
                     if (!isNewIncident && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
-                        // console.log("Setting initial component values:", pendingData.componentIds);
                         setTimeout(() => {
                             this.clear();
                             this.setValue(pendingData.componentIds);
                         }, 50);
                     }
                     
-                    // Update form fields for edit incidents
                     if (!isNewIncident && pendingData && pendingData.formData) {
                         updateFormFields(pendingData.formData);
                     }
