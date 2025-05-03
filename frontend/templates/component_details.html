@@ -23,6 +23,11 @@
 {% include "modal_service_record.html" %}
 {% include "modal_edit_installation_record.html" %}
 
+{% with duplicate_data = {
+    'bike_id': payload.bike_component_data['bike_id']} %}
+    {% include "modal_incident_record.html" %}
+{% endwith %}
+
 <h1 id="component-details" class="display-5 mt-5 mb-4 text-center">Component details</h1>
 {% if payload.bike_component_data['bike_id'] %}
     <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary me-2">
