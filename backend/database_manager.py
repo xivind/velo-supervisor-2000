@@ -307,7 +307,7 @@ class DatabaseManager:
 
         except peewee.OperationalError as error:
             return False, f"Update of bike records failed: {str(error)}."
-    
+
     def write_component_distance(self, component, total_distance):
         """Method to update component distance in database"""
         try:
@@ -316,7 +316,7 @@ class DatabaseManager:
                 component.save()
 
             return True, component.component_name
-        
+
         except peewee.OperationalError as error:
             return False, f"{component.component_name}: {str(error)}"
 
