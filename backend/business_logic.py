@@ -95,7 +95,7 @@ class BusinessLogic():
         component_types_data = database_manager.read_all_component_types()
 
         bike_components = database_manager.read_subset_components(bike_id)
-        bike_components_data = [(component.component_id,
+        bike_component_data = [(component.component_id,
                                  "-" if component.lifetime_remaining is None else round(component.lifetime_remaining),
                                  "-" if component.service_next is None else round(component.service_next),
                                  component.installation_status,
@@ -108,7 +108,7 @@ class BusinessLogic():
                                  ) for component in bike_components]
 
         component_statistics = get_component_statistics([tuple(component[3:])
-                                                         for component in bike_components_data])
+                                                         for component in bike_component_data])
 
         recent_rides = database_manager.read_recent_rides(bike_id)
         recent_rides_data = [(ride.ride_id,
@@ -144,7 +144,7 @@ class BusinessLogic():
                    "bikes_data": bikes_data,
                    "bike_data": bike_data,
                    "component_types_data": component_types_data,
-                   "bike_components_data": bike_components_data,
+                   "bike_component_data": bike_component_data,
                    "count_installed" : component_statistics["count_installed"],
                    "count_retired" : component_statistics["count_retired"],
                    "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],

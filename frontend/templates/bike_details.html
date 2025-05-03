@@ -263,8 +263,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% if payload.bike_components_data %}
-                            {% for component_id, lifetime_remaining, service_next, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_components_data %}
+                        {% if payload.bike_component_data %}
+                            {% for component_id, lifetime_remaining, service_next, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_component_data %}
                                 <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
                                     <td>
                                         {% if installation_status == "Installed" %}
