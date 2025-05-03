@@ -1947,9 +1947,7 @@ function initializeIncidentTable() {
 
     } else {
         // Simplified table on other pages - use simpler initialization
-        
-        // Set up status filtering
-        setupIncidentStatusFiltering();
+        // Add table functions here as needed
     }
     
 }

@@ -110,7 +110,8 @@
                                     data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
                                     data-resolution-date="{{ resolution_date }}" 
                                     data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                    onclick="event.stopPropagation();">✍</button>
+                                    onclick="event.stopPropagation();">✍
+                                </button>
                                 <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-incident-id="{{ incident_id }}" onclick="event.stopPropagation();">🗑</button>
                             </td>
                         </tr>

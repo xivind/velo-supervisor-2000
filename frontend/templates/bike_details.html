@@ -127,17 +127,17 @@
                                         </td>
                                         <td class="text-end">
                                             <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn"
-                                                data-incident-id="{{ incident_id }}"
-                                                data-incident-date="{{ incident_date }}" 
-                                                data-incident-status="{{ incident_status }}"
-                                                data-incident-severity="{{ incident_severity }}"
-                                                data-affected-components='{{ affected_component_ids|tojson if affected_component_ids else "[]" }}'
-                                                data-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ affected_bike_id }}{% endif %}"
-                                                data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                                data-resolution-date="{{ resolution_date }}" 
-                                                data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                                onclick="event.stopPropagation();">✍
-                                            </button>
+                                            data-incident-id="{{ incident_id }}"
+                                            data-incident-date="{{ incident_date }}" 
+                                            data-incident-status="{{ incident_status }}"
+                                            data-incident-severity="{{ incident_severity }}"
+                                            data-affected-components='{{ affected_component_ids|tojson if affected_component_ids else "[]" }}'
+                                            data-affected-bike-id="{% if affected_bike != 'Not assigned' %}{{ affected_bike_id }}{% endif %}"
+                                            data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            data-resolution-date="{{ resolution_date }}" 
+                                            data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            onclick="event.stopPropagation();">✍
+                                        </button>
                                         </td>
                                     </tr>
                                 {% endif %}
