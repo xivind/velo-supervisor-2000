@@ -89,8 +89,8 @@
                 </tr>
             </thead>
             <tbody>
-                {% if payload.component_data %}
-                    {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.component_data %}
+                {% if payload.all_components_data %}
+                    {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.all_components_data %}
                         <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
                             <td>{{ name }}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}</td>
                             <td>{{ type }}</td>

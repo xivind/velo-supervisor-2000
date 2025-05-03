@@ -54,7 +54,7 @@
                     <div class="col-md-6 mb-3">
                         <label for="affected_component_ids" class="form-label fw-bold">Affected components</label>
                         <select class="form-select" id="affected_component_ids" name="affected_component_ids" multiple placeholder="Search to add more components...">
-                            {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.component_data %}
+                            {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
                                 {% if status != "Retired" %}
                                     <option value="{{ component_id }}">{{ name }} ({{ type }}) - {{ bike }}</option>
                                 {% endif %}

@@ -94,17 +94,7 @@ class BusinessLogic():
 
         component_types_data = database_manager.read_all_component_types()
 
-        components = database_manager.read_all_components() #move to function, see below. Use four places.
-        component_data = [(component.component_id,
-                           component.component_type,
-                           component.component_name,
-                           round(component.component_distance),
-                           component.installation_status,
-                           format_component_status(component.lifetime_status),
-                           format_component_status(component.service_status),
-                           database_manager.read_bike_name(component.bike_id),
-                           format_cost(component.cost)
-                           ) for component in components]
+        all_components_data = database_manager.read_all_components()
 
         bike_components = database_manager.read_subset_components(bike_id)
         bike_component_data = [(component.component_id,
@@ -135,7 +125,7 @@ class BusinessLogic():
         
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
 
-        open_incident_reports = database_manager.read_open_incidents() #What happens if none are open? Could be other places this need to be checked also
+        open_incident_reports = database_manager.read_open_incidents()
 
         incident_reports_data = [(incident.incident_id,
                                   incident.incident_date,
@@ -157,7 +147,7 @@ class BusinessLogic():
                    "bike_data": bike_data,
                    "component_types_data": component_types_data,
                    "bike_component_data": bike_component_data,
-                   "component_data": component_data,
+                   "all_components_data": all_components_data,
                    "count_installed" : component_statistics["count_installed"],
                    "count_retired" : component_statistics["count_retired"],
                    "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
@@ -179,17 +169,7 @@ class BusinessLogic():
 
     def get_component_overview(self):
         """Method to produce payload for page component overview"""
-        components = database_manager.read_all_components()
-        component_data = [(component.component_id,
-                           component.component_type,
-                           component.component_name,
-                           round(component.component_distance),
-                           component.installation_status,
-                           format_component_status(component.lifetime_status),
-                           format_component_status(component.service_status),
-                           database_manager.read_bike_name(component.bike_id),
-                           format_cost(component.cost)
-                           ) for component in components]
+        all_components_data = database_manager.read_all_components()
 
         rearranged_component_data = [(comp[4],
                                         None,
@@ -199,7 +179,7 @@ class BusinessLogic():
                                         comp[6],
                                         comp[8],
                                         None,
-                                        comp[7]) for comp in component_data]
+                                        comp[7]) for comp in all_components_data]
 
         component_statistics = get_component_statistics(rearranged_component_data)
 
@@ -210,9 +190,8 @@ class BusinessLogic():
 
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
 
-        payload = {"component_data": component_data,
+        payload = {"all_components_data": all_components_data,
                    "bikes_data": bikes_data,
-                   "component_data": component_data,
                    "component_types_data": component_types_data,
                    "count_installed" : component_statistics["count_installed"],
                    "count_not_installed" : component_statistics["count_not_installed"],
@@ -239,17 +218,7 @@ class BusinessLogic():
 
         component_types_data = database_manager.read_all_component_types()
 
-        components = database_manager.read_all_components()
-        component_data = [(component.component_id,
-                           component.component_type,
-                           component.component_name,
-                           round(component.component_distance),
-                           component.installation_status,
-                           format_component_status(component.lifetime_status),
-                           format_component_status(component.service_status),
-                           database_manager.read_bike_name(component.bike_id),
-                           format_cost(component.cost)
-                           ) for component in components]
+        all_components_data = database_manager.read_all_components()
 
         bike_component = database_manager.read_component(component_id)
         bike_component_data = {"bike_id": bike_component.bike_id,
@@ -359,7 +328,7 @@ class BusinessLogic():
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
                    "bike_component_data": bike_component_data,
-                   "component_data": component_data,
+                   "all_components_data": all_components_data,
                    "bike_name": database_manager.read_bike_name(bike_component.bike_id),
                    "component_history_data": component_history_data,
                    "service_history_data": service_history_data,
@@ -370,17 +339,7 @@ class BusinessLogic():
 
     def get_incident_reports(self):
         """Method to produce payload for page incident reports"""
-        components = database_manager.read_all_components()
-        component_data = [(component.component_id,
-                           component.component_type,
-                           component.component_name,
-                           round(component.component_distance),
-                           component.installation_status,
-                           format_component_status(component.lifetime_status),
-                           format_component_status(component.service_status),
-                           database_manager.read_bike_name(component.bike_id),
-                           format_cost(component.cost)
-                           ) for component in components]
+        all_components_data = database_manager.read_all_components()
 
         bikes = database_manager.read_bikes()
         bikes_data = get_formatted_bikes_list(bikes)
@@ -402,7 +361,7 @@ class BusinessLogic():
                                                          incident.resolution_date if incident.resolution_date
                                                          else get_formatted_datetime_now())[1]) for incident in incident_reports]
 
-        payload = {"component_data": component_data,
+        payload = {"all_components_data": all_components_data,
                    "bikes_data": bikes_data,
                    "incident_reports_data": incident_reports_data}
 

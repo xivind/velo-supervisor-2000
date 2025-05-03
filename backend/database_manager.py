@@ -11,6 +11,8 @@ from database_model import (database,
                             ComponentHistory,
                             Services,
                             Incidents)
+from utils import (format_component_status,
+                   format_cost)
 
 class DatabaseManager:
     """Class to interact with a SQLite database through Peewee"""
@@ -149,7 +151,19 @@ class DatabaseManager:
 
     def read_all_components(self):
         """Method to read content of components table"""
-        return Components.select()
+        all_components = Components.select()
+        
+        all_components_data = [(component.component_id,
+                                component.component_type,
+                                component.component_name,
+                                round(component.component_distance),
+                                component.installation_status,
+                                format_component_status(component.lifetime_status),
+                                format_component_status(component.service_status),
+                                self.read_bike_name(component.bike_id),
+                                format_cost(component.cost)) for component in all_components]
+        
+        return all_components_data
 
     def read_subset_components(self, bike_id):
         """Method to read components for a specific bike"""
