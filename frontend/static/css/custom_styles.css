@@ -209,10 +209,15 @@ th[data-sort].sorted-desc .sort-indicator::after {
     width: 4rem;
     display: inline-block;
     text-align: center;
-  }
+}
 
-  .fixed-width-badge-incident-severity {
+.fixed-width-badge-incident-severity {
     width: 4rem;
     display: inline-block;
     text-align: center;
-  }
+}
+
+  /* Padding to offset toggle switches */
+.toggle-container-right {
+    padding-right: 15px; 
+}
