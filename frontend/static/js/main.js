@@ -2062,88 +2062,41 @@ function setupIncidentTableSorting() {
     }
 }
 
-// Function for filtering incident table by status
-function setupIncidentStatusFiltering() {
-    // Check if the incidents table is available
+// Replace the current updateRowVisibility and updateIncidentRowVisibility functions with a single shared function
+
+// Add this shared function at an appropriate place in your main.js file
+function updateIncidentVisibility() {
     const incidentsTable = document.getElementById('incidentsTable');
     if (!incidentsTable) return;
-
-    const filterSwitches = document.querySelectorAll('.filter-switch');
-    const incidentRows = incidentsTable.querySelectorAll('tbody tr');
-
-    function updateIncidentRowVisibility() {
-        // Get switch states
-        const showOpen = document.getElementById('showOpenIncidents').checked;
-        const showResolved = document.getElementById('showResolvedIncidents').checked;
-
-        incidentRows.forEach(row => {
-            // Skip the "no incidents" message row
-            if (row.cells.length === 1 && row.cells[0].colSpan) {
-                return;
-            }
-            
-            const statusCell = row.querySelector('td:nth-child(1)');
-            if (statusCell) {
-                const status = statusCell.textContent.trim();
-                const shouldShow = (
-                    (status.includes('Open') && showOpen) ||
-                    (status.includes('Resolved') && showResolved)
-                );
-                row.style.display = shouldShow ? '' : 'none';
-            }
-        });
-        
-        // Update search results count
-        updateSearchResults();
-    }
-
-    // Add event listeners to filter switches
-    filterSwitches.forEach(switchElement => {
-        switchElement.addEventListener('change', updateIncidentRowVisibility);
-    });
-
-    // Initial visibility update
-    updateIncidentRowVisibility();
-}
-
-// Function to handle search across incidents
-function setupIncidentSearch() {
-    // Check if we're on the incidents page
+    
+    const rows = incidentsTable.querySelectorAll('tbody tr');
     const searchInput = document.getElementById('allIncidentsSearchInput');
-    if (!searchInput) return;
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
     
-    const table = document.getElementById('incidentsTable');
-    const rows = table.querySelectorAll('tbody tr');
-    const filterSwitches = document.querySelectorAll('.filter-switch');
+    // Get current filter states
+    const showOpen = document.getElementById('showOpenIncidents').checked;
+    const showResolved = document.getElementById('showResolvedIncidents').checked;
     
-    // Skip if there are no rows or just one "no incidents" message row
-    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
-    
-    // Function to update row visibility based on both filters and search
-    function updateRowVisibility() {
-        const searchTerm = searchInput.value.toLowerCase().trim();
+    rows.forEach(row => {
+        // Skip the "no incidents" message row
+        if (row.cells.length === 1 && row.cells[0].colSpan) {
+            return;
+        }
         
-        // Get current filter states
-        const showOpen = document.getElementById('showOpenIncidents').checked;
-        const showResolved = document.getElementById('showResolvedIncidents').checked;
+        // Check if row should be visible based on status filter
+        let visibleByFilter = false;
+        const statusCell = row.querySelector('td:nth-child(1)');
+        if (statusCell) {
+            const status = statusCell.textContent.trim();
+            visibleByFilter = (
+                (status.includes('Open') && showOpen) ||
+                (status.includes('Resolved') && showResolved)
+            );
+        }
         
-        rows.forEach(row => {
-            // Skip the "no incidents registered" row
-            if (row.cells.length === 1 && row.cells[0].colSpan) {
-                return;
-            }
-            
-            // Check if row should be visible based on status filter
-            let visibleByFilter = false;
-            const statusCell = row.cells[0];
-            const statusText = statusCell.textContent.trim();
-            
-            if ((statusText.includes('Open') && showOpen) ||
-                (statusText.includes('Resolved') && showResolved)) {
-                visibleByFilter = true;
-            }
-            
-            // Check if row matches search term
+        // Check if row matches search term
+        let matchesSearch = true;
+        if (searchTerm) {
             const bikeText = row.cells[1].textContent.toLowerCase();
             const componentsText = row.cells[2].textContent.toLowerCase();
             const severityText = row.cells[3].textContent.toLowerCase();
@@ -2154,50 +2107,64 @@ function setupIncidentSearch() {
             
             // Include all text fields in the search
             const rowText = `${bikeText} ${componentsText} ${severityText} ${descriptionText} ${notesText}`;
-            const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
-            
-            // Show row only if it matches both filter and search criteria
-            row.style.display = (visibleByFilter && matchesSearch) ? '' : 'none';
-        });
-        
-        // Update search results count
-        updateSearchResults();
-    }
-    
-    // Function to update search results count
-    window.updateSearchResults = function() {
-        const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
-        const noResultsRow = table.querySelector('.no-results-row');
-        
-        if (visibleRows.length === 0 && rows.length > 1) {
-            if (!noResultsRow) {
-                const tbody = table.querySelector('tbody');
-                const newRow = document.createElement('tr');
-                newRow.className = 'no-results-row';
-                newRow.innerHTML = '<td colspan="8" class="text-center">No incidents match your criteria</td>';
-                tbody.appendChild(newRow);
-            } else {
-                noResultsRow.style.display = '';
-            }
-        } else if (noResultsRow) {
-            noResultsRow.style.display = 'none';
+            matchesSearch = rowText.includes(searchTerm);
         }
-    };
+        
+        // Show row only if it matches both filter and search criteria
+        row.style.display = (visibleByFilter && matchesSearch) ? '' : 'none';
+    });
+    
+    // Show a message if no results found
+    const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+    const noResultsRow = incidentsTable.querySelector('.no-results-row');
+    
+    if (visibleRows.length === 0 && (searchTerm !== '' || showOpen || showResolved)) {
+        if (!noResultsRow) {
+            const tbody = incidentsTable.querySelector('tbody');
+            const newRow = document.createElement('tr');
+            newRow.className = 'no-results-row';
+            newRow.innerHTML = '<td colspan="8" class="text-center">No incidents match your criteria</td>';
+            tbody.appendChild(newRow);
+        } else {
+            noResultsRow.style.display = '';
+        }
+    } else if (noResultsRow) {
+        noResultsRow.style.display = 'none';
+    }
+}
+
+// Function for filtering incident table by status
+function setupIncidentStatusFiltering() {
+    // Check if the incidents table is available
+    const incidentsTable = document.getElementById('incidentsTable');
+    if (!incidentsTable) return;
+
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+
+    // Add event listeners to filter switches
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateIncidentVisibility);
+    });
+
+    // Initial visibility update
+    updateIncidentVisibility();
+}
+
+// Function to handle search across incidents
+function setupIncidentSearch() {
+    // Check if we're on the incidents page
+    const searchInput = document.getElementById('allIncidentsSearchInput');
+    if (!searchInput) return;
     
     // Listen for search input changes
-    searchInput.addEventListener('input', updateRowVisibility);
-    
-    // Listen for filter changes
-    filterSwitches.forEach(switchElement => {
-        switchElement.addEventListener('change', updateRowVisibility);
-    });
+    searchInput.addEventListener('input', updateIncidentVisibility);
     
     // Clear search button with Escape key
     searchInput.addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.value = '';
             // Update visibility after clearing
-            updateRowVisibility();
+            updateIncidentVisibility();
         }
     });
 }
