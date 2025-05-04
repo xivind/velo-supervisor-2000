@@ -1562,7 +1562,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Initialize incident table functionality (sorting, filtering, searching)
             initializeIncidentTable();
-            
         });
         
         // Setup new incident button - UPDATED PART
@@ -1955,7 +1954,6 @@ function initializeIncidentTable() {
         // Simplified table on other pages - use simpler initialization
         // Add table functions here as needed
     }
-    
 }
 
 // Function to set up incident table sorting
@@ -2062,9 +2060,7 @@ function setupIncidentTableSorting() {
     }
 }
 
-// Replace the current updateRowVisibility and updateIncidentRowVisibility functions with a single shared function
-
-// Add this shared function at an appropriate place in your main.js file
+// Shared function to update incident visibility
 function updateIncidentVisibility() {
     const incidentsTable = document.getElementById('incidentsTable');
     if (!incidentsTable) return;

@@ -324,6 +324,23 @@ class BusinessLogic():
                         "days_since_service": days_since_service}
 
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
+
+        open_incident_reports = database_manager.read_open_incidents()
+
+        incident_reports_data = [(incident.incident_id,
+                                  incident.incident_date,
+                                  incident.incident_status,
+                                  incident.incident_severity,
+                                  parse_json_string(incident.affected_component_ids),
+                                  database_manager.read_component_names(incident.affected_component_ids),
+                                  incident.affected_bike_id,
+                                  database_manager.read_bike_name(incident.affected_bike_id),
+                                  incident.incident_description,
+                                  incident.resolution_date,
+                                  incident.resolution_notes,
+                                  calculate_elapsed_days(incident.incident_date,
+                                                         incident.resolution_date if incident.resolution_date
+                                                         else get_formatted_datetime_now())[1]) for incident in open_incident_reports]
         
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
@@ -333,7 +350,8 @@ class BusinessLogic():
                    "component_history_data": component_history_data,
                    "service_history_data": service_history_data,
                    "elapsed_days": elapsed_days,
-                   "open_incidents": open_incidents}
+                   "open_incidents": open_incidents,
+                   "incident_reports_data": incident_reports_data}
 
         return payload
 

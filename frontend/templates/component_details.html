@@ -135,37 +135,78 @@
             </p>  
         </div>
     </div>
-    <div class="card shadow mb-4">
+    <div class="card shadow mb-4 mt-2">
         <div class="card-body">
             <h5 class="card-title">Open incidents</h5>
             <hr/>
-            <p class="card-text">
-                sds
-            </p>
+            <table class="table table-hover" id="incidentsTable">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Incident date</th>
+                        <th class="text-center">Days open</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if payload.incident_reports_data and payload.bike_component_data['component_id'] in payload.open_incidents["component_incidents"] %}
+                        {% for incident_id, incident_date, incident_status, incident_severity, affected_component_ids, affected_component_names, affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days in payload.incident_reports_data %}
+                            {% if affected_component_ids and payload.bike_component_data['component_id'] in affected_component_ids %}
+                                <tr>
+                                    <td>
+                                        {% if incident_severity == "Critical" %}
+                                        <span class="badge text-bg-danger fixed-width-badge-incident-severity">Critical</span>
+                                        {% elif incident_severity == "Priority" %}
+                                        <span class="badge text-bg-warning fixed-width-badge-incident-severity">Priority</span>
+                                        {% elif incident_severity == "Monitor" %}
+                                        <span class="badge text-bg-success fixed-width-badge-incident-severity">Monitor</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ incident_date.split(' ')[0] if incident_date else "-" }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ elapsed_days }}
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn"
+                                        data-incident-id="{{ incident_id }}"
+                                        data-incident-date="{{ incident_date }}" 
+                                        data-incident-status="{{ incident_status }}"
+                                        data-incident-severity="{{ incident_severity }}"
+                                        data-affected-components='{{ affected_component_ids|tojson if affected_component_ids else "[]" }}'
+                                        data-affected-bike-id="{% if affected_bike != 'Not assigned' %}{{ affected_bike_id }}{% endif %}"
+                                        data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                        data-resolution-date="{{ resolution_date }}" 
+                                        data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                        onclick="event.stopPropagation();">✍
+                                    </button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No open incidents for this bike</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
     <div class="col-md-8">
-        {% set current_component_id = payload.bike_component_data['component_id'] %}
-        {% if current_component_id in payload.open_incidents["component_incidents"] %}
-            {% set incident_data = payload.open_incidents["component_incidents"][current_component_id] %}
-            {% set incident_count = incident_data["incident_count"] %}
-            {% set highest_severity = incident_data["max_severity"] %}
-            {% set alert_class = "alert-success" %}
-            {% if highest_severity == "Critical" %}
-                {% set alert_class = "alert-danger" %}
-            {% elif highest_severity == "Priority" %}
-                {% set alert_class = "alert-warning" %}
-            {% endif %}
+        {% set component_id = payload.bike_component_data['component_id'] %}
+        {% if component_id in payload.open_incidents["component_incidents"] %}
+            {% set incident_count = payload.open_incidents["component_incidents"][component_id]["incident_count"] %}
             <div class="card shadow mb-4">
-                <div class="alert {{ alert_class }} m-0">
+                <div class="alert alert-danger m-0">
                     <div class="d-flex align-items-center">
                         <div class="fs-2 me-3">🚨</div>
                         <div>
-                            <h5 class="card-title mb-2">Component has open incidents</h5>
+                            <h5 class="card-title mb-2">Installed components have open incidents</h5>
                             <p class="mb-1">
-                                There {% if incident_count == 1 %}is{% else %}are{% endif %} <strong>{{ incident_count }}</strong> open incident{% if incident_count > 1 %}s{% endif %} referencing this component.
-                                The highest severity of the open incidents is <strong>{{ highest_severity }}</strong>. See incident card below for details and to update incidents.
+                                There are <strong>{{ incident_count }}</strong> open incident(s) referencing this component. Check and edit incidents in the incident card to the left.
                             </p>
                         </div>
                     </div>
