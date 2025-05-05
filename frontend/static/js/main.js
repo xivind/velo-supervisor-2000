@@ -1447,6 +1447,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // PLACEHOLDER
 
 // ===== Incident reports page functions =====
+// Function to initialize incident features
 (function() {
     // Only run this code if the incident modal is present
     if (!document.getElementById('incidentRecordModal')) {
@@ -1559,12 +1560,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const modal = new bootstrap.Modal(incidentModal);
                 modal.show();
             });
-            
-            // Initialize incident table functionality (sorting, filtering, searching)
-            initializeIncidentTable();
         });
         
-        // Setup new incident button - UPDATED PART
+        // Initialize incident table functionality (sorting, filtering, searching and more)
+        initializeIncidentTable();
+        
+        // Setup new incident button
         document.querySelectorAll('[data-bs-target="#incidentRecordModal"]').forEach(button => {
             button.addEventListener('click', function() {
                 // Flag as new incident
