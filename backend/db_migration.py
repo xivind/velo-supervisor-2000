@@ -38,7 +38,7 @@ def find_database_file(filename):
         print(f"  [{i+1}] {path}")
     
     while True:
-        choice = input(f"Enter the number of the correct database [1-{len(matches)}]: ")
+        choice = input(f"Enter the number of the database to migrate [1-{len(matches)}]: ")
         try:
             index = int(choice) - 1
             if 0 <= index < len(matches):
