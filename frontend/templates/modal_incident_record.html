@@ -1,0 +1,96 @@
+<div class="modal fade" id="incidentRecordModal" tabindex="-1" aria-labelledby="incidentRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="incidentRecordModalLabel">Incident report</h5><!-- Title set with JS -->
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="incident_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
+                    <!-- Hidden fields -->
+                    <input type="hidden" id="incident_id" name="incident_id"> <!-- Should be set automatically, and is required -->
+                    
+                    <!-- First row: Date, Status (as radio), Severity -->
+                    <div class="col-md-4 mb-3">
+                        <label for="incident_date" class="form-label fw-bold">Incident date</label>
+                        <div class="input-group date-input-group">
+                            <input type="text" class="form-control datepicker-input" id="incident_date" name="incident_date" required>
+                            <span class="input-group-text datepicker-toggle">🗓</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold d-block">Status</label>
+                        <div class="form-check form-check-inline mt-2">
+                            <input class="form-check-input" type="radio" name="incident_status" id="status_open" value="Open" checked>
+                            <label class="form-check-label" for="status_open">Open</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="incident_status" id="status_resolved" value="Resolved">
+                            <label class="form-check-label" for="status_resolved">Resolved</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="incident_severity" class="form-label fw-bold">Severity</label>
+                        <select class="form-select" id="incident_severity" name="incident_severity" required>
+                            <option value="Monitor" selected>Monitor</option>
+                            <option value="Priority">Priority</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Second row: Multiple component selection and Bike selection -->
+                    <div class="col-md-6 mb-3">
+                        <label for="affected_bike_id" class="form-label fw-bold">Affected bike</label>
+                        <select class="form-select" id="affected_bike_id" name="affected_bike_id">
+                            <option value="" selected></option>
+                            {% for bike_name, bike_id in payload.bikes_data %}
+                                <option value="{{ bike_id }}"
+                                    {% if duplicate_data and bike_id == duplicate_data.bike_id %}selected{% endif %}>
+                                {{ bike_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="affected_component_ids" class="form-label fw-bold">Affected components</label>
+                        <select class="form-select" id="affected_component_ids" name="affected_component_ids" multiple placeholder="Search to add more components...">
+                            {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
+                                {% if status != "Retired" %}
+                                    <option value="{{ component_id }}">{{ name }} ({{ type }}) - {{ bike }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Select 0..* components</small>
+                    </div>
+                    
+                    
+                    <!-- Description row (full width) -->
+                    <div class="col-12 mb-3">
+                        <label for="incident_description" class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="incident_description" name="incident_description" rows="3"></textarea>
+                    </div>
+                    
+                    <!-- Resolution section with date and notes -->
+                    <div class="col-md-4 mb-3">
+                        <label for="resolution_date" class="form-label fw-bold">Resolution date</label>
+                        <div class="input-group date-input-group">
+                            <input type="text" class="form-control datepicker-input" id="resolution_date" name="resolution_date">
+                            <span class="input-group-text datepicker-toggle">🗓</span>
+                        </div>
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <!-- Empty space for alignment -->
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="resolution_notes" class="form-label fw-bold">Resolution notes</label>
+                        <textarea class="form-control" id="resolution_notes" name="resolution_notes" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="incident_form">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

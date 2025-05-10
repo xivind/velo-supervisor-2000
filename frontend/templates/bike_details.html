@@ -8,9 +8,23 @@
     'bike_id': payload.bike_data['bike_id']} %}
     {% include "modal_create_component.html" %}
 {% endwith %}
+{% with duplicate_data = {
+    'bike_id': payload.bike_data['bike_id']} %}
+    {% include "modal_incident_record.html" %}
+{% endwith %}
 
-<h1 id="bike-details" class="display-5 mt-5 text-center">Bike details</h1>
-<div class="row mt-5">
+<h1 id="bike-details" class="display-5 mt-5 text-center mb-4">Bike details</h1>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+    <span>⚙ New component</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+    <span>📝 New workplan</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+    <span>🚨 New incident</span>
+</button>
+<hr/>
+<div class="row">
     <div class="col-md-4">
         <div class="card shadow mb-4">
             <div class="card-header h5 fw-bold 
@@ -33,6 +47,7 @@
         <div class="card shadow mb-4">
             <div class="card-body">
                 <h5 class="card-title">Summary components</h5>
+                <hr/>
                 <p class="card-text d-flex justify-content-between align-items-center">
                     <span>⚡ Installed:</span><span class="fw-bold">{{ payload.count_installed }}</span>
                 </p>
@@ -77,42 +92,102 @@
                 </p>  
             </div>
         </div>
-        <div class="card shadow mb-4">
-            <div class="card-body text-center btn-outline-primary">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createComponentModal">
-                    <span>⚙ New component</span>
-                </button>
+        <div class="card shadow mb-4 mt-2">
+            <div class="card-body">
+                <h5 class="card-title">Open incidents</h5>
+                <hr/>
+                <table class="table table-hover" id="incidentsTable">
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Incident date</th>
+                            <th class="text-center">Days open</th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if payload.incident_reports_data and payload.bike_data['bike_id'] in payload.open_incidents["bike_incidents"] %}
+                            {% for incident_id, incident_date, incident_status, incident_severity, affected_component_ids, affected_component_names, affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days in payload.incident_reports_data %}
+                                {% if payload.bike_data['bike_id'] in payload.open_incidents["bike_incidents"] and incident_id in payload.open_incidents["bike_incidents"][payload.bike_data['bike_id']]["incident_ids"] %}
+                                    <tr>
+                                        <td>
+                                            {% if incident_severity == "Critical" %}
+                                            <span class="badge text-bg-danger fixed-width-badge-incident-severity">Critical</span>
+                                            {% elif incident_severity == "Priority" %}
+                                            <span class="badge text-bg-warning fixed-width-badge-incident-severity">Priority</span>
+                                            {% elif incident_severity == "Monitor" %}
+                                            <span class="badge text-bg-success fixed-width-badge-incident-severity">Monitor</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ incident_date.split(' ')[0] if incident_date else "-" }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ elapsed_days }}
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn"
+                                            data-incident-id="{{ incident_id }}"
+                                            data-incident-date="{{ incident_date }}" 
+                                            data-incident-status="{{ incident_status }}"
+                                            data-incident-severity="{{ incident_severity }}"
+                                            data-affected-components='{{ affected_component_ids|tojson if affected_component_ids else "[]" }}'
+                                            data-affected-bike-id="{% if affected_bike != 'Not assigned' %}{{ affected_bike_id }}{% endif %}"
+                                            data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            data-resolution-date="{{ resolution_date }}" 
+                                            data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            onclick="event.stopPropagation();">✍
+                                        </button>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">No open incidents for this bike</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div class="card shadow mb-4">
+        <div class="card shadow mb-4 mt-2">
             <div class="card-body">
-                <h5 class="card-title">Notes</h5>
-                <p class="card-text">{{ payload.bike_data.bike_notes }}</p>
+                <h5 class="card-title">Bike notes</h5>
+                <hr/>
+                <p class="card-text">
+                    {% if payload.bike_data.bike_notes %}
+                        {{ payload.bike_data.bike_notes }}
+                    {% else %}
+                        <span class="text-secondary">No bike notes available. Bike notes added in Strava will appear here.</span>
+                    {% endif %}
+                </p>
             </div>
         </div>
         <div class="card shadow">
             <div class="card-body">
                 <h5 class="card-title">Recent rides</h5>
+                <hr/>
                 <table class="table table-hover" id="ridesTable">
                     <thead>
-                        <tr style="border: none;">
-                            <th style="border: none;">Date</th>
-                            <th style="border: none;">Name</th>
-                            <th style="border: none;">Distance</th>
+                        <tr>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Distance</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if payload.recent_rides %}
                             {% for ride_id, date, name, ride_distance, commute in payload.recent_rides %}
-                                <tr style="border: none;" role="button" onclick="window.open('https://www.strava.com/activities/{{ ride_id }}', '_blank');">
-                                    <td style="border: none;">{{ date.split(' ')[0] }}</td>
-                                    <td style="border: none;">{{ name }}</td>
-                                    <td style="border: none;">{{ ride_distance }} km</td>
+                                <tr role="button" onclick="window.open('https://www.strava.com/activities/{{ ride_id }}', '_blank');">
+                                    <td>{{ date.split(' ')[0] }}</td>
+                                    <td>{{ name }}</td>
+                                    <td>{{ ride_distance }} km</td>
                                 </tr>
                             {% endfor %}
                         {% else %}
-                            <tr style="border: none;">
-                                <td style="border: none;" colspan="5" class="text-center">Bike has no registered rides</td>
+                            <tr>
+                                <td colspan="3" class="text-center">Bike has no registered rides</td>
                             </tr>
                         {% endif %}
                     </tbody>
@@ -121,25 +196,43 @@
         </div>
     </div>
     <div class="col-md-8">
-        {% if payload.bike_data.bike_retired == 'False' and (not payload.compliance_report.all_mandatory_present or not payload.compliance_report.no_max_quantity_exceeded) %}
-        <div class="card shadow mb-4">
-            <div class="alert alert-warning m-0">
-                <div class="d-flex align-items-center">
-                    <div class="fs-2 me-3">⚠</div>
-                    <div>
-                        <h5 class="card-title mb-2">Component type compliance issues</h5>
-                        {% if not payload.compliance_report.all_mandatory_present %}
-                        <p class="mb-1"><strong>Missing mandatory components:</strong> {{ payload.compliance_report.missing_mandatory }}</p>
-                        {% endif %}
-                        {% if not payload.compliance_report.no_max_quantity_exceeded %}
-                        <p class="mb-1"><strong>Components exceeding maximum quantity:</strong> {{ payload.compliance_report.exceeding_max_quantity }}</p>
-                        {% endif %}
+        {% set bike_id = payload.bike_data['bike_id'] %}
+        {% if bike_id in payload.open_incidents["bike_incidents"] %}
+            {% set incident_count = payload.open_incidents["bike_incidents"][bike_id]["incident_count"] %}
+            <div class="card shadow mb-4">
+                <div class="alert alert-danger m-0">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-2 me-3">🚨</div>
+                        <div>
+                            <h5 class="card-title mb-2">Bike or installed components have open incidents</h5>
+                            <p class="mb-1">
+                                There are <strong>{{ incident_count }}</strong> open incident(s) referencing this bike, either directly or via installed components.
+                                Components directly referenced in an incident is marked with 🚨 in the components table below. Check and edit incidents in the incident card to the left.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         {% endif %}
-        <div class="card shadow">
+        {% if payload.bike_data.bike_retired == 'False' and (not payload.compliance_report.all_mandatory_present or not payload.compliance_report.no_max_quantity_exceeded) %}
+            <div class="card shadow mb-4">
+                <div class="alert alert-warning m-0">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-2 me-3">🏷</div>
+                        <div>
+                            <h5 class="card-title mb-2">Component type compliance issues</h5>
+                            {% if not payload.compliance_report.all_mandatory_present %}
+                            <p class="mb-1"><strong>Missing mandatory components:</strong> {{ payload.compliance_report.missing_mandatory }}</p>
+                            {% endif %}
+                            {% if not payload.compliance_report.no_max_quantity_exceeded %}
+                            <p class="mb-1"><strong>Components exceeding maximum quantity:</strong> {{ payload.compliance_report.exceeding_max_quantity }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="card shadow mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span class="fw-bold">Components</span>
                 <div class="d-flex gap-3">
@@ -170,8 +263,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% if payload.bike_components_data %}
-                            {% for component_id, lifetime_remaining, service_next, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_components_data %}
+                        {% if payload.bike_component_data %}
+                            {% for component_id, lifetime_remaining, service_next, installation_status, type, name, component_distance, lifetime_status, service_status, cost in payload.bike_component_data %}
                                 <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
                                     <td>
                                         {% if installation_status == "Installed" %}
@@ -179,7 +272,7 @@
                                         {% elif installation_status == "Retired" %}
                                         ⛔
                                         {% endif %}
-                                        {{ name }}
+                                        {{ name }}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}
                                     </td>
                                     <td>{{ type }}</td>
                                     <td>{{ component_distance }} km</td>
@@ -236,7 +329,7 @@
                     </tbody>
                 </table>
             </div>
-        </div> 
+        </div>
     </div>
 </div>
 {% endblock %}

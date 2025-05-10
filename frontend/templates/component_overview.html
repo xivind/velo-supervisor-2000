@@ -3,13 +3,20 @@
 {% block title %}Component overview - Velo Supervisor 2000{% endblock %}
 
 {% block content %}
-<h1 id="component-overview" class="display-5 mt-5 text-center">Component overview</h1>
+<h1 id="component-overview" class="display-5 mt-5 text-center mb-4">Component overview</h1>
   
-<button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createComponentModal">
     <span>⚙ New component</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+    <span>📝 New workplan</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+    <span>🚨 New incident</span>
 </button>
 
 {% include "modal_create_component.html" %}
+{% include "modal_incident_record.html" %}
 
 <hr/>
 <div class="card shadow mb-4">
@@ -45,15 +52,11 @@
         </div>  
     </div>
 </div>
-<hr class="mt-5"/>
+<hr/>
 <div class="mb-3 ms-2">
     <div class="small text-secondary d-flex align-items-center">
-      <span class="fw-bold" style="width: 170px;">Lifetime / service status:</span>
-      <span style="width: 50px;">🟢 OK</span>
-      <span style="width: 240px;">🟡 End of life / service approaching</span>
-      <span style="width: 220px;">🔴 Due for replacement / service</span>
-      <span style="width: 200px;">🟣 Lifetime / service exceeded</span>
-      <span>⚪ Lifetime / serivce not defined</span>
+      <span style="width: 180px;">📝 Unfinished workplans</span>
+      <span style="width: 180px;">🚨 Open incidents</span>
     </div>
 </div>
 <div class="card shadow mb-3">
@@ -93,10 +96,10 @@
                 </tr>
             </thead>
             <tbody>
-                {% if payload.component_data %}
-                    {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.component_data %}
+                {% if payload.all_components_data %}
+                    {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.all_components_data %}
                         <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
-                            <td>{{ name }}</td>
+                            <td>{{ name }}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}</td>
                             <td>{{ type }}</td>
                             <td>{{ component_distance }} km</td>
                             <td>

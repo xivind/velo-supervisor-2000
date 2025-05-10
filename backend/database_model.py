@@ -114,3 +114,21 @@ class Services(BaseModel):
     class Meta:
         """Extends model with extra attributes"""
         table_name = "services"
+
+
+class Incidents(BaseModel):
+    """Model for table: incident"""
+    incident_id = CharField(primary_key=True, unique=True)
+    incident_date = CharField()
+    incident_status = CharField()
+    incident_severity = CharField()
+    affected_component_ids = CharField()
+    affected_bike_id = CharField()
+    incident_description = CharField()
+    resolution_date = CharField()
+    resolution_notes = CharField()
+
+    class Meta:
+        """Extends model with extra attributes"""
+        table_name = "incidents"
+
