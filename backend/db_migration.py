@@ -113,8 +113,8 @@ def create_incidents_table(cursor):
                 incident_date TEXT,
                 incident_status TEXT,
                 incident_severity TEXT,
-                affected_component_ids TEXT,
-                affected_bike_id TEXT,
+                incident_affected_component_ids TEXT,
+                incident_affected_bike_id TEXT,
                 incident_description TEXT,
                 resolution_date TEXT,
                 resolution_notes TEXT
