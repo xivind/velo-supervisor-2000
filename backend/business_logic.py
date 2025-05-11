@@ -131,10 +131,10 @@ class BusinessLogic():
                                   incident.incident_date,
                                   incident.incident_status,
                                   incident.incident_severity,
-                                  parse_json_string(incident.affected_component_ids),
-                                  database_manager.read_component_names(incident.affected_component_ids),
-                                  incident.affected_bike_id,
-                                  database_manager.read_bike_name(incident.affected_bike_id),
+                                  parse_json_string(incident.incident_affected_component_ids),
+                                  database_manager.read_component_names(incident.incident_affected_component_ids),
+                                  incident.incident_affected_bike_id,
+                                  database_manager.read_bike_name(incident.incident_affected_bike_id),
                                   incident.incident_description,
                                   incident.resolution_date,
                                   incident.resolution_notes,
@@ -331,10 +331,10 @@ class BusinessLogic():
                                   incident.incident_date,
                                   incident.incident_status,
                                   incident.incident_severity,
-                                  parse_json_string(incident.affected_component_ids),
-                                  database_manager.read_component_names(incident.affected_component_ids),
-                                  incident.affected_bike_id,
-                                  database_manager.read_bike_name(incident.affected_bike_id),
+                                  parse_json_string(incident.incident_affected_component_ids),
+                                  database_manager.read_component_names(incident.incident_affected_component_ids),
+                                  incident.incident_affected_bike_id,
+                                  database_manager.read_bike_name(incident.incident_affected_bike_id),
                                   incident.incident_description,
                                   incident.resolution_date,
                                   incident.resolution_notes,
@@ -368,10 +368,10 @@ class BusinessLogic():
                                   incident.incident_date,
                                   incident.incident_status,
                                   incident.incident_severity,
-                                  parse_json_string(incident.affected_component_ids),
-                                  database_manager.read_component_names(incident.affected_component_ids),
-                                  incident.affected_bike_id,
-                                  database_manager.read_bike_name(incident.affected_bike_id),
+                                  parse_json_string(incident.incident_affected_component_ids),
+                                  database_manager.read_component_names(incident.incident_affected_component_ids),
+                                  incident.incident_affected_bike_id,
+                                  database_manager.read_bike_name(incident.incident_affected_bike_id),
                                   incident.incident_description,
                                   incident.resolution_date,
                                   incident.resolution_notes,
@@ -395,8 +395,8 @@ class BusinessLogic():
             for incident in incidents:
                 incident_id = incident.incident_id
 
-                if incident.affected_bike_id:
-                    bike_id = incident.affected_bike_id
+                if incident.incident_affected_bike_id:
+                    bike_id = incident.incident_affected_bike_id
 
                     if bike_id not in bike_incidents:
                         bike_incidents[bike_id] = {
@@ -408,8 +408,8 @@ class BusinessLogic():
                         bike_incidents[bike_id]["incident_count"] += 1
                         bike_incidents[bike_id]["incident_ids"].append(incident_id)
 
-                if incident.affected_component_ids:
-                    component_ids = json.loads(incident.affected_component_ids)
+                if incident.incident_affected_component_ids:
+                    component_ids = json.loads(incident.incident_affected_component_ids)
 
                     for component_id in component_ids:
                         if component_id not in component_incidents:
@@ -1582,8 +1582,8 @@ class BusinessLogic():
                                incident_date,
                                incident_status,
                                incident_severity,
-                               affected_component_ids,
-                               affected_bike_id,
+                               incident_affected_component_ids,
+                               incident_affected_bike_id,
                                incident_description,
                                resolution_date,
                                resolution_notes):
@@ -1591,7 +1591,7 @@ class BusinessLogic():
         try:
             incident_id = generate_unique_id()
 
-            affected_bike_id = affected_bike_id if affected_bike_id else None
+            incident_affected_bike_id = incident_affected_bike_id if incident_affected_bike_id else None
             incident_description = incident_description if incident_description else None
             resolution_date = resolution_date if resolution_date else None
             resolution_notes = resolution_notes if resolution_notes else None
@@ -1600,8 +1600,8 @@ class BusinessLogic():
                              "incident_date": incident_date,
                              "incident_status": incident_status,
                              "incident_severity": incident_severity,
-                             "affected_component_ids": json.dumps(affected_component_ids) if affected_component_ids else None,
-                             "affected_bike_id": affected_bike_id,
+                             "incident_affected_component_ids": json.dumps(incident_affected_component_ids) if incident_affected_component_ids else None,
+                             "incident_affected_bike_id": incident_affected_bike_id,
                              "incident_description": incident_description,
                              "resolution_date": resolution_date,
                              "resolution_notes": resolution_notes}
@@ -1624,14 +1624,14 @@ class BusinessLogic():
                                incident_date,
                                incident_status,
                                incident_severity,
-                               affected_component_ids,
-                               affected_bike_id,
+                               incident_affected_component_ids,
+                               incident_affected_bike_id,
                                incident_description,
                                resolution_date,
                                resolution_notes):
         """Method to update incident record"""
         try:
-            affected_bike_id = affected_bike_id if affected_bike_id else None
+            incident_affected_bike_id = incident_affected_bike_id if incident_affected_bike_id else None
             incident_description = incident_description if incident_description else None
             resolution_date = resolution_date if resolution_date else None
             resolution_notes = resolution_notes if resolution_notes else None
@@ -1640,8 +1640,8 @@ class BusinessLogic():
                              "incident_date": incident_date,
                              "incident_status": incident_status,
                              "incident_severity": incident_severity,
-                             "affected_component_ids": json.dumps(affected_component_ids) if affected_component_ids else None,
-                             "affected_bike_id": affected_bike_id,
+                             "incident_affected_component_ids": json.dumps(incident_affected_component_ids) if incident_affected_component_ids else None,
+                             "incident_affected_bike_id": incident_affected_bike_id,
                              "incident_description": incident_description,
                              "resolution_date": resolution_date,
                              "resolution_notes": resolution_notes}

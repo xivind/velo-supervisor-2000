@@ -40,8 +40,8 @@
                     
                     <!-- Second row: Multiple component selection and Bike selection -->
                     <div class="col-md-6 mb-3">
-                        <label for="affected_bike_id" class="form-label fw-bold">Affected bike</label>
-                        <select class="form-select" id="affected_bike_id" name="affected_bike_id">
+                        <label for="incident_affected_bike_id" class="form-label fw-bold">Affected bike</label>
+                        <select class="form-select" id="incident_affected_bike_id" name="incident_affected_bike_id">
                             <option value="" selected></option>
                             {% for bike_name, bike_id in payload.bikes_data %}
                                 <option value="{{ bike_id }}"
@@ -52,8 +52,8 @@
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="affected_component_ids" class="form-label fw-bold">Affected components</label>
-                        <select class="form-select" id="affected_component_ids" name="affected_component_ids" multiple placeholder="Search to add more components...">
+                        <label for="incident_affected_component_ids" class="form-label fw-bold">Affected components</label>
+                        <select class="form-select" id="incident_affected_component_ids" name="incident_affected_component_ids" multiple placeholder="Search to add more components...">
                             {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
                                 {% if status != "Retired" %}
                                     <option value="{{ component_id }}">{{ name }} ({{ type }}) - {{ bike }}</option>

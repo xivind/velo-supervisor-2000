@@ -1517,8 +1517,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const incidentDate = this.dataset.incidentDate;
                 const incidentStatus = this.dataset.incidentStatus;
                 const incidentSeverity = this.dataset.incidentSeverity;
-                const affectedComponents = this.dataset.affectedComponents;
-                const affectedBikeId = this.dataset.affectedBikeId;
+                const incidentAffectedComponents = this.dataset.incidentAffectedComponents;
+                const incidentAffectedBikeId = this.dataset.incidentAffectedBikeId;
                 const description = this.dataset.description?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
                 const resolutionDate = this.dataset.resolutionDate;
                 const resolutionNotes = this.dataset.resolutionNotes?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
@@ -1526,12 +1526,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Prepare component data
                 const componentList = [];
                 let hasComponents = false;
-                if (affectedComponents && affectedComponents !== 'Not assigned') {
-                    console.log("Processing components:", affectedComponents);
+                if (incidentAffectedComponents && incidentAffectedComponents !== 'Not assigned') {
+                    console.log("Processing components:", incidentAffectedComponents);
                     hasComponents = true;
                     
                     // Parse the JSON-like string back into an array
-                    const componentIds = JSON.parse(affectedComponents);
+                    const componentIds = JSON.parse(incidentAffectedComponents);
                     componentIds.forEach(id => {
                         if (id) {
                             componentList.push(id);
@@ -1549,7 +1549,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         incidentDate: incidentDate,
                         incidentStatus: incidentStatus,
                         incidentSeverity: incidentSeverity,
-                        affectedBikeId: affectedBikeId,
+                        incidentAffectedBikeId: incidentAffectedBikeId,
                         description: description,
                         resolutionDate: resolutionDate,
                         resolutionNotes: resolutionNotes
@@ -1580,7 +1580,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('status_open').checked = true;
                 
                 // Clear TomSelect if it's already initialized
-                const componentSelect = document.getElementById('affected_component_ids');
+                const componentSelect = document.getElementById('incident_affected_component_ids');
                 if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
                     const ts = componentSelect.tomSelect || componentSelect.tomselect;
                     ts.clear();
@@ -1595,7 +1595,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize the component selector with delayed data loading
     function initializeComponentSelector(pendingData) {
-        const componentSelect = document.getElementById('affected_component_ids');
+        const componentSelect = document.getElementById('incident_affected_component_ids');
         if (!componentSelect) return;
         
         // If TomSelect is already initialized
@@ -1662,7 +1662,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Also remove error styling from bike select if components are selected
-                const bikeSelect = document.getElementById('affected_bike_id');
+                const bikeSelect = document.getElementById('incident_affected_bike_id');
                 if (bikeSelect && ts.getValue().length > 0) {
                     bikeSelect.classList.remove('is-invalid');
                 }
@@ -1694,7 +1694,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('incident_description').value = 
             description.toLowerCase() === 'none' ? '' : description;
         
-        document.getElementById('affected_bike_id').value = data.affectedBikeId || '';
+        document.getElementById('incident_affected_bike_id').value = data.incidentAffectedBikeId || '';
         
         // Clean resolution notes
         const resolutionNotes = data.resolutionNotes || '';
@@ -1813,14 +1813,14 @@ function initializeIncidentForm() {
     });
 
     // Add handler for bike select validation
-    const bikeSelect = document.getElementById('affected_bike_id');
+    const bikeSelect = document.getElementById('incident_affected_bike_id');
     if (bikeSelect) {
         bikeSelect.addEventListener('change', function() {
             this.classList.remove('is-invalid');
             
             // Also remove error styling from component select if bike is selected
             if (this.value) {
-                const componentSelect = document.getElementById('affected_component_ids');
+                const componentSelect = document.getElementById('incident_affected_component_ids');
                 if (componentSelect && componentSelect.tomSelect) {
                     const tomSelectControl = document.querySelector('.ts-control');
                     if (tomSelectControl) {
@@ -1849,17 +1849,17 @@ function validateIncidentForm(form) {
     const incidentDate = form.querySelector('#incident_date').value;
     const resolutionDate = form.querySelector('#resolution_date').value;
     
-    let affectedComponents = [];
-    const componentSelect = form.querySelector('#affected_component_ids');
+    let incidentAffectedComponents = [];
+    const componentSelect = form.querySelector('#incident_affected_component_ids');
     if (componentSelect) {
         if (componentSelect.tomSelect) {
-            affectedComponents = componentSelect.tomSelect.getValue();
+            incidentAffectedComponents = componentSelect.tomSelect.getValue();
         } else {
-            affectedComponents = Array.from(componentSelect.selectedOptions).map(opt => opt.value);
+            incidentAffectedComponents = Array.from(componentSelect.selectedOptions).map(opt => opt.value);
         }
     }
     
-    const affectedBikeId = form.querySelector('#affected_bike_id').value;
+    const incidentAffectedBikeId = form.querySelector('#incident_affected_bike_id').value;
     
     // Validation rules
     // If status is resolved, resolution date must be provided
@@ -1889,7 +1889,7 @@ function validateIncidentForm(form) {
     }
     
     // Either affected components or affected bike must be selected
-    if ((!affectedComponents || affectedComponents.length === 0) && !affectedBikeId) {
+    if ((!incidentAffectedComponents || incidentAffectedComponents.length === 0) && !incidentAffectedBikeId) {
         if (componentSelect && componentSelect.tomSelect) {
             // Add red border to TomSelect control
             const tomSelectControl = document.querySelector('.ts-control');
@@ -1900,8 +1900,8 @@ function validateIncidentForm(form) {
             componentSelect.classList.add('is-invalid');
         }
         
-        if (form.querySelector('#affected_bike_id')) {
-            form.querySelector('#affected_bike_id').classList.add('is-invalid');
+        if (form.querySelector('#incident_affected_bike_id')) {
+            form.querySelector('#incident_affected_bike_id').classList.add('is-invalid');
         }
         
         errorMessage = "Either affected components or an affected bike must be selected";
