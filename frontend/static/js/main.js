@@ -288,7 +288,7 @@ function validateDateInput(input) {
 function initializeDatePickers(container = document) {
     // Find all date picker input groups inside the provided container
     const dateInputGroups = container.querySelectorAll('.date-input-group');
-    
+
     dateInputGroups.forEach(group => {
         const dateInput = group.querySelector('.datepicker-input');
         const datePickerToggle = group.querySelector('.datepicker-toggle');
@@ -316,6 +316,9 @@ function initializeDatePickers(container = document) {
             dateInput.value = formattedDate;
         }
 
+        // Determine if this is a due date field (which should allow future dates)
+        const isDueDateField = dateInput.id === 'due_date';
+        
         // Initialize Tempus Dominus with improved configuration
         const picker = new tempusDominus.TempusDominus(dateInput, {
             localization: {
@@ -353,7 +356,8 @@ function initializeDatePickers(container = document) {
             },
             restrictions: {
                 minDate: new Date('1970-01-01 00:00'),
-                maxDate: new Date()
+                // Only set maxDate for non-due date fields
+                ...(isDueDateField ? {} : { maxDate: new Date() })
             },
             // Allow viewing the calendar without selecting anything
             useCurrent: false
