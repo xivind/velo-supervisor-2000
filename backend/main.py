@@ -97,16 +97,16 @@ async def incident_reports(request: Request):
                                       {"request": request,
                                        "payload": payload})
 
-@app.get("/workplans", response_class=HTMLResponse) #Placeholder
+@app.get("/workplans", response_class=HTMLResponse)
 async def workplans(request: Request):
-    """Endpoint for workplan page"""
-    
-    #payload = business_logic.get_component_overview()
-    template_path = "workplans.html" #Alter later
-    
+    """Endpoint for workplans page"""
+
+    payload = business_logic.get_workplans()
+    template_path = "workplans.html"
+
     return templates.TemplateResponse(template_path,
                                       {"request": request,
-                                       "payload": "payload"}) #Alter later
+                                       "payload": payload})
 
 @app.get("/component_details/{component_id}", response_class=HTMLResponse)
 async def component_details(request: Request,
@@ -341,6 +341,60 @@ async def update_incident_record(incident_id: str = Form(...),
 
     return response
 
+@app.post("/add_workplan", response_class=HTMLResponse)
+async def add_workplan(due_date: str = Form(...),
+                       workplan_status: str = Form(...),
+                       workplan_size: str = Form(...),
+                       workplan_affected_component_ids: Optional[List[str]] = Form(None),
+                       workplan_affected_bike_id: Optional[str] = Form(None),
+                       workplan_description: Optional[str] = Form(None),
+                       completion_date: Optional[str] = Form(None),
+                       completion_notes: Optional[str] = Form(None)):
+    """Endpoint to create a workplan"""
+
+    success, message = business_logic.create_workplan(due_date,
+                                                      workplan_status,
+                                                      workplan_size,
+                                                      workplan_affected_component_ids,
+                                                      workplan_affected_bike_id,
+                                                      workplan_description,
+                                                      completion_date,
+                                                      completion_notes)
+    
+    response = RedirectResponse(
+        url=f"/workplans?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
+@app.post("/update_workplan", response_class=HTMLResponse)
+async def update_workplan(workplan_id: str = Form(...),
+                          due_date: str = Form(...),
+                          workplan_status: str = Form(...),
+                          workplan_size: str = Form(...),
+                          workplan_affected_component_ids: Optional[List[str]] = Form(None),
+                          workplan_affected_bike_id: Optional[str] = Form(None),
+                          workplan_description: Optional[str] = Form(None),
+                          completion_date: Optional[str] = Form(None),
+                          completion_notes: Optional[str] = Form(None)):
+    """Endpoint to update a workplan"""
+
+    success, message = business_logic.update_workplan(workplan_id,
+                                                      due_date,
+                                                      workplan_status,
+                                                      workplan_size,
+                                                      workplan_affected_component_ids,
+                                                      workplan_affected_bike_id,
+                                                      workplan_description,
+                                                      completion_date,
+                                                      completion_notes)
+    
+    response = RedirectResponse(
+        url=f"/workplans?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
 @app.get("/refresh_all_bikes", response_class=HTMLResponse)
 async def refresh_all_bikes(request: Request):
     """Endpoint to manually refresh data for all bikes"""
@@ -399,6 +453,8 @@ async def delete_record(record_id: str = Form(...),
         redirect_url = f"/component_details/{component_id}"
     if table_selector == "Incidents":
         redirect_url = "/incident_reports"
+    if table_selector == "Workplans":
+        redirect_url = "/workplans"
 
     response = RedirectResponse(
         url=f"{redirect_url}?success={success}&message={message}",

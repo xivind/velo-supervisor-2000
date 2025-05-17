@@ -117,7 +117,7 @@ class Services(BaseModel):
 
 
 class Incidents(BaseModel):
-    """Model for table: incident"""
+    """Model for table: incidents"""
     incident_id = CharField(primary_key=True, unique=True)
     incident_date = CharField()
     incident_status = CharField()
@@ -132,3 +132,19 @@ class Incidents(BaseModel):
         """Extends model with extra attributes"""
         table_name = "incidents"
 
+
+class Workplans(BaseModel):
+    """Model for table: workplans"""
+    workplan_id = CharField(primary_key=True, unique=True)
+    due_date = CharField()
+    workplan_status = CharField()
+    workplan_size = CharField()
+    workplan_affected_component_ids = CharField()
+    workplan_affected_bike_id = CharField()
+    workplan_description = CharField()
+    completion_date = CharField()
+    completion_notes = CharField()
+
+    class Meta:
+        """Extends model with extra attributes"""
+        table_name = "workplans"

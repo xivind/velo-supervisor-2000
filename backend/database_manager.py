@@ -10,7 +10,8 @@ from database_model import (database,
                             Components,
                             ComponentHistory,
                             Services,
-                            Incidents)
+                            Incidents,
+                            Workplans)
 from utils import (format_component_status,
                    format_cost)
 
@@ -258,8 +259,24 @@ class DatabaseManager:
                 .where(Incidents.incident_status == "Open")
                 .order_by(Incidents.incident_date.desc()))
 
+    def read_single_workplan(self, workplan_id):
+        """Method to retrieve record for a specific workplan"""
+        return (Workplans
+                .get_or_none(Workplans.workplan_id == workplan_id))
+
+    def read_all_workplans(self):
+        """Method to read all workplans"""
+        return Workplans.select()
+
+    def read_open_workplans(self):
+        """Method to read workplans with status 'Planned'"""
+        return (Workplans
+                .select()
+                .where(Workplans.workplan_status == "Planned")
+                .order_by(Workplans.due_date.desc()))
+
     def write_update_rides_bulk(self, ride_list):
-        """Method to create or update ride data in bulk to database"""
+        """Method to create or update ride data in bulk in database"""
         try:
             with database.atomic():
                 batch_size = 50
@@ -379,7 +396,7 @@ class DatabaseManager:
             return False, f"{bike.bike_name}: {str(error)}."
 
     def write_service_record(self, service_data):
-        """Method to write or update service record to database"""
+        """Method to write or update service record in database"""
         try:
             with self.database.atomic():
                 existing_service = Services.get_or_none(Services.service_id == service_data['service_id'])
@@ -397,7 +414,7 @@ class DatabaseManager:
             return False, f"Service record database error for {service_data['component_name']}: {str(error)}"
     
     def write_history_record(self, history_data):
-        "Method to write or update history record to database"
+        "Method to write or update history record in database"
         try:
             with self.database.atomic():
                 existing_history = ComponentHistory.get_or_none(ComponentHistory.history_id == history_data['history_id'])
@@ -415,7 +432,7 @@ class DatabaseManager:
             return False, f"History record database error for {history_data['component_name']}: {str(error)}"
 
     def write_incident_record(self, incident_data):
-        """Method to create or update incident record to database"""
+        """Method to create or update incident record in database"""
         try:
             with self.database.atomic():
                 existing_incident = Incidents.get_or_none(Incidents.incident_id == incident_data['incident_id'])
@@ -432,8 +449,26 @@ class DatabaseManager:
         except peewee.OperationalError as error:
             return False, f"Incident record database error for report with id {incident_data['incident_id']}: {str(error)}"
     
+    def write_workplan(self, workplan_data):
+        """Method to create or update workplan record in database"""
+        try:
+            with self.database.atomic():
+                existing_workplan = Workplans.get_or_none(Workplans.workplan_id == workplan_data['workplan_id'])
+                
+                if existing_workplan:
+                    Workplans.update(**workplan_data).where(
+                        Workplans.workplan_id == workplan_data['workplan_id']
+                    ).execute()
+                    return True, f"Updated workplan with id {workplan_data['workplan_id']}"
+                else:
+                    Workplans.create(**workplan_data)
+                    return True, f"Created new workplan with id {workplan_data['workplan_id']}"
+
+        except peewee.OperationalError as error:
+            return False, f"Workplan database error for report with id {workplan_data['workplan_id']}: {str(error)}"
+    
     def write_component_type(self, component_type_data):
-        """Method to write component type record to database"""
+        """Method to write component type record in database"""
         try:
             with database.atomic():
                 component_type = self.read_single_component_type(component_type_data["component_type"])
@@ -462,11 +497,17 @@ class DatabaseManager:
                         record.delete_instance()
                         return True, f"Deleted component type: {record_id}"
                 
-                if table_selector == "Incidents":
+                elif table_selector == "Incidents":
                     record = self.read_single_incident_report(record_id)
                     if record:
                         record.delete_instance()
                         return True, f"Deleted incident report with id {record_id}"
+                
+                elif table_selector == "Workplans":
+                    record = self.read_single_workplan(record_id)
+                    if record:
+                        record.delete_instance()
+                        return True, f"Deleted workplan with id {record_id}"
                 
                 elif table_selector == "Components":
                     record = self.read_component(record_id)

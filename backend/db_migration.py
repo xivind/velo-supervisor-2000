@@ -126,6 +126,31 @@ def create_incidents_table(cursor):
         print("Table 'incidents' already exists. Skipping creation.")
         return False
 
+def create_workplans_table(cursor):
+    """Creates the workplans table if it doesn't exist."""
+    print("Checking for the 'workplans' table...")
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='workplans'")
+    if not cursor.fetchone():
+        print("Table 'workplans' not found. Creating it now...")
+        cursor.execute("""
+            CREATE TABLE workplans (
+                workplan_id TEXT PRIMARY KEY UNIQUE,
+                due_date TEXT,
+                workplan_status TEXT,
+                workplan_size TEXT,
+                workplan_affected_component_ids TEXT,
+                workplan_affected_bike_id TEXT,
+                workplan_description TEXT,
+                completion_date TEXT,
+                completion_notes TEXT
+            )
+        """)
+        print("Table 'workplans' created successfully.")
+        return True
+    else:
+        print("Table 'workplans' already exists. Skipping creation.")
+        return False
+
 def check_component_types_columns(cursor):
     """Check if the component_types table needs migration"""
     cursor.execute("PRAGMA table_info(component_types)")
@@ -238,6 +263,11 @@ def migrate_database():
         # Create the 'incidents' table if it doesn't exist
         incidents_created = create_incidents_table(cursor)
         if incidents_created:
+            migrations_performed += 1
+
+        # Create the 'workplans' table if it doesn't exist
+        workplans_created = create_workplans_table(cursor)
+        if workplans_created:
             migrations_performed += 1
         
         # Migrate component_types table if needed

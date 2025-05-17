@@ -217,6 +217,18 @@ th[data-sort].sorted-desc .sort-indicator::after {
     text-align: center;
 }
 
+.fixed-width-badge-workplan-status {
+    width: 4rem;
+    display: inline-block;
+    text-align: center;
+}
+
+.fixed-width-badge-workplan-size {
+    width: 4rem;
+    display: inline-block;
+    text-align: center;
+}
+
   /* Padding to offset toggle switches */
 .toggle-container-right {
     padding-right: 15px; 
