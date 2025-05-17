@@ -33,7 +33,7 @@
                         {%- endif -%}">
                         <span>{{ name }}</span>
                         <span>
-                            {% if bike_ids in payload.open_incidents["bike_incidents"] %}📝PLACEHOLDER FOR WORKPLAN{% endif %}
+                            {% if bike_id in payload.planned_workplans["bike_workplans"] %}📝{% endif %}
                             {% if bike_id in payload.open_incidents["bike_incidents"] %}🚨{% endif %}
                         </span>
                     </div>

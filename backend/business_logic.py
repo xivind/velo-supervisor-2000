@@ -73,11 +73,11 @@ class BusinessLogic():
 
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
         
-        open_workplans = self.process_workplans(database_manager.read_open_workplans())
+        planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
 
         payload = {"bikes_data": bikes_data,
                    "open_incidents": open_incidents,
-                   "open_workplans": open_workplans}
+                   "planned_workplans": planned_workplans}
 
         return payload
 
@@ -142,7 +142,7 @@ class BusinessLogic():
                                                          incident.resolution_date if incident.resolution_date
                                                          else get_formatted_datetime_now())[1]) for incident in database_manager.read_open_incidents()]
 
-        open_workplans = self.process_workplans(database_manager.read_open_workplans())
+        planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
 
         workplans_data = [(workplan.workplan_id,
                            workplan.due_date,
@@ -157,7 +157,7 @@ class BusinessLogic():
                            workplan.completion_notes,
                            calculate_elapsed_days(workplan.due_date,
                                                   workplan.completion_date if workplan.completion_date
-                                                  else get_formatted_datetime_now())[1]) for workplan in database_manager.read_open_workplans()]
+                                                  else get_formatted_datetime_now())[1]) for workplan in database_manager.read_planned_workplans()]
         
         payload = {"recent_rides": recent_rides_data,
                    "bikes_data": bikes_data,
@@ -181,7 +181,7 @@ class BusinessLogic():
                    "compliance_report": compliance_report,
                    "open_incidents": open_incidents,
                    "incident_reports_data": incident_reports_data,
-                   "open_workplans": open_workplans,
+                   "planned_workplans": planned_workplans,
                    "workplans_data": workplans_data}
 
         return payload
@@ -209,7 +209,7 @@ class BusinessLogic():
 
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
 
-        open_workplans = self.process_workplans(database_manager.read_open_workplans())
+        planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
 
         payload = {"all_components_data": all_components_data,
                    "bikes_data": bikes_data,
@@ -229,7 +229,7 @@ class BusinessLogic():
                    "count_service_status_grey" : component_statistics["count_service_status_grey"],
                    "sum_cost" : component_statistics["sum_cost"],
                    "open_incidents": open_incidents,
-                   "open_workplans": open_workplans}
+                   "planned_workplans": planned_workplans}
 
         return payload
 
@@ -362,7 +362,7 @@ class BusinessLogic():
                                                          incident.resolution_date if incident.resolution_date
                                                          else get_formatted_datetime_now())[1]) for incident in database_manager.read_open_incidents()]
         
-        open_workplans = self.process_workplans(database_manager.read_open_workplans())
+        planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
 
         workplans_data = [(workplan.workplan_id,
                            workplan.due_date,
@@ -377,7 +377,7 @@ class BusinessLogic():
                            workplan.completion_notes,
                            calculate_elapsed_days(workplan.due_date,
                                                   workplan.completion_date if workplan.completion_date
-                                                  else get_formatted_datetime_now())[1]) for workplan in database_manager.read_open_workplans()]
+                                                  else get_formatted_datetime_now())[1]) for workplan in database_manager.read_planned_workplans()]
         
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
@@ -389,7 +389,7 @@ class BusinessLogic():
                    "elapsed_days": elapsed_days,
                    "open_incidents": open_incidents,
                    "incident_reports_data": incident_reports_data,
-                   "open_workplans": open_workplans,
+                   "planned_workplans": planned_workplans,
                    "workplans_data": workplans_data}
 
         return payload

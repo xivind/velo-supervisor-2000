@@ -268,7 +268,7 @@ class DatabaseManager:
         """Method to read all workplans"""
         return Workplans.select()
 
-    def read_open_workplans(self):
+    def read_planned_workplans(self):
         """Method to read workplans with status 'Planned'"""
         return (Workplans
                 .select()
