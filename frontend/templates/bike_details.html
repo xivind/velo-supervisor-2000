@@ -278,7 +278,7 @@
             </div>
         {% endif %}
         {% if bike_id in payload.planned_workplans["bike_workplans"] %}
-            {% set workplan_count = payload.planned_workplans["bike_workplans"][bike_id]["incident_count"] %}
+            {% set workplan_count = payload.planned_workplans["bike_workplans"][bike_id]["workplan_count"] %}
             <div class="card shadow mb-4">
                 <div class="alert alert-warning m-0">
                     <div class="d-flex align-items-center">
@@ -286,7 +286,7 @@
                         <div>
                             <h5 class="card-title mb-2">Bike or installed components have unfinished workplans</h5>
                             <p class="mb-1">
-                                There are <strong>{{ incident_count }}</strong> open workplan(s) referencing this bike, either directly or via installed components.
+                                There are <strong>{{ workplan_count }}</strong> open workplan(s) referencing this bike, either directly or via installed components.
                                 Components directly referenced in a workplan is marked with 📝 in the components table below. Check and edit workplans in the workplan card to the left.
                             </p>
                         </div>
