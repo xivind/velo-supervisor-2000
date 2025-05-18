@@ -2241,7 +2241,7 @@ function setupIncidentSearch() {
                 
                 // Get data from the button
                 const workplanId = this.dataset.workplanId;
-                const workplanDate = this.dataset.workplanDate;
+                const dueDate = this.dataset.dueDate;
                 const workplanStatus = this.dataset.workplanStatus;
                 const workplanSize = this.dataset.workplanSize;
                 const workplanAffectedComponents = this.dataset.workplanAffectedComponents;
@@ -2273,7 +2273,7 @@ function setupIncidentSearch() {
                     componentIds: componentList,
                     formData: {
                         workplanId: workplanId,
-                        workplanDate: workplanDate,
+                        dueDate: dueDate,
                         workplanStatus: workplanStatus,
                         workplanSize: workplanSize,
                         workplanAffectedBikeId: workplanAffectedBikeId,
@@ -2430,8 +2430,8 @@ function setupIncidentSearch() {
         
         // Set date fields with a slight delay to ensure pickers are initialized
         setTimeout(() => {
-            if (data.workplanDate) {
-                document.getElementById('due_date').value = data.workplanDate;
+            if (data.dueDate) {
+                document.getElementById('due_date').value = data.dueDate;
             }
             
             const completionDate = data.completionDate || '';
@@ -2573,7 +2573,7 @@ function validateWorkplanForm(form) {
     
     // Get form values
     const workplanStatus = form.querySelector('input[name="workplan_status"]:checked').value;
-    const workplanDate = form.querySelector('#due_date').value;
+    const dueDate = form.querySelector('#due_date').value;
     const completionDate = form.querySelector('#completion_date').value;
     
     let workplanAffectedComponents = [];
@@ -2604,11 +2604,11 @@ function validateWorkplanForm(form) {
     }
     
     // Completion date cannot be at or before due date
-    if (completionDate && workplanDate) {
-        const workplanDateObj = new Date(workplanDate);
+    if (completionDate && dueDate) {
+        const dueDateObj = new Date(dueDate);
         const completionDateObj = new Date(completionDate);
         
-        if (completionDateObj <= workplanDateObj) {
+        if (completionDateObj <= dueDateObj) {
             form.querySelector('#completion_date').classList.add('is-invalid');
             errorMessage = "Completion date must be after the due date";
             isValid = false;

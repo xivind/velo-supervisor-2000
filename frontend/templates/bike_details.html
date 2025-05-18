@@ -12,12 +12,16 @@
     'bike_id': payload.bike_data['bike_id']} %}
     {% include "modal_incident_record.html" %}
 {% endwith %}
+{% with duplicate_data = {
+    'bike_id': payload.bike_data['bike_id']} %}
+    {% include "modal_workplan_record.html" %}
+{% endwith %}
 
 <h1 id="bike-details" class="display-5 mt-5 text-center mb-4">Bike details</h1>
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createComponentModal">
     <span>⚙ New component</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
     <span>📝 New workplan</span>
 </button>
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
@@ -42,54 +46,6 @@
                 <p class="card-text d-flex justify-content-between align-items-center">
                     <span>{% if payload.bike_data['bike_retired'] == 'False' %}🟩 Active {% elif payload.bike_data['bike_retired'] == 'True' %}🟥 Retired {% endif %}📍{{ payload.bike_data['bike_total_distance'] }} km ✨ {{ payload.bike_data['oldest_ride'] }}</span>
                 </p>
-            </div>
-        </div>
-        <div class="card shadow mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Summary components</h5>
-                <hr/>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>⚡ Installed:</span><span class="fw-bold">{{ payload.count_installed }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>⛔ Retired:</span><span class="fw-bold">{{ payload.count_retired }}</span>
-                </p>
-                <hr/>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟢 Lifetime OK</span><span class="fw-bold">{{ payload.count_lifetime_status_green }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟡 End of life approaching</span><span class="fw-bold">{{ payload.count_lifetime_status_yellow }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🔴 Due for replacement</span><span class="fw-bold">{{ payload.count_lifetime_status_red }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟣 Lifetime exceeded</span><span class="fw-bold">{{ payload.count_lifetime_status_purple }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>⚪ Lifetime not defined</span><span class="fw-bold">{{ payload.count_lifetime_status_grey }}</span>
-                </p>
-                <hr/>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟢 Service OK</span><span class="fw-bold">{{ payload.count_service_status_green }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟡 Service approaching</span><span class="fw-bold">{{ payload.count_service_status_yellow }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🔴 Due for service</span><span class="fw-bold">{{ payload.count_service_status_red }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>🟣 Service interval exceeded</span><span class="fw-bold">{{ payload.count_service_status_purple }}</span>
-                </p>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>⚪ Service interval not defined</span><span class="fw-bold">{{ payload.count_service_status_grey }}</span>
-                </p>
-                <hr/>
-                <p class="card-text d-flex justify-content-between align-items-center">
-                    <span>💰 Expected cost next service</span><span class="fw-bold">{% if payload.sum_cost == "No estimate" %} {{ payload.sum_cost }} {% else %} {{ payload.sum_cost }} kr{% endif %}</span>
-                </p>  
             </div>
         </div>
         <div class="card shadow mb-4 mt-2">
@@ -149,6 +105,113 @@
                         {% endif %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+        <div class="card shadow mb-4 mt-2">
+            <div class="card-body">
+                <h5 class="card-title">Unfinished workplans</h5>
+                <hr/>
+                <table class="table table-hover" id="workplansTable">
+                    <thead>
+                        <tr>
+                            <th>Size</th>
+                            <th>Due date</th>
+                            <th class="text-center">Days overdue</th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if payload.workplans_data and payload.bike_data['bike_id'] in payload.planned_workplans["bike_workplans"] %}
+                            {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days in payload.workplans_data %}
+                                {% if payload.bike_data['bike_id'] in payload.planned_workplans["bike_workplans"] and workplan_id in payload.planned_workplans["bike_workplans"][payload.bike_data['bike_id']]["workplan_ids"] %}
+                                    <tr>
+                                        <td>
+                                            {% if workplan_size == "Large" %}
+                                            <span class="badge text-bg-danger fixed-width-badge-workplan-size">Large</span>
+                                            {% elif workplan_size == "Medium" %}
+                                            <span class="badge text-bg-warning fixed-width-badge-workplan-size">Medium</span>
+                                            {% elif workplan_size == "Small" %}
+                                            <span class="badge text-bg-success fixed-width-badge-workplan-size">Small</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ due_date.split(' ')[0] if due_date else "-" }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ elapsed_days }}
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-workplan-btn"
+                                            data-workplan-id="{{ workplan_id }}"
+                                            data-due-date="{{ due_date }}" 
+                                            data-workplan-status="{{ workplan_status }}"
+                                            data-workplan-size="{{ workplan_size }}"
+                                            data-workplan-affected-components='{{ workplan_affected_component_ids|tojson if workplan_affected_component_ids else "[]" }}'
+                                            data-workplan-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ workplan_affected_bike_id }}{% endif %}"
+                                            data-description="{{ workplan_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            data-completion-date="{{ completion_date }}" 
+                                            data-completion-notes="{{ completion_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            onclick="event.stopPropagation();">✍
+                                        </button>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">No unfinished workplans for this bike</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Summary components</h5>
+                <hr/>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>⚡ Installed:</span><span class="fw-bold">{{ payload.count_installed }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>⛔ Retired:</span><span class="fw-bold">{{ payload.count_retired }}</span>
+                </p>
+                <hr/>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟢 Lifetime OK</span><span class="fw-bold">{{ payload.count_lifetime_status_green }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟡 End of life approaching</span><span class="fw-bold">{{ payload.count_lifetime_status_yellow }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🔴 Due for replacement</span><span class="fw-bold">{{ payload.count_lifetime_status_red }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟣 Lifetime exceeded</span><span class="fw-bold">{{ payload.count_lifetime_status_purple }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>⚪ Lifetime not defined</span><span class="fw-bold">{{ payload.count_lifetime_status_grey }}</span>
+                </p>
+                <hr/>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟢 Service OK</span><span class="fw-bold">{{ payload.count_service_status_green }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟡 Service approaching</span><span class="fw-bold">{{ payload.count_service_status_yellow }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🔴 Due for service</span><span class="fw-bold">{{ payload.count_service_status_red }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>🟣 Service interval exceeded</span><span class="fw-bold">{{ payload.count_service_status_purple }}</span>
+                </p>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>⚪ Service interval not defined</span><span class="fw-bold">{{ payload.count_service_status_grey }}</span>
+                </p>
+                <hr/>
+                <p class="card-text d-flex justify-content-between align-items-center">
+                    <span>💰 Expected cost next service</span><span class="fw-bold">{% if payload.sum_cost == "No estimate" %} {{ payload.sum_cost }} {% else %} {{ payload.sum_cost }} kr{% endif %}</span>
+                </p>  
             </div>
         </div>
         <div class="card shadow mb-4 mt-2">
@@ -214,6 +277,23 @@
                 </div>
             </div>
         {% endif %}
+        {% if bike_id in payload.planned_workplans["bike_workplans"] %}
+            {% set workplan_count = payload.planned_workplans["bike_workplans"][bike_id]["incident_count"] %}
+            <div class="card shadow mb-4">
+                <div class="alert alert-warning m-0">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-2 me-3">📝</div>
+                        <div>
+                            <h5 class="card-title mb-2">Bike or installed components have unfinished workplans</h5>
+                            <p class="mb-1">
+                                There are <strong>{{ incident_count }}</strong> open workplan(s) referencing this bike, either directly or via installed components.
+                                Components directly referenced in a workplan is marked with 📝 in the components table below. Check and edit workplans in the workplan card to the left.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         {% if payload.bike_data.bike_retired == 'False' and (not payload.compliance_report.all_mandatory_present or not payload.compliance_report.no_max_quantity_exceeded) %}
             <div class="card shadow mb-4">
                 <div class="alert alert-warning m-0">
@@ -272,7 +352,7 @@
                                         {% elif installation_status == "Retired" %}
                                         ⛔
                                         {% endif %}
-                                        {{ name }}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}
+                                        {{ name }}{% if component_id in payload.planned_workplans["component_workplans"] %} 📝{% endif %}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}
                                     </td>
                                     <td>{{ type }}</td>
                                     <td>{{ component_distance }} km</td>
