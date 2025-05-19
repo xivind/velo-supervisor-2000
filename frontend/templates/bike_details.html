@@ -8,10 +8,12 @@
     'bike_id': payload.bike_data['bike_id']} %}
     {% include "modal_create_component.html" %}
 {% endwith %}
+
 {% with duplicate_data = {
     'bike_id': payload.bike_data['bike_id']} %}
     {% include "modal_incident_record.html" %}
 {% endwith %}
+
 {% with duplicate_data = {
     'bike_id': payload.bike_data['bike_id']} %}
     {% include "modal_workplan_record.html" %}
@@ -83,17 +85,17 @@
                                         </td>
                                         <td class="text-end">
                                             <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn"
-                                            data-incident-id="{{ incident_id }}"
-                                            data-incident-date="{{ incident_date }}" 
-                                            data-incident-status="{{ incident_status }}"
-                                            data-incident-severity="{{ incident_severity }}"
-                                            data-incident-affected-components='{{ incident_affected_component_ids|tojson if incident_affected_component_ids else "[]" }}'
-                                            data-incident-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ incident_affected_bike_id }}{% endif %}"
-                                            data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                            data-resolution-date="{{ resolution_date }}" 
-                                            data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                            onclick="event.stopPropagation();">✍
-                                        </button>
+                                                data-incident-id="{{ incident_id }}"
+                                                data-incident-date="{{ incident_date }}" 
+                                                data-incident-status="{{ incident_status }}"
+                                                data-incident-severity="{{ incident_severity }}"
+                                                data-incident-affected-components='{{ incident_affected_component_ids|tojson if incident_affected_component_ids else "[]" }}'
+                                                data-incident-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ incident_affected_bike_id }}{% endif %}"
+                                                data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                                data-resolution-date="{{ resolution_date }}" 
+                                                data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                                onclick="event.stopPropagation();">✍
+                                            </button>
                                         </td>
                                     </tr>
                                 {% endif %}
@@ -142,17 +144,17 @@
                                         </td>
                                         <td class="text-end">
                                             <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-workplan-btn"
-                                            data-workplan-id="{{ workplan_id }}"
-                                            data-due-date="{{ due_date }}" 
-                                            data-workplan-status="{{ workplan_status }}"
-                                            data-workplan-size="{{ workplan_size }}"
-                                            data-workplan-affected-components='{{ workplan_affected_component_ids|tojson if workplan_affected_component_ids else "[]" }}'
-                                            data-workplan-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ workplan_affected_bike_id }}{% endif %}"
-                                            data-description="{{ workplan_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                            data-completion-date="{{ completion_date }}" 
-                                            data-completion-notes="{{ completion_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                            onclick="event.stopPropagation();">✍
-                                        </button>
+                                                data-workplan-id="{{ workplan_id }}"
+                                                data-due-date="{{ due_date }}" 
+                                                data-workplan-status="{{ workplan_status }}"
+                                                data-workplan-size="{{ workplan_size }}"
+                                                data-workplan-affected-components='{{ workplan_affected_component_ids|tojson if workplan_affected_component_ids else "[]" }}'
+                                                data-workplan-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ workplan_affected_bike_id }}{% endif %}"
+                                                data-description="{{ workplan_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                                data-completion-date="{{ completion_date }}" 
+                                                data-completion-notes="{{ completion_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                                onclick="event.stopPropagation();">✍
+                                            </button>
                                         </td>
                                     </tr>
                                 {% endif %}
