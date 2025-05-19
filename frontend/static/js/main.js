@@ -2603,18 +2603,6 @@ function validateWorkplanForm(form) {
         isValid = false;
     }
     
-    // Completion date cannot be at or before due date
-    if (completionDate && dueDate) {
-        const dueDateObj = new Date(dueDate);
-        const completionDateObj = new Date(completionDate);
-        
-        if (completionDateObj <= dueDateObj) {
-            form.querySelector('#completion_date').classList.add('is-invalid');
-            errorMessage = "Completion date must be after the due date";
-            isValid = false;
-        }
-    }
-    
     // Either affected components or affected bike must be selected
     if ((!workplanAffectedComponents || workplanAffectedComponents.length === 0) && !workplanAffectedBikeId) {
         if (componentSelect && componentSelect.tomSelect) {
@@ -2814,6 +2802,7 @@ function updateWorkplansVisibility() {
             const status = statusCell.textContent.trim();
             visibleByFilter = (
                 (status.includes('Planned') && showPlanned) ||
+                (status.includes('Overdue') && showPlanned) ||
                 (status.includes('Done') && showDone)
             );
         }

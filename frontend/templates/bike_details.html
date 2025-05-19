@@ -129,18 +129,22 @@
                                     <tr>
                                         <td>
                                             {% if workplan_size == "Large" %}
-                                            <span class="badge text-bg-danger fixed-width-badge-workplan-size">Large</span>
+                                                <span class="badge text-bg-danger fixed-width-badge-workplan-size">Large</span>
                                             {% elif workplan_size == "Medium" %}
-                                            <span class="badge text-bg-warning fixed-width-badge-workplan-size">Medium</span>
+                                                <span class="badge text-bg-warning fixed-width-badge-workplan-size">Medium</span>
                                             {% elif workplan_size == "Small" %}
-                                            <span class="badge text-bg-success fixed-width-badge-workplan-size">Small</span>
+                                                <span class="badge text-bg-success fixed-width-badge-workplan-size">Small</span>
                                             {% endif %}
                                         </td>
                                         <td>
                                             {{ due_date.split(' ')[0] if due_date else "-" }}
                                         </td>
                                         <td class="text-center">
-                                            {{ elapsed_days }}
+                                            {% if elapsed_days <= 0 %}
+                                                -
+                                            {% else %}
+                                                {{ elapsed_days }}
+                                            {% endif %}
                                         </td>
                                         <td class="text-end">
                                             <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-workplan-btn"

@@ -54,10 +54,12 @@
                     {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days in payload.workplans_data %}
                         <tr data-description="{{ workplan_description }}" data-notes="{{ completion_notes }}">
                             <td class="text-center">
-                                {% if workplan_status == "Planned" %}
-                                <span class="badge rounded-pill text-bg-info fixed-width-badge-workplan-status">Planned</span>
+                                {% if elapsed_days > 0 and workplan_status != "Done" %}
+                                    <span class="badge rounded-pill text-bg-primary fixed-width-badge-workplan-status">Overdue</span>
+                                {% elif workplan_status == "Planned" %}
+                                    <span class="badge rounded-pill text-bg-info fixed-width-badge-workplan-status">Planned</span>
                                 {% elif workplan_status == "Done" %}
-                                <span class="badge rounded-pill text-bg-secondary fixed-width-badge-workplan-status">Done</span>
+                                    <span class="badge rounded-pill text-bg-secondary fixed-width-badge-workplan-status">Done</span>
                                 {% endif %}
                             </td>
                             <td>
@@ -97,7 +99,11 @@
                                 {{ completion_date.split(' ')[0] if completion_date else "-" }}
                             </td>
                             <td class="text-center">
-                                {{ elapsed_days }}
+                                {% if elapsed_days <= 0 %}
+                                    -
+                                {% else %}
+                                    {{ elapsed_days }}
+                                {% endif %}
                             </td>
                             <td class="text-end">
                                 <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-workplan-btn"
