@@ -229,7 +229,26 @@ th[data-sort].sorted-desc .sort-indicator::after {
     text-align: center;
 }
 
-  /* Padding to offset toggle switches */
+/* Custom colors for workplan tags */
+.color-workplan-size-small {
+    color: #1a7f37;
+    background-color: #dafbe1;
+    border-color: rgba(26, 127, 55, 0.4);
+}
+
+.color-workplan-size-medium {
+    color: #9e6a03;
+    background-color: #fff8c5;
+    border-color: rgba(158, 106, 3, 0.4);
+}
+
+.color-workplan-size-large {
+    color: #cf222e;
+    background-color: #ffebe9;
+    border-color: rgba(207, 34, 46, 0.4);
+}
+
+/* Padding to offset toggle switches */
 .toggle-container-right {
     padding-right: 15px; 
 }
