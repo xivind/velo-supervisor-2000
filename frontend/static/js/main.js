@@ -2698,28 +2698,21 @@ function setupWorkplanTableSorting() {
             // Different handling based on column type
             switch(index) {
                 case 0: // Status column
-                    // Sort by status - Planned comes before Done
-                    cellA = cellA.includes('Planned') ? 0 : 1;
-                    cellB = cellB.includes('Planned') ? 0 : 1;
-                    break;
-                    
-                case 1: // Bike column
-                case 2: // Components column
-                    // Simple text comparison, case-insensitive
-                    cellA = cellA.toLowerCase();
-                    cellB = cellB.toLowerCase();
-                    break;
-                    
-                case 3: // Size column
-                    // Custom order: Large > Medium > Small
-                    const severityOrder = {
-                        "Large": 0,
-                        "Medium": 1,
-                        "Small": 2
-                    };
-                    cellA = severityOrder[cellA] !== undefined ? severityOrder[cellA] : 999;
-                    cellB = severityOrder[cellB] !== undefined ? severityOrder[cellB] : 999;
-                    break;
+                // Sort by status - custom order for statuses
+                const statusOrder = {
+                    "Overdue": 0,
+                    "Planned": 1,
+                    "Done": 2
+                };
+                // Extract status text from the badge
+                const statusTextA = cellA.includes('Overdue') ? 'Overdue' : 
+                                (cellA.includes('Planned') ? 'Planned' : 'Done');
+                const statusTextB = cellB.includes('Overdue') ? 'Overdue' : 
+                                (cellB.includes('Planned') ? 'Planned' : 'Done');
+                
+                cellA = statusOrder[statusTextA] !== undefined ? statusOrder[statusTextA] : 999;
+                cellB = statusOrder[statusTextB] !== undefined ? statusOrder[statusTextB] : 999;
+                break;
                     
                 case 4: // Due date column
                 case 5: // Completion date column
@@ -2766,12 +2759,12 @@ function setupWorkplanTableSorting() {
         });
     });
 
-    // Initial sort by due date (index 4) in descending order
+    // Initial sort by due date (index 4) in ascending order
     if (headers.length > 4 && rows.length > 1) {
         const dateHeader = Array.from(headers).find(h => h.getAttribute('data-sort') === 'due_date');
         if (dateHeader) {
-            dateHeader.classList.add('sorted-desc');
-            sortColumn(dateHeader.cellIndex, false);
+            dateHeader.classList.add('sorted-asc');
+            sortColumn(dateHeader.cellIndex, true);
         }
     }
 }
@@ -2787,7 +2780,7 @@ function updateWorkplansVisibility() {
     
     // Get current filter states
     const showPlanned = document.getElementById('showPlannedWorkplans').checked;
-    const showDone= document.getElementById('showDoneWorkplans').checked;
+    const showDone = document.getElementById('showDoneWorkplans').checked;
     
     rows.forEach(row => {
         // Skip the "no workplans" message row
@@ -2799,11 +2792,11 @@ function updateWorkplansVisibility() {
         let visibleByFilter = false;
         const statusCell = row.querySelector('td:nth-child(1)');
         if (statusCell) {
-            const status = statusCell.textContent.trim();
+            const statusText = statusCell.textContent.trim();
             visibleByFilter = (
-                (status.includes('Planned') && showPlanned) ||
-                (status.includes('Overdue') && showPlanned) ||
-                (status.includes('Done') && showDone)
+                // Show "Overdue" when "Planned" is checked
+                ((statusText.includes('Planned') || statusText.includes('Overdue')) && showPlanned) ||
+                (statusText.includes('Done') && showDone)
             );
         }
         
