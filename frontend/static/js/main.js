@@ -1610,8 +1610,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const ts = componentSelect.tomSelect || componentSelect.tomselect;
             ts.clear();
             
-            // Only set values if we have components to set
-            if (pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
+            // Check for initial component ID from the hidden field
+            const initialComponentId = document.getElementById('initial_incident_component_id')?.value;
+            if (initialComponentId && isNewIncident) {
+                setTimeout(() => {
+                    ts.setValue([initialComponentId]);
+                }, 100);
+            }
+            // Only set values if we have components to set from pendingData
+            else if (pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
                 // console.log("Setting component values:", pendingData.componentIds);
                 ts.setValue(pendingData.componentIds);
             }
@@ -2331,8 +2338,15 @@ function setupIncidentSearch() {
             const ts = componentSelect.tomSelect || componentSelect.tomselect;
             ts.clear();
             
-            // Only set values if we have components to set
-            if (pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
+            // Check for initial component ID from the hidden field
+            const initialComponentId = document.getElementById('initial_workplan_component_id')?.value;
+            if (initialComponentId && isNewWorkplan) {
+                setTimeout(() => {
+                    ts.setValue([initialComponentId]);
+                }, 100);
+            }
+            // Only set values if we have components to set from pendingData
+            else if (pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
                 // console.log("Setting component values:", pendingData.componentIds);
                 ts.setValue(pendingData.componentIds);
             }

@@ -9,6 +9,7 @@
                 <form id="incident_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
                     <!-- Hidden fields -->
                     <input type="hidden" id="incident_id" name="incident_id"> <!-- Should be set automatically, and is required -->
+                    <input type="hidden" id="initial_incident_component_id" name="initial_incident_component_id" value="{{ duplicate_data.component_id if duplicate_data }}">
                     
                     <!-- First row: Date, Status (as radio), Severity -->
                     <div class="col-md-4 mb-3">

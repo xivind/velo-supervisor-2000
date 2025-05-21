@@ -24,12 +24,14 @@
 {% include "modal_edit_installation_record.html" %}
 
 {% with duplicate_data = {
-    'bike_id': payload.bike_component_data['bike_id']} %}
+    'bike_id': payload.bike_component_data['bike_id'],
+    'component_id': payload.bike_component_data['component_id']} %}
     {% include "modal_incident_record.html" %}
 {% endwith %}
 
 {% with duplicate_data = {
-    'bike_id': payload.bike_component_data['bike_id']} %}
+    'bike_id': payload.bike_component_data['bike_id'],
+    'component_id': payload.bike_component_data['component_id']} %}
     {% include "modal_workplan_record.html" %}
 {% endwith %}
 
