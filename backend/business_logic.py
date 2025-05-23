@@ -1114,11 +1114,11 @@ class BusinessLogic():
             
             history_data = {"history_id": history_id,
                             "component_id": component_id,
-                            'bike_id': component_bike_id,
+                            "bike_id": component_bike_id if component_bike_id else None,
                             "component_name": component.component_name,
                             "updated_date": component_updated_date,
                             "update_reason": installation_status,
-                            'distance_marker': 0}
+                            "distance_marker": 0}
             
             success, message = database_manager.write_history_record(history_data)
             if not success:
@@ -1338,7 +1338,7 @@ class BusinessLogic():
                     "updated_date": latest_history.updated_date,
                     "component_name": component.component_name,
                     "component_type": component.component_type,
-                    "bike_id": None if latest_history_record.update_reason == "Not installed" else latest_history_record.bike_id,
+                    "bike_id": None if latest_history.update_reason == "Not installed" else latest_history.bike_id,
                     "lifetime_expected": component.lifetime_expected,
                     "service_interval": component.service_interval,
                     "cost": component.cost,
