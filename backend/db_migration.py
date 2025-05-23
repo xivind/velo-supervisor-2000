@@ -2,7 +2,6 @@
 """Script to migrate the database, including adding new tables and fields"""
 
 import sqlite3
-import json
 import sys
 import os
 
