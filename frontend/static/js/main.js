@@ -15,6 +15,35 @@ document.addEventListener('DOMContentLoaded', function() {
     confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
     loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
 
+    // Function to remove backdrop on some modals
+    const removeBackdropModals = [
+        'workplanRecordModal',
+        'incidentRecordModal', 
+        'serviceRecordModal',
+        'editHistoryModal'
+    ];
+    
+    removeBackdropModals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        
+        // Add handler for when the modal is hidden
+        modal.addEventListener('hidden.bs.modal', function() {
+            // Check if there are any other visible modals
+            const visibleModals = document.querySelectorAll('.modal.show').length;
+            
+            // If no visible modals but backdrop exists, remove it
+            if (visibleModals === 0 && document.querySelector('.modal-backdrop')) {
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                    backdrop.remove();
+                });
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+            }
+        });
+    });
+    
     // Add validation to all forms with date picker inputs
     document.querySelectorAll('form').forEach(form => {
         const dateInputs = form.querySelectorAll('.datepicker-input');
