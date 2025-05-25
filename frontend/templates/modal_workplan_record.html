@@ -1,48 +1,48 @@
-<div class="modal fade" id="incidentRecordModal" tabindex="-1" aria-labelledby="incidentRecordModalLabel" aria-hidden="true">
+<div class="modal fade" id="workplanRecordModal" tabindex="-1" aria-labelledby="workplanRecordModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header input-modal-header">
-                <h5 class="modal-title input-modal-title" id="incidentRecordModalLabel">Incident report</h5><!-- Title set with JS -->
+                <h5 class="modal-title input-modal-title" id="workplanRecordModalLabel">Workplan</h5><!-- Title set with JS -->
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="incident_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
+                <form id="workplan_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
                     <!-- Hidden fields -->
-                    <input type="hidden" id="incident_id" name="incident_id"> <!-- Should be set automatically, and is required -->
-                    <input type="hidden" id="initial_incident_component_id" name="initial_incident_component_id" value="{{ duplicate_data.component_id if duplicate_data }}">
+                    <input type="hidden" id="workplan_id" name="workplan_id"> <!-- Should be set automatically, and is required -->
+                    <input type="hidden" id="initial_workplan_component_id" name="initial_workplan_component_id" value="{{ duplicate_data.component_id if duplicate_data }}">
                     
                     <!-- First row: Date, Status (as radio), Severity -->
                     <div class="col-md-4 mb-3">
-                        <label for="incident_date" class="form-label fw-bold">Incident date</label>
+                        <label for="due_date" class="form-label fw-bold">Due date</label>
                         <div class="input-group date-input-group">
-                            <input type="text" class="form-control datepicker-input" id="incident_date" name="incident_date" required>
+                            <input type="text" class="form-control datepicker-input" id="due_date" name="due_date" required>
                             <span class="input-group-text datepicker-toggle">🗓</span>
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
                         <div class="form-label fw-bold d-block">Status</div>
                         <div class="form-check form-check-inline mt-2">
-                            <input class="form-check-input" type="radio" name="incident_status" id="status_open" value="Open" checked>
-                            <label class="form-check-label" for="status_open">Open</label>
+                            <input class="form-check-input" type="radio" name="workplan_status" id="status_planned" value="Planned" checked>
+                            <label class="form-check-label" for="status_planned">Planned</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="incident_status" id="status_resolved" value="Resolved">
-                            <label class="form-check-label" for="status_resolved">Resolved</label>
+                            <input class="form-check-input" type="radio" name="workplan_status" id="status_done" value="Done">
+                            <label class="form-check-label" for="status_done">Done</label>
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="incident_severity" class="form-label fw-bold">Severity</label>
-                        <select class="form-select" id="incident_severity" name="incident_severity" required>
-                            <option value="Monitor" selected>Monitor</option>
-                            <option value="Priority">Priority</option>
-                            <option value="Critical">Critical</option>
+                        <label for="workplan_size" class="form-label fw-bold">Size</label>
+                        <select class="form-select" id="workplan_size" name="workplan_size" required>
+                            <option value="Small" selected>Small</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Large">Large</option>
                         </select>
                     </div>
                     
                     <!-- Second row: Multiple component selection and Bike selection -->
                     <div class="col-md-6 mb-3">
-                        <label for="incident_affected_bike_id" class="form-label fw-bold">Affected bike</label>
-                        <select class="form-select" id="incident_affected_bike_id" name="incident_affected_bike_id">
+                        <label for="workplan_affected_bike_id" class="form-label fw-bold">Affected bike</label>
+                        <select class="form-select" id="workplan_affected_bike_id" name="workplan_affected_bike_id">
                             <option value="" selected></option>
                             {% for bike_name, bike_id in payload.bikes_data %}
                                 <option value="{{ bike_id }}"
@@ -53,8 +53,8 @@
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="incident_affected_component_ids" class="form-label fw-bold">Affected components</label>
-                        <select class="form-select" id="incident_affected_component_ids" name="incident_affected_component_ids" multiple placeholder="Search to add more components...">
+                        <label for="workplan_affected_component_ids" class="form-label fw-bold">Affected components</label>
+                        <select class="form-select" id="workplan_affected_component_ids" name="workplan_affected_component_ids" multiple placeholder="Search to add more components...">
                             {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
                                 <option value="{{ component_id }}" data-status="{{ status }}">
                                     {{ name }} ({{ type }}) - {{ bike }}{% if status == "Retired" %} (Retired){% endif %}
@@ -66,15 +66,15 @@
                     
                     <!-- Description row (full width) -->
                     <div class="col-12 mb-3">
-                        <label for="incident_description" class="form-label fw-bold">Description</label>
-                        <textarea class="form-control" id="incident_description" name="incident_description" rows="3"></textarea>
+                        <label for="workplan_description" class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="workplan_description" name="workplan_description" rows="3"></textarea>
                     </div>
                     
                     <!-- Resolution section with date and notes -->
                     <div class="col-md-4 mb-3">
-                        <label for="resolution_date" class="form-label fw-bold">Resolution date</label>
+                        <label for="completion_date" class="form-label fw-bold">Completion date</label>
                         <div class="input-group date-input-group">
-                            <input type="text" class="form-control datepicker-input" id="resolution_date" name="resolution_date">
+                            <input type="text" class="form-control datepicker-input" id="completion_date" name="completion_date">
                             <span class="input-group-text datepicker-toggle">🗓</span>
                         </div>
                     </div>
@@ -82,14 +82,14 @@
                         <!-- Empty space for alignment -->
                     </div>
                     <div class="col-12 mb-3">
-                        <label for="resolution_notes" class="form-label fw-bold">Resolution notes</label>
-                        <textarea class="form-control" id="resolution_notes" name="resolution_notes" rows="2"></textarea>
+                        <label for="completion_notes" class="form-label fw-bold">Completion notes</label>
+                        <textarea class="form-control" id="completion_notes" name="completion_notes" rows="2"></textarea>
                     </div>
                     <div class="col-12">
                         <div class="text-end">
                             <small class="text-muted">
-                                🔑 <strong>Incident id:</strong> 
-                                <span id="incident-id-display">Not created yet</span>
+                                🔑 <strong>Workplan id:</strong> 
+                                <span id="workplan-id-display">Not created yet</span>
                             </small>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary" form="incident_form">Save</button>
+                <button type="submit" class="btn btn-primary" form="workplan_form">Save</button>
             </div>
         </div>
     </div>

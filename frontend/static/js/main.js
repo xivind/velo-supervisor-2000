@@ -15,6 +15,35 @@ document.addEventListener('DOMContentLoaded', function() {
     confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
     loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
 
+    // Function to remove backdrop on some modals
+    const removeBackdropModals = [
+        'workplanRecordModal',
+        'incidentRecordModal', 
+        'serviceRecordModal',
+        'editHistoryModal'
+    ];
+    
+    removeBackdropModals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        
+        // Add handler for when the modal is hidden
+        modal.addEventListener('hidden.bs.modal', function() {
+            // Check if there are any other visible modals
+            const visibleModals = document.querySelectorAll('.modal.show').length;
+            
+            // If no visible modals but backdrop exists, remove it
+            if (visibleModals === 0 && document.querySelector('.modal-backdrop')) {
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                    backdrop.remove();
+                });
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+            }
+        });
+    });
+    
     // Add validation to all forms with date picker inputs
     document.querySelectorAll('form').forEach(form => {
         const dateInputs = form.querySelectorAll('.datepicker-input');
@@ -288,7 +317,7 @@ function validateDateInput(input) {
 function initializeDatePickers(container = document) {
     // Find all date picker input groups inside the provided container
     const dateInputGroups = container.querySelectorAll('.date-input-group');
-    
+
     dateInputGroups.forEach(group => {
         const dateInput = group.querySelector('.datepicker-input');
         const datePickerToggle = group.querySelector('.datepicker-toggle');
@@ -316,6 +345,9 @@ function initializeDatePickers(container = document) {
             dateInput.value = formattedDate;
         }
 
+        // Determine if this is a due date field (which should allow future dates)
+        const isDueDateField = dateInput.id === 'due_date';
+        
         // Initialize Tempus Dominus with improved configuration
         const picker = new tempusDominus.TempusDominus(dateInput, {
             localization: {
@@ -353,10 +385,23 @@ function initializeDatePickers(container = document) {
             },
             restrictions: {
                 minDate: new Date('1970-01-01 00:00'),
-                maxDate: new Date()
+                // Only set maxDate for non-due date fields
+                ...(isDueDateField ? {} : { maxDate: new Date() })
             },
             // Allow viewing the calendar without selecting anything
             useCurrent: false
+        });
+
+        // Subscribe to the show event to sync with input value  
+        picker.subscribe(tempusDominus.Namespace.events.show, () => {
+            if (dateInput.value) {
+                try {
+                    // Just trigger a change event to make picker re-read the input
+                    dateInput.dispatchEvent(new Event('change'));
+                } catch (e) {
+                    console.warn('Could not sync picker with input:', e);
+                }
+            }
         });
         
         // Store the picker instance for later access
@@ -594,7 +639,8 @@ document.addEventListener('DOMContentLoaded', function() {
                            button.dataset.componentId || 
                            button.dataset.serviceId || 
                            button.dataset.historyId ||
-                           button.dataset.incidentId;
+                           button.dataset.incidentId ||
+                           button.dataset.workplanId;
 
             let tableSelector, recordType;
             
@@ -613,6 +659,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (button.dataset.incidentId) {
                 tableSelector = 'Incidents';
                 recordType = 'incident report';
+            } else if (button.dataset.workplanId) {
+                tableSelector = 'Workplans';
+                recordType = 'workplan';
             }
             
             // Set up the modal
@@ -1443,10 +1492,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ===== Workplan page functions =====
-// PLACEHOLDER
-
 // ===== Incident reports page functions =====
+
 // Function to initialize incident features
 (function() {
     // Only run this code if the incident modal is present
@@ -1455,9 +1502,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Local variables
-    let tomSelectInitialized = false;
     let pendingComponentData = null;
     let isNewIncident = false;
+    let originalIncidentOptions = null;
     
     // Initialize when the DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
@@ -1494,9 +1541,18 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Clean up when modal is hidden
             incidentModal.addEventListener('hidden.bs.modal', function() {
-                // console.log("Incident modal hidden");
+                // console.log("Incident modal hidden - resetting flags");
                 pendingComponentData = null;
-                isNewIncident = false;
+                isNewIncident = false; // This should reset the flag
+                
+                // Also clear any TomSelect instances to prevent memory leaks
+                const componentSelect = document.getElementById('incident_affected_component_ids');
+                if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
+                    const ts = componentSelect.tomSelect || componentSelect.tomselect;
+                    ts.destroy();
+                    componentSelect.tomSelect = null;
+                    componentSelect.tomselect = null;
+                }
             });
         }
         
@@ -1578,6 +1634,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('incident_form').reset();
                 document.getElementById('incident_id').value = '';
                 document.getElementById('status_open').checked = true;
+
+                // Reset ID display to placeholder text
+                document.getElementById('incident-id-display').textContent = 'Not created yet';
                 
                 // Clear TomSelect if it's already initialized
                 const componentSelect = document.getElementById('incident_affected_component_ids');
@@ -1598,28 +1657,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const componentSelect = document.getElementById('incident_affected_component_ids');
         if (!componentSelect) return;
         
-        // If TomSelect is already initialized
-        if (componentSelect.tomSelect || componentSelect.tomselect) {
-            // console.log("TomSelect already initialized, updating values");
-            const ts = componentSelect.tomSelect || componentSelect.tomselect;
-            ts.clear();
-            
-            // Only set values if we have components to set
-            if (pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
-                // console.log("Setting component values:", pendingData.componentIds);
-                ts.setValue(pendingData.componentIds);
-            }
-            
-            // Update other form fields
-            if (pendingData && pendingData.formData) {
-                updateFormFields(pendingData.formData);
-            }
-            
-            return;
+        // Backup original options on first run
+        if (!originalIncidentOptions) {
+            originalIncidentOptions = componentSelect.innerHTML;
         }
         
-        // Initialize TomSelect if not already done
-        // console.log("Initializing TomSelect");
+        // Always start fresh with all options
+        componentSelect.innerHTML = originalIncidentOptions;
+        
+        // Remove retired options if this is a new incident (before TomSelect sees them)
+        if (isNewIncident) {
+            const retiredOptions = componentSelect.querySelectorAll('option[data-status="Retired"]');
+            retiredOptions.forEach(option => option.remove());
+        }
+        
+        // Destroy existing TomSelect if it exists
+        if (componentSelect.tomSelect || componentSelect.tomselect) {
+            const ts = componentSelect.tomSelect || componentSelect.tomselect;
+            ts.destroy();
+        }
+        
+        // Initialize TomSelect with the current option set
         try {
             const ts = new TomSelect(componentSelect, {
                 plugins: ['remove_button'],
@@ -1629,19 +1687,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 searchField: ['text'],
                 create: false,
                 placeholder: 'Search to add more components...',
-                // Only show dropdown when user has typed something or the input is focused
                 shouldOpen: function() {
                     return this.isFocused && this.inputValue.length > 0;
                 },
-                // Prevent dropdown from opening automatically on focus
                 openOnFocus: false,
-                // Keep the dropdown closed until user types
                 closeAfterSelect: true,
-                // Ensure other functionality works
-                onInitialize: function() {
-                    tomSelectInitialized = true;
-                    
-                    if (!isNewIncident && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
+                onInitialize: function() {                    
+                    // Handle initial component selection for new incidents
+                    const initialComponentId = document.getElementById('initial_incident_component_id')?.value;
+                    if (initialComponentId && isNewIncident) {
+                        setTimeout(() => {
+                            this.setValue([initialComponentId]);
+                        }, 100);
+                    }
+                    // Handle edit mode data
+                    else if (!isNewIncident && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
                         setTimeout(() => {
                             this.clear();
                             this.setValue(pendingData.componentIds);
@@ -1654,6 +1714,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
+            // Store the new instance
+            componentSelect.tomSelect = ts;
+            
             // Add change handler for validation
             ts.on('change', function() {
                 const tomSelectControl = document.querySelector('.ts-control');
@@ -1661,12 +1724,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     tomSelectControl.style.borderColor = '';
                 }
                 
-                // Also remove error styling from bike select if components are selected
                 const bikeSelect = document.getElementById('incident_affected_bike_id');
                 if (bikeSelect && ts.getValue().length > 0) {
                     bikeSelect.classList.remove('is-invalid');
                 }
             });
+            
         } catch (e) {
             console.error('TomSelect initialization error:', e);
         }
@@ -1678,6 +1741,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set basic form fields
         document.getElementById('incident_id').value = data.incidentId || '';
+        document.getElementById('incident-id-display').textContent = data.incidentId || 'Not created yet';
         
         // Set status radio buttons
         if (data.incidentStatus === 'Resolved') {
@@ -1796,7 +1860,7 @@ function initializeIncidentForm() {
                     resolutionDateInput.value = formattedDate;
                 }
             } else {
-                // If status is open, resolution date is not required AND should be cleared
+                // If status is Open, resolution date is not required AND should be cleared
                 resolutionDateInput.removeAttribute('required');
                 resolutionDateInput.value = '';
                 
@@ -1862,7 +1926,7 @@ function validateIncidentForm(form) {
     const incidentAffectedBikeId = form.querySelector('#incident_affected_bike_id').value;
     
     // Validation rules
-    // If status is resolved, resolution date must be provided
+    // If status is Resolved, resolution date must be provided
     if (incidentStatus === "Resolved" && !resolutionDate) {
         form.querySelector('#resolution_date').classList.add('is-invalid');
         errorMessage = "Resolution date is required when status is 'Resolved'";
@@ -1983,7 +2047,7 @@ function setupIncidentTableSorting() {
             // Different handling based on column type
             switch(index) {
                 case 0: // Status column
-                    // Sort by status - open comes before resolved
+                    // Sort by status - Open comes before Resolved
                     cellA = cellA.includes('Open') ? 0 : 1;
                     cellB = cellB.includes('Open') ? 0 : 1;
                     break;
@@ -2162,6 +2226,726 @@ function setupIncidentSearch() {
             this.value = '';
             // Update visibility after clearing
             updateIncidentVisibility();
+        }
+    });
+}
+
+// ===== Workplan page functions =====
+
+// Function to initialize workplan features
+(function() {
+    // Only run this code if the workplan modal is present
+    if (!document.getElementById('workplanRecordModal')) {
+        return;
+    }
+    
+    // Local variables
+    let pendingComponentData = null;
+    let isNewWorkplan = false;
+    let originalWorkplanOptions = null;
+    
+    // Initialize when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        const workplanModal = document.getElementById('workplanRecordModal');
+        if (workplanModal) {
+            // Setup modal shown event
+            workplanModal.addEventListener('shown.bs.modal', function() {
+                // console.log("Workplan modal shown, isNewWorkplan:", isNewWorkplan);
+                initializeDatePickers(workplanModal);
+                
+                // If it's a new workplan, we need special handling
+                if (isNewWorkplan) {
+                    initializeComponentSelector(null);
+                    
+                    // Set current date after pickers are initialized
+                    setTimeout(() => {
+                        const now = new Date();
+                        const formattedDate = now.getFullYear() + '-' + 
+                            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(now.getDate()).padStart(2, '0') + ' ' + 
+                            String(now.getHours()).padStart(2, '0') + ':' + 
+                            String(now.getMinutes()).padStart(2, '0');
+                        
+                        document.getElementById('due_date').value = formattedDate;
+                    }, 100);
+                } else {
+                    // For editing workplans
+                    initializeComponentSelector(pendingComponentData);
+                }
+                
+                // Call the existing form initialization function
+                initializeWorkplanForm();
+            });
+            
+            // Clean up when modal is hidden
+            workplanModal.addEventListener('hidden.bs.modal', function() {
+                // console.log("Workplan modal hidden - resetting flags");
+                pendingComponentData = null;
+                isNewWorkplan = false; // This should reset the flag
+                
+                // Also clear any TomSelect instances to prevent memory leaks
+                const componentSelect = document.getElementById('workplan_affected_component_ids');
+                if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
+                    const ts = componentSelect.tomSelect || componentSelect.tomselect;
+                    ts.destroy();
+                    componentSelect.tomSelect = null;
+                    componentSelect.tomselect = null;
+                }
+            });
+        }
+        
+        // Setup edit button click handlers
+        document.querySelectorAll('.edit-workplan-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                isNewWorkplan = false;
+                
+                // Configure modal for editing
+                document.getElementById('workplanRecordModalLabel').textContent = 'Edit workplan';
+                document.getElementById('workplan_form').action = '/update_workplan';
+                
+                // Get data from the button
+                const workplanId = this.dataset.workplanId;
+                const dueDate = this.dataset.dueDate;
+                const workplanStatus = this.dataset.workplanStatus;
+                const workplanSize = this.dataset.workplanSize;
+                const workplanAffectedComponents = this.dataset.workplanAffectedComponents;
+                const workplanAffectedBikeId = this.dataset.workplanAffectedBikeId;
+                const description = this.dataset.description?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
+                const completionDate = this.dataset.completionDate;
+                const completionNotes = this.dataset.completionNotes?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
+
+                // Prepare component data
+                const componentList = [];
+                let hasComponents = false;
+                if (workplanAffectedComponents && workplanAffectedComponents !== 'Not assigned') {
+                    console.log("Processing components:", workplanAffectedComponents);
+                    hasComponents = true;
+                    
+                    // Parse the JSON-like string back into an array
+                    const componentIds = JSON.parse(workplanAffectedComponents);
+                    componentIds.forEach(id => {
+                        if (id) {
+                            componentList.push(id);
+                            console.log("Added component ID:", id);
+                        }
+                    });
+                }
+                
+                // Store data for use by the modal
+                pendingComponentData = {
+                    hasComponents: hasComponents,
+                    componentIds: componentList,
+                    formData: {
+                        workplanId: workplanId,
+                        dueDate: dueDate,
+                        workplanStatus: workplanStatus,
+                        workplanSize: workplanSize,
+                        workplanAffectedBikeId: workplanAffectedBikeId,
+                        description: description,
+                        completionDate: completionDate,
+                        completionNotes: completionNotes
+                    }
+                };
+                
+                // Show the modal (which will trigger the shown.bs.modal event)
+                const modal = new bootstrap.Modal(workplanModal);
+                modal.show();
+            });
+        });
+        
+        // Initialize workplan table functionality (sorting, filtering, searching and more)
+        initializeWorkplanTable();
+        
+        // Setup new workplan button
+        document.querySelectorAll('[data-bs-target="#workplanRecordModal"]').forEach(button => {
+            button.addEventListener('click', function() {
+                // Flag as new workplan
+                isNewWorkplan = true;
+                pendingComponentData = null;
+                
+                // Reset the form
+                document.getElementById('workplanRecordModalLabel').textContent = 'New workplan';
+                document.getElementById('workplan_form').action = '/add_workplan';
+                document.getElementById('workplan_form').reset();
+                document.getElementById('workplan_id').value = '';
+                document.getElementById('status_planned').checked = true;
+
+                // Reset ID display to placeholder text
+                document.getElementById('workplan-id-display').textContent = 'Not created yet';
+                
+                // Clear TomSelect if it's already initialized
+                const componentSelect = document.getElementById('workplan_affected_component_ids');
+                if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
+                    const ts = componentSelect.tomSelect || componentSelect.tomselect;
+                    ts.clear();
+                }
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('workplanRecordModal'));
+                modal.show();
+            });
+        });
+    });
+    
+    // Initialize the component selector with delayed data loading
+    function initializeComponentSelector(pendingData) {
+        const componentSelect = document.getElementById('workplan_affected_component_ids');
+        if (!componentSelect) return;
+        
+        // Backup original options on first run
+        if (!originalWorkplanOptions) {
+            originalWorkplanOptions = componentSelect.innerHTML;
+        }
+        
+        // Always start fresh with all options
+        componentSelect.innerHTML = originalWorkplanOptions;
+        
+        // Remove retired options if this is a new workplan (before TomSelect sees them)
+        if (isNewWorkplan) {
+            const retiredOptions = componentSelect.querySelectorAll('option[data-status="Retired"]');
+            retiredOptions.forEach(option => option.remove());
+        }
+        
+        // Destroy existing TomSelect if it exists
+        if (componentSelect.tomSelect || componentSelect.tomselect) {
+            const ts = componentSelect.tomSelect || componentSelect.tomselect;
+            ts.destroy();
+        }
+        
+        // Initialize TomSelect with the current option set
+        try {
+            const ts = new TomSelect(componentSelect, {
+                plugins: ['remove_button'],
+                maxItems: null,
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                create: false,
+                placeholder: 'Search to add more components...',
+                shouldOpen: function() {
+                    return this.isFocused && this.inputValue.length > 0;
+                },
+                openOnFocus: false,
+                closeAfterSelect: true,
+                onInitialize: function() {                    
+                    // Handle initial component selection for new workplans
+                    const initialComponentId = document.getElementById('initial_workplan_component_id')?.value;
+                    if (initialComponentId && isNewWorkplan) {
+                        setTimeout(() => {
+                            this.setValue([initialComponentId]);
+                        }, 100);
+                    }
+                    // Handle edit mode data
+                    else if (!isNewWorkplan && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
+                        setTimeout(() => {
+                            this.clear();
+                            this.setValue(pendingData.componentIds);
+                        }, 50);
+                    }
+                    
+                    if (!isNewWorkplan && pendingData && pendingData.formData) {
+                        updateFormFields(pendingData.formData);
+                    }
+                }
+            });
+            
+            // Store the new instance
+            componentSelect.tomSelect = ts;
+            
+            // Add change handler for validation
+            ts.on('change', function() {
+                const tomSelectControl = document.querySelector('.ts-control');
+                if (tomSelectControl) {
+                    tomSelectControl.style.borderColor = '';
+                }
+                
+                const bikeSelect = document.getElementById('workplan_affected_bike_id');
+                if (bikeSelect && ts.getValue().length > 0) {
+                    bikeSelect.classList.remove('is-invalid');
+                }
+            });
+            
+        } catch (e) {
+            console.error('TomSelect initialization error:', e);
+        }
+    }
+    
+    // Update form fields with data
+    function updateFormFields(data) {
+        // console.log("Form data received:", data);
+        
+        // Set basic form fields
+        document.getElementById('workplan_id').value = data.workplanId || '';
+        document.getElementById('workplan-id-display').textContent = data.workplanId || 'Not created yet';
+        
+        // Set status radio buttons
+        if (data.workplanStatus === 'Done') {
+            document.getElementById('status_done').checked = true;
+        } else {
+            document.getElementById('status_planned').checked = true;
+        }
+        
+        // Set other fields, checking for any variation of 'none' (case-insensitive)
+        document.getElementById('workplan_size').value = data.workplanSize || 'Small';
+        
+        // Clean description
+        const description = data.description || '';
+        document.getElementById('workplan_description').value = 
+            description.toLowerCase() === 'none' ? '' : description;
+        
+        document.getElementById('workplan_affected_bike_id').value = data.workplanAffectedBikeId || '';
+        
+        // Clean completion notes
+        const completionNotes = data.completionNotes || '';
+        document.getElementById('completion_notes').value = 
+            completionNotes.toLowerCase() === 'none' ? '' : completionNotes;
+        
+        // Set date fields with a slight delay to ensure pickers are initialized
+        setTimeout(() => {
+            if (data.dueDate) {
+                document.getElementById('due_date').value = data.dueDate;
+            }
+            
+            const completionDate = data.completionDate || '';
+            if (completionDate && 
+                completionDate !== '-' && 
+                completionDate.toLowerCase() !== 'none') {
+                document.getElementById('completion_date').value = completionDate;
+            } else {
+                document.getElementById('completion_date').value = '';
+            }
+        }, 100);
+    }
+})();
+
+// Initialize the workplan form and set up validation
+function initializeWorkplanForm() {
+    const workplanForm = document.getElementById('workplan_form');
+    if (!workplanForm) return;
+
+    // Clear the completion date field
+    const completionDateInput = document.getElementById('completion_date');
+    if (completionDateInput) {
+        // Force completion date to be empty on form initialization
+        completionDateInput.value = '';
+        
+        // If the date picker has been initialized, try to update its value
+        if (completionDateInput._tempusDominus) {
+            try {
+                completionDateInput._tempusDominus.clear();
+            } catch (e) {
+                console.warn('Error clearing date picker:', e);
+            }
+        }
+    }
+
+    // Set up form validation that works with the global validation
+    if (workplanForm.getAttribute('data-workplan-validation-initialized') !== 'true') {
+        // Store original submit handler
+        const originalSubmit = workplanForm.onsubmit; // Can this be delete?
+        
+        // Add our enhanced submit handler
+        workplanForm.onsubmit = function(e) {
+            // Always prevent default submission first
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Validate all date inputs in this form
+            let dateValid = true;
+            workplanForm.querySelectorAll('.datepicker-input').forEach(input => {
+                if (!validateDateInput(input)) {
+                    dateValid = false;
+                }
+            });
+            
+            // If dates are valid, check workplan-specific validation
+            if (dateValid && validateWorkplanForm(this)) {
+                // Use regular form submission (not bypassing handlers)
+                // Wrap in timeout to ensure other handlers have run
+                setTimeout(() => {
+                    this.submit();
+                }, 10);
+            }
+            
+            // Always return false to prevent default submission
+            return false;
+        };
+        
+        // Mark form as initialized with our enhanced handler
+        workplanForm.setAttribute('data-workplan-validation-initialized', 'true');
+    }
+
+    // Add listener for status change to handle completion date
+    const statusRadios = workplanForm.querySelectorAll('input[name="workplan_status"]');
+    statusRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'Done') {
+                // If status is Done, make completion date required
+                completionDateInput.setAttribute('required', '');
+                
+                // Only set current date if the field is empty
+                if (!completionDateInput.value) {
+                    const now = new Date();
+                    const formattedDate = now.getFullYear() + '-' + 
+                        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(now.getDate()).padStart(2, '0') + ' ' + 
+                        String(now.getHours()).padStart(2, '0') + ':' + 
+                        String(now.getMinutes()).padStart(2, '0');
+                    
+                    completionDateInput.value = formattedDate;
+                }
+            } else {
+                // If status is Planned, completion date is not required AND should be cleared
+                completionDateInput.removeAttribute('required');
+                completionDateInput.value = '';
+                
+                // If date picker is initialized, clear it too
+                if (completionDateInput._tempusDominus) {
+                    try {
+                        completionDateInput._tempusDominus.clear();
+                    } catch (e) {
+                        console.warn('Error clearing date picker:', e);
+                    }
+                }
+            }
+        });
+    });
+
+    // Add handler for bike select validation
+    const bikeSelect = document.getElementById('workplan_affected_bike_id');
+    if (bikeSelect) {
+        bikeSelect.addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+            
+            // Also remove error styling from component select if bike is selected
+            if (this.value) {
+                const componentSelect = document.getElementById('workplan_affected_component_ids');
+                if (componentSelect && componentSelect.tomSelect) {
+                    const tomSelectControl = document.querySelector('.ts-control');
+                    if (tomSelectControl) {
+                        tomSelectControl.style.borderColor = '';
+                    }
+                } else if (componentSelect) {
+                    componentSelect.classList.remove('is-invalid');
+                }
+            }
+        });
+    }
+}
+
+// Function to validate the workplan form
+function validateWorkplanForm(form) {
+    // Reset any previous validation errors
+    form.querySelectorAll('.is-invalid').forEach(input => {
+        input.classList.remove('is-invalid');
+    });
+    
+    let isValid = true;
+    let errorMessage = "";
+    
+    // Get form values
+    const workplanStatus = form.querySelector('input[name="workplan_status"]:checked').value;
+    const dueDate = form.querySelector('#due_date').value;
+    const completionDate = form.querySelector('#completion_date').value;
+    
+    let workplanAffectedComponents = [];
+    const componentSelect = form.querySelector('#workplan_affected_component_ids');
+    if (componentSelect) {
+        if (componentSelect.tomSelect) {
+            workplanAffectedComponents = componentSelect.tomSelect.getValue();
+        } else {
+            workplanAffectedComponents = Array.from(componentSelect.selectedOptions).map(opt => opt.value);
+        }
+    }
+    
+    const workplanAffectedBikeId = form.querySelector('#workplan_affected_bike_id').value;
+    
+    // Validation rules
+    // If status is Done, completion date must be provided
+    if (workplanStatus === "Done" && !completionDate) {
+        form.querySelector('#completion_date').classList.add('is-invalid');
+        errorMessage = "Completion date is required when status is 'Done'";
+        isValid = false;
+    }
+    
+    // If status is Planned, completion date should be empty
+    if (workplanStatus === "Planned" && completionDate) {
+        form.querySelector('#completion_date').classList.add('is-invalid');
+        errorMessage = "Completion date should be empty when status is 'Planned'";
+        isValid = false;
+    }
+    
+    // Either affected components or affected bike must be selected
+    if ((!workplanAffectedComponents || workplanAffectedComponents.length === 0) && !workplanAffectedBikeId) {
+        if (componentSelect && componentSelect.tomSelect) {
+            // Add red border to TomSelect control
+            const tomSelectControl = document.querySelector('.ts-control');
+            if (tomSelectControl) {
+                tomSelectControl.style.borderColor = '#dc3545';
+            }
+        } else if (componentSelect) {
+            componentSelect.classList.add('is-invalid');
+        }
+        
+        if (form.querySelector('#workplan_affected_bike_id')) {
+            form.querySelector('#workplan_affected_bike_id').classList.add('is-invalid');
+        }
+        
+        errorMessage = "Either affected components or an affected bike must be selected";
+        isValid = false;
+    }
+    
+    // Show validation modal if there are errors
+    if (!isValid && errorMessage) {
+        const modalBody = document.getElementById('validationModalBody');
+        if (modalBody) {
+            modalBody.innerHTML = errorMessage;
+            if (typeof validationModal !== 'undefined' && validationModal) {
+                validationModal.show();
+            } else {
+                // Fallback if the global validation modal isn't available
+                const validationModalElement = document.getElementById('validationModal');
+                if (validationModalElement) {
+                    const bsValidationModal = new bootstrap.Modal(validationModalElement);
+                    bsValidationModal.show();
+                } else {
+                    // Last resort - alert
+                    alert(errorMessage);
+                }
+            }
+        }
+    }
+    
+    return isValid;
+}
+
+// Function to initialize the workplan table with sorting, filtering and search
+function initializeWorkplanTable() {
+    // Check if workplans table is available
+    const table = document.getElementById('workplansTable');
+    if (!table) return;
+    
+    // Check for specific table types and initialize accordingly
+    if (document.querySelector('h1#workplans')) {
+        // Full workplan page - use all functionality
+        
+        // Set up table sorting
+        setupWorkplanTableSorting();
+        
+        // Set up search functionality
+        setupWorkplanSearch();
+
+        // Set up status filtering
+        setupWorkplanStatusFiltering();
+
+    } else {
+        // Simplified table on other pages - use simpler initialization
+        // Add table functions here as needed
+    }
+}
+
+// Function to set up workplan table sorting
+function setupWorkplanTableSorting() {
+    const table = document.getElementById('workplansTable');
+    if (!table) return;
+    
+    const headers = table.querySelectorAll('th[data-sort]');
+    const tableBody = table.querySelector('tbody');
+    const rows = tableBody.querySelectorAll('tr');
+    
+    // Skip if there are no rows or just one "no workplans" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+    
+    // Sorting function
+    const sortColumn = (index, asc = true) => {
+        const nodeList = Array.from(rows);
+        const compare = (rowA, rowB) => {
+            // Skip if td doesn't exist in row
+            if (!rowA.querySelectorAll('td')[index] || !rowB.querySelectorAll('td')[index]) return 0;
+            
+            // Get cell content and prepare for comparison
+            let cellA = rowA.querySelectorAll('td')[index].innerText.trim();
+            let cellB = rowB.querySelectorAll('td')[index].innerText.trim();
+            
+            // Different handling based on column type
+            switch(index) {
+                case 0: // Status column
+                // Sort by status - custom order for statuses
+                const statusOrder = {
+                    "Overdue": 0,
+                    "Planned": 1,
+                    "Done": 2
+                };
+                // Extract status text from the badge
+                const statusTextA = cellA.includes('Overdue') ? 'Overdue' : 
+                                (cellA.includes('Planned') ? 'Planned' : 'Done');
+                const statusTextB = cellB.includes('Overdue') ? 'Overdue' : 
+                                (cellB.includes('Planned') ? 'Planned' : 'Done');
+                
+                cellA = statusOrder[statusTextA] !== undefined ? statusOrder[statusTextA] : 999;
+                cellB = statusOrder[statusTextB] !== undefined ? statusOrder[statusTextB] : 999;
+                break;
+                    
+                case 4: // Due date column
+                case 5: // Completion date column
+                    // Parse dates, handling "-" for empty dates
+                    if (cellA === "-") cellA = asc ? "9999-12-31" : "0000-01-01";
+                    if (cellB === "-") cellB = asc ? "9999-12-31" : "0000-01-01";
+                    
+                    // Compare as strings (YYYY-MM-DD format sorts correctly)
+                    break;
+                    
+                case 6: // Days open column
+                    // Parse as number
+                    cellA = parseInt(cellA) || 0;
+                    cellB = parseInt(cellB) || 0;
+                    break;
+            }
+            
+            // Compare based on formatted values
+            if (typeof cellA === 'number' && typeof cellB === 'number') {
+                return asc ? cellA - cellB : cellB - cellA;
+            } else {
+                return asc ? (cellA > cellB ? 1 : -1) : (cellA < cellB ? 1 : -1);
+            }
+        };
+        
+        // Sort and reattach rows
+        nodeList.sort(compare);
+        nodeList.forEach(node => tableBody.appendChild(node));
+    };
+
+    // Add click event to table headers
+    headers.forEach((header, index) => {
+        header.addEventListener('click', () => {
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Remove sorted classes from all headers
+            headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+            
+            // Add appropriate class to clicked header
+            header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+            
+            // Sort the column
+            sortColumn(header.cellIndex, isAscending);
+        });
+    });
+
+    // Initial sort by due date (index 4) in ascending order
+    if (headers.length > 4 && rows.length > 1) {
+        const dateHeader = Array.from(headers).find(h => h.getAttribute('data-sort') === 'due_date');
+        if (dateHeader) {
+            dateHeader.classList.add('sorted-asc');
+            sortColumn(dateHeader.cellIndex, true);
+        }
+    }
+}
+
+// Shared function to update workplan visibility
+function updateWorkplansVisibility() {
+    const workplansTable = document.getElementById('workplansTable');
+    if (!workplansTable) return;
+    
+    const rows = workplansTable.querySelectorAll('tbody tr');
+    const searchInput = document.getElementById('allWorkplansSearchInput');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    
+    // Get current filter states
+    const showPlanned = document.getElementById('showPlannedWorkplans').checked;
+    const showDone = document.getElementById('showDoneWorkplans').checked;
+    
+    rows.forEach(row => {
+        // Skip the "no workplans" message row
+        if (row.cells.length === 1 && row.cells[0].colSpan) {
+            return;
+        }
+        
+        // Check if row should be visible based on status filter
+        let visibleByFilter = false;
+        const statusCell = row.querySelector('td:nth-child(1)');
+        if (statusCell) {
+            const statusText = statusCell.textContent.trim();
+            visibleByFilter = (
+                // Show "Overdue" when "Planned" is checked
+                ((statusText.includes('Planned') || statusText.includes('Overdue')) && showPlanned) ||
+                (statusText.includes('Done') && showDone)
+            );
+        }
+        
+        // Check if row matches search term
+        let matchesSearch = true;
+        if (searchTerm) {
+            const bikeText = row.cells[1].textContent.toLowerCase();
+            const componentsText = row.cells[2].textContent.toLowerCase();
+            const severityText = row.cells[3].textContent.toLowerCase();
+            
+            // Get hidden content from data attributes
+            const descriptionText = (row.dataset.description || '').toLowerCase();
+            const notesText = (row.dataset.notes || '').toLowerCase();
+            
+            // Include all text fields in the search
+            const rowText = `${bikeText} ${componentsText} ${severityText} ${descriptionText} ${notesText}`;
+            matchesSearch = rowText.includes(searchTerm);
+        }
+        
+        // Show row only if it matches both filter and search criteria
+        row.style.display = (visibleByFilter && matchesSearch) ? '' : 'none';
+    });
+    
+    // Show a message if no results found
+    const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+    const noResultsRow = workplansTable.querySelector('.no-results-row');
+    
+    if (visibleRows.length === 0 && (searchTerm !== '' || showPlanned || showDone)) {
+        if (!noResultsRow) {
+            const tbody = workplansTable.querySelector('tbody');
+            const newRow = document.createElement('tr');
+            newRow.className = 'no-results-row';
+            newRow.innerHTML = '<td colspan="8" class="text-center">No workplans match your criteria</td>';
+            tbody.appendChild(newRow);
+        } else {
+            noResultsRow.style.display = '';
+        }
+    } else if (noResultsRow) {
+        noResultsRow.style.display = 'none';
+    }
+}
+
+// Function for filtering workplan table by status
+function setupWorkplanStatusFiltering() {
+    // Check if the workplans table is available
+    const workplansTable = document.getElementById('workplansTable');
+    if (!workplansTable) return;
+
+    const filterSwitches = document.querySelectorAll('.filter-switch');
+
+    // Add event listeners to filter switches
+    filterSwitches.forEach(switchElement => {
+        switchElement.addEventListener('change', updateWorkplansVisibility);
+    });
+
+    // Initial visibility update
+    updateWorkplansVisibility();
+}
+
+// Function to handle search across workplans
+function setupWorkplanSearch() {
+    // Check if we're on the workplans page
+    const searchInput = document.getElementById('allWorkplansSearchInput');
+    if (!searchInput) return;
+    
+    // Listen for search input changes
+    searchInput.addEventListener('input', updateWorkplansVisibility);
+    
+    // Clear search button with Escape key
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.value = '';
+            // Update visibility after clearing
+            updateWorkplansVisibility();
         }
     });
 }

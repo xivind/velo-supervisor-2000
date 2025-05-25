@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Workplans - Velo Supervisor 2000{% endblock %}
+
+{% block content %}
+<h1 id="workplans" class="display-5 mt-5 text-center">Workplans</h1>
+  
+<button type="button" class="btn btn-outline-primary mt-4" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
+    <span>📝 New workplan</span>
+</button>
+
+{% include "modal_workplan_record.html" %}
+<hr/>
+
+<div class="card shadow mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold">All workplans</span>
+        <div class="d-flex gap-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showPlannedWorkplans" checked>
+                <label class="form-check-label fw-bold" for="showPlannedWorkplans">Show planned</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input filter-switch" type="checkbox" id="showDoneWorkplans">
+                <label class="form-check-label fw-bold" for="showDoneWorkplans">Show done</label>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-2 ms-2">
+            <div class="small text-secondary d-flex align-items-center">
+                <small class="form-text text-muted mt-1">Search includes workplan descriptions and completion notes. To go directly to bike or component detail pages, click the names of bikes or components</small>
+            </div>
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">🔍</span>
+            <input type="text" class="form-control" id="allWorkplansSearchInput" placeholder="Search all workplans... (use status filters to narrow results)" aria-label="Search workplans">
+        </div>
+        <table class="table table-hover" id="workplansTable">
+            <thead>
+                <tr>
+                    <th class="text-center" data-sort="status"><span class="sort-indicator"></span></th>
+                    <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
+                    <th data-sort="components">Components <span class="sort-indicator"></span></th>
+                    <th class="text-center" data-sort="size">Size <span class="sort-indicator"></span></th>
+                    <th data-sort="due_date">Due date <span class="sort-indicator"></span></th>
+                    <th data-sort="completion_date">Completion date<span class="sort-indicator"></span></th>
+                    <th class="text-center" data-sort="days_overdue">Days overdue<span class="sort-indicator"></span></th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if payload.workplans_data %}
+                    {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days in payload.workplans_data %}
+                        <tr data-description="{{ workplan_description }}" data-notes="{{ completion_notes }}">
+                            <td class="text-center">
+                                {% if elapsed_days > 0 and workplan_status != "Done" %}
+                                    <span class="badge rounded-pill text-bg-primary fixed-width-badge-workplan-status">Overdue</span>
+                                {% elif workplan_status == "Planned" %}
+                                    <span class="badge rounded-pill text-bg-info fixed-width-badge-workplan-status">Planned</span>
+                                {% elif workplan_status == "Done" %}
+                                    <span class="badge rounded-pill text-bg-secondary fixed-width-badge-workplan-status">Done</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if affected_bike_name != "Not assigned" %}
+                                    <a href="/bike_details/{{ workplan_affected_bike_id }}" class="text-decoration-none text-reset">{{ affected_bike_name }}</a>
+                                {% else %}
+                                    {{ affected_bike_name }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if workplan_affected_component_ids %}
+                                    {% for component_id in workplan_affected_component_ids %}
+                                        {% set component_name = affected_component_names[loop.index0] %}
+                                        {% if component_name != "Deleted component" %}
+                                            <a href="/component_details/{{ component_id }}" class="text-decoration-none text-reset">{{ component_name }}</a>{% if not loop.last %}, {% endif %}
+                                        {% else %}
+                                            {{ component_name }}{% if not loop.last %}, {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    {{ affected_component_names[0] }}
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if workplan_size == "Large" %}
+                                <span class="badge color-workplan-size-large fixed-width-badge-workplan-size">Large</span>
+                                {% elif workplan_size == "Medium" %}
+                                <span class="badge color-workplan-size-medium fixed-width-badge-workplan-size">Medium</span>
+                                {% elif workplan_size == "Small" %}
+                                <span class="badge color-workplan-size-small fixed-width-badge-workplan-size">Small</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ due_date.split(' ')[0] if due_date else "-" }}
+                            </td>
+                            <td>
+                                {{ completion_date.split(' ')[0] if completion_date else "-" }}
+                            </td>
+                            <td class="text-center">
+                                {% if elapsed_days <= 0 %}
+                                    -
+                                {% else %}
+                                    {{ elapsed_days }}
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-workplan-btn"
+                                    data-workplan-id="{{ workplan_id }}"
+                                    data-due-date="{{ due_date }}" 
+                                    data-workplan-status="{{ workplan_status }}"
+                                    data-workplan-size="{{ workplan_size }}"
+                                    data-workplan-affected-components='{{ workplan_affected_component_ids|tojson if workplan_affected_component_ids else "[]" }}'
+                                    data-workplan-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ workplan_affected_bike_id }}{% endif %}"
+                                    data-description="{{ workplan_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                    data-completion-date="{{ completion_date }}" 
+                                    data-completion-notes="{{ completion_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                    onclick="event.stopPropagation();">✍
+                                </button>
+                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-workplan-id="{{ workplan_id }}" onclick="event.stopPropagation();">🗑</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No workplans registered</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

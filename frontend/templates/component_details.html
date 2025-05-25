@@ -24,8 +24,15 @@
 {% include "modal_edit_installation_record.html" %}
 
 {% with duplicate_data = {
-    'bike_id': payload.bike_component_data['bike_id']} %}
+    'bike_id': payload.bike_component_data['bike_id'],
+    'component_id': payload.bike_component_data['component_id']} %}
     {% include "modal_incident_record.html" %}
+{% endwith %}
+
+{% with duplicate_data = {
+    'bike_id': payload.bike_component_data['bike_id'],
+    'component_id': payload.bike_component_data['component_id']} %}
+    {% include "modal_workplan_record.html" %}
 {% endwith %}
 
 <h1 id="component-details" class="display-5 mt-5 mb-4 text-center">Component details</h1>
@@ -54,7 +61,7 @@
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>🧑‍🔧 New service</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
     <span>📝 New workplan</span>
 </button>
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
@@ -131,7 +138,7 @@
             </div>
             <hr/>
             <p class="card-text d-flex justify-content-between align-items-center">
-                <span class="fw-bold">🔑 Component ID: {{ payload.bike_component_data['component_id'] }}</span>
+                <span class="fw-bold">🔑 Component id: {{ payload.bike_component_data['component_id'] }}</span>
             </p>  
         </div>
     </div>
@@ -170,17 +177,17 @@
                                     </td>
                                     <td class="text-end">
                                         <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn"
-                                        data-incident-id="{{ incident_id }}"
-                                        data-incident-date="{{ incident_date }}" 
-                                        data-incident-status="{{ incident_status }}"
-                                        data-incident-severity="{{ incident_severity }}"
-                                        data-incident-affected-components='{{ incident_affected_component_ids|tojson if incident_affected_component_ids else "[]" }}'
-                                        data-incident-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ incident_affected_bike_id }}{% endif %}"
-                                        data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                        data-resolution-date="{{ resolution_date }}" 
-                                        data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                        onclick="event.stopPropagation();">✍
-                                    </button>
+                                            data-incident-id="{{ incident_id }}"
+                                            data-incident-date="{{ incident_date }}" 
+                                            data-incident-status="{{ incident_status }}"
+                                            data-incident-severity="{{ incident_severity }}"
+                                            data-incident-affected-components='{{ incident_affected_component_ids|tojson if incident_affected_component_ids else "[]" }}'
+                                            data-incident-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ incident_affected_bike_id }}{% endif %}"
+                                            data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            data-resolution-date="{{ resolution_date }}" 
+                                            data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            onclick="event.stopPropagation();">✍
+                                        </button>
                                     </td>
                                 </tr>
                             {% endif %}
@@ -188,6 +195,69 @@
                     {% else %}
                         <tr>
                             <td colspan="4" class="text-center">No open incidents for this component</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card shadow mb-4 mt-2">
+        <div class="card-body">
+            <h5 class="card-title">Unfinished workplans</h5>
+            <hr/>
+            <table class="table table-hover" id="workplansTable">
+                <thead>
+                    <tr>
+                        <th>Size</th>
+                        <th>Due date</th>
+                        <th class="text-center">Days overdue</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if payload.workplans_data and payload.bike_component_data['component_id'] in payload.planned_workplans["component_workplans"] %}
+                        {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days in payload.workplans_data %}
+                            {% if workplan_affected_component_ids and payload.bike_component_data['component_id'] in workplan_affected_component_ids %}
+                                <tr>
+                                    <td>
+                                        {% if workplan_size == "Large" %}
+                                            <span class="badge color-workplan-size-large fixed-width-badge-workplan-size">Large</span>
+                                        {% elif workplan_size == "Medium" %}
+                                            <span class="badge color-workplan-size-medium fixed-width-badge-workplan-size">Medium</span>
+                                        {% elif workplan_size == "Small" %}
+                                            <span class="badge color-workplan-size-small fixed-width-badge-workplan-size">Small</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ due_date.split(' ')[0] if due_date else "-" }}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if elapsed_days <= 0 %}
+                                            -
+                                        {% else %}
+                                            {{ elapsed_days }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-workplan-btn"
+                                            data-workplan-id="{{ workplan_id }}"
+                                            data-due-date="{{ due_date }}" 
+                                            data-workplan-status="{{ workplan_status }}"
+                                            data-workplan-size="{{ workplan_size }}"
+                                            data-workplan-affected-components='{{ workplan_affected_component_ids|tojson if workplan_affected_component_ids else "[]" }}'
+                                            data-workplan-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ workplan_affected_bike_id }}{% endif %}"
+                                            data-description="{{ workplan_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            data-completion-date="{{ completion_date }}" 
+                                            data-completion-notes="{{ completion_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            onclick="event.stopPropagation();">✍
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No unfinished workplans for this component</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -207,6 +277,22 @@
                             <h5 class="card-title mb-2">Component have open incidents</h5>
                             <p class="mb-1">
                                 There are <strong>{{ incident_count }}</strong> open incident(s) referencing this component. Check and edit incidents in the incident card to the left.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if component_id in payload.planned_workplans["component_workplans"] %}
+            {% set workplan_count = payload.planned_workplans["component_workplans"][component_id]["workplan_count"] %}
+            <div class="card shadow mb-4">
+                <div class="alert alert-warning m-0">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-2 me-3">📝</div>
+                        <div>
+                            <h5 class="card-title mb-2">Component have unfinished workplans</h5>
+                            <p class="mb-1">
+                                There are <strong>{{ workplan_count }}</strong> open workplan(s) referencing this component. Check and edit workplans in the workplan card to the left.
                             </p>
                         </div>
                     </div>
