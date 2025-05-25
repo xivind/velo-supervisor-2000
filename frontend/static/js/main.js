@@ -1493,6 +1493,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let tomSelectInitialized = false;
     let pendingComponentData = null;
     let isNewIncident = false;
+    let originalIncidentOptions = null;
     
     // Initialize when the DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
@@ -1529,9 +1530,18 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Clean up when modal is hidden
             incidentModal.addEventListener('hidden.bs.modal', function() {
-                // console.log("Incident modal hidden");
+                console.log("Incident modal hidden - resetting flags");
                 pendingComponentData = null;
-                isNewIncident = false;
+                isNewIncident = false; // This should reset the flag
+                
+                // Also clear any TomSelect instances to prevent memory leaks
+                const componentSelect = document.getElementById('incident_affected_component_ids');
+                if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
+                    const ts = componentSelect.tomSelect || componentSelect.tomselect;
+                    ts.destroy();
+                    componentSelect.tomSelect = null;
+                    componentSelect.tomselect = null;
+                }
             });
         }
         
@@ -1633,35 +1643,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const componentSelect = document.getElementById('incident_affected_component_ids');
         if (!componentSelect) return;
         
-        // If TomSelect is already initialized
-        if (componentSelect.tomSelect || componentSelect.tomselect) {
-            // console.log("TomSelect already initialized, updating values");
-            const ts = componentSelect.tomSelect || componentSelect.tomselect;
-            ts.clear();
-            
-            // Check for initial component ID from the hidden field
-            const initialComponentId = document.getElementById('initial_incident_component_id')?.value;
-            if (initialComponentId && isNewIncident) {
-                setTimeout(() => {
-                    ts.setValue([initialComponentId]);
-                }, 100);
-            }
-            // Only set values if we have components to set from pendingData
-            else if (pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
-                // console.log("Setting component values:", pendingData.componentIds);
-                ts.setValue(pendingData.componentIds);
-            }
-            
-            // Update other form fields
-            if (pendingData && pendingData.formData) {
-                updateFormFields(pendingData.formData);
-            }
-            
-            return;
+        // Backup original options on first run
+        if (!originalIncidentOptions) {
+            originalIncidentOptions = componentSelect.innerHTML;
         }
         
-        // Initialize TomSelect if not already done
-        // console.log("Initializing TomSelect");
+        // Always start fresh with all options
+        componentSelect.innerHTML = originalIncidentOptions;
+        
+        // Remove retired options if this is a new incident (before TomSelect sees them)
+        if (isNewIncident) {
+            const retiredOptions = componentSelect.querySelectorAll('option[data-status="Retired"]');
+            retiredOptions.forEach(option => option.remove());
+        }
+        
+        // Destroy existing TomSelect if it exists
+        if (componentSelect.tomSelect || componentSelect.tomselect) {
+            const ts = componentSelect.tomSelect || componentSelect.tomselect;
+            ts.destroy();
+        }
+        
+        // Initialize TomSelect with the current option set
         try {
             const ts = new TomSelect(componentSelect, {
                 plugins: ['remove_button'],
@@ -1671,19 +1673,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 searchField: ['text'],
                 create: false,
                 placeholder: 'Search to add more components...',
-                // Only show dropdown when user has typed something or the input is focused
                 shouldOpen: function() {
                     return this.isFocused && this.inputValue.length > 0;
                 },
-                // Prevent dropdown from opening automatically on focus
                 openOnFocus: false,
-                // Keep the dropdown closed until user types
                 closeAfterSelect: true,
-                // Ensure other functionality works
                 onInitialize: function() {
                     tomSelectInitialized = true;
                     
-                    if (!isNewIncident && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
+                    // Handle initial component selection for new incidents
+                    const initialComponentId = document.getElementById('initial_incident_component_id')?.value;
+                    if (initialComponentId && isNewIncident) {
+                        setTimeout(() => {
+                            this.setValue([initialComponentId]);
+                        }, 100);
+                    }
+                    // Handle edit mode data
+                    else if (!isNewIncident && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
                         setTimeout(() => {
                             this.clear();
                             this.setValue(pendingData.componentIds);
@@ -1696,6 +1702,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
+            // Store the new instance
+            componentSelect.tomSelect = ts;
+            
             // Add change handler for validation
             ts.on('change', function() {
                 const tomSelectControl = document.querySelector('.ts-control');
@@ -1703,12 +1712,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     tomSelectControl.style.borderColor = '';
                 }
                 
-                // Also remove error styling from bike select if components are selected
                 const bikeSelect = document.getElementById('incident_affected_bike_id');
                 if (bikeSelect && ts.getValue().length > 0) {
                     bikeSelect.classList.remove('is-invalid');
                 }
             });
+            
         } catch (e) {
             console.error('TomSelect initialization error:', e);
         }
@@ -2221,6 +2230,7 @@ function setupIncidentSearch() {
     let tomSelectInitialized = false;
     let pendingComponentData = null;
     let isNewWorkplan = false;
+    let originalWorkplanOptions = null;
     
     // Initialize when the DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
@@ -2257,9 +2267,18 @@ function setupIncidentSearch() {
             
             // Clean up when modal is hidden
             workplanModal.addEventListener('hidden.bs.modal', function() {
-                // console.log("Workplan modal hidden");
+                console.log("Workplan modal hidden - resetting flags");
                 pendingComponentData = null;
-                isNewWorkplan = false;
+                isNewWorkplan = false; // This should reset the flag
+                
+                // Also clear any TomSelect instances to prevent memory leaks
+                const componentSelect = document.getElementById('workplan_affected_component_ids');
+                if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
+                    const ts = componentSelect.tomSelect || componentSelect.tomselect;
+                    ts.destroy();
+                    componentSelect.tomSelect = null;
+                    componentSelect.tomselect = null;
+                }
             });
         }
         
@@ -2361,35 +2380,27 @@ function setupIncidentSearch() {
         const componentSelect = document.getElementById('workplan_affected_component_ids');
         if (!componentSelect) return;
         
-        // If TomSelect is already initialized
-        if (componentSelect.tomSelect || componentSelect.tomselect) {
-            // console.log("TomSelect already initialized, updating values");
-            const ts = componentSelect.tomSelect || componentSelect.tomselect;
-            ts.clear();
-            
-            // Check for initial component ID from the hidden field
-            const initialComponentId = document.getElementById('initial_workplan_component_id')?.value;
-            if (initialComponentId && isNewWorkplan) {
-                setTimeout(() => {
-                    ts.setValue([initialComponentId]);
-                }, 100);
-            }
-            // Only set values if we have components to set from pendingData
-            else if (pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
-                // console.log("Setting component values:", pendingData.componentIds);
-                ts.setValue(pendingData.componentIds);
-            }
-            
-            // Update other form fields
-            if (pendingData && pendingData.formData) {
-                updateFormFields(pendingData.formData);
-            }
-            
-            return;
+        // Backup original options on first run
+        if (!originalWorkplanOptions) {
+            originalWorkplanOptions = componentSelect.innerHTML;
         }
         
-        // Initialize TomSelect if not already done
-        // console.log("Initializing TomSelect");
+        // Always start fresh with all options
+        componentSelect.innerHTML = originalWorkplanOptions;
+        
+        // Remove retired options if this is a new workplan (before TomSelect sees them)
+        if (isNewWorkplan) {
+            const retiredOptions = componentSelect.querySelectorAll('option[data-status="Retired"]');
+            retiredOptions.forEach(option => option.remove());
+        }
+        
+        // Destroy existing TomSelect if it exists
+        if (componentSelect.tomSelect || componentSelect.tomselect) {
+            const ts = componentSelect.tomSelect || componentSelect.tomselect;
+            ts.destroy();
+        }
+        
+        // Initialize TomSelect with the current option set
         try {
             const ts = new TomSelect(componentSelect, {
                 plugins: ['remove_button'],
@@ -2399,19 +2410,23 @@ function setupIncidentSearch() {
                 searchField: ['text'],
                 create: false,
                 placeholder: 'Search to add more components...',
-                // Only show dropdown when user has typed something or the input is focused
                 shouldOpen: function() {
                     return this.isFocused && this.inputValue.length > 0;
                 },
-                // Prevent dropdown from opening automatically on focus
                 openOnFocus: false,
-                // Keep the dropdown closed until user types
                 closeAfterSelect: true,
-                // Ensure other functionality works
                 onInitialize: function() {
                     tomSelectInitialized = true;
                     
-                    if (!isNewWorkplan && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
+                    // Handle initial component selection for new workplans
+                    const initialComponentId = document.getElementById('initial_workplan_component_id')?.value;
+                    if (initialComponentId && isNewWorkplan) {
+                        setTimeout(() => {
+                            this.setValue([initialComponentId]);
+                        }, 100);
+                    }
+                    // Handle edit mode data
+                    else if (!isNewWorkplan && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
                         setTimeout(() => {
                             this.clear();
                             this.setValue(pendingData.componentIds);
@@ -2424,6 +2439,9 @@ function setupIncidentSearch() {
                 }
             });
             
+            // Store the new instance
+            componentSelect.tomSelect = ts;
+            
             // Add change handler for validation
             ts.on('change', function() {
                 const tomSelectControl = document.querySelector('.ts-control');
@@ -2431,12 +2449,12 @@ function setupIncidentSearch() {
                     tomSelectControl.style.borderColor = '';
                 }
                 
-                // Also remove error styling from bike select if components are selected
                 const bikeSelect = document.getElementById('workplan_affected_bike_id');
                 if (bikeSelect && ts.getValue().length > 0) {
                     bikeSelect.classList.remove('is-invalid');
                 }
             });
+            
         } catch (e) {
             console.error('TomSelect initialization error:', e);
         }
