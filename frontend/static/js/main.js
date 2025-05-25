@@ -1634,6 +1634,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('incident_form').reset();
                 document.getElementById('incident_id').value = '';
                 document.getElementById('status_open').checked = true;
+
+                // Reset ID display to placeholder text
+                document.getElementById('incident-id-display').textContent = 'Not created yet';
                 
                 // Clear TomSelect if it's already initialized
                 const componentSelect = document.getElementById('incident_affected_component_ids');
@@ -1738,6 +1741,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set basic form fields
         document.getElementById('incident_id').value = data.incidentId || '';
+        document.getElementById('incident-id-display').textContent = data.incidentId || 'Not created yet';
         
         // Set status radio buttons
         if (data.incidentStatus === 'Resolved') {
@@ -2368,6 +2372,9 @@ function setupIncidentSearch() {
                 document.getElementById('workplan_form').reset();
                 document.getElementById('workplan_id').value = '';
                 document.getElementById('status_planned').checked = true;
+
+                // Reset ID display to placeholder text
+                document.getElementById('workplan-id-display').textContent = 'Not created yet';
                 
                 // Clear TomSelect if it's already initialized
                 const componentSelect = document.getElementById('workplan_affected_component_ids');
@@ -2472,6 +2479,7 @@ function setupIncidentSearch() {
         
         // Set basic form fields
         document.getElementById('workplan_id').value = data.workplanId || '';
+        document.getElementById('workplan-id-display').textContent = data.workplanId || 'Not created yet';
         
         // Set status radio buttons
         if (data.workplanStatus === 'Done') {
