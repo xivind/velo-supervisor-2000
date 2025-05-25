@@ -391,6 +391,18 @@ function initializeDatePickers(container = document) {
             // Allow viewing the calendar without selecting anything
             useCurrent: false
         });
+
+        // Subscribe to the show event to sync with input value  
+        picker.subscribe(tempusDominus.Namespace.events.show, () => {
+            if (dateInput.value) {
+                try {
+                    // Just trigger a change event to make picker re-read the input
+                    dateInput.dispatchEvent(new Event('change'));
+                } catch (e) {
+                    console.warn('Could not sync picker with input:', e);
+                }
+            }
+        });
         
         // Store the picker instance for later access
         dateInput._tempusDominus = picker;
@@ -1490,7 +1502,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Local variables
-    let tomSelectInitialized = false;
     let pendingComponentData = null;
     let isNewIncident = false;
     let originalIncidentOptions = null;
@@ -1678,9 +1689,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 openOnFocus: false,
                 closeAfterSelect: true,
-                onInitialize: function() {
-                    tomSelectInitialized = true;
-                    
+                onInitialize: function() {                    
                     // Handle initial component selection for new incidents
                     const initialComponentId = document.getElementById('initial_incident_component_id')?.value;
                     if (initialComponentId && isNewIncident) {
@@ -2227,7 +2236,6 @@ function setupIncidentSearch() {
     }
     
     // Local variables
-    let tomSelectInitialized = false;
     let pendingComponentData = null;
     let isNewWorkplan = false;
     let originalWorkplanOptions = null;
@@ -2415,9 +2423,7 @@ function setupIncidentSearch() {
                 },
                 openOnFocus: false,
                 closeAfterSelect: true,
-                onInitialize: function() {
-                    tomSelectInitialized = true;
-                    
+                onInitialize: function() {                    
                     // Handle initial component selection for new workplans
                     const initialComponentId = document.getElementById('initial_workplan_component_id')?.value;
                     if (initialComponentId && isNewWorkplan) {
