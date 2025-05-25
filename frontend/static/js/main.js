@@ -1541,7 +1541,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Clean up when modal is hidden
             incidentModal.addEventListener('hidden.bs.modal', function() {
-                console.log("Incident modal hidden - resetting flags");
+                // console.log("Incident modal hidden - resetting flags");
                 pendingComponentData = null;
                 isNewIncident = false; // This should reset the flag
                 
@@ -2275,7 +2275,7 @@ function setupIncidentSearch() {
             
             // Clean up when modal is hidden
             workplanModal.addEventListener('hidden.bs.modal', function() {
-                console.log("Workplan modal hidden - resetting flags");
+                // console.log("Workplan modal hidden - resetting flags");
                 pendingComponentData = null;
                 isNewWorkplan = false; // This should reset the flag
                 
