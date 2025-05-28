@@ -1924,8 +1924,29 @@ function validateIncidentForm(form) {
     }
     
     const incidentAffectedBikeId = form.querySelector('#incident_affected_bike_id').value;
-    
+    const now = new Date();
+
     // Validation rules
+
+    // Incident date cannot be in the future
+    if (incidentDate) {
+        const incidentDateObj = new Date(incidentDate);
+        if (incidentDateObj > now) {
+            form.querySelector('#incident_date').classList.add('is-invalid');
+            errorMessage = "Incident date cannot be in the future";
+            isValid = false;
+        }
+    }
+
+    // Resolution date cannot be in the future
+    if (resolutionDate) {
+        const resolutionDateObj = new Date(resolutionDate);
+        if (resolutionDateObj > now) {
+            form.querySelector('#resolution_date').classList.add('is-invalid');
+            errorMessage = "Resolution date cannot be in the future";
+            isValid = false;
+        }
+    }
     // If status is Resolved, resolution date must be provided
     if (incidentStatus === "Resolved" && !resolutionDate) {
         form.querySelector('#resolution_date').classList.add('is-invalid');
@@ -2662,8 +2683,20 @@ function validateWorkplanForm(form) {
     }
     
     const workplanAffectedBikeId = form.querySelector('#workplan_affected_bike_id').value;
+    const now = new Date();
     
     // Validation rules
+
+    // Completion date cannot be in the future (due date CAN be in the future)
+    if (completionDate) {
+        const completionDateObj = new Date(completionDate);
+        if (completionDateObj > now) {
+            form.querySelector('#completion_date').classList.add('is-invalid');
+            errorMessage = "Completion date cannot be in the future";
+            isValid = false;
+        }
+    }
+
     // If status is Done, completion date must be provided
     if (workplanStatus === "Done" && !completionDate) {
         form.querySelector('#completion_date').classList.add('is-invalid');
