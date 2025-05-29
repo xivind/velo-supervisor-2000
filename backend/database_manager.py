@@ -2,13 +2,18 @@
 """Module for interaction with a Sqlite database"""
 
 import peewee
+import json
 from database_model import (database,
                             Bikes,
                             Rides,
                             ComponentTypes,
                             Components,
                             ComponentHistory,
-                            Services)
+                            Services,
+                            Incidents,
+                            Workplans)
+from utils import (format_component_status,
+                   format_cost)
 
 class DatabaseManager:
     """Class to interact with a SQLite database through Peewee"""
@@ -42,19 +47,19 @@ class DatabaseManager:
                 .order_by(ComponentHistory.updated_date.desc())
                 .first()
                 .bike_id)
-    
+
     def read_unique_bikes(self):
         """Method to query database and create list of unique bike ids"""
         unique_bike_ids = (Rides
                            .select(Rides.bike_id)
                            .distinct())
-        
+
         bike_id_set = {ride.bike_id
                        for ride in unique_bike_ids
                        if ride.bike_id != "None"}
 
         return bike_id_set
-    
+
     def read_recent_rides(self, bike_id):
         """Method to read recent rides for a specific bike"""
         return (Rides
@@ -69,7 +74,7 @@ class DatabaseManager:
                 .select()
                 .where((Rides.bike_id == bike_id) &
                 (Rides.record_time >= latest_updated_date)))
-    
+
     def read_latest_ride_record(self):
         """Method to retrieve the most recent ride"""
         return (Rides
@@ -97,9 +102,9 @@ class DatabaseManager:
                                  (Rides.record_time <= stop_date)))
         if matching_rides:
             return sum(ride.ride_distance for ride in matching_rides)
-                   
+
         return 0
-    
+
     def read_all_component_types(self):
         """Method to read and sort content of component_types table"""
         component_types = ComponentTypes.select()
@@ -120,16 +125,46 @@ class DatabaseManager:
         return (ComponentTypes
                 .get_or_none(ComponentTypes.component_type == component_type))
 
+    def read_component_names(self, component_ids_raw):
+        """Method to get component names based on list of ids"""
+
+        if component_ids_raw is None:
+            return ["Not assigned"]
+
+        component_ids = json.loads(component_ids_raw)
+
+        component_names = []
+        for component_id in component_ids:
+            component = self.read_component(component_id)
+            if component:
+                component_names.append(component.component_name)
+            else:
+                component_names.append("Deleted component")
+
+        return component_names if component_names else ["Not assigned"]
+
     def count_component_types_in_use(self, component_type):
         """Method to count how many components that references a given component type"""
         return (Components
                 .select()
                 .where(Components.component_type == component_type)
                 .count())
-    
+
     def read_all_components(self):
         """Method to read content of components table"""
-        return Components.select()
+        all_components = Components.select()
+
+        all_components_data = [(component.component_id,
+                                component.component_type,
+                                component.component_name,
+                                round(component.component_distance),
+                                component.installation_status,
+                                format_component_status(component.lifetime_status),
+                                format_component_status(component.service_status),
+                                self.read_bike_name(component.bike_id),
+                                format_cost(component.cost)) for component in all_components]
+
+        return all_components_data
 
     def read_subset_components(self, bike_id):
         """Method to read components for a specific bike"""
@@ -143,12 +178,12 @@ class DatabaseManager:
                 .select()
                 .where((Components.installation_status == 'Installed') &
                 (Components.bike_id == bike_id)))
-                
+
     def read_component(self, component_id):
         """Method to retrieve record for a specific component"""
         return (Components
                 .get_or_none(Components.component_id == component_id))
-    
+
     def read_subset_component_history(self, component_id):
         """Method to read a subset of records from the component history table"""
         return (ComponentHistory
@@ -160,14 +195,14 @@ class DatabaseManager:
         """Method to retrieve record for a specific entry in the installation log"""
         return (ComponentHistory
                 .get_or_none(ComponentHistory.history_id == history_id))
-    
+
     def read_latest_history_record(self, component_id):
         """Method to retrieve the most recent record from the installation log of a given component"""
         return (ComponentHistory
                 .select().where(ComponentHistory.component_id == component_id)
                 .order_by(ComponentHistory.updated_date.desc())
                 .first())
-    
+
     def read_oldest_history_record(self, component_id):
         """Method to retrieve the oldest record from the installation log of a given component"""
         return (ComponentHistory
@@ -179,7 +214,7 @@ class DatabaseManager:
         """Method to retrieve a specific service record"""
         return (Services
                 .get_or_none(Services.service_id == service_id))
-        
+
     def read_subset_service_history(self, component_id):
         """Method to read a subset of receords from the component history table"""
         return (Services.
@@ -191,7 +226,7 @@ class DatabaseManager:
         """Method to retrieve record for a specific entry in the service log"""
         return (Services
                 .get_or_none(Services.service_id == service_id))
-    
+
     def read_latest_service_record(self, component_id):
         """Method to retrieve the most recent record from the service log of a given component"""
         return (Services
@@ -199,7 +234,7 @@ class DatabaseManager:
                 .where(Services.component_id == component_id)
                 .order_by(Services.service_date.desc())
                 .first())
-    
+
     def read_oldest_service_record(self, component_id):
         """Method to retrieve the oldest record from the service log of a given component"""
         return (Services
@@ -207,14 +242,46 @@ class DatabaseManager:
                 .where(Services.component_id == component_id)
                 .order_by(Services.service_date.asc())
                 .first())
-    
+
+    def read_single_incident_report(self, incident_id):
+        """Method to retrieve record for a specific incident report"""
+        return (Incidents
+                .get_or_none(Incidents.incident_id == incident_id))
+
+    def read_all_incidents(self):
+        """Method to read all incident records"""
+        return Incidents.select()
+
+    def read_open_incidents(self):
+        """Method to read incident records with status 'Open'"""
+        return (Incidents
+                .select()
+                .where(Incidents.incident_status == "Open")
+                .order_by(Incidents.incident_date.desc()))
+
+    def read_single_workplan(self, workplan_id):
+        """Method to retrieve record for a specific workplan"""
+        return (Workplans
+                .get_or_none(Workplans.workplan_id == workplan_id))
+
+    def read_all_workplans(self):
+        """Method to read all workplans"""
+        return Workplans.select()
+
+    def read_planned_workplans(self):
+        """Method to read workplans with status 'Planned'"""
+        return (Workplans
+                .select()
+                .where(Workplans.workplan_status == "Planned")
+                .order_by(Workplans.due_date.desc()))
+
     def write_update_rides_bulk(self, ride_list):
-        """Method to create or update ride data in bulk to database"""
+        """Method to create or update ride data in bulk in database"""
         try:
             with database.atomic():
                 batch_size = 50
                 total_processed = 0
-                
+
                 for i in range(0, len(ride_list), batch_size):
                     batch = ride_list[i:i + batch_size]
                     rides_tuples_list = [(dictionary['ride_id'],
@@ -257,7 +324,7 @@ class DatabaseManager:
 
         except peewee.OperationalError as error:
             return False, f"Update of bike records failed: {str(error)}."
-    
+
     def write_component_distance(self, component, total_distance):
         """Method to update component distance in database"""
         try:
@@ -266,7 +333,7 @@ class DatabaseManager:
                 component.save()
 
             return True, component.component_name
-        
+
         except peewee.OperationalError as error:
             return False, f"{component.component_name}: {str(error)}"
 
@@ -310,9 +377,9 @@ class DatabaseManager:
                 component.service_next = service_next
                 component.service_status = service_status
                 component.save()
-            
+
             return True, f"{component.component_name}."
-        
+
         except peewee.OperationalError as error:
             return False, f"{component.component_name}: {str(error)}."
 
@@ -322,14 +389,14 @@ class DatabaseManager:
             with database.atomic():
                 bike.service_status = service_status
                 bike.save()
-            
+
             return True, f"{bike.bike_name}."
-        
+
         except peewee.OperationalError as error:
             return False, f"{bike.bike_name}: {str(error)}."
 
     def write_service_record(self, service_data):
-        """Method to write or update service record to database"""
+        """Method to write or update service record in database"""
         try:
             with self.database.atomic():
                 existing_service = Services.get_or_none(Services.service_id == service_data['service_id'])
@@ -347,7 +414,7 @@ class DatabaseManager:
             return False, f"Service record database error for {service_data['component_name']}: {str(error)}"
     
     def write_history_record(self, history_data):
-        "Method to write or update history record to database"
+        "Method to write or update history record in database"
         try:
             with self.database.atomic():
                 existing_history = ComponentHistory.get_or_none(ComponentHistory.history_id == history_data['history_id'])
@@ -363,9 +430,45 @@ class DatabaseManager:
 
         except peewee.OperationalError as error:
             return False, f"History record database error for {history_data['component_name']}: {str(error)}"
-            
+
+    def write_incident_record(self, incident_data):
+        """Method to create or update incident record in database"""
+        try:
+            with self.database.atomic():
+                existing_incident = Incidents.get_or_none(Incidents.incident_id == incident_data['incident_id'])
+                
+                if existing_incident:
+                    Incidents.update(**incident_data).where(
+                        Incidents.incident_id == incident_data['incident_id']
+                    ).execute()
+                    return True, f"Updated incident report with id {incident_data['incident_id']}"
+                else:
+                    Incidents.create(**incident_data)
+                    return True, f"Created new incident report with id {incident_data['incident_id']}"
+
+        except peewee.OperationalError as error:
+            return False, f"Incident record database error for report with id {incident_data['incident_id']}: {str(error)}"
+    
+    def write_workplan(self, workplan_data):
+        """Method to create or update workplan record in database"""
+        try:
+            with self.database.atomic():
+                existing_workplan = Workplans.get_or_none(Workplans.workplan_id == workplan_data['workplan_id'])
+                
+                if existing_workplan:
+                    Workplans.update(**workplan_data).where(
+                        Workplans.workplan_id == workplan_data['workplan_id']
+                    ).execute()
+                    return True, f"Updated workplan with id {workplan_data['workplan_id']}"
+                else:
+                    Workplans.create(**workplan_data)
+                    return True, f"Created new workplan with id {workplan_data['workplan_id']}"
+
+        except peewee.OperationalError as error:
+            return False, f"Workplan database error for report with id {workplan_data['workplan_id']}: {str(error)}"
+    
     def write_component_type(self, component_type_data):
-        """Method to write component type record to database"""
+        """Method to write component type record in database"""
         try:
             with database.atomic():
                 component_type = self.read_single_component_type(component_type_data["component_type"])
@@ -376,14 +479,14 @@ class DatabaseManager:
                      .where(ComponentTypes.component_type == component_type_data["component_type"])
                      .execute())
                     return True, f"Updated component type {component_type_data['component_type']}"
-            
+
                 else:
                     ComponentTypes.create(**component_type_data)
                     return True, f"Created component type {component_type_data['component_type']}"
         
         except peewee.OperationalError as error:
             return False, f"{component_type_data['component_type']}: {str(error)}."
-    
+
     def write_delete_record(self, table_selector, record_id):
         """Method to delete a given record and associated records"""
         try:
@@ -392,7 +495,19 @@ class DatabaseManager:
                     record = self.read_single_component_type(record_id)
                     if record:
                         record.delete_instance()
-                        return True, f"Deleted component type: {record_id}."
+                        return True, f"Deleted component type: {record_id}"
+                
+                elif table_selector == "Incidents":
+                    record = self.read_single_incident_report(record_id)
+                    if record:
+                        record.delete_instance()
+                        return True, f"Deleted incident report with id {record_id}"
+                
+                elif table_selector == "Workplans":
+                    record = self.read_single_workplan(record_id)
+                    if record:
+                        record.delete_instance()
+                        return True, f"Deleted workplan with id {record_id}"
                 
                 elif table_selector == "Components":
                     record = self.read_component(record_id)
@@ -406,13 +521,13 @@ class DatabaseManager:
                     record = self.read_single_service_record(record_id)
                     if record:
                         record.delete_instance()
-                        return True, f"Deleted service record: {record_id}."
+                        return True, f"Deleted service record with id {record_id}"
                 
                 elif table_selector == "ComponentHistory":
                     record = self.read_single_history_record(record_id)
                     if record:
                         record.delete_instance()
-                        return True, f"Deleted installation history record: {record_id}."
+                        return True, f"Deleted installation history record with id {record_id}"
 
                 else:
                     return False, "Invalid table selector"

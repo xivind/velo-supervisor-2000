@@ -5,11 +5,13 @@
 {% block content %}
 <h1 id="bike-overview" class="display-5 mt-5 text-center">Bike overview</h1>
 
-<div class="d-flex justify-content-between align-items-center mt-4 mb-2 ms-2">
+<div class="d-flex justify-content-between align-items-center mt-4 mb-2 ms-2 toggle-container-right">
     <div class="small text-secondary">
-        <span class="me-3"><span class="badge bike_healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> All components healthy</span>
-        <span class="me-3"><span class="badge bike-critical" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Components need attention</span>
-        <span class="me-3"><span class="badge bike_no_components" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> No components registered / no active components</span>
+        <span class="me-3"><span class="badge bike_healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> All parts healthy</span>
+        <span class="me-3"><span class="badge bike-critical" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Parts need attention</span>
+        <span class="me-3"><span class="badge bike_no_components" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> No parts registered / no active parts</span>
+        <span class="me-3">📝 Unfinished workplans</span>
+        <span class="me-3">🚨 Open incidents</span>
     </div>
     <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" id="showRetiredBikes">
@@ -21,7 +23,7 @@
         <div class="col-md-4 mb-4">
             <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">
                 <div class="card shadow hover-effect" data-bike-status="{{ bike_status }}">
-                    <div class="card-header h5 fw-bold 
+                    <div class="card-header h5 fw-bold d-flex justify-content-between align-items-center
                         {%- if service_status == 'No components registered' or service_status == 'No active components' -%}
                             text-bg-dark bike_no_components
                         {%- elif service_status == 'Components need attention' -%}
@@ -29,7 +31,11 @@
                         {%- else -%}
                             text-bg-dark bike_healthy
                         {%- endif -%}">
-                        {{ name }}
+                        <span>{{ name }}</span>
+                        <span>
+                            {% if bike_id in payload.planned_workplans["bike_workplans"] %}📝{% endif %}
+                            {% if bike_id in payload.open_incidents["bike_incidents"] %}🚨{% endif %}
+                        </span>
                     </div>
                     <div class="card-body">
                         <h6 class="card-title fw-bold">

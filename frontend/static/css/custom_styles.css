@@ -202,3 +202,53 @@ th[data-sort].sorted-desc .sort-indicator::after {
 .tempus-dominus-widget footer button:hover {
     background-color: #c9e2ff !important;
 }
+
+/* Miscellaneous classes */
+/* Fixed width badges for table columns */
+.fixed-width-badge-incident-status {
+    width: 4rem;
+    display: inline-block;
+    text-align: center;
+}
+
+.fixed-width-badge-incident-severity {
+    width: 4rem;
+    display: inline-block;
+    text-align: center;
+}
+
+.fixed-width-badge-workplan-status {
+    width: 4rem;
+    display: inline-block;
+    text-align: center;
+}
+
+.fixed-width-badge-workplan-size {
+    width: 4rem;
+    display: inline-block;
+    text-align: center;
+}
+
+/* Custom colors for workplan tags */
+.color-workplan-size-small {
+    color: #1a7f37;
+    background-color: #dafbe1;
+    border-color: rgba(26, 127, 55, 0.4);
+}
+
+.color-workplan-size-medium {
+    color: #9e6a03;
+    background-color: #fff8c5;
+    border-color: rgba(158, 106, 3, 0.4);
+}
+
+.color-workplan-size-large {
+    color: #cf222e;
+    background-color: #ffebe9;
+    border-color: rgba(207, 34, 46, 0.4);
+}
+
+/* Padding to offset toggle switches */
+.toggle-container-right {
+    padding-right: 15px; 
+}

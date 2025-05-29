@@ -11,7 +11,7 @@
     'lifetime_expected': payload.bike_component_data['lifetime_expected'],
     'service_interval': payload.bike_component_data['service_interval'],
     'component_notes': payload.bike_component_data['component_notes']
-} if request.url.path.startswith('/component_details/') else None %}
+} %}
     {% include "modal_create_component.html" %}
 {% endwith %}
 
@@ -23,8 +23,52 @@
 {% include "modal_service_record.html" %}
 {% include "modal_edit_installation_record.html" %}
 
-<h1 id="component-details" class="display-5 mt-5 text-center">Component details</h1>
-<div class="row mt-5">
+{% with duplicate_data = {
+    'bike_id': payload.bike_component_data['bike_id'],
+    'component_id': payload.bike_component_data['component_id']} %}
+    {% include "modal_incident_record.html" %}
+{% endwith %}
+
+{% with duplicate_data = {
+    'bike_id': payload.bike_component_data['bike_id'],
+    'component_id': payload.bike_component_data['component_id']} %}
+    {% include "modal_workplan_record.html" %}
+{% endwith %}
+
+<h1 id="component-details" class="display-5 mt-5 mb-4 text-center">Component details</h1>
+{% if payload.bike_component_data['bike_id'] %}
+    <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary me-2">
+        <span>🚴 View bike</span>
+    </a>
+{% elif payload.component_history_data|length > 1 and payload.bike_component_data['installation_status'] != 'Installed'  %}
+    <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="btn btn-outline-primary me-2">
+        <span>🚴 View previous bike</span>
+    </a>    
+{% else %}
+    <button type="button" class="btn btn-outline-primary me-2" disabled>
+        <span>🚴 View bike</span>
+    </button>
+{% endif %}
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editCollectionModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>📦 Edit collection</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+    <span>⛓ Duplicate</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#replaceComponentModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>♻ Replace</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>🧑‍🔧 New service</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
+    <span>📝 New workplan</span>
+</button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>🚨 New incident</span>
+</button>
+<hr/>
+<div class="row">
     <div class="col-md-4">
         <div class="card shadow mb-4">
             <div class="card-header h5 fw-bold text-bg-
@@ -94,63 +138,174 @@
             </div>
             <hr/>
             <p class="card-text d-flex justify-content-between align-items-center">
-                <span class="fw-bold">🔑 Component ID: {{ payload.bike_component_data['component_id'] }}</span>
+                <span class="fw-bold">🔑 Component id: {{ payload.bike_component_data['component_id'] }}</span>
             </p>  
         </div>
     </div>
-    <div class="col-12">
-        <div class="row g-2">
-            <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-                    <span>🧑‍🔧 New service</span>
-                </button>
-            </div>
-            <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createIncidentModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-                    <span>🚨 New incident</span>
-                </button>
-            </div>
-            <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createComponentModal">
-                    <span>⛓ Duplicate</span>
-                </button>
-            </div>
-            <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#replaceComponentModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-                    <span>♻ Replace</span>
-                </button>
-            </div>
-            <div class="col-6 mb-2">
-                <button type="button" class="btn btn-outline-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#editCollectionModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-                    <span>📦 Edit collection</span>
-                </button>
-            </div>
-                <div class="col-6 mb-2">
-                    {% if payload.bike_component_data['bike_id'] %}
-                        <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary w-100 mb-2">
-                            <span>🚴 View bike</span>
-                        </a>
-                    {% elif payload.component_history_data|length > 1 and payload.bike_component_data['installation_status'] != 'Installed'  %}
-                        <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="btn btn-outline-primary w-100 mb-2">
-                            <span>🚴 View previous bike</span>
-                        </a>    
+    <div class="card shadow mb-4 mt-2">
+        <div class="card-body">
+            <h5 class="card-title">Open incidents</h5>
+            <hr/>
+            <table class="table table-hover" id="incidentsTable">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Incident date</th>
+                        <th class="text-center">Days open</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if payload.incident_reports_data and payload.bike_component_data['component_id'] in payload.open_incidents["component_incidents"] %}
+                        {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days in payload.incident_reports_data %}
+                            {% if incident_affected_component_ids and payload.bike_component_data['component_id'] in incident_affected_component_ids %}
+                                <tr>
+                                    <td>
+                                        {% if incident_severity == "Critical" %}
+                                        <span class="badge text-bg-danger fixed-width-badge-incident-severity">Critical</span>
+                                        {% elif incident_severity == "Priority" %}
+                                        <span class="badge text-bg-warning fixed-width-badge-incident-severity">Priority</span>
+                                        {% elif incident_severity == "Monitor" %}
+                                        <span class="badge text-bg-success fixed-width-badge-incident-severity">Monitor</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ incident_date.split(' ')[0] if incident_date else "-" }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ elapsed_days }}
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn"
+                                            data-incident-id="{{ incident_id }}"
+                                            data-incident-date="{{ incident_date }}" 
+                                            data-incident-status="{{ incident_status }}"
+                                            data-incident-severity="{{ incident_severity }}"
+                                            data-incident-affected-components='{{ incident_affected_component_ids|tojson if incident_affected_component_ids else "[]" }}'
+                                            data-incident-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ incident_affected_bike_id }}{% endif %}"
+                                            data-description="{{ incident_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            data-resolution-date="{{ resolution_date }}" 
+                                            data-resolution-notes="{{ resolution_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            onclick="event.stopPropagation();">✍
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
                     {% else %}
-                        <button type="button" class="btn btn-outline-primary w-100 mb-2" disabled>
-                            <span>🚴 View bike</span>
-                        </button>
+                        <tr>
+                            <td colspan="4" class="text-center">No open incidents for this component</td>
+                        </tr>
                     {% endif %}
-                </div>
-        </div>    
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card shadow mb-4 mt-2">
+        <div class="card-body">
+            <h5 class="card-title">Unfinished workplans</h5>
+            <hr/>
+            <table class="table table-hover" id="workplansTable">
+                <thead>
+                    <tr>
+                        <th>Size</th>
+                        <th>Due date</th>
+                        <th class="text-center">Days overdue</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if payload.workplans_data and payload.bike_component_data['component_id'] in payload.planned_workplans["component_workplans"] %}
+                        {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days in payload.workplans_data %}
+                            {% if workplan_affected_component_ids and payload.bike_component_data['component_id'] in workplan_affected_component_ids %}
+                                <tr>
+                                    <td>
+                                        {% if workplan_size == "Large" %}
+                                            <span class="badge color-workplan-size-large fixed-width-badge-workplan-size">Large</span>
+                                        {% elif workplan_size == "Medium" %}
+                                            <span class="badge color-workplan-size-medium fixed-width-badge-workplan-size">Medium</span>
+                                        {% elif workplan_size == "Small" %}
+                                            <span class="badge color-workplan-size-small fixed-width-badge-workplan-size">Small</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ due_date.split(' ')[0] if due_date else "-" }}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if elapsed_days <= 0 %}
+                                            -
+                                        {% else %}
+                                            {{ elapsed_days }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-workplan-btn"
+                                            data-workplan-id="{{ workplan_id }}"
+                                            data-due-date="{{ due_date }}" 
+                                            data-workplan-status="{{ workplan_status }}"
+                                            data-workplan-size="{{ workplan_size }}"
+                                            data-workplan-affected-components='{{ workplan_affected_component_ids|tojson if workplan_affected_component_ids else "[]" }}'
+                                            data-workplan-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ workplan_affected_bike_id }}{% endif %}"
+                                            data-description="{{ workplan_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            data-completion-date="{{ completion_date }}" 
+                                            data-completion-notes="{{ completion_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                            onclick="event.stopPropagation();">✍
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No unfinished workplans for this component</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
     <div class="col-md-8">
+        {% set component_id = payload.bike_component_data['component_id'] %}
+        {% if component_id in payload.open_incidents["component_incidents"] %}
+            {% set incident_count = payload.open_incidents["component_incidents"][component_id]["incident_count"] %}
+            <div class="card shadow mb-4">
+                <div class="alert alert-danger m-0">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-2 me-3">🚨</div>
+                        <div>
+                            <h5 class="card-title mb-2">Component have open incidents</h5>
+                            <p class="mb-1">
+                                There are <strong>{{ incident_count }}</strong> open incident(s) referencing this component. Check and edit incidents in the incident card to the left.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if component_id in payload.planned_workplans["component_workplans"] %}
+            {% set workplan_count = payload.planned_workplans["component_workplans"][component_id]["workplan_count"] %}
+            <div class="card shadow mb-4">
+                <div class="alert alert-warning m-0">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-2 me-3">📝</div>
+                        <div>
+                            <h5 class="card-title mb-2">Component have unfinished workplans</h5>
+                            <p class="mb-1">
+                                There are <strong>{{ workplan_count }}</strong> open workplan(s) referencing this component. Check and edit workplans in the workplan card to the left.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         <div class="card shadow mb-4">
             <div class="card-header fw-bold">Component status</div>
             <div class="card-body">
                 <fieldset disabled>
                 <form id="component_status_form" class="row" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label for="component_installation_status" class="form-label fw-bold">Status</label>
                         <select class="form-select" id="component_installation_status" name="component_installation_status">
                             <option value="Installed" {% if payload.bike_component_data['installation_status'] == "Installed" %}selected{% endif %}>Installed</option>
@@ -158,11 +313,7 @@
                             <option value="Retired" {% if payload.bike_component_data['installation_status'] == "Retired" %}selected{% endif %}>Retired</option>
                         </select>
                     </div>
-                    <div class="col-md-2 mb-3">
-                        <label for="broken" class="form-label fw-bold">Broken</label>
-                        <input class="form-control" id="offset" name="broken" value="N/A" disabled>
-                    </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label for="component_bike_id" class="form-label fw-bold">Bike</label>
                         <select class="form-select" id="component_bike_id" name="component_bike_id">
                             <option value="">Not assigned</option>

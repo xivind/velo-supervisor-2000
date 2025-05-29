@@ -56,28 +56,28 @@ async def shutdown_server():
     sys.exit(0)
 
 def generate_unique_id():
-    """Method to generates a random and unique ID"""
+    """Function to generates a random and unique ID"""
     unique_id_part1 = uuid.uuid4()
     unique_id_part2 = time.time()
 
     return f'{str(unique_id_part1)[:6]}{str(unique_id_part2)[-4:]}'
 
 def format_component_status(status):
-    """Method to display user friendly text for None values"""
+    """Function to display user friendly text for None values"""
     if status is not None:
         return status
 
     return "Not defined"
     
 def format_cost(cost):
-    """Method to display user friendly text for None values"""
+    """Function to display user friendly text for None values"""
     if cost is not None:
         return cost
 
     return "No estimate"
 
 def get_component_statistics(component_list):
-    """Method to summarise key data for a set of components"""
+    """Function to summarise key data for a set of components"""
     component_statistics = {"count_installed": 0,
                             "count_not_installed": 0,
                             "count_retired": 0,
@@ -127,11 +127,11 @@ def get_component_statistics(component_list):
 
     if component_statistics["sum_cost"] == 0:
         component_statistics["sum_cost"] = "No estimate"
-        
+
     return component_statistics
 
 def get_formatted_bikes_list(bikes):
-    """Method to get list of all bikes, with prefix for retired bikes"""
+    """Function to get list of all bikes, with prefix for retired bikes"""
     bikes_data = [(bike.bike_name + (" (Retired)" if bike.bike_retired == "True" else ""),
                   bike.bike_id)
                   for bike in bikes]
@@ -139,47 +139,54 @@ def get_formatted_bikes_list(bikes):
     return sorted(bikes_data, key=lambda x: (("(Retired)" in x[0]), x[0].lower()))
 
 def calculate_percentage_reached(total, remaining):
-        """Method to calculate remaining service interval or remaining lifetime as percentage"""
-        if isinstance(total, int) and isinstance(remaining, int):
-            return round(((total - remaining) / total) * 100, 2)
-        
-        return 1000
+    """Function to calculate remaining service interval or remaining lifetime as percentage"""
+    if isinstance(total, int) and isinstance(remaining, int):
+        return round(((total - remaining) / total) * 100, 2)
+
+    return 1000
 
 def validate_date_format(date_string):
-    """Validates that a date string matches the required format YYYY-MM-DD HH:MM"""
+    """Function to validate that a date string matches the required format YYYY-MM-DD HH:MM"""
     if date_string is None:
         return False, "Date cannot be empty. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
-    
+
     if not date_string:
         return False, "Date cannot be empty. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
-    
+
     if date_string != date_string.strip():
         return False, f"Date '{date_string}' contains leading or trailing whitespace. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
-    
+
     if len(date_string) != 16:
         return False, f"Invalid date format: '{date_string}'. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
-    
+
     if (date_string[4] != '-' or date_string[7] != '-' or 
         date_string[10] != ' ' or date_string[13] != ':'):
         return False, f"Invalid date format: '{date_string}'. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
-    
+
     for i, char in enumerate(date_string):
         if i in [4, 7, 10, 13]:
             continue
         if not char.isdigit():
             return False, f"Invalid date format: '{date_string}'. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
-    
+
     try:
         datetime.strptime(date_string, "%Y-%m-%d %H:%M")
         return True, "Date format is valid"
     except ValueError:
         return False, f"Invalid date: '{date_string}'. The date provided is invalid or does not match the expected format (YYYY-MM-DD HH:MM)"
-    
+
 def calculate_elapsed_days(start_date, end_date):
-    """Calculates the number of days between two dates"""
+    """Function to calculate the number of days between two dates"""
     try:
         start_date = datetime.strptime(start_date, "%Y-%m-%d %H:%M")
         end_date = datetime.strptime(end_date, "%Y-%m-%d %H:%M")
         return True, (end_date - start_date).days
     except ValueError:
         return False, "Failed to calculate elapsed days"
+
+def parse_json_string(raw_json_string):
+    """Function to load a JSON string and return the parsed data as a python object"""
+    if raw_json_string is None:
+        return None
+
+    return json.loads(raw_json_string)

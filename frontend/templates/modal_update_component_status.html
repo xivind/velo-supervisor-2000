@@ -9,7 +9,7 @@
                 <form id="component_status_form" class="row" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded" data-initial-bike-id="{{ initial_bike_id or '' }}">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label for="component_installation_status" class="form-label fw-bold">Status</label>
                         <select class="form-select" id="component_installation_status" name="component_installation_status">
                             <option value="Installed" {% if payload.bike_component_data['installation_status'] == "Installed" %}selected{% endif %}>Installed</option>
@@ -18,12 +18,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2 mb-3">
-                        <label for="broken" class="form-label fw-bold">Broken</label>
-                        <input class="form-control" id="broken" name="broken" value="N/A" disabled>
-                    </div>
-
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label for="component_bike_id" class="form-label fw-bold">Bike</label>
                         <select class="form-select" id="component_bike_id" name="component_bike_id">
                             <option value="">Not assigned</option>
@@ -43,10 +38,10 @@
                         </div>
                     </div>
                 </form>
-                <div class="modal-footer px-0 pb-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" form="component_status_form" id="submit_btn">Save</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="component_status_form" id="submit_btn">Save</button>
             </div>
         </div>
     </div>
