@@ -36,15 +36,25 @@ As a principle, development is to be done in the dev-branch. When changes are re
 
 **Future releases**
 - GUI optimized for mobile devices
-- Incident reports
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.4.3**  
+**Planned for v0.4.4**  
 
 - See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
-**v0.4.2 (CURRENT)**  
+**v0.4.3 (CURRENT)**
+*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.2 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
+
+- There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the velo supervisor 2000 database. Remember to backup the database first.
+- New feature: Workplans for bikes and components
+- New feature: Incident reports for bikes and components
+- Improved database migration script, with more robust approach to find databases
+- Improved handling of null values in component table
+- Fixed a bug that in some cases would freeze the GUI if trying to escape a modal
+- Fixed a bug that caused date fields and date pickers to be out of sync
+
+**v0.4.2**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.1 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
 
 - The updates in this version require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script will check config.json to find the database, optionally the user will be prompted by the script to enter the path manually. Remember to backup the database first.  
