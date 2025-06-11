@@ -311,7 +311,7 @@
                     </thead>
                     <tbody>
                         {% if payload.incident_reports_data and payload.bike_data['bike_id'] in payload.open_incidents["bike_incidents"] %}
-                            {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days in payload.incident_reports_data %}
+                            {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title in payload.incident_reports_data %}
                                 {% if payload.bike_data['bike_id'] in payload.open_incidents["bike_incidents"] and incident_id in payload.open_incidents["bike_incidents"][payload.bike_data['bike_id']]["incident_ids"] %}
                                     <tr>
                                         <td>
@@ -327,7 +327,7 @@
                                             {{ incident_date.split(' ')[0] if incident_date else "-" }}
                                         </td>
                                         <td>
-                                            Description
+                                            {{ incident_title }}
                                         </td>
                                         <td class="text-center">
                                             {{ elapsed_days }}
@@ -375,7 +375,7 @@
                     </thead>
                     <tbody>
                         {% if payload.workplans_data and payload.bike_data['bike_id'] in payload.planned_workplans["bike_workplans"] %}
-                            {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days in payload.workplans_data %}
+                            {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title in payload.workplans_data %}
                                 {% if payload.bike_data['bike_id'] in payload.planned_workplans["bike_workplans"] and workplan_id in payload.planned_workplans["bike_workplans"][payload.bike_data['bike_id']]["workplan_ids"] %}
                                     <tr>
                                         <td>
@@ -391,7 +391,7 @@
                                             {{ due_date.split(' ')[0] if due_date else "-" }}
                                         </td>
                                         <td>
-                                            Description
+                                            {{ workplan_title }}
                                         </td>
                                         <td class="text-center">
                                             {% if elapsed_days <= 0 %}
@@ -419,7 +419,7 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="4" class="text-center">No unfinished workplans for this bike</td>
+                                <td colspan="5" class="text-center">No unfinished workplans for this bike</td>
                             </tr>
                         {% endif %}
                     </tbody>
