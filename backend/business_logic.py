@@ -368,7 +368,10 @@ class BusinessLogic():
                                   incident.resolution_notes,
                                   calculate_elapsed_days(incident.incident_date,
                                                          incident.resolution_date if incident.resolution_date
-                                                         else get_formatted_datetime_now())[1]) for incident in database_manager.read_open_incidents()]
+                                                         else get_formatted_datetime_now())[1],
+                                  generate_incident_title(database_manager.read_component_names(incident.incident_affected_component_ids),
+                                                          database_manager.read_bike_name(incident.incident_affected_bike_id),
+                                                          incident.incident_description)) for incident in database_manager.read_open_incidents()]
         
         planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
 
@@ -385,7 +388,10 @@ class BusinessLogic():
                            workplan.completion_notes,
                            calculate_elapsed_days(workplan.due_date,
                                                   workplan.completion_date if workplan.completion_date
-                                                  else get_formatted_datetime_now())[1]) for workplan in database_manager.read_planned_workplans()]
+                                                  else get_formatted_datetime_now())[1],
+                           generate_workplan_title(database_manager.read_component_names(workplan.workplan_affected_component_ids),
+                                                   database_manager.read_bike_name(workplan.workplan_affected_bike_id),
+                                                   workplan.workplan_description)) for workplan in database_manager.read_planned_workplans()]
         
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
