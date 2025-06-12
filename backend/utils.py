@@ -190,3 +190,53 @@ def parse_json_string(raw_json_string):
         return None
 
     return json.loads(raw_json_string)
+
+def generate_incident_title(affected_component_names, affected_bike_name, incident_description):
+    """Generate a concise title for an incident"""
+
+    title_parts = []
+
+    if affected_component_names and affected_component_names != ["Not assigned"]:
+        component_part = affected_component_names[0]
+        if len(affected_component_names) > 1:
+            component_part += f" (+{len(affected_component_names) - 1} more)"
+        title_parts.append(component_part)
+
+    if incident_description and incident_description.strip():
+        desc_words = incident_description.split()[:4]
+        desc_part = " ".join(desc_words)
+        if len(incident_description.split()) > 4:
+            desc_part += "..."
+        title_parts.append(desc_part)
+
+    if affected_bike_name and affected_bike_name != "Not assigned":
+        title_parts.append(f"({affected_bike_name})")
+
+    title = " - ".join(title_parts) if title_parts else "No incident metadata"
+
+    return title[:60] + "..." if len(title) > 80 else title
+
+def generate_workplan_title(affected_component_names, affected_bike_name, workplan_description):
+    """Generate a concise title for a workplan"""
+
+    title_parts = []
+
+    if affected_component_names and affected_component_names != ["Not assigned"]:
+        component_part = affected_component_names[0]
+        if len(affected_component_names) > 1:
+            component_part += f" (+{len(affected_component_names) - 1} more)"
+        title_parts.append(component_part)
+
+    if workplan_description and workplan_description.strip():
+        desc_words = workplan_description.split()[:4]
+        desc_part = " ".join(desc_words)
+        if len(workplan_description.split()) > 4:
+            desc_part += "..."
+        title_parts.append(desc_part)
+
+    if affected_bike_name and affected_bike_name != "Not assigned":
+        title_parts.append(f"({affected_bike_name})")
+
+    title = " - ".join(title_parts) if title_parts else "No workplan metadata"
+
+    return title[:60] + "..." if len(title) > 80 else title
