@@ -21,17 +21,14 @@ class Strava:
         """Method to read oauth options from file"""
         with open(self.oauth_file, 'r', encoding='utf-8') as file:
             secrets_input = json.load(file)
-        self.token = {
-             'access_token': secrets_input['access_token'],
-             'refresh_token': secrets_input['refresh_token'],
-             'token_type': secrets_input['token_type'],
-             'expires_at': secrets_input['expires_at']
-
-        }
-        self.extra = {
-            'client_id': secrets_input['client_id'],
-            'client_secret': secrets_input['client_secret']
-        }
+        
+        self.token = {'access_token': secrets_input['access_token'],
+                      'refresh_token': secrets_input['refresh_token'],
+                      'token_type': secrets_input['token_type'],
+                      'expires_at': secrets_input['expires_at']}
+        
+        self.extra = {'client_id': secrets_input['client_id'],
+                      'client_secret': secrets_input['client_secret']}
 
     def token_saver(self):
         """Method to save oauth options to file"""
