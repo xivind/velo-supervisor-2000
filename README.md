@@ -47,6 +47,7 @@ As a principle, development is to be done in the dev-branch. When changes are re
 
 - Rearranged tables for incidents and workplans on bike details and component pages, and made these tables more informative
 - Tables for incidents and workplans on component details page are hidden when there are no records to show
+- Fixed a bug that added extra line breaks in text areas of incidents and workplans
 
 **v0.4.3**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.2 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
