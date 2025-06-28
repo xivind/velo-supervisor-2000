@@ -113,9 +113,9 @@
                                     data-workplan-size="{{ workplan_size }}"
                                     data-workplan-affected-components='{{ workplan_affected_component_ids|tojson if workplan_affected_component_ids else "[]" }}'
                                     data-workplan-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ workplan_affected_bike_id }}{% endif %}"
-                                    data-description="{{ workplan_description|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                    data-description="{{ workplan_description|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') }}"
                                     data-completion-date="{{ completion_date }}" 
-                                    data-completion-notes="{{ completion_notes|replace('\n', '&#10;')|replace('"', '&quot;') }}"
+                                    data-completion-notes="{{ completion_notes|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') }}"
                                     onclick="event.stopPropagation();">✍
                                 </button>
                                 <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-workplan-id="{{ workplan_id }}" onclick="event.stopPropagation();">🗑</button>
