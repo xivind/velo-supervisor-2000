@@ -228,9 +228,13 @@ def generate_workplan_title(affected_component_names, affected_bike_name, workpl
         title_parts.append(component_part)
 
     if workplan_description and workplan_description.strip():
-        desc_words = workplan_description.split()[:4]
+        clean_desc = workplan_description.replace('**', '').replace('*', '') \
+                                       .replace('##', '').replace('#', '') \
+                                       .replace('- [ ]', '').replace('- [x]', '') \
+                                       .replace('`', '')
+        desc_words = clean_desc.split()[:4]
         desc_part = " ".join(desc_words)
-        if len(workplan_description.split()) > 4:
+        if len(clean_desc.split()) > 4:
             desc_part += "..."
         title_parts.append(desc_part)
 
