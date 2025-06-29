@@ -54,25 +54,12 @@
                     {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days, checkbox_progress in payload.workplans_data %}
                         <tr data-description="{{ workplan_description }}" data-notes="{{ completion_notes }}">
                             <td class="text-center">
-                                <div>
-                                    {% if elapsed_days > 0 and workplan_status != "Done" %}
-                                        <span class="badge rounded-pill text-bg-primary fixed-width-badge-workplan-status">Overdue</span>
-                                    {% elif workplan_status == "Planned" %}
-                                        <span class="badge rounded-pill text-bg-info fixed-width-badge-workplan-status">Planned</span>
-                                    {% elif workplan_status == "Done" %}
-                                        <span class="badge rounded-pill text-bg-secondary fixed-width-badge-workplan-status">Done</span>
-                                    {% endif %}
-                                </div>
-                                {% if checkbox_progress %}
-                                    <div class="checkbox-progress-container">
-                                        <span class="checkbox-progress-donut {% if checkbox_progress.percentage == 100 %}complete{% endif %}" 
-                                            style="--progress: {{ checkbox_progress.percentage }}"
-                                            title="Task progress: {{ checkbox_progress.checked }} of {{ checkbox_progress.total }} completed">
-                                        </span>
-                                        <span class="checkbox-progress-text {% if checkbox_progress.percentage == 100 %}complete{% endif %}">
-                                            {{ checkbox_progress.checked }}/{{ checkbox_progress.total }}
-                                        </span>
-                                    </div>
+                                {% if elapsed_days > 0 and workplan_status != "Done" %}
+                                    <span class="badge rounded-pill text-bg-primary fixed-width-badge-workplan-status">Overdue</span>
+                                {% elif workplan_status == "Planned" %}
+                                    <span class="badge rounded-pill text-bg-info fixed-width-badge-workplan-status">Planned</span>
+                                {% elif workplan_status == "Done" %}
+                                    <span class="badge rounded-pill text-bg-secondary fixed-width-badge-workplan-status">Done</span>
                                 {% endif %}
                             </td>
                             <td>
@@ -97,12 +84,25 @@
                                 {% endif %}
                             </td>
                             <td class="text-center">
-                                {% if workplan_size == "Large" %}
-                                <span class="badge color-workplan-size-large fixed-width-badge-workplan-size">Large</span>
-                                {% elif workplan_size == "Medium" %}
-                                <span class="badge color-workplan-size-medium fixed-width-badge-workplan-size">Medium</span>
-                                {% elif workplan_size == "Small" %}
-                                <span class="badge color-workplan-size-small fixed-width-badge-workplan-size">Small</span>
+                                <div>
+                                    {% if workplan_size == "Large" %}
+                                    <span class="badge color-workplan-size-large fixed-width-badge-workplan-size">Large</span>
+                                    {% elif workplan_size == "Medium" %}
+                                    <span class="badge color-workplan-size-medium fixed-width-badge-workplan-size">Medium</span>
+                                    {% elif workplan_size == "Small" %}
+                                    <span class="badge color-workplan-size-small fixed-width-badge-workplan-size">Small</span>
+                                    {% endif %}
+                                </div>
+                                {% if checkbox_progress %}
+                                    <div class="checkbox-progress-container">
+                                        <span class="checkbox-progress-donut {% if checkbox_progress.percentage == 100 %}complete{% endif %}" 
+                                            style="--progress: {{ checkbox_progress.percentage }}"
+                                            title="Task progress: {{ checkbox_progress.checked }} of {{ checkbox_progress.total }} completed">
+                                        </span>
+                                        <span class="checkbox-progress-text {% if checkbox_progress.percentage == 100 %}complete{% endif %}">
+                                            {{ checkbox_progress.checked }}/{{ checkbox_progress.total }}
+                                        </span>
+                                    </div>
                                 {% endif %}
                             </td>
                             <td>

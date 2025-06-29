@@ -314,7 +314,7 @@
                             {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title in payload.incident_reports_data %}
                                 {% if payload.bike_data['bike_id'] in payload.open_incidents["bike_incidents"] and incident_id in payload.open_incidents["bike_incidents"][payload.bike_data['bike_id']]["incident_ids"] %}
                                     <tr>
-                                        <td>
+                                        <td class="text-center">
                                             {% if incident_severity == "Critical" %}
                                             <span class="badge text-bg-danger fixed-width-badge-incident-severity">Critical</span>
                                             {% elif incident_severity == "Priority" %}
@@ -378,7 +378,7 @@
                             {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, checkbox_progress in payload.workplans_data %}
                                 {% if payload.bike_data['bike_id'] in payload.planned_workplans["bike_workplans"] and workplan_id in payload.planned_workplans["bike_workplans"][payload.bike_data['bike_id']]["workplan_ids"] %}
                                     <tr>
-                                        <td>
+                                        <td class="text-center">
                                             <div>
                                                 {% if workplan_size == "Large" %}
                                                     <span class="badge color-workplan-size-large fixed-width-badge-workplan-size">Large</span>

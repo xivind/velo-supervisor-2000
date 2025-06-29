@@ -6,6 +6,7 @@ import asyncio
 import uuid
 import time
 import sys
+import re
 from datetime import datetime
 
 def get_formatted_datetime_now():
@@ -244,3 +245,18 @@ def generate_workplan_title(affected_component_names, affected_bike_name, workpl
     title = " - ".join(title_parts) if title_parts else "No workplan metadata"
 
     return title[:60] + "..." if len(title) > 80 else title
+
+def parse_checkbox_progress(description):
+    """Parse checkbox progress from markdown description"""
+    if not description:
+        return None
+
+    total_checkboxes = len(re.findall(r'- \[[x ]\]', description))
+    checked_checkboxes = len(re.findall(r'- \[x\]', description))
+    
+    if total_checkboxes > 0:
+        return {'total': total_checkboxes,
+                'checked': checked_checkboxes,
+                'percentage': round((checked_checkboxes / total_checkboxes) * 100)}
+
+    return None
