@@ -273,3 +273,77 @@ th[data-sort].sorted-desc .sort-indicator::after {
 .workplan-preview-mode ol {
     margin-bottom: 0.5rem;
 }
+
+/* Checkbox progress indicator - donut style */
+.checkbox-progress-container {
+    display: flex;                    /* Use flex instead of inline-flex */
+    justify-content: center;          /* Center the donut+text */
+    align-items: center;
+    font-size: 0.8rem;
+    color: #495057;
+    margin-top: 4px;
+    width: 100%;                      /* Take full width of the cell */
+}
+
+.checkbox-progress-donut {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    position: relative;
+    margin-right: 6px;
+    background: conic-gradient(
+        #0d6efd 0deg,
+        #0d6efd calc(var(--progress) * 3.6deg),
+        #dee2e6 calc(var(--progress) * 3.6deg),
+        #dee2e6 360deg
+    );
+    mask: radial-gradient(circle at center, transparent 7px, black 7px);
+    -webkit-mask: radial-gradient(circle at center, transparent 7px, black 7px);
+    flex-shrink: 0;
+}
+
+.checkbox-progress-donut.complete {
+    background: #198754;
+}
+
+.checkbox-progress-donut.complete::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.checkbox-progress-text {
+    font-weight: 600;
+    white-space: nowrap;
+    color: #495057;
+    line-height: 1;
+}
+
+.checkbox-progress-text.complete {
+    color: #198754;
+}
+
+/* Hover effects for better visibility of donut progress indicators */
+tr:hover .checkbox-progress-donut {
+    background: conic-gradient(
+        #0d6efd 0deg,
+        #0d6efd calc(var(--progress) * 3.6deg),
+        #adb5bd calc(var(--progress) * 3.6deg),
+        #adb5bd 360deg
+    );
+}
+
+tr:hover .checkbox-progress-text {
+    color: #212529;
+}
+
+tr:hover .checkbox-progress-text.complete {
+    color: #198754;
+}
+
+

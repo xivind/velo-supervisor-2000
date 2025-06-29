@@ -361,21 +361,17 @@
                         {% if workplan_affected_component_ids and payload.bike_component_data['component_id'] in workplan_affected_component_ids %}
                             <tr>
                                 <td>
-                                    {% if workplan_size == "Large" %}
-                                        <span class="badge color-workplan-size-large fixed-width-badge-workplan-size">Large</span>
-                                    {% elif workplan_size == "Medium" %}
-                                        <span class="badge color-workplan-size-medium fixed-width-badge-workplan-size">Medium</span>
-                                    {% elif workplan_size == "Small" %}
-                                        <span class="badge color-workplan-size-small fixed-width-badge-workplan-size">Small</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {{ due_date.split(' ')[0] if due_date else "-" }}
-                                </td>
-                                <td>
-                                    {{ workplan_title }}
+                                    <div>
+                                        {% if workplan_size == "Large" %}
+                                            <span class="badge color-workplan-size-large fixed-width-badge-workplan-size">Large</span>
+                                        {% elif workplan_size == "Medium" %}
+                                            <span class="badge color-workplan-size-medium fixed-width-badge-workplan-size">Medium</span>
+                                        {% elif workplan_size == "Small" %}
+                                            <span class="badge color-workplan-size-small fixed-width-badge-workplan-size">Small</span>
+                                        {% endif %}
+                                    </div>
                                     {% if checkbox_progress %}
-                                        <span class="checkbox-progress-container">
+                                        <div class="checkbox-progress-container">
                                             <span class="checkbox-progress-donut {% if checkbox_progress.percentage == 100 %}complete{% endif %}" 
                                                 style="--progress: {{ checkbox_progress.percentage }}"
                                                 title="Task progress: {{ checkbox_progress.checked }} of {{ checkbox_progress.total }} completed">
@@ -383,8 +379,14 @@
                                             <span class="checkbox-progress-text {% if checkbox_progress.percentage == 100 %}complete{% endif %}">
                                                 {{ checkbox_progress.checked }}/{{ checkbox_progress.total }}
                                             </span>
-                                        </span>
+                                        </div>
                                     {% endif %}
+                                </td>
+                                <td>
+                                    {{ due_date.split(' ')[0] if due_date else "-" }}
+                                </td>
+                                <td>
+                                    {{ workplan_title }}
                                 </td>
                                 <td class="text-center">
                                     {% if elapsed_days <= 0 %}
