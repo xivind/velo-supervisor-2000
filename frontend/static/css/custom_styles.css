@@ -252,3 +252,24 @@ th[data-sort].sorted-desc .sort-indicator::after {
 .toggle-container-right {
     padding-right: 15px; 
 }
+
+/* Styling for markdown preview */
+.workplan-preview-mode {
+    min-height: 100px;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+}
+
+.workplan-preview-mode h1,
+.workplan-preview-mode h2,
+.workplan-preview-mode h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.workplan-preview-mode ul,
+.workplan-preview-mode ol {
+    margin-bottom: 0.5rem;
+}
