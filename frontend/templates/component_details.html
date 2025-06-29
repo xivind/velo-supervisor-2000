@@ -357,7 +357,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title in payload.workplans_data %}
+                    {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, checkbox_progress in payload.workplans_data %}
                         {% if workplan_affected_component_ids and payload.bike_component_data['component_id'] in workplan_affected_component_ids %}
                             <tr>
                                 <td>
@@ -374,6 +374,17 @@
                                 </td>
                                 <td>
                                     {{ workplan_title }}
+                                    {% if checkbox_progress %}
+                                        <span class="checkbox-progress-container">
+                                            <span class="checkbox-progress-donut {% if checkbox_progress.percentage == 100 %}complete{% endif %}" 
+                                                style="--progress: {{ checkbox_progress.percentage }}"
+                                                title="Task progress: {{ checkbox_progress.checked }} of {{ checkbox_progress.total }} completed">
+                                            </span>
+                                            <span class="checkbox-progress-text {% if checkbox_progress.percentage == 100 %}complete{% endif %}">
+                                                {{ checkbox_progress.checked }}/{{ checkbox_progress.total }}
+                                            </span>
+                                        </span>
+                                    {% endif %}
                                 </td>
                                 <td class="text-center">
                                     {% if elapsed_days <= 0 %}
