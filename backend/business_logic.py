@@ -17,7 +17,8 @@ from utils import (read_config,
                    get_formatted_bikes_list,
                    parse_json_string,
                    generate_incident_title,
-                   generate_workplan_title)
+                   generate_workplan_title,
+                   parse_checkbox_progress)
 from strava import Strava
 from database_manager import DatabaseManager
 
@@ -165,7 +166,8 @@ class BusinessLogic():
                                                   else get_formatted_datetime_now())[1],
                            generate_workplan_title(database_manager.read_component_names(workplan.workplan_affected_component_ids),
                                                    database_manager.read_bike_name(workplan.workplan_affected_bike_id),
-                                                   workplan.workplan_description)) for workplan in database_manager.read_planned_workplans()]
+                                                   workplan.workplan_description),
+                           parse_checkbox_progress(workplan.workplan_description)) for workplan in database_manager.read_planned_workplans()]
         
         payload = {"recent_rides": recent_rides_data,
                    "bikes_data": bikes_data,
@@ -391,7 +393,8 @@ class BusinessLogic():
                                                   else get_formatted_datetime_now())[1],
                            generate_workplan_title(database_manager.read_component_names(workplan.workplan_affected_component_ids),
                                                    database_manager.read_bike_name(workplan.workplan_affected_bike_id),
-                                                   workplan.workplan_description)) for workplan in database_manager.read_planned_workplans()]
+                                                   workplan.workplan_description),
+                           parse_checkbox_progress(workplan.workplan_description)) for workplan in database_manager.read_planned_workplans()]
         
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
@@ -503,7 +506,8 @@ class BusinessLogic():
                            workplan.completion_notes,
                            calculate_elapsed_days(workplan.due_date,
                                                   workplan.completion_date if workplan.completion_date
-                                                  else get_formatted_datetime_now())[1]) for workplan in database_manager.read_all_workplans()]
+                                                  else get_formatted_datetime_now())[1],
+                           parse_checkbox_progress(workplan.workplan_description)) for workplan in database_manager.read_all_workplans()]
 
         payload = {"all_components_data": all_components_data,
                    "bikes_data": bikes_data,

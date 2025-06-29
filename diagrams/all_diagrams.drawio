@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-08-05T21:12:38.838Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" etag="Qwyxf5wKjkP1fU9-vL_3" version="24.5.2" type="github" pages="7">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="27.1.5" pages="7">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="System overview">
-    <mxGraphModel dx="1434" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
+    <mxGraphModel dx="1232" dy="691" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -299,7 +299,7 @@
     </mxGraphModel>
   </diagram>
   <diagram name="Database structure" id="gaYTSJDpXmIPhpLEIALV">
-    <mxGraphModel dx="2715" dy="1493" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
+    <mxGraphModel dx="1426" dy="825" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -449,6 +449,84 @@
         </mxCell>
         <mxCell id="Wn1m2pAAf3Ti9aBIJ6Gy-2" value="Included in MVP - In progress" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="1389" y="78" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-5" value="incident" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="1359" y="330" width="220" height="199" as="geometry" />
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-6" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;incident_id&lt;/div&gt;&lt;div&gt;bike_id&lt;/div&gt;&lt;div&gt;component_id *&lt;/div&gt;&lt;div&gt;description&lt;/div&gt;&lt;div&gt;resolution_date&lt;/div&gt;&lt;div&gt;incident_date&lt;/div&gt;&lt;div&gt;resolution_notes&lt;/div&gt;&lt;div&gt;status&lt;/div&gt;" style="align=left;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;rounded=0;" parent="XHLBxEc2l3NqoZIF1t2Y-5" vertex="1">
+          <mxGeometry y="50" width="220" height="149" as="geometry" />
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-7" value="workplan" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="1359" y="600" width="220" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-8" value="&lt;div&gt;&lt;b&gt;Attributes:&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;workplan_id&lt;/div&gt;&lt;div&gt;status&lt;/div&gt;&lt;div&gt;size&lt;/div&gt;&lt;div&gt;task_service_id *&lt;/div&gt;&lt;div&gt;adressed_incident_id *&lt;/div&gt;&lt;div&gt;due_date&lt;/div&gt;&lt;div&gt;affected_bike&lt;/div&gt;&lt;div&gt;affected_component - not needed&lt;/div&gt;&lt;div&gt;description&lt;/div&gt;&lt;div&gt;completion_date&lt;/div&gt;&lt;div&gt;completion notes&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="align=left;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;rounded=0;" parent="XHLBxEc2l3NqoZIF1t2Y-7" vertex="1">
+          <mxGeometry y="50" width="220" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-9" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="XHLBxEc2l3NqoZIF1t2Y-8" target="OpilXaS1zRmoDV6CBxLi-35" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1050" y="611" as="sourcePoint" />
+            <mxPoint x="910" y="611" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-10" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rounded=0;" parent="XHLBxEc2l3NqoZIF1t2Y-9" vertex="1" connectable="0">
+          <mxGeometry x="-0.0246" y="1" relative="1" as="geometry">
+            <mxPoint y="-17" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-11" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="XHLBxEc2l3NqoZIF1t2Y-7" target="XHLBxEc2l3NqoZIF1t2Y-5" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1470" y="590" as="sourcePoint" />
+            <mxPoint x="1219" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-12" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rounded=0;" parent="XHLBxEc2l3NqoZIF1t2Y-11" vertex="1" connectable="0">
+          <mxGeometry x="-0.0246" y="1" relative="1" as="geometry">
+            <mxPoint x="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-13" value="Adresses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="XHLBxEc2l3NqoZIF1t2Y-11" vertex="1" connectable="0">
+          <mxGeometry x="-0.0754" y="-6" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-14" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;entryX=1;entryY=0.028;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;entryPerimeter=0;" parent="1" source="XHLBxEc2l3NqoZIF1t2Y-5" target="OpilXaS1zRmoDV6CBxLi-24" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1369" y="725" as="sourcePoint" />
+            <mxPoint x="1270" y="616" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="980" y="440" />
+              <mxPoint x="980" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-15" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rounded=0;" parent="XHLBxEc2l3NqoZIF1t2Y-14" vertex="1" connectable="0">
+          <mxGeometry x="-0.0246" y="1" relative="1" as="geometry">
+            <mxPoint y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-16" value="" style="fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" target="OpilXaS1zRmoDV6CBxLi-22" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1357" y="390" as="sourcePoint" />
+            <mxPoint x="910" y="560" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1357" y="390" />
+              <mxPoint x="845" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-17" value="Has" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rounded=0;" parent="XHLBxEc2l3NqoZIF1t2Y-16" vertex="1" connectable="0">
+          <mxGeometry x="-0.0246" y="1" relative="1" as="geometry">
+            <mxPoint y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XHLBxEc2l3NqoZIF1t2Y-20" value="En arbeidsplan bør inneholde en eller flere planlagte servicer. Når alle planlagte services er lukket kan planen lukkes, Det mangler en attributt i servies for status (planlagt, fullført, obsolete?).&amp;nbsp;&lt;div&gt;Affected component blir unødvendig hvis man konsenterer arbeidsplan om servicer man skal utføre på ulike komponenter.&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;" parent="1" vertex="1">
+          <mxGeometry x="1359" y="880" width="231" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ewvL-zoGniYFAgWxEYdV-1" value="" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;textShadow=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="175" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ewvL-zoGniYFAgWxEYdV-2" value="Draft for future use and enhancements" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1389" y="170" width="160" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

@@ -66,8 +66,25 @@
                     
                     <!-- Description row (full width) -->
                     <div class="col-12 mb-3">
-                        <label for="workplan_description" class="form-label fw-bold">Description</label>
-                        <textarea class="form-control" id="workplan_description" name="workplan_description" rows="3"></textarea>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label for="workplan_description" class="form-label fw-bold mb-0">
+                                Description
+                            </label>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="workplan_markdown_toggle"></button>
+                        </div>
+                        
+                        <!-- Edit Mode (default) -->
+                        <div id="workplan_edit_mode">
+                            <textarea class="form-control" id="workplan_description" name="workplan_description" rows="4"></textarea>
+                            <small class="form-text text-muted">Markdown syntax is supported: **bold**, *italic*, # headers, - [ ] checkboxes, etc.</small>
+                        </div>
+                        
+                        <!-- Preview Mode (hidden by default) -->
+                        <div id="workplan_preview_mode" class="border rounded p-3 workplan-preview-mode">
+                            <div id="workplan_preview_content">
+                                <!-- Preview content will be dynamically inserted here -->
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Resolution section with date and notes -->
