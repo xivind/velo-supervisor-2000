@@ -82,6 +82,128 @@ document.addEventListener('DOMContentLoaded', function() {
             }, true); // Use capturing phase to ensure this runs before other handlers
         }
     });
+
+    // Markdown toggle functionality for workplan descriptions
+    const workplanModal = document.getElementById('workplanRecordModal');
+    if (workplanModal) {
+        const toggleBtn = document.getElementById('workplan_markdown_toggle');
+        const editMode = document.getElementById('workplan_edit_mode');
+        const previewMode = document.getElementById('workplan_preview_mode');
+        const textarea = document.getElementById('workplan_description');
+        const previewContent = document.getElementById('workplan_preview_content');
+        
+        let isPreviewMode = false;
+        let md = null;
+        
+        if (toggleBtn && editMode && previewMode && textarea && previewContent) {
+            
+            // Initialize markdown-it with task lists
+            md = window.markdownit({
+                html: false,
+                breaks: true,
+                linkify: true
+            }).use(window.markdownitTaskLists, {
+                enabled: true,
+                lineNumber: true,
+                label: true
+            });
+            
+            function containsMarkdown(text) {
+                if (!text || !text.trim()) return false;
+                
+                // Check for common markdown patterns
+                return text.includes('**') || 
+                    text.includes('*') || 
+                    text.includes('#') || 
+                    text.includes('- [ ]') || 
+                    text.includes('- [x]') ||
+                    text.match(/^\s*-\s+/m) || // List items
+                    text.match(/^\s*\d+\.\s+/m); // Numbered lists
+            }
+            
+            function setInitialMode() {
+                const text = textarea.value;
+                
+                if (containsMarkdown(text)) {
+                    // Start in preview mode
+                    renderPreview();
+                    editMode.style.display = 'none';
+                    previewMode.style.display = 'block';
+                    toggleBtn.innerHTML = '✏️ Edit';
+                    isPreviewMode = true;
+                } else {
+                    // Start in edit mode
+                    editMode.style.display = 'block';
+                    previewMode.style.display = 'none';
+                    toggleBtn.innerHTML = '👁️ Preview';
+                    isPreviewMode = false;
+                    textarea.focus();
+                }
+            }
+            
+            function renderPreview() {
+                const markdownText = textarea.value.trim();
+                if (markdownText) {
+                    previewContent.innerHTML = md.render(markdownText);
+                    
+                    // Make checkboxes interactive
+                    const checkboxes = previewContent.querySelectorAll('input.task-list-item-checkbox');
+                    checkboxes.forEach((checkbox, index) => {
+                        checkbox.removeAttribute('disabled');
+                        checkbox.addEventListener('change', function() {
+                            updateCheckboxInText(index, this.checked);
+                        });
+                    });
+                } else {
+                    previewContent.innerHTML = '<em class="text-muted">No content to preview...</em>';
+                }
+            }
+            
+            function updateCheckboxInText(checkboxIndex, isChecked) {
+                const lines = textarea.value.split('\n');
+                let currentCheckboxIndex = 0;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].match(/^\s*-\s*\[([ x])\]/)) {
+                        if (currentCheckboxIndex === checkboxIndex) {
+                            if (isChecked) {
+                                lines[i] = lines[i].replace(/\[ \]/, '[x]');
+                            } else {
+                                lines[i] = lines[i].replace(/\[x\]/, '[ ]');
+                            }
+                            break;
+                        }
+                        currentCheckboxIndex++;
+                    }
+                }
+                
+                textarea.value = lines.join('\n');
+                renderPreview();
+            }
+            
+            // Set initial mode when modal is shown (after content is loaded)
+            workplanModal.addEventListener('shown.bs.modal', function() {
+                // Small delay to ensure content is populated
+                setTimeout(setInitialMode, 100);
+            });
+            
+            toggleBtn.addEventListener('click', function() {
+                if (!isPreviewMode) {
+                    renderPreview();
+                    editMode.style.display = 'none';
+                    previewMode.style.display = 'block';
+                    toggleBtn.innerHTML = '✏️ Edit';
+                    isPreviewMode = true;
+                } else {
+                    editMode.style.display = 'block';
+                    previewMode.style.display = 'none';
+                    toggleBtn.innerHTML = '👁️ Preview';
+                    isPreviewMode = false;
+                    textarea.focus();
+                }
+            });
+        }
+    }
 });
 
 // ===== Functions used on multiple pages =====
