@@ -111,14 +111,20 @@ document.addEventListener('DOMContentLoaded', function() {
             function containsMarkdown(text) {
                 if (!text || !text.trim()) return false;
                 
-                // Check for common markdown patterns
-                return text.includes('**') || 
-                    text.includes('*') || 
-                    text.includes('#') || 
-                    text.includes('- [ ]') || 
-                    text.includes('- [x]') ||
-                    text.match(/^\s*-\s+/m) || // List items
-                    text.match(/^\s*\d+\.\s+/m); // Numbered lists
+                const patterns = [
+                    /\*\*.*\*\*/,           // Bold
+                    /\*.*\*/,               // Italic  
+                    /^#+\s/m,               // Headers
+                    /- \[[x ]\]/,           // Checkboxes
+                    /^\s*[-*+]\s/m,         // Lists
+                    /^\s*\d+\.\s/m,         // Numbered lists
+                    /`.*`/,                 // Inline code
+                    /```[\s\S]*```/,        // Code blocks
+                    /\[.*\]\(.*\)/,         // Links
+                    /^\|.*\|/m              // Tables
+                ];
+                
+                return patterns.some(pattern => pattern.test(text));
             }
             
             function setInitialMode() {
@@ -129,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     renderPreview();
                     editMode.style.display = 'none';
                     previewMode.style.display = 'block';
-                    toggleBtn.innerHTML = '✏️ Edit';
+                    toggleBtn.innerHTML = '✏️ Edit description';
                     isPreviewMode = true;
                 } else {
                     // Start in edit mode
@@ -192,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     renderPreview();
                     editMode.style.display = 'none';
                     previewMode.style.display = 'block';
-                    toggleBtn.innerHTML = '✏️ Edit';
+                    toggleBtn.innerHTML = '✏️ Edit description';
                     isPreviewMode = true;
                 } else {
                     editMode.style.display = 'block';
