@@ -150,6 +150,29 @@ def create_workplans_table(cursor):
         print("Table 'workplans' already exists. Skipping creation.")
         return False
 
+def create_collections_table(cursor):
+    """Creates the collections table if it doesn't exist."""
+    print("Checking for the 'collections' table...")
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='collections'")
+    if not cursor.fetchone():
+        print("Table 'collections' not found. Creating it now...")
+        cursor.execute("""
+            CREATE TABLE collections (
+                collection_id TEXT PRIMARY KEY UNIQUE,
+                collection_name TEXT,
+                components TEXT,
+                bike_id TEXT,
+                sub_collections TEXT,
+                updated_date TEXT,
+                comment TEXT,
+            )
+        """)
+        print("Table 'collections' created successfully.")
+        return True
+    else:
+        print("Table 'collections' already exists. Skipping creation.")
+        return False
+
 def check_component_types_columns(cursor):
     """Check if the component_types table needs migration"""
     cursor.execute("PRAGMA table_info(component_types)")
@@ -267,6 +290,11 @@ def migrate_database():
         # Create the 'workplans' table if it doesn't exist
         workplans_created = create_workplans_table(cursor)
         if workplans_created:
+            migrations_performed += 1
+
+        # Create the 'collections' table if it doesn't exist
+        collections_created = create_collections_table(cursor)
+        if collections_created:
             migrations_performed += 1
         
         # Migrate component_types table if needed
