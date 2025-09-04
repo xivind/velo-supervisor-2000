@@ -256,7 +256,7 @@ th[data-sort].sorted-desc .sort-indicator::after {
 /* Styling for markdown preview */
 .workplan-preview-mode {
     min-height: 100px;
-    background-color: #f8f9fa;
+    background-color: #fcfdff;
     border: 1px solid #ced4da;
     border-radius: 0.25rem;
     padding: 0.75rem;
@@ -272,6 +272,26 @@ th[data-sort].sorted-desc .sort-indicator::after {
 .workplan-preview-mode ul,
 .workplan-preview-mode ol {
     margin-bottom: 0.5rem;
+}
+
+/* Task list styling - hide bullet points for checkboxes */
+.workplan-preview-mode ul.task-list {
+    list-style: none;
+    padding-left: 1rem;
+}
+
+.workplan-preview-mode li.task-list-item {
+    list-style: none;
+    margin: 0.25rem 0;
+}
+
+.workplan-preview-mode li.task-list-item::marker {
+    content: none;
+}
+
+.workplan-preview-mode input.task-list-item-checkbox {
+    margin-right: 0.5rem;
+    margin-left: 0;
 }
 
 /* Checkbox progress indicator - donut style */
