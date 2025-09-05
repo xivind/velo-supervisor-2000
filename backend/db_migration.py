@@ -164,7 +164,7 @@ def create_collections_table(cursor):
                 bike_id TEXT,
                 sub_collections TEXT,
                 updated_date TEXT,
-                comment TEXT,
+                comment TEXT
             )
         """)
         print("Table 'collections' created successfully.")
