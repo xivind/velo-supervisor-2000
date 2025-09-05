@@ -14,10 +14,14 @@
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
     <span>🚨 New incident</span>
 </button>
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#collectionModal">
+    <span>📦 New collection</span>
+</button>
 
 {% include "modal_create_component.html" %}
 {% include "modal_incident_record.html" %}
 {% include "modal_workplan_record.html" %}
+{% include "modal_collection.html" %}
 
 <hr/>
 <div class="card shadow mb-4">
@@ -51,6 +55,63 @@
             <div class="col"><span>🟣 Service int. exceeded: {{ payload.count_service_status_purple }}</span></div>
             <div class="col"><span>⚪ Service int. not defined: {{ payload.count_service_status_grey }}</span></div>
         </div>  
+    </div>
+</div>
+<hr/>
+<div class="card shadow mb-3">
+    <div class="card-header fw-bold">Collections</div>
+    <div class="card-body">
+        <div class="input-group mb-3">
+            <span class="input-group-text">🔍</span>
+            <input type="text" class="form-control" id="collectionsSearchInput" placeholder="Search collections..." aria-label="Search collections">
+        </div>
+        <table class="table table-hover" id="collectionsTable">
+            <thead>
+                <tr>
+                    <th data-sort="name">Collection Name <span class="sort-indicator"></span></th>
+                    <th data-sort="components">Component Count <span class="sort-indicator"></span></th>
+                    <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
+                    <th data-sort="updated">Last Updated <span class="sort-indicator"></span></th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if payload.all_collections_data %}
+                    {% for collection_id, collection_name, component_count, bike_name, last_updated, components, bike_id, comment in payload.all_collections_data %}
+                        <tr>
+                            <td>
+                                <span class="fw-bold">📦 {{ collection_name }}</span>
+                                {% if comment %}
+                                    <br><small class="text-muted">{{ comment }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ component_count }} components</td>
+                            <td>{{ bike_name if bike_name else "Not assigned" }}</td>
+                            <td>{{ last_updated }}</td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-outline-primary btn-sm me-1 edit-collection-btn"
+                                    data-collection-id="{{ collection_id }}"
+                                    data-collection-name="{{ collection_name }}"
+                                    data-components="{{ components }}"
+                                    data-bike-id="{{ bike_id }}"
+                                    data-comment="{{ comment }}">
+                                    ✏️ Edit
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-collection" 
+                                    data-collection-id="{{ collection_id }}"
+                                    data-collection-name="{{ collection_name }}">
+                                    🗑
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">No collections created yet</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
     </div>
 </div>
 <hr/>
@@ -100,7 +161,7 @@
                 {% if payload.all_components_data %}
                     {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.all_components_data %}
                         <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
-                            <td>{{ name }}{% if component_id in payload.planned_workplans["component_workplans"] %} 📝{% endif %}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}</td>
+                            <td>{{ name }}{% if component_id in payload.planned_workplans["component_workplans"] %} 📝{% endif %}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}{% if component_id in payload.component_collections %} 📦{% endif %}</td>
                             <td>{{ type }}</td>
                             <td>{{ component_distance }} km</td>
                             <td>

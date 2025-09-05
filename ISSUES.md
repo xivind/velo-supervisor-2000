@@ -1,7 +1,7 @@
 # ISSUES CURRENTLY IN PROGRESS
 This file (ISSUES.md) must be read on startup. This file contains information on what we are currently working on. Claude Code should ensure that this file is up to date, as the work progress.
 
-**Current Status**: Phase 1 database work completed (commit 64626d7). Next: Phase 1 database manager methods.  
+**Current Status**: Collections feature implementation completed but needs cleanup and proper integration. Working on Phase 7: Code cleanup and convention compliance.  
 
 # Component Collections Feature Specification
 
@@ -124,31 +124,48 @@ CREATE TABLE collections (
 6. ⏸️ Update component deletion validation (prevent deletion of components in collections)
 7. ⏸️ Update component retirement validation (handle components in collections)
 
-**Status**: Phase 1 complete. Ready for Phase 2 modal implementation.
+### Phase 2: Collection Management Modal ✅
+1. ✅ Create collection management modal with full CRUD functionality
+2. ✅ Implement component selection using existing patterns
+3. ✅ Add frontend validation for mixed statuses
+4. ✅ Integrate with existing toast notification system
 
-### Phase 2: Collection Management Modal
-1. Create collection management modal with full CRUD functionality
-2. Implement component selection using existing patterns
-3. Add frontend validation for mixed statuses
-4. Integrate with existing toast notification system
+### Phase 3: Table Integration ✅
+1. ✅ Add collections tables to component overview page
+2. ✅ Add collections tables to bike details page (bike-filtered)
+3. ✅ Integrate modal invocation from table actions
 
-### Phase 3: Table Integration  
-1. Add collections tables to component overview page
-2. Add collections tables to bike details page (bike-filtered)
-3. Integrate modal invocation from table actions
+### Phase 4: Status Change Operations ✅
+1. ✅ Extend existing status change logic to handle collections
+2. ✅ Implement bulk status change validation
+3. ✅ Add status change functionality to collection modal
+4. ✅ Handle partial success scenarios gracefully
 
-### Phase 4: Status Change Operations
-1. Extend existing status change logic to handle collections
-2. Implement bulk status change validation
-3. Add status change functionality to collection modal
-4. Handle partial success scenarios gracefully
+### Phase 5: Visual Integration ✅
+1. ✅ Add collection icons to component tables
+2. ⏸️ Add "Edit Collection" button to component details page
+3. ✅ Ensure consistent visual design across all integration points
 
-### Phase 5: Visual Integration
-1. Add collection icons to component tables
-2. Add "Edit Collection" button to component details page
-3. Ensure consistent visual design across all integration points
+### Phase 6: Backend API Implementation ✅
+1. ✅ Add backend API endpoints for collections
+2. ✅ Implement business logic methods for collections
+3. ✅ Integrate with existing history record system
 
-### Phase 6: Advanced Features (Future)
+### Phase 7: Code Cleanup and Convention Compliance 🚧
+1. 🔲 Review and fix main.py endpoints to follow app conventions
+2. 🔲 Ensure endpoints are placed in correct location in main.py
+3. 🔲 Ensure business logic methods are placed correctly in business_logic.py
+4. 🔲 Update business logic methods to follow app conventions (remove default parameters)
+5. 🔲 Update component overview legend with collection icon
+6. 🔲 Add collection management to component details page
+7. 🔲 Add collections table to component details page (filtered by component)
+8. 🔲 Organize JavaScript code in correct location in main.js
+9. 🔲 Ensure JavaScript reuses existing patterns (dates, validation)
+10. 🔲 Test complete Collections feature end-to-end
+
+**Status**: Core functionality implemented. Working on code cleanup and proper integration.
+
+### Phase 8: Advanced Features (Future)
 1. Collection templates and duplication
 2. Nested collections (using `sub_collections` field)
 3. Collection-based reporting and analytics

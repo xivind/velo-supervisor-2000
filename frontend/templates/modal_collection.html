@@ -1,0 +1,103 @@
+<div class="modal fade" id="collectionModal" tabindex="-1" aria-labelledby="collectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="collectionModalLabel">Collection</h5><!-- Title set with JS -->
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="collection_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
+                    <!-- Hidden fields -->
+                    <input type="hidden" id="collection_id" name="collection_id"> <!-- Should be set automatically, and is required -->
+                    <input type="hidden" class="datepicker-input" id="collection_updated_date" name="collection_updated_date" required>
+                    
+                    <!-- First row: Collection name and bike assignment -->
+                    <div class="col-md-6 mb-3">
+                        <label for="collection_name" class="form-label fw-bold">Collection name</label>
+                        <input type="text" class="form-control" id="collection_name" name="collection_name" required>
+                        <small class="form-text text-muted">Give your collection a descriptive name (e.g., "Front Wheel", "Drivetrain")</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="collection_bike_id" class="form-label fw-bold">Assigned bike</label>
+                        <select class="form-select" id="collection_bike_id" name="collection_bike_id">
+                            <option value="" {% if not duplicate_data or not duplicate_data.bike_id %}selected{% endif %}>Not assigned to bike</option>
+                            {% for bike_name, bike_id in payload.bikes_data %}
+                                <option value="{{ bike_id }}" 
+                                    {% if duplicate_data and bike_id == duplicate_data.bike_id %}selected{% endif %}>
+                                    {{ bike_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Required if collection contains installed components</small>
+                    </div>
+                    
+                    <!-- Component selection row -->
+                    <div class="col-12 mb-3">
+                        <label for="collection_component_ids" class="form-label fw-bold">Components</label>
+                        <select class="form-select" id="collection_component_ids" name="collection_component_ids" multiple placeholder="Search to add components...">
+                            {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
+                                <option value="{{ component_id }}" data-status="{{ status }}" data-bike="{{ bike }}">
+                                    {{ name }} ({{ type }}) - {{ bike }}{% if status == "Retired" %} (Retired){% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Select components to group together. Each component can only belong to one collection.</small>
+                    </div>
+                    
+                    <!-- Mixed status warning (initially hidden) -->
+                    <div class="col-12 mb-3" id="mixed_status_warning" style="display: none;">
+                        <div class="alert alert-warning" role="alert">
+                            <strong>⚠️ Mixed Component Statuses:</strong> This collection contains components with different installation statuses. 
+                            Bulk status changes will not be available until all components have the same status.
+                        </div>
+                    </div>
+                    
+                    <!-- Description row (full width) -->
+                    <div class="col-12 mb-3">
+                        <label for="collection_comment" class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="collection_comment" name="collection_comment" rows="3" placeholder="Optional description or notes about this collection..."></textarea>
+                    </div>
+                    
+                    <!-- Bulk status change section (initially hidden) -->
+                    <div class="col-12 mb-3" id="bulk_status_section" style="display: none;">
+                        <hr>
+                        <h6 class="fw-bold">Bulk Status Change</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="new_status" class="form-label">Change all components to:</label>
+                                <select class="form-select" id="new_status" name="new_status">
+                                    <option value="">Select new status...</option>
+                                    <option value="Installed">Installed</option>
+                                    <option value="Not installed">Not installed</option>
+                                    <option value="Retired">Retired</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div>
+                                    <button type="button" class="btn btn-outline-primary" id="apply_status_change">
+                                        Apply Status Change
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">This will change the status of all components in this collection.</small>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="text-end">
+                            <small class="text-muted">
+                                🔑 <strong>Collection id:</strong> 
+                                <span id="collection-id-display">Not created yet</span>
+                            </small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="collection_form">Save Collection</button>
+            </div>
+        </div>
+    </div>
+</div>

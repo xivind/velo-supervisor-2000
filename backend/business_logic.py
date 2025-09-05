@@ -1507,56 +1507,6 @@ class BusinessLogic():
         logging.info(f"Validation of service record for {component.component_name} passed")
         return True, f"Validation of service record for {component.component_name} passed"
     
-    def validate_collection(self, mode, collection_id, component_ids, bike_id=None, new_status=None):
-        """Method to validate collection records before processing and storing in database"""
-        logging.info(f"Running validation rules for collection: {collection_id}")
-        
-        if mode == "edit collection":
-            current_collection = database_manager.read_single_collection(collection_id)
-            if not current_collection:
-                logging.warning(f"Collection not found: {collection_id}")
-                return False, f"Collection not found: {collection_id}"
-        
-        if component_ids:
-            installed_components = []
-            for component_id in component_ids:
-                component = database_manager.read_component(component_id)
-                if not component:
-                    logging.warning(f"Component not found: {component_id}")
-                    return False, f"Component not found: {component_id}"
-                
-                existing_collection = database_manager.read_collection_by_component(component_id)
-                if existing_collection and existing_collection.collection_id != collection_id:
-                    logging.warning(f"Component {component.component_name} already belongs to collection {existing_collection.collection_name}")
-                    return False, f"Component {component.component_name} already belongs to collection {existing_collection.collection_name}"
-                
-                if component.installation_status == "Installed":
-                    installed_components.append(component)
-            
-            if installed_components and not bike_id:
-                logging.warning(f"Collections with installed components must be assigned to a bike")
-                return False, f"Collections with installed components must be assigned to a bike"
-        
-        if bike_id:
-            bike = database_manager.read_single_bike(bike_id)
-            if not bike:
-                logging.warning(f"Bike not found: {bike_id}")
-                return False, f"Bike not found: {bike_id}"
-        
-        if new_status and component_ids:
-            current_statuses = set()
-            for component_id in component_ids:
-                component = database_manager.read_component(component_id)
-                if component:
-                    current_statuses.add(component.installation_status)
-            
-            if len(current_statuses) > 1:
-                logging.warning(f"Collection has mixed component statuses, cannot perform bulk status change")
-                return False, f"Collection has mixed component statuses, cannot perform bulk status change"
-        
-        logging.info(f"Validation of collection {collection_id} passed")
-        return True, f"Validation of collection {collection_id} passed"
-    
     def process_service_records(self, component_id, service_id, service_date, service_description):
         """Method to calculate distance and bike id for service records"""
         component = database_manager.read_component(component_id)
@@ -1683,6 +1633,56 @@ class BusinessLogic():
 
         return True, "All service records successfully processed"
 
+    def validate_collection(self, mode, collection_id, component_ids, bike_id=None, new_status=None):
+        """Method to validate collection records before processing and storing in database"""
+        logging.info(f"Running validation rules for collection: {collection_id}")
+        
+        if mode == "edit collection":
+            current_collection = database_manager.read_single_collection(collection_id)
+            if not current_collection:
+                logging.warning(f"Collection not found: {collection_id}")
+                return False, f"Collection not found: {collection_id}"
+        
+        if component_ids:
+            installed_components = []
+            for component_id in component_ids:
+                component = database_manager.read_component(component_id)
+                if not component:
+                    logging.warning(f"Component not found: {component_id}")
+                    return False, f"Component not found: {component_id}"
+                
+                existing_collection = database_manager.read_collection_by_component(component_id)
+                if existing_collection and existing_collection.collection_id != collection_id:
+                    logging.warning(f"Component {component.component_name} already belongs to collection {existing_collection.collection_name}")
+                    return False, f"Component {component.component_name} already belongs to collection {existing_collection.collection_name}"
+                
+                if component.installation_status == "Installed":
+                    installed_components.append(component)
+            
+            if installed_components and not bike_id:
+                logging.warning(f"Collections with installed components must be assigned to a bike")
+                return False, f"Collections with installed components must be assigned to a bike"
+        
+        if bike_id:
+            bike = database_manager.read_single_bike(bike_id)
+            if not bike:
+                logging.warning(f"Bike not found: {bike_id}")
+                return False, f"Bike not found: {bike_id}"
+        
+        if new_status and component_ids:
+            current_statuses = set()
+            for component_id in component_ids:
+                component = database_manager.read_component(component_id)
+                if component:
+                    current_statuses.add(component.installation_status)
+            
+            if len(current_statuses) > 1:
+                logging.warning(f"Collection has mixed component statuses, cannot perform bulk status change")
+                return False, f"Collection has mixed component statuses, cannot perform bulk status change"
+        
+        logging.info(f"Validation of collection {collection_id} passed")
+        return True, f"Validation of collection {collection_id} passed"
+    
     def compute_component_status(self, mode, reached_distance_percent):
         """Method to compute service status"""        
         if mode == "service":
@@ -2100,3 +2100,115 @@ class BusinessLogic():
         else:
             self.app_state.strava_last_pull = "never"
             self.app_state.strava_days_since_last_pull = None
+
+    def add_collection(self,
+                      collection_name,
+                      collection_component_ids,
+                      collection_bike_id,
+                      collection_comment,
+                      collection_updated_date):
+        """Method to add collection"""
+        try:
+            collection_id = generate_unique_id()
+
+            collection_bike_id = collection_bike_id if collection_bike_id else None
+            collection_comment = collection_comment if collection_comment else None
+
+            collection_data = {"collection_id": collection_id,
+                             "collection_name": collection_name,
+                             "collection_component_ids": json.dumps(collection_component_ids) if collection_component_ids else None,
+                             "collection_bike_id": collection_bike_id,
+                             "collection_comment": collection_comment,
+                             "collection_updated_date": collection_updated_date}
+            
+            success, message = database_manager.write_collection(collection_data)
+
+            if success:
+                logging.info(f"Creation of collection successful: {message}")
+            else:
+                logging.error(f"Creation of collection failed: {message}")
+
+            return success, message
+
+        except Exception as error:
+            logging.error(f"Error creating collection with id {collection_id}: {str(error)}")
+            return False, f"Error creating collection with id {collection_id}: {str(error)}"
+        
+    def update_collection(self,
+                         collection_id,
+                         collection_name,
+                         collection_component_ids,
+                         collection_bike_id,
+                         collection_comment,
+                         collection_updated_date):
+        """Method to update collection"""
+        try:
+            collection_bike_id = collection_bike_id if collection_bike_id else None
+            collection_comment = collection_comment if collection_comment else None
+
+            collection_data = {"collection_id": collection_id,
+                             "collection_name": collection_name,
+                             "collection_component_ids": json.dumps(collection_component_ids) if collection_component_ids else None,
+                             "collection_bike_id": collection_bike_id,
+                             "collection_comment": collection_comment,
+                             "collection_updated_date": collection_updated_date}
+            
+            success, message = database_manager.write_collection(collection_data)
+
+            if success:
+                logging.info(f"Update of collection successful: {message}")
+            else:
+                logging.error(f"Update of collection failed: {message}")
+
+            return success, message
+
+        except Exception as error:
+            logging.error(f"Error updating collection with id {collection_id}: {str(error)}")
+            return False, f"Error updating collection with id {collection_id}: {str(error)}"
+
+    def change_collection_status(self, collection_id, new_status, updated_date):
+        """Method to change status of all components in a collection"""
+        try:
+            # Get collection data
+            collection = database_manager.read_single_collection(collection_id)
+            if not collection:
+                return False, f"Collection {collection_id} not found"
+
+            # Parse component IDs from JSON
+            component_ids = json.loads(collection.collection_component_ids) if collection.collection_component_ids else []
+            
+            if not component_ids:
+                return False, "No components found in collection"
+
+            # Process each component in the collection
+            success_count = 0
+            for component_id in component_ids:
+                # Use existing create_history_record flow for status changes
+                success, message = self.create_history_record(
+                    component_id=component_id,
+                    installation_status=new_status,
+                    component_bike_id=collection.collection_bike_id,
+                    component_updated_date=updated_date
+                )
+                
+                if success:
+                    success_count += 1
+                else:
+                    logging.error(f"Failed to update component {component_id}: {message}")
+
+            if success_count == len(component_ids):
+                message = f"Successfully updated status for all {success_count} components in collection"
+                logging.info(message)
+                return True, message
+            elif success_count > 0:
+                message = f"Updated {success_count} of {len(component_ids)} components in collection"
+                logging.warning(message)
+                return True, message
+            else:
+                message = f"Failed to update any components in collection"
+                logging.error(message)
+                return False, message
+
+        except Exception as error:
+            logging.error(f"Error changing collection status for {collection_id}: {str(error)}")
+            return False, f"Error changing collection status for {collection_id}: {str(error)}"

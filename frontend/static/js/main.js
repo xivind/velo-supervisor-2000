@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'workplanRecordModal',
         'incidentRecordModal', 
         'serviceRecordModal',
-        'editHistoryModal'
+        'editHistoryModal',
+        'collectionModal'
     ];
     
     removeBackdropModals.forEach(modalId => {
@@ -3489,3 +3490,323 @@ window.addEventListener('load', () => {
         timeElement.textContent = 'Timing unavailable';
     }
 });
+
+// ===== Collections page functions =====
+
+// Function to initialize collection features
+(function() {
+    // Only run this code if the collection modal is present
+    if (!document.getElementById('collectionModal')) {
+        return;
+    }
+    
+    // Local variables
+    let pendingComponentData = null;
+    let isNewCollection = false;
+    let originalCollectionOptions = null;
+    
+    // Initialize when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        const collectionModal = document.getElementById('collectionModal');
+        if (collectionModal) {
+            // Setup modal shown event
+            collectionModal.addEventListener('shown.bs.modal', function() {
+                // Initialize date picker (this will auto-set current date for empty inputs)
+                initializeDatePickers(collectionModal);
+                
+                // If it's a new collection, we need special handling
+                if (isNewCollection) {
+                    initializeComponentSelector(null);
+                    
+                    if (pendingComponentData) {
+                        setTimeout(() => {
+                            setSelectedComponents(pendingComponentData);
+                        }, 100);
+                    }
+                }
+                
+                // Set up component validation
+                setupComponentValidation();
+            });
+
+            // Setup modal hidden event
+            collectionModal.addEventListener('hidden.bs.modal', function() {
+                // Reset flags
+                isNewCollection = false;
+                pendingComponentData = null;
+                
+                // Hide warning sections
+                document.getElementById('mixed_status_warning').style.display = 'none';
+                document.getElementById('bulk_status_section').style.display = 'none';
+            });
+        }
+        
+        // Setup edit collection buttons
+        document.querySelectorAll('.edit-collection-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                isNewCollection = false;
+                
+                // Configure modal for editing
+                document.getElementById('collectionModalLabel').textContent = 'Edit collection';
+                document.getElementById('collection_form').action = '/update_collection';
+                
+                // Get data from the button
+                const collectionId = this.dataset.collectionId;
+                const collectionName = this.dataset.collectionName;
+                const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
+                const bikeId = this.dataset.bikeId || '';
+                const comment = this.dataset.comment || '';
+                
+                // Populate form fields
+                document.getElementById('collection_id').value = collectionId;
+                document.getElementById('collection_name').value = collectionName;
+                document.getElementById('collection_bike_id').value = bikeId;
+                document.getElementById('collection_comment').value = comment;
+                
+                // Update ID display
+                document.getElementById('collection-id-display').textContent = collectionId;
+                
+                // Initialize component selector and set selected components
+                initializeComponentSelector();
+                setTimeout(() => {
+                    if (components && components.length > 0) {
+                        setSelectedComponents(components);
+                    }
+                    setupComponentValidation();
+                }, 100);
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+                modal.show();
+            });
+        });
+        
+        // Setup new collection button
+        document.querySelectorAll('[data-bs-target="#collectionModal"]').forEach(button => {
+            button.addEventListener('click', function() {
+                // Flag as new collection
+                isNewCollection = true;
+                pendingComponentData = null;
+                
+                // Reset the form
+                document.getElementById('collectionModalLabel').textContent = 'New collection';
+                document.getElementById('collection_form').action = '/add_collection';
+                document.getElementById('collection_form').reset();
+                document.getElementById('collection_id').value = '';
+                
+                // Reset ID display to placeholder text
+                document.getElementById('collection-id-display').textContent = 'Not created yet';
+                
+                // Clear TomSelect if it's already initialized
+                const componentSelect = document.getElementById('collection_component_ids');
+                if (componentSelect.tomSelect || componentSelect.tomselect) {
+                    const ts = componentSelect.tomSelect || componentSelect.tomselect;
+                    ts.clear();
+                }
+                
+                // Hide warning sections
+                document.getElementById('mixed_status_warning').style.display = 'none';
+                document.getElementById('bulk_status_section').style.display = 'none';
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+                modal.show();
+            });
+        });
+    });
+    
+    // Initialize the component selector with delayed data loading
+    function initializeComponentSelector(pendingData) {
+        const componentSelect = document.getElementById('collection_component_ids');
+        if (!componentSelect) return;
+        
+        // Only initialize if not already done
+        if (componentSelect.tomSelect || componentSelect.tomselect) {
+            return;
+        }
+        
+        new TomSelect(componentSelect, {
+            plugins: ['remove_button'],
+            placeholder: 'Search and select components...',
+            searchField: ['text'],
+            labelField: 'text',
+            valueField: 'value',
+            options: Array.from(componentSelect.options).map(option => ({
+                value: option.value,
+                text: option.textContent,
+                status: option.dataset.status,
+                bike: option.dataset.bike
+            })),
+            render: {
+                option: function(data, escape) {
+                    const statusBadge = data.status === 'Installed' ? 
+                        '<span class="badge bg-success ms-2">Installed</span>' :
+                        data.status === 'Retired' ?
+                        '<span class="badge bg-secondary ms-2">Retired</span>' :
+                        '<span class="badge bg-warning text-dark ms-2">Not installed</span>';
+                    
+                    return '<div>' + escape(data.text) + statusBadge + '</div>';
+                },
+                item: function(data, escape) {
+                    return '<div>' + escape(data.text) + '</div>';
+                }
+            },
+            onChange: function(values) {
+                // Trigger validation when components change
+                setTimeout(setupComponentValidation, 50);
+            }
+        });
+    }
+    
+    // Set selected components in the TomSelect
+    function setSelectedComponents(componentIds) {
+        const componentSelect = document.getElementById('collection_component_ids');
+        if (!componentSelect) return;
+        
+        const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
+        if (tomSelect && componentIds) {
+            tomSelect.setValue(componentIds);
+        }
+    }
+    
+    // Setup component validation and status checking
+    function setupComponentValidation() {
+        const componentSelect = document.getElementById('collection_component_ids');
+        const bikeSelect = document.getElementById('collection_bike_id');
+        const mixedStatusWarning = document.getElementById('mixed_status_warning');
+        const bulkStatusSection = document.getElementById('bulk_status_section');
+        
+        if (!componentSelect) return;
+        
+        const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
+        if (!tomSelect) return;
+        
+        const selectedValues = tomSelect.getValue();
+        if (!selectedValues || selectedValues.length === 0) {
+            mixedStatusWarning.style.display = 'none';
+            bulkStatusSection.style.display = 'none';
+            return;
+        }
+        
+        // Get status information for selected components
+        const selectedOptions = selectedValues.map(value => {
+            const option = componentSelect.querySelector(`option[value="${value}"]`);
+            return {
+                id: value,
+                status: option ? option.dataset.status : null,
+                bike: option ? option.dataset.bike : null
+            };
+        });
+        
+        // Check for mixed statuses
+        const statuses = [...new Set(selectedOptions.map(opt => opt.status))];
+        const hasMixedStatuses = statuses.length > 1;
+        
+        // Check for installed components
+        const hasInstalledComponents = selectedOptions.some(opt => opt.status === 'Installed');
+        
+        // Show/hide mixed status warning
+        if (hasMixedStatuses) {
+            mixedStatusWarning.style.display = 'block';
+            bulkStatusSection.style.display = 'none';
+        } else {
+            mixedStatusWarning.style.display = 'none';
+            bulkStatusSection.style.display = 'block';
+        }
+        
+        // Validate bike assignment for installed components
+        if (hasInstalledComponents && !bikeSelect.value) {
+            bikeSelect.classList.add('is-invalid');
+            if (!bikeSelect.nextElementSibling || !bikeSelect.nextElementSibling.classList.contains('invalid-feedback')) {
+                const feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                feedback.textContent = 'Required when collection contains installed components';
+                bikeSelect.parentNode.appendChild(feedback);
+            }
+        } else {
+            bikeSelect.classList.remove('is-invalid');
+            const feedback = bikeSelect.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.remove();
+            }
+        }
+    }
+    
+    // Setup bulk status change functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const applyStatusBtn = document.getElementById('apply_status_change');
+        if (applyStatusBtn) {
+            applyStatusBtn.addEventListener('click', function() {
+                const newStatus = document.getElementById('new_status').value;
+                const collectionId = document.getElementById('collection_id').value;
+                
+                if (!newStatus || !collectionId) {
+                    showToast('Please select a new status and ensure the collection is saved first.', 'warning');
+                    return;
+                }
+                
+                // Show confirmation
+                showConfirmModal(
+                    'Change Component Status',
+                    `Are you sure you want to change the status of all components in this collection to "${newStatus}"?`,
+                    function() {
+                        // Perform bulk status change
+                        performBulkStatusChange(collectionId, newStatus);
+                    }
+                );
+            });
+        }
+    });
+    
+    // Perform bulk status change via API
+    function performBulkStatusChange(collectionId, newStatus) {
+        showLoadingModal('Updating component statuses...');
+        
+        fetch('/change_collection_status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                collection_id: collectionId,
+                new_status: newStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoadingModal();
+            
+            if (data.success) {
+                showToast(data.message, 'success');
+                
+                // Close modal and refresh page
+                const modal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
+                modal.hide();
+                
+                // Refresh page after short delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                showToast(data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            hideLoadingModal();
+            console.error('Error:', error);
+            showToast('An error occurred while updating component statuses.', 'danger');
+        });
+    }
+    
+    // Setup bike select change handler
+    document.addEventListener('DOMContentLoaded', function() {
+        const bikeSelect = document.getElementById('collection_bike_id');
+        if (bikeSelect) {
+            bikeSelect.addEventListener('change', setupComponentValidation);
+        }
+    });
+    
+})();
