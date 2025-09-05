@@ -1507,6 +1507,56 @@ class BusinessLogic():
         logging.info(f"Validation of service record for {component.component_name} passed")
         return True, f"Validation of service record for {component.component_name} passed"
     
+    def validate_collection(self, mode, collection_id, component_ids, bike_id=None, new_status=None):
+        """Method to validate collection records before processing and storing in database"""
+        logging.info(f"Running validation rules for collection: {collection_id}")
+        
+        if mode == "edit collection":
+            current_collection = database_manager.read_single_collection(collection_id)
+            if not current_collection:
+                logging.warning(f"Collection not found: {collection_id}")
+                return False, f"Collection not found: {collection_id}"
+        
+        if component_ids:
+            installed_components = []
+            for component_id in component_ids:
+                component = database_manager.read_component(component_id)
+                if not component:
+                    logging.warning(f"Component not found: {component_id}")
+                    return False, f"Component not found: {component_id}"
+                
+                existing_collection = database_manager.read_collection_by_component(component_id)
+                if existing_collection and existing_collection.collection_id != collection_id:
+                    logging.warning(f"Component {component.component_name} already belongs to collection {existing_collection.collection_name}")
+                    return False, f"Component {component.component_name} already belongs to collection {existing_collection.collection_name}"
+                
+                if component.installation_status == "Installed":
+                    installed_components.append(component)
+            
+            if installed_components and not bike_id:
+                logging.warning(f"Collections with installed components must be assigned to a bike")
+                return False, f"Collections with installed components must be assigned to a bike"
+        
+        if bike_id:
+            bike = database_manager.read_single_bike(bike_id)
+            if not bike:
+                logging.warning(f"Bike not found: {bike_id}")
+                return False, f"Bike not found: {bike_id}"
+        
+        if new_status and component_ids:
+            current_statuses = set()
+            for component_id in component_ids:
+                component = database_manager.read_component(component_id)
+                if component:
+                    current_statuses.add(component.installation_status)
+            
+            if len(current_statuses) > 1:
+                logging.warning(f"Collection has mixed component statuses, cannot perform bulk status change")
+                return False, f"Collection has mixed component statuses, cannot perform bulk status change"
+        
+        logging.info(f"Validation of collection {collection_id} passed")
+        return True, f"Validation of collection {collection_id} passed"
+    
     def process_service_records(self, component_id, service_id, service_date, service_description):
         """Method to calculate distance and bike id for service records"""
         component = database_manager.read_component(component_id)

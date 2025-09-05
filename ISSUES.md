@@ -75,6 +75,9 @@ CREATE TABLE collections (
 1. **Dual validation**: Frontend modal validation + backend business logic enforcement
 2. **Clear user feedback**: Toast notifications for errors, persistent modal warnings for mixed statuses
 3. **Graceful degradation**: Mixed status collections show warnings but remain functional for individual component operations
+4. **Frontend validation**: Collection name validation handled in JavaScript modal (empty name prevention)
+5. **Backend validation**: Focus on data integrity (component existence, unique membership)
+6. **Bike assignment rule**: Collections with installed components must be assigned to a bike (validate in both frontend and backend)
 
 ## UI/UX Design
 
@@ -115,10 +118,13 @@ CREATE TABLE collections (
 ### Phase 1: Database and Core CRUD ✅
 1. ✅ Add `Collections` table to `database_model.py` (commit 64626d7)
 2. ✅ Add Collections table creation to `db_migration.py` (commit 64626d7)
-3. 🔄 Create database manager methods (create, read, update, delete collections)
-4. 🔄 Add basic business logic validation methods
+3. ✅ Create database manager methods (create, read, update collections)
+4. ✅ Add basic business logic validation methods
+5. ⏸️ Collection delete functionality (deferred - need to handle component cleanup)
+6. ⏸️ Update component deletion validation (prevent deletion of components in collections)
+7. ⏸️ Update component retirement validation (handle components in collections)
 
-**Status**: Database schema complete. Ready for database manager implementation.
+**Status**: Phase 1 complete. Ready for Phase 2 modal implementation.
 
 ### Phase 2: Collection Management Modal
 1. Create collection management modal with full CRUD functionality

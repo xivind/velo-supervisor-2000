@@ -11,7 +11,8 @@ from database_model import (database,
                             ComponentHistory,
                             Services,
                             Incidents,
-                            Workplans)
+                            Workplans,
+                            Collections)
 from utils import (format_component_status,
                    format_cost)
 
@@ -243,6 +244,33 @@ class DatabaseManager:
                 .order_by(Services.service_date.asc())
                 .first())
 
+    def read_single_collection(self, collection_id):
+        """Method to retrieve record for a specific collection"""
+        return (Collections
+                .get_or_none(Collections.collection_id == collection_id))
+
+    def read_all_collections(self):
+        """Method to read all collections"""
+        return Collections.select()
+
+    def read_collections_by_bike(self, bike_id):
+        """Method to read collections for a specific bike"""
+        return (Collections
+                .select()
+                .where(Collections.bike_id == bike_id))
+
+    def read_collection_by_component(self, component_id):
+        """Method to find collection containing a specific component"""
+        all_collections = Collections.select()
+        
+        for collection in all_collections:
+            if collection.components:
+                component_ids = json.loads(collection.components)
+                if component_id in component_ids:
+                    return collection
+        
+        return None
+    
     def read_single_incident_report(self, incident_id):
         """Method to retrieve record for a specific incident report"""
         return (Incidents
@@ -431,6 +459,24 @@ class DatabaseManager:
         except peewee.OperationalError as error:
             return False, f"History record database error for {history_data['component_name']}: {str(error)}"
 
+    def write_collection(self, collection_data):
+        """Method to create or update collection record in database"""
+        try:
+            with self.database.atomic():
+                existing_collection = Collections.get_or_none(Collections.collection_id == collection_data['collection_id'])
+                
+                if existing_collection:
+                    Collections.update(**collection_data).where(
+                        Collections.collection_id == collection_data['collection_id']
+                    ).execute()
+                    return True, f"Updated collection {collection_data['collection_name']}"
+                else:
+                    Collections.create(**collection_data)
+                    return True, f"Created collection {collection_data['collection_name']}"
+
+        except peewee.OperationalError as error:
+            return False, f"Collection database error for {collection_data['collection_name']}: {str(error)}"
+    
     def write_incident_record(self, incident_data):
         """Method to create or update incident record in database"""
         try:
