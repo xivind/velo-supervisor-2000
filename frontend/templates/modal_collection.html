@@ -9,7 +9,6 @@
                 <form id="collection_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
                     <!-- Hidden fields -->
                     <input type="hidden" id="collection_id" name="collection_id"> <!-- Should be set automatically, and is required -->
-                    <input type="hidden" class="datepicker-input" id="collection_updated_date" name="collection_updated_date" required>
                     
                     <!-- First row: Collection name and bike assignment -->
                     <div class="col-md-6 mb-3">
@@ -63,7 +62,7 @@
                         <hr>
                         <h6 class="fw-bold">Bulk Status Change</h6>
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label for="new_status" class="form-label">Change all components to:</label>
                                 <select class="form-select" id="new_status" name="new_status">
                                     <option value="">Select new status...</option>
@@ -72,7 +71,14 @@
                                     <option value="Retired">Retired</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label for="updated_date" class="form-label">Status change date</label>
+                                <div class="input-group date-input-group">
+                                    <input type="text" class="form-control datepicker-input" id="updated_date" name="updated_date">
+                                    <span class="input-group-text datepicker-toggle">🗓</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">&nbsp;</label>
                                 <div>
                                     <button type="button" class="btn btn-outline-primary" id="apply_status_change">

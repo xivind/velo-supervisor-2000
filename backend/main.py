@@ -49,7 +49,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
-    asyncio.create_task(business_logic.pull_strava_background("recent"))
+    # asyncio.create_task(business_logic.pull_strava_background("recent"))
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
@@ -292,14 +292,14 @@ async def add_collection(collection_name: str = Form(...),
                         collection_component_ids: Optional[List[str]] = Form(None),
                         collection_bike_id: Optional[str] = Form(None),
                         collection_comment: Optional[str] = Form(None),
-                        collection_updated_date: str = Form(...)):
+                        updated_date: Optional[str] = Form(None)):
     """Endpoint to add new collection"""
 
     success, message = business_logic.add_collection(collection_name,
                                                    collection_component_ids,
                                                    collection_bike_id,
                                                    collection_comment,
-                                                   collection_updated_date)
+                                                   updated_date)
     
     response = RedirectResponse(
         url=f"/component_overview?success={success}&message={message}",
@@ -313,7 +313,7 @@ async def update_collection(collection_id: str = Form(...),
                            collection_component_ids: Optional[List[str]] = Form(None),
                            collection_bike_id: Optional[str] = Form(None),
                            collection_comment: Optional[str] = Form(None),
-                           collection_updated_date: str = Form(...)):
+                           updated_date: Optional[str] = Form(None)):
     """Endpoint to update existing collection"""
 
     success, message = business_logic.update_collection(collection_id,
@@ -321,7 +321,7 @@ async def update_collection(collection_id: str = Form(...),
                                                        collection_component_ids,
                                                        collection_bike_id,
                                                        collection_comment,
-                                                       collection_updated_date)
+                                                       updated_date)
     
     response = RedirectResponse(
         url=f"/component_overview?success={success}&message={message}",

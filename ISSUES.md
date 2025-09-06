@@ -1,7 +1,7 @@
 # ISSUES CURRENTLY IN PROGRESS
 This file (ISSUES.md) must be read on startup. This file contains information on what we are currently working on. Claude Code should ensure that this file is up to date, as the work progress.
 
-**Current Status**: Collections feature implementation completed but needs cleanup and proper integration. Working on Phase 7: Code cleanup and convention compliance.  
+**Current Status**: Collections feature has significant gaps in implementation. Core modal and API endpoints exist, but key functionality is missing. Working on completing Phase 2-6 before Phase 7 cleanup.  
 
 # Component Collections Feature Specification
 
@@ -124,11 +124,13 @@ CREATE TABLE collections (
 6. ⏸️ Update component deletion validation (prevent deletion of components in collections)
 7. ⏸️ Update component retirement validation (handle components in collections)
 
-### Phase 2: Collection Management Modal ✅
+### Phase 2: Collection Management Modal 🚧
 1. ✅ Create collection management modal with full CRUD functionality
 2. ✅ Implement component selection using existing patterns
 3. ✅ Add frontend validation for mixed statuses
 4. ✅ Integrate with existing toast notification system
+5. 🔲 **MISSING**: Collection deletion functionality (JavaScript handler and API endpoint)
+6. 🔲 **MISSING**: Proper error handling in JavaScript functions
 
 ### Phase 3: Table Integration ✅
 1. ✅ Add collections tables to component overview page
@@ -141,15 +143,20 @@ CREATE TABLE collections (
 3. ✅ Add status change functionality to collection modal
 4. ✅ Handle partial success scenarios gracefully
 
-### Phase 5: Visual Integration ✅
+### Phase 5: Visual Integration 🚧
 1. ✅ Add collection icons to component tables
-2. ⏸️ Add "Edit Collection" button to component details page
-3. ✅ Ensure consistent visual design across all integration points
+2. 🔲 **MISSING**: Add "Edit Collection" button to component details page (references #editCollectionModal which doesn't exist)
+3. 🔲 **MISSING**: Collections table on component details page
+4. 🔲 **MISSING**: Collection management functionality on component details page
+5. ✅ Ensure consistent visual design across all integration points
 
-### Phase 6: Backend API Implementation ✅
-1. ✅ Add backend API endpoints for collections
-2. ✅ Implement business logic methods for collections
-3. ✅ Integrate with existing history record system
+### Phase 6: Backend API Implementation 🚧
+1. ✅ Add backend API endpoints for collections (add, update, change_status)
+2. 🔲 **MISSING**: Collection deletion API endpoint (/delete_collection)
+3. 🔲 **MISSING**: Collection read API endpoint for component details page
+4. ✅ Implement business logic methods for collections
+5. 🔲 **MISSING**: Collection deletion business logic method
+6. ✅ Integrate with existing history record system
 
 ### Phase 7: Code Cleanup and Convention Compliance 🚧
 1. 🔲 Review and fix main.py endpoints to follow app conventions
@@ -163,7 +170,38 @@ CREATE TABLE collections (
 9. 🔲 Ensure JavaScript reuses existing patterns (dates, validation)
 10. 🔲 Test complete Collections feature end-to-end
 
-**Status**: Core functionality implemented. Working on code cleanup and proper integration.
+**Status**: Core functionality partially implemented. Several key features missing before cleanup phase can begin.
+
+## Recent Updates - Collections Modal Date Field Consolidation ✅
+
+Successfully consolidated to single `updated_date` field throughout the entire system:
+- ✅ Removed duplicate `collection_updated_date` hidden field
+- ✅ Renamed `status_change_date` to `updated_date` in modal, JavaScript, and backend
+- ✅ Updated templates to consistently use `updated_date` instead of `last_updated`
+- ✅ Made field conditional - required only for status changes, optional for collection CRUD
+- ✅ Field now properly tracks last status change date, not general collection updates
+
+### Pending Tasks for Collections Modal:
+1. 🔲 **Testing Required**: These changes have not yet been tested end-to-end
+2. 🔲 **UI Enhancement**: Bulk status change section should show current component status (display on same line as "Bulk Status Changes" heading, aligned to the right)
+3. 🔲 **Content Review**: Review field titles and supporting texts for clarity and consistency
+4. 🔲 **UI Cleanup**: Remove the horizontal ruler (hr) from the bulk status change section
+
+## Critical Missing Functionality:
+
+### Component Details Page Integration
+- Component details page references `#editCollectionModal` which doesn't exist
+- No collections table or management functionality on component details page
+- Missing API endpoint to get collection data for a specific component
+
+### Collection Deletion
+- Delete buttons exist in tables but no JavaScript handlers
+- No `/delete_collection` API endpoint
+- No business logic method for collection deletion
+
+### Error Handling and Validation
+- JavaScript functions lack proper error handling
+- Missing validation for edge cases in collection management
 
 ### Phase 8: Advanced Features (Future)
 1. Collection templates and duplication

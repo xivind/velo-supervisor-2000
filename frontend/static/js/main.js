@@ -3537,7 +3537,6 @@ window.addEventListener('load', () => {
                 
                 // Hide warning sections
                 document.getElementById('mixed_status_warning').style.display = 'none';
-                document.getElementById('bulk_status_section').style.display = 'none';
             });
         }
         
@@ -3559,12 +3558,14 @@ window.addEventListener('load', () => {
                 const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
                 const bikeId = this.dataset.bikeId || '';
                 const comment = this.dataset.comment || '';
+                const updatedDate = this.dataset.updatedDate || '';
                 
                 // Populate form fields
                 document.getElementById('collection_id').value = collectionId;
                 document.getElementById('collection_name').value = collectionName;
                 document.getElementById('collection_bike_id').value = bikeId;
                 document.getElementById('collection_comment').value = comment;
+                document.getElementById('updated_date').value = updatedDate;
                 
                 // Update ID display
                 document.getElementById('collection-id-display').textContent = collectionId;
@@ -3609,7 +3610,6 @@ window.addEventListener('load', () => {
                 
                 // Hide warning sections
                 document.getElementById('mixed_status_warning').style.display = 'none';
-                document.getElementById('bulk_status_section').style.display = 'none';
                 
                 // Show the modal
                 const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
@@ -3687,7 +3687,7 @@ window.addEventListener('load', () => {
         const selectedValues = tomSelect.getValue();
         if (!selectedValues || selectedValues.length === 0) {
             mixedStatusWarning.style.display = 'none';
-            bulkStatusSection.style.display = 'none';
+            bulkStatusSection.style.display = 'block';
             return;
         }
         
@@ -3711,11 +3711,12 @@ window.addEventListener('load', () => {
         // Show/hide mixed status warning
         if (hasMixedStatuses) {
             mixedStatusWarning.style.display = 'block';
-            bulkStatusSection.style.display = 'none';
         } else {
             mixedStatusWarning.style.display = 'none';
-            bulkStatusSection.style.display = 'block';
         }
+        
+        // Always show bulk status section
+        bulkStatusSection.style.display = 'block';
         
         // Validate bike assignment for installed components
         if (hasInstalledComponents && !bikeSelect.value) {
@@ -3742,9 +3743,15 @@ window.addEventListener('load', () => {
             applyStatusBtn.addEventListener('click', function() {
                 const newStatus = document.getElementById('new_status').value;
                 const collectionId = document.getElementById('collection_id').value;
+                const updatedDate = document.getElementById('updated_date').value;
                 
                 if (!newStatus || !collectionId) {
                     showToast('Please select a new status and ensure the collection is saved first.', 'warning');
+                    return;
+                }
+                
+                if (!updatedDate) {
+                    showToast('Please select a status change date.', 'warning');
                     return;
                 }
                 
@@ -3754,7 +3761,7 @@ window.addEventListener('load', () => {
                     `Are you sure you want to change the status of all components in this collection to "${newStatus}"?`,
                     function() {
                         // Perform bulk status change
-                        performBulkStatusChange(collectionId, newStatus);
+                        performBulkStatusChange(collectionId, newStatus, updatedDate);
                     }
                 );
             });
@@ -3762,7 +3769,7 @@ window.addEventListener('load', () => {
     });
     
     // Perform bulk status change via API
-    function performBulkStatusChange(collectionId, newStatus) {
+    function performBulkStatusChange(collectionId, newStatus, updatedDate) {
         showLoadingModal('Updating component statuses...');
         
         fetch('/change_collection_status', {
@@ -3772,7 +3779,8 @@ window.addEventListener('load', () => {
             },
             body: new URLSearchParams({
                 collection_id: collectionId,
-                new_status: newStatus
+                new_status: newStatus,
+                updated_date: updatedDate
             })
         })
         .then(response => response.json())
