@@ -181,11 +181,31 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 - ✅ Made field conditional - required only for status changes, optional for collection CRUD
 - ✅ Field now properly tracks last status change date, not general collection updates
 
-### Pending Tasks for Collections Modal:
-1. 🔲 **Testing Required**: These changes have not yet been tested end-to-end
-2. 🔲 **UI Enhancement**: Bulk status change section should show current component status (display on same line as "Bulk Status Changes" heading, aligned to the right)
-3. 🔲 **Content Review**: Review field titles and supporting texts for clarity and consistency
-4. 🔲 **UI Cleanup**: Remove the horizontal ruler (hr) from the bulk status change section
+### Completed Tasks for Collections Modal:
+1. ✅ **UI Enhancement**: Current status indicator with icons (⚡💤⛔) displayed below "New Status" field
+2. ✅ **Content Review**: Reviewed and improved field titles and supporting texts for clarity and consistency
+3. ✅ **UI Cleanup**: Optimized spacing, removed redundant elements, cleaner visual hierarchy
+4. ✅ **Field Name Alignment**: Fixed all field name mismatches between modal, API, business logic, and database model
+5. ✅ **TomSelect Integration**: Fixed dropdown initialization and behavior to match incidents/workplans pattern
+6. ✅ **Component Filtering**: Added filtering of retired components from dropdown selection
+7. ✅ **Computed Bike Assignment**: Implemented automatic bike field computation based on selected components
+8. ✅ **Advanced Business Rules**: Added validation preventing mixed installation statuses and mixed bike assignments
+9. ✅ **Smart Status Dropdown**: Dynamic dropdown that excludes current status and adapts to validation state
+10. ✅ **Integrated Validation System**: Unified frontend and backend validation with clear error messaging
+11. ✅ **Enhanced User Experience**: Real-time status computation with "Unable to compute" states for invalid selections
+
+### Recently Completed - Major Collections Feature Enhancements:
+- ✅ **Backend validation integration**: Both `add_collection` and `update_collection` now call enhanced validation methods
+- ✅ **Business rule enforcement**: Cannot mix installed/not-installed components or components from different bikes
+- ✅ **Dynamic UI feedback**: "Unable to compute bike" and "Unable to compute status" messaging for invalid selections
+- ✅ **Streamlined interface**: Removed redundant status displays, optimized modal spacing
+- ✅ **Context-aware controls**: Status dropdown shows only valid transitions, disabled for invalid states
+
+### Collections Feature Ready for Production Testing
+
+## Outstanding Collections Tasks:
+1. 🔲 **Add "Last updated" indicator**: Add last updated timestamp and corresponding logic under the Updated date field
+2. 🔲 **Retirement status handling**: Explore what happens when user tries to change status to "Retired", since retired components are filtered out from the component selection dropdown
 
 ## Critical Missing Functionality:
 

@@ -14,65 +14,53 @@
                     <div class="col-md-6 mb-3">
                         <label for="collection_name" class="form-label fw-bold">Collection name</label>
                         <input type="text" class="form-control" id="collection_name" name="collection_name" required>
-                        <small class="form-text text-muted">Give your collection a descriptive name (e.g., "Front Wheel", "Drivetrain")</small>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="collection_bike_id" class="form-label fw-bold">Assigned bike</label>
-                        <select class="form-select" id="collection_bike_id" name="collection_bike_id">
-                            <option value="" {% if not duplicate_data or not duplicate_data.bike_id %}selected{% endif %}>Not assigned to bike</option>
-                            {% for bike_name, bike_id in payload.bikes_data %}
-                                <option value="{{ bike_id }}" 
-                                    {% if duplicate_data and bike_id == duplicate_data.bike_id %}selected{% endif %}>
-                                    {{ bike_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                        <small class="form-text text-muted">Required if collection contains installed components</small>
+                        <label for="bike_id" class="form-label fw-bold">Bike assignment</label>
+                        <input type="hidden" id="bike_id" name="bike_id">
+                        <div class="form-control bg-light" id="bike_display">Not assigned</div>
+                        <small class="form-text text-muted">Computed based on collection components</small>
                     </div>
                     
-                    <!-- Component selection row -->
-                    <div class="col-12 mb-3">
-                        <label for="collection_component_ids" class="form-label fw-bold">Components</label>
-                        <select class="form-select" id="collection_component_ids" name="collection_component_ids" multiple placeholder="Search to add components...">
+                    <!-- Component selection and description row -->
+                    <div class="col-md-6 mb-3">
+                        <label for="components" class="form-label fw-bold">Components</label>
+                        <select class="form-select" id="components" name="components" multiple placeholder="Search to add components to collection...">
                             {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
                                 <option value="{{ component_id }}" data-status="{{ status }}" data-bike="{{ bike }}">
-                                    {{ name }} ({{ type }}) - {{ bike }}{% if status == "Retired" %} (Retired){% endif %}
+                                    {{ name }} ({{ type }}){% if status == "Installed" %} - {{ bike }}{% else %} - Not assigned{% endif %}
                                 </option>
                             {% endfor %}
                         </select>
-                        <small class="form-text text-muted">Select components to group together. Each component can only belong to one collection.</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="comment" class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
                     </div>
                     
-                    <!-- Mixed status warning (initially hidden) -->
-                    <div class="col-12 mb-3" id="mixed_status_warning" style="display: none;">
-                        <div class="alert alert-warning" role="alert">
-                            <strong>⚠️ Mixed Component Statuses:</strong> This collection contains components with different installation statuses. 
-                            Bulk status changes will not be available until all components have the same status.
+                    <!-- Dynamic validation warning (populated by JavaScript) -->
+                    <div class="col-12" id="mixed_status_warning" style="display: none;">
+                        <div class="alert alert-warning mb-2" role="alert">
+                            <!-- Content dynamically populated by JavaScript -->
                         </div>
                     </div>
-                    
-                    <!-- Description row (full width) -->
-                    <div class="col-12 mb-3">
-                        <label for="collection_comment" class="form-label fw-bold">Description</label>
-                        <textarea class="form-control" id="collection_comment" name="collection_comment" rows="3" placeholder="Optional description or notes about this collection..."></textarea>
-                    </div>
-                    
-                    <!-- Bulk status change section (initially hidden) -->
                     <div class="col-12 mb-3" id="bulk_status_section" style="display: none;">
                         <hr>
-                        <h6 class="fw-bold">Bulk Status Change</h6>
+                        <div class="mb-2">
+                            <!-- Simplified header - status now shown below New Status field -->
+                        </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="new_status" class="form-label">Change all components to:</label>
+                                <label for="new_status" class="form-label fw-bold">New status</label>
                                 <select class="form-select" id="new_status" name="new_status">
-                                    <option value="">Select new status...</option>
-                                    <option value="Installed">Installed</option>
-                                    <option value="Not installed">Not installed</option>
-                                    <option value="Retired">Retired</option>
+                                    <!-- Options populated dynamically by JavaScript -->
                                 </select>
+                                <small class="form-text text-muted">
+                                    <strong>Current status:</strong> <span id="current_installation_status"></span>
+                                </small>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="updated_date" class="form-label">Status change date</label>
+                                <label for="updated_date" class="form-label fw-bold">Updated date</label>
                                 <div class="input-group date-input-group">
                                     <input type="text" class="form-control datepicker-input" id="updated_date" name="updated_date">
                                     <span class="input-group-text datepicker-toggle">🗓</span>
@@ -82,14 +70,12 @@
                                 <label class="form-label">&nbsp;</label>
                                 <div>
                                     <button type="button" class="btn btn-outline-primary" id="apply_status_change">
-                                        Apply Status Change
+                                        Set new status 
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <small class="form-text text-muted">This will change the status of all components in this collection.</small>
                     </div>
-                    
                     <div class="col-12">
                         <div class="text-end">
                             <small class="text-muted">

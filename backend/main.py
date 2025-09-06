@@ -289,16 +289,16 @@ async def update_service_record(component_id: str = Form(...),
 
 @app.post("/add_collection", response_class=HTMLResponse)
 async def add_collection(collection_name: str = Form(...),
-                        collection_component_ids: Optional[List[str]] = Form(None),
-                        collection_bike_id: Optional[str] = Form(None),
-                        collection_comment: Optional[str] = Form(None),
+                        components: Optional[List[str]] = Form(None),
+                        bike_id: Optional[str] = Form(None),
+                        comment: Optional[str] = Form(None),
                         updated_date: Optional[str] = Form(None)):
     """Endpoint to add new collection"""
 
     success, message = business_logic.add_collection(collection_name,
-                                                   collection_component_ids,
-                                                   collection_bike_id,
-                                                   collection_comment,
+                                                   components,
+                                                   bike_id,
+                                                   comment,
                                                    updated_date)
     
     response = RedirectResponse(
@@ -310,17 +310,17 @@ async def add_collection(collection_name: str = Form(...),
 @app.post("/update_collection", response_class=HTMLResponse)
 async def update_collection(collection_id: str = Form(...),
                            collection_name: str = Form(...),
-                           collection_component_ids: Optional[List[str]] = Form(None),
-                           collection_bike_id: Optional[str] = Form(None),
-                           collection_comment: Optional[str] = Form(None),
+                           components: Optional[List[str]] = Form(None),
+                           bike_id: Optional[str] = Form(None),
+                           comment: Optional[str] = Form(None),
                            updated_date: Optional[str] = Form(None)):
     """Endpoint to update existing collection"""
 
     success, message = business_logic.update_collection(collection_id,
                                                        collection_name,
-                                                       collection_component_ids,
-                                                       collection_bike_id,
-                                                       collection_comment,
+                                                       components,
+                                                       bike_id,
+                                                       comment,
                                                        updated_date)
     
     response = RedirectResponse(

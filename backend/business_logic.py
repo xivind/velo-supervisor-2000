@@ -1645,6 +1645,9 @@ class BusinessLogic():
         
         if component_ids:
             installed_components = []
+            not_installed_components = []
+            component_bikes = set()
+            
             for component_id in component_ids:
                 component = database_manager.read_component(component_id)
                 if not component:
@@ -1658,7 +1661,23 @@ class BusinessLogic():
                 
                 if component.installation_status == "Installed":
                     installed_components.append(component)
+                    if component.bike_id:
+                        component_bikes.add(component.bike_id)
+                elif component.installation_status == "Not installed":
+                    not_installed_components.append(component)
             
+            # New business rule: Cannot mix installed and not-installed components
+            if installed_components and not_installed_components:
+                logging.warning(f"Cannot create collection with both installed and not-installed components")
+                return False, f"Cannot create collection with both installed and not-installed components"
+            
+            # New business rule: All installed components must be on the same bike
+            if installed_components and len(component_bikes) > 1:
+                bike_names = [database_manager.read_single_bike(bike_id).bike_name for bike_id in component_bikes if database_manager.read_single_bike(bike_id)]
+                logging.warning(f"All installed components in a collection must be on the same bike. Found components on: {', '.join(bike_names)}")
+                return False, f"All installed components must be on the same bike. Found components on: {', '.join(bike_names)}"
+            
+            # Existing rule: Collections with installed components must be assigned to a bike
             if installed_components and not bike_id:
                 logging.warning(f"Collections with installed components must be assigned to a bike")
                 return False, f"Collections with installed components must be assigned to a bike"
@@ -2103,23 +2122,29 @@ class BusinessLogic():
 
     def add_collection(self,
                       collection_name,
-                      collection_component_ids,
-                      collection_bike_id,
-                      collection_comment,
-                      collection_updated_date):
+                      components,
+                      bike_id,
+                      comment,
+                      updated_date):
         """Method to add collection"""
         try:
             collection_id = generate_unique_id()
 
-            collection_bike_id = collection_bike_id if collection_bike_id else None
-            collection_comment = collection_comment if collection_comment else None
+            # Validate collection before creating
+            is_valid, validation_message = self.validate_collection("add collection", collection_id, components, bike_id)
+            if not is_valid:
+                return False, validation_message
+
+            bike_id = bike_id if bike_id else None
+            comment = comment if comment else None
 
             collection_data = {"collection_id": collection_id,
                              "collection_name": collection_name,
-                             "collection_component_ids": json.dumps(collection_component_ids) if collection_component_ids else None,
-                             "collection_bike_id": collection_bike_id,
-                             "collection_comment": collection_comment,
-                             "collection_updated_date": collection_updated_date}
+                             "components": json.dumps(components) if components else "[]",
+                             "bike_id": bike_id,
+                             "comment": comment,
+                             "sub_collections": "[]",
+                             "updated_date": updated_date}
             
             success, message = database_manager.write_collection(collection_data)
 
@@ -2137,21 +2162,27 @@ class BusinessLogic():
     def update_collection(self,
                          collection_id,
                          collection_name,
-                         collection_component_ids,
-                         collection_bike_id,
-                         collection_comment,
-                         collection_updated_date):
+                         components,
+                         bike_id,
+                         comment,
+                         updated_date):
         """Method to update collection"""
         try:
-            collection_bike_id = collection_bike_id if collection_bike_id else None
-            collection_comment = collection_comment if collection_comment else None
+            # Validate collection before updating
+            is_valid, validation_message = self.validate_collection("edit collection", collection_id, components, bike_id)
+            if not is_valid:
+                return False, validation_message
+
+            bike_id = bike_id if bike_id else None
+            comment = comment if comment else None
 
             collection_data = {"collection_id": collection_id,
                              "collection_name": collection_name,
-                             "collection_component_ids": json.dumps(collection_component_ids) if collection_component_ids else None,
-                             "collection_bike_id": collection_bike_id,
-                             "collection_comment": collection_comment,
-                             "collection_updated_date": collection_updated_date}
+                             "components": json.dumps(components) if components else "[]",
+                             "bike_id": bike_id,
+                             "comment": comment,
+                             "sub_collections": "[]",
+                             "updated_date": updated_date}
             
             success, message = database_manager.write_collection(collection_data)
 
@@ -2175,7 +2206,7 @@ class BusinessLogic():
                 return False, f"Collection {collection_id} not found"
 
             # Parse component IDs from JSON
-            component_ids = json.loads(collection.collection_component_ids) if collection.collection_component_ids else []
+            component_ids = json.loads(collection.components) if collection.components else []
             
             if not component_ids:
                 return False, "No components found in collection"
@@ -2187,7 +2218,7 @@ class BusinessLogic():
                 success, message = self.create_history_record(
                     component_id=component_id,
                     installation_status=new_status,
-                    component_bike_id=collection.collection_bike_id,
+                    component_bike_id=collection.bike_id,
                     component_updated_date=updated_date
                 )
                 

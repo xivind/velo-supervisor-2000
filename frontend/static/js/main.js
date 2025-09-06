@@ -3563,8 +3563,8 @@ window.addEventListener('load', () => {
                 // Populate form fields
                 document.getElementById('collection_id').value = collectionId;
                 document.getElementById('collection_name').value = collectionName;
-                document.getElementById('collection_bike_id').value = bikeId;
-                document.getElementById('collection_comment').value = comment;
+                document.getElementById('bike_id').value = bikeId;
+                document.getElementById('comment').value = comment;
                 document.getElementById('updated_date').value = updatedDate;
                 
                 // Update ID display
@@ -3602,7 +3602,7 @@ window.addEventListener('load', () => {
                 document.getElementById('collection-id-display').textContent = 'Not created yet';
                 
                 // Clear TomSelect if it's already initialized
-                const componentSelect = document.getElementById('collection_component_ids');
+                const componentSelect = document.getElementById('components');
                 if (componentSelect.tomSelect || componentSelect.tomselect) {
                     const ts = componentSelect.tomSelect || componentSelect.tomselect;
                     ts.clear();
@@ -3620,50 +3620,60 @@ window.addEventListener('load', () => {
     
     // Initialize the component selector with delayed data loading
     function initializeComponentSelector(pendingData) {
-        const componentSelect = document.getElementById('collection_component_ids');
+        const componentSelect = document.getElementById('components');
         if (!componentSelect) return;
         
-        // Only initialize if not already done
-        if (componentSelect.tomSelect || componentSelect.tomselect) {
-            return;
+        // Backup original options on first run
+        if (!originalCollectionOptions) {
+            originalCollectionOptions = componentSelect.innerHTML;
         }
         
-        new TomSelect(componentSelect, {
-            plugins: ['remove_button'],
-            placeholder: 'Search and select components...',
-            searchField: ['text'],
-            labelField: 'text',
-            valueField: 'value',
-            options: Array.from(componentSelect.options).map(option => ({
-                value: option.value,
-                text: option.textContent,
-                status: option.dataset.status,
-                bike: option.dataset.bike
-            })),
-            render: {
-                option: function(data, escape) {
-                    const statusBadge = data.status === 'Installed' ? 
-                        '<span class="badge bg-success ms-2">Installed</span>' :
-                        data.status === 'Retired' ?
-                        '<span class="badge bg-secondary ms-2">Retired</span>' :
-                        '<span class="badge bg-warning text-dark ms-2">Not installed</span>';
-                    
-                    return '<div>' + escape(data.text) + statusBadge + '</div>';
+        // Always start fresh with all options
+        componentSelect.innerHTML = originalCollectionOptions;
+        
+        // Remove retired options for collections (they shouldn't be in collections)
+        const retiredOptions = componentSelect.querySelectorAll('option[data-status="Retired"]');
+        retiredOptions.forEach(option => option.remove());
+        
+        // Destroy existing TomSelect if it exists
+        if (componentSelect.tomSelect || componentSelect.tomselect) {
+            const ts = componentSelect.tomSelect || componentSelect.tomselect;
+            ts.destroy();
+        }
+        
+        // Initialize TomSelect with the current option set
+        try {
+            const ts = new TomSelect(componentSelect, {
+                plugins: ['remove_button'],
+                maxItems: null,
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                create: false,
+                placeholder: 'Search to add components to collection...',
+                shouldOpen: function() {
+                    return this.isFocused && this.inputValue.length > 0;
                 },
-                item: function(data, escape) {
-                    return '<div>' + escape(data.text) + '</div>';
-                }
-            },
-            onChange: function(values) {
-                // Trigger validation when components change
+                openOnFocus: false,
+                closeAfterSelect: true
+            });
+            
+            // Store the new instance
+            componentSelect.tomSelect = ts;
+            
+            // Add change handler for validation
+            ts.on('change', function() {
                 setTimeout(setupComponentValidation, 50);
-            }
-        });
+            });
+            
+        } catch(e) {
+            console.error('TomSelect initialization error:', e);
+        }
     }
     
     // Set selected components in the TomSelect
     function setSelectedComponents(componentIds) {
-        const componentSelect = document.getElementById('collection_component_ids');
+        const componentSelect = document.getElementById('components');
         if (!componentSelect) return;
         
         const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
@@ -3674,8 +3684,8 @@ window.addEventListener('load', () => {
     
     // Setup component validation and status checking
     function setupComponentValidation() {
-        const componentSelect = document.getElementById('collection_component_ids');
-        const bikeSelect = document.getElementById('collection_bike_id');
+        const componentSelect = document.getElementById('components');
+        const bikeSelect = document.getElementById('bike_id');
         const mixedStatusWarning = document.getElementById('mixed_status_warning');
         const bulkStatusSection = document.getElementById('bulk_status_section');
         
@@ -3688,6 +3698,21 @@ window.addEventListener('load', () => {
         if (!selectedValues || selectedValues.length === 0) {
             mixedStatusWarning.style.display = 'none';
             bulkStatusSection.style.display = 'block';
+            
+            // Handle empty selection state
+            const installationStatusDisplay = document.getElementById('current_installation_status');
+            const newStatusSelect = document.getElementById('new_status');
+            
+            if (installationStatusDisplay) {
+                installationStatusDisplay.textContent = 'No components selected';
+                installationStatusDisplay.classList.remove('text-danger');
+            }
+            
+            if (newStatusSelect) {
+                newStatusSelect.innerHTML = '<option value=""></option>';
+                newStatusSelect.disabled = true;
+            }
+            
             return;
         }
         
@@ -3701,39 +3726,121 @@ window.addEventListener('load', () => {
             };
         });
         
-        // Check for mixed statuses
+        // Check for mixed statuses and bikes
         const statuses = [...new Set(selectedOptions.map(opt => opt.status))];
+        const bikes = [...new Set(selectedOptions.map(opt => opt.bike).filter(bike => bike && bike !== 'null'))];
         const hasMixedStatuses = statuses.length > 1;
         
         // Check for installed components
         const hasInstalledComponents = selectedOptions.some(opt => opt.status === 'Installed');
+        const hasNotInstalledComponents = selectedOptions.some(opt => opt.status === 'Not installed');
         
-        // Show/hide mixed status warning
-        if (hasMixedStatuses) {
+        // Compute bike assignment based on business rules
+        const bikeDisplay = document.getElementById('bike_display');
+        let computedBikeId = '';
+        let computedBikeName = 'Not assigned';
+        let hasValidBikeAssignment = true;
+        let bikeValidationMessage = '';
+        
+        if (hasInstalledComponents && hasNotInstalledComponents) {
+            // Mixed installation status - invalid
+            hasValidBikeAssignment = false;
+            bikeValidationMessage = 'Cannot mix installed and not-installed components in same collection';
+            computedBikeName = 'Unable to compute bike';
+        } else if (hasInstalledComponents) {
+            // All installed - must be on same bike
+            if (bikes.length === 1) {
+                computedBikeId = selectedOptions.find(opt => opt.status === 'Installed').bike;
+                computedBikeName = bikes[0] || 'Unknown bike';
+            } else if (bikes.length > 1) {
+                hasValidBikeAssignment = false;
+                bikeValidationMessage = 'Installed components must be on the same bike';
+                computedBikeName = 'Unable to compute bike';
+            }
+        } else {
+            // All not installed - no bike assignment
+            computedBikeId = '';
+            computedBikeName = 'Not assigned';
+        }
+        
+        // Update bike display and hidden field
+        if (bikeDisplay) {
+            bikeDisplay.textContent = computedBikeName;
+            if (!hasValidBikeAssignment) {
+                bikeDisplay.classList.add('text-danger');
+            } else {
+                bikeDisplay.classList.remove('text-danger');
+            }
+        }
+        if (bikeSelect) {
+            bikeSelect.value = computedBikeId;
+        }
+        
+        // Update installation status indicator and new status dropdown
+        const installationStatusDisplay = document.getElementById('current_installation_status');
+        const newStatusSelect = document.getElementById('new_status');
+        
+        if (installationStatusDisplay) {
+            if (hasMixedStatuses || !hasValidBikeAssignment) {
+                // Unable to compute status due to validation issues
+                installationStatusDisplay.innerHTML = 'Unable to compute status';
+                installationStatusDisplay.classList.add('text-danger');
+                
+                // Disable dropdown when status can't be computed
+                if (newStatusSelect) {
+                    newStatusSelect.innerHTML = '<option value=""></option>';
+                    newStatusSelect.disabled = true;
+                }
+            } else if (statuses.length === 1) {
+                const currentStatus = statuses[0];
+                let icon = '';
+                if (currentStatus === 'Installed') {
+                    icon = '⚡';
+                } else if (currentStatus === 'Not installed') {
+                    icon = '💤';
+                } else if (currentStatus === 'Retired') {
+                    icon = '⛔';
+                }
+                installationStatusDisplay.innerHTML = `${icon} ${currentStatus}`;
+                installationStatusDisplay.classList.remove('text-danger');
+                
+                // Update dropdown to exclude current status
+                if (newStatusSelect) {
+                    newStatusSelect.disabled = false;
+                    let options = '<option value=""></option>';
+                    
+                    if (currentStatus !== 'Installed') {
+                        options += '<option value="Installed">Installed</option>';
+                    }
+                    if (currentStatus !== 'Not installed') {
+                        options += '<option value="Not installed">Not installed</option>';
+                    }
+                    if (currentStatus !== 'Retired') {
+                        options += '<option value="Retired">Retired</option>';
+                    }
+                    
+                    newStatusSelect.innerHTML = options;
+                }
+            }
+        }
+        
+        // Show/hide mixed status warning - now includes bike validation
+        if (hasMixedStatuses || !hasValidBikeAssignment) {
             mixedStatusWarning.style.display = 'block';
+            const warningText = mixedStatusWarning.querySelector('div');
+            if (warningText) {
+                if (!hasValidBikeAssignment) {
+                    warningText.innerHTML = `<strong>⚠️ Invalid component selection:</strong> ${bikeValidationMessage}. Please select components that are all installed on the same bike or all not installed.`;
+                } else {
+                    warningText.innerHTML = `<strong>⚠️ Mixed component statuses:</strong> This collection contains components with different installation statuses. Bulk status changes are disabled until all components have the same status.`;
+                }
+            }
         } else {
             mixedStatusWarning.style.display = 'none';
         }
         
-        // Always show bulk status section
+        // Always show bulk status section if components selected
         bulkStatusSection.style.display = 'block';
-        
-        // Validate bike assignment for installed components
-        if (hasInstalledComponents && !bikeSelect.value) {
-            bikeSelect.classList.add('is-invalid');
-            if (!bikeSelect.nextElementSibling || !bikeSelect.nextElementSibling.classList.contains('invalid-feedback')) {
-                const feedback = document.createElement('div');
-                feedback.className = 'invalid-feedback';
-                feedback.textContent = 'Required when collection contains installed components';
-                bikeSelect.parentNode.appendChild(feedback);
-            }
-        } else {
-            bikeSelect.classList.remove('is-invalid');
-            const feedback = bikeSelect.parentNode.querySelector('.invalid-feedback');
-            if (feedback) {
-                feedback.remove();
-            }
-        }
     }
     
     // Setup bulk status change functionality
@@ -3811,7 +3918,7 @@ window.addEventListener('load', () => {
     
     // Setup bike select change handler
     document.addEventListener('DOMContentLoaded', function() {
-        const bikeSelect = document.getElementById('collection_bike_id');
+        const bikeSelect = document.getElementById('bike_id');
         if (bikeSelect) {
             bikeSelect.addEventListener('change', setupComponentValidation);
         }
