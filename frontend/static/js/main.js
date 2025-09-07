@@ -3952,7 +3952,8 @@ window.addEventListener('load', () => {
     
     // Perform bulk status change via API
     function performBulkStatusChange(collectionId, newStatus, updatedDate) {
-        showLoadingModal('Updating component statuses...');
+        document.getElementById('loadingMessage').textContent = 'Updating component statuses...';
+        loadingModal.show();
         
         fetch('/change_collection_status', {
             method: 'POST',
@@ -3967,7 +3968,7 @@ window.addEventListener('load', () => {
         })
         .then(response => response.json())
         .then(data => {
-            hideLoadingModal();
+            loadingModal.hide();
             
             if (data.success) {
                 showToast(data.message, 'success');
@@ -3985,7 +3986,7 @@ window.addEventListener('load', () => {
             }
         })
         .catch(error => {
-            hideLoadingModal();
+            loadingModal.hide();
             console.error('Error:', error);
             showToast('An error occurred while updating component statuses.', 'danger');
         });
