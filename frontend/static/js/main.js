@@ -3692,10 +3692,23 @@ window.addEventListener('load', () => {
     function setupComponentValidation() {
         const componentSelect = document.getElementById('components');
         const bikeSelect = document.getElementById('bike_id');
+        const bikeDisplay = document.getElementById('bike_display');
         const mixedStatusWarning = document.getElementById('mixed_status_warning');
         const bulkStatusSection = document.getElementById('bulk_status_section');
         
         if (!componentSelect) return;
+        
+        // Create a lookup map from bike names to bike IDs
+        // We'll extract this from any existing bike dropdown in the page
+        const bikeNameToIdMap = {};
+        const existingBikeSelect = document.querySelector('select[name*="bike"]');
+        if (existingBikeSelect) {
+            Array.from(existingBikeSelect.options).forEach(option => {
+                if (option.value && option.textContent.trim()) {
+                    bikeNameToIdMap[option.textContent.trim()] = option.value;
+                }
+            });
+        }
         
         const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
         if (!tomSelect) return;
@@ -3717,6 +3730,15 @@ window.addEventListener('load', () => {
             if (newStatusSelect) {
                 newStatusSelect.innerHTML = '<option value=""></option>';
                 newStatusSelect.disabled = true;
+            }
+            
+            // Reset bike assignment when no components selected
+            if (bikeDisplay) {
+                bikeDisplay.textContent = 'Not assigned';
+                bikeDisplay.classList.remove('text-danger');
+            }
+            if (bikeSelect) {
+                bikeSelect.value = '';
             }
             
             return;
@@ -3742,13 +3764,16 @@ window.addEventListener('load', () => {
         const hasNotInstalledComponents = selectedOptions.some(opt => opt.status === 'Not installed');
         
         // Compute bike assignment based on business rules
-        const bikeDisplay = document.getElementById('bike_display');
         let computedBikeId = '';
         let computedBikeName = 'Not assigned';
         let hasValidBikeAssignment = true;
         let bikeValidationMessage = '';
         
-        if (hasInstalledComponents && hasNotInstalledComponents) {
+        if (selectedOptions.length === 0) {
+            // No components selected - no bike assignment
+            computedBikeId = '';
+            computedBikeName = 'Not assigned';
+        } else if (hasInstalledComponents && hasNotInstalledComponents) {
             // Mixed installation status - invalid
             hasValidBikeAssignment = false;
             bikeValidationMessage = 'Cannot mix installed and not-installed components in same collection';
@@ -3756,8 +3781,8 @@ window.addEventListener('load', () => {
         } else if (hasInstalledComponents) {
             // All installed - must be on same bike
             if (bikes.length === 1) {
-                computedBikeId = selectedOptions.find(opt => opt.status === 'Installed').bike;
                 computedBikeName = bikes[0] || 'Unknown bike';
+                computedBikeId = bikeNameToIdMap[computedBikeName] || '';
             } else if (bikes.length > 1) {
                 hasValidBikeAssignment = false;
                 bikeValidationMessage = 'Installed components must be on the same bike';

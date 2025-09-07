@@ -206,8 +206,19 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 ### Collections Feature Ready for Production Testing
 
 ## Outstanding Collections Tasks:
-1. 🔲 **Add "Last updated" indicator**: Add last updated timestamp and corresponding logic under the Updated date field
-2. 🔲 **Retirement status handling**: Explore what happens when user tries to change status to "Retired", since retired components are filtered out from the component selection dropdown
+1. 🔲 **Review validation rules triggers**: Some validation rules should only trigger on 'Set new status' button, some only on 'Save collection' button, and some on both - need to review and organize properly
+2. 🔲 **Review toast messages text**: Toast messages need to be reviewed for clarity and understandability so users know exactly what went wrong and how to fix it
+3. 🔲 **Ensure frontend and backend validation alignment**: Make sure frontend validation and backend validation work well together without conflicts
+4. 🔲 **Implement collection deletion functionality**: Add JavaScript handler and API endpoint for collection deletion
+5. 🔲 **Add proper error handling in JavaScript collection functions**: JavaScript functions need better error handling for robustness
+6. 🔲 **Implement component_collections field in payload**: Add component_collections field to show collection membership icons (📦) in component overview table
+7. 🔲 **Fix bike_details.html collections table**: Apply same date formatting (strip time) and button spacing fixes as component_overview.html
+8. 🔲 **Add column sorting JavaScript handlers**: Collections tables need JavaScript to make column sorting work (data-sort attributes exist but no handlers)
+9. 🔲 **Update component overview legend**: Add collection icon explanation to the legend
+10. 🔲 **Database null handling**: Verify that empty values are always written as null to the database for all collection fields (not empty strings)
+11. 🔲 **Database manager updated_date behavior**: Review how database manager handles updated_date when sometimes skipped - does it overwrite existing value or keep it? Ensure proper handling
+12. 🔲 **Sub_collections field**: Ensure sub_collections is always written as null (not empty array) for now until nested collections are implemented
+13. 🔲 **Retired component handling in existing collections**: What happens when a collection contains components that are retired after the collection is created, since retired components are filtered out from the dropdown?
 
 ## Critical Missing Functionality:
 
