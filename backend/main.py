@@ -291,15 +291,13 @@ async def update_service_record(component_id: str = Form(...),
 async def add_collection(collection_name: str = Form(...),
                         components: Optional[List[str]] = Form(None),
                         bike_id: Optional[str] = Form(None),
-                        comment: Optional[str] = Form(None),
-                        updated_date: Optional[str] = Form(None)):
+                        comment: Optional[str] = Form(None)):
     """Endpoint to add new collection"""
 
     success, message = business_logic.add_collection(collection_name,
                                                    components,
                                                    bike_id,
-                                                   comment,
-                                                   updated_date)
+                                                   comment)
     
     response = RedirectResponse(
         url=f"/component_overview?success={success}&message={message}",
@@ -312,16 +310,14 @@ async def update_collection(collection_id: str = Form(...),
                            collection_name: str = Form(...),
                            components: Optional[List[str]] = Form(None),
                            bike_id: Optional[str] = Form(None),
-                           comment: Optional[str] = Form(None),
-                           updated_date: Optional[str] = Form(None)):
+                           comment: Optional[str] = Form(None)):
     """Endpoint to update existing collection"""
 
     success, message = business_logic.update_collection(collection_id,
                                                        collection_name,
                                                        components,
                                                        bike_id,
-                                                       comment,
-                                                       updated_date)
+                                                       comment)
     
     response = RedirectResponse(
         url=f"/component_overview?success={success}&message={message}",

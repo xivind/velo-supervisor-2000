@@ -587,7 +587,7 @@ class BusinessLogic():
                 collection.collection_name,
                 component_count,
                 bike_name,
-                collection.updated_date or "Never updated",
+                collection.updated_date or "",
                 json.dumps(component_ids),  # Keep as JSON string for frontend
                 collection.bike_id or "",
                 collection.comment or ""
@@ -2158,8 +2158,7 @@ class BusinessLogic():
                       collection_name,
                       components,
                       bike_id,
-                      comment,
-                      updated_date):
+                      comment):
         """Method to add collection"""
         try:
             collection_id = generate_unique_id()
@@ -2178,7 +2177,7 @@ class BusinessLogic():
                              "bike_id": bike_id,
                              "comment": comment,
                              "sub_collections": "[]",
-                             "updated_date": updated_date}
+                             "updated_date": None}
             
             success, message = database_manager.write_collection(collection_data)
 
@@ -2198,8 +2197,7 @@ class BusinessLogic():
                          collection_name,
                          components,
                          bike_id,
-                         comment,
-                         updated_date):
+                         comment):
         """Method to update collection"""
         try:
             # Validate collection before updating
@@ -2216,7 +2214,7 @@ class BusinessLogic():
                              "bike_id": bike_id,
                              "comment": comment,
                              "sub_collections": "[]",
-                             "updated_date": updated_date}
+                             "updated_date": None}
             
             success, message = database_manager.write_collection(collection_data)
 

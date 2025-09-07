@@ -68,10 +68,10 @@
         <table class="table table-hover" id="collectionsTable">
             <thead>
                 <tr>
-                    <th data-sort="name">Collection Name <span class="sort-indicator"></span></th>
-                    <th data-sort="components">Component Count <span class="sort-indicator"></span></th>
+                    <th data-sort="name">Collection name <span class="sort-indicator"></span></th>
+                    <th data-sort="components">Component count <span class="sort-indicator"></span></th>
                     <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
-                    <th data-sort="updated">Last Updated <span class="sort-indicator"></span></th>
+                    <th data-sort="updated">Last updated <span class="sort-indicator"></span></th>
                     <th class="text-end"></th>
                 </tr>
             </thead>
@@ -81,15 +81,12 @@
                         <tr>
                             <td>
                                 {{ collection_name }}
-                                {% if comment %}
-                                    <br><small class="text-muted">{{ comment }}</small>
-                                {% endif %}
                             </td>
                             <td>{{ component_count }} components</td>
                             <td>{{ bike_name if bike_name else "Not assigned" }}</td>
-                            <td>{{ updated_date }}</td>
+                            <td>{{ updated_date.split(' ')[0] if updated_date else "-" }}</td>
                             <td class="text-end">
-                                <button type="button" class="btn btn-outline-primary btn-sm me-1 edit-collection-btn"
+                                <button type="button" class="btn btn-outline-primary btn-sm edit-collection-btn"
                                     data-collection-id="{{ collection_id }}"
                                     data-collection-name="{{ collection_name }}"
                                     data-components="{{ components }}"
