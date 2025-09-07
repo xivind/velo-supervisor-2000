@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     e.stopPropagation();
                     
                     const modalBody = document.getElementById('validationModalBody');
-                    modalBody.innerHTML = 'Please enter valid dates in the format YYYY-MM-DD HH:MM';
+                    modalBody.innerHTML = 'Enter valid dates in the format YYYY-MM-DD HH:MM';
                     validationModal.show();
                     return false;
                 }
@@ -623,7 +623,7 @@ function initializeDatePickers(container = document) {
                     const validationModal = document.getElementById('validationModal');
                     if (validationModal) {
                         document.getElementById('validationModalBody').textContent = 
-                            'Please correct the invalid date format. Required format: YYYY-MM-DD HH:MM';
+                            'Correct the invalid date format. Required format: YYYY-MM-DD HH:MM';
                         new bootstrap.Modal(validationModal).show();
                     }
                     
@@ -3567,6 +3567,12 @@ window.addEventListener('load', () => {
                 document.getElementById('comment').value = comment;
                 document.getElementById('updated_date').value = updatedDate;
                 
+                // Update last updated display
+                const lastUpdatedElement = document.getElementById('last_updated');
+                if (lastUpdatedElement) {
+                    lastUpdatedElement.textContent = updatedDate || 'Never updated through collections';
+                }
+                
                 // Update ID display
                 document.getElementById('collection-id-display').textContent = collectionId;
                 
@@ -3830,9 +3836,9 @@ window.addEventListener('load', () => {
             const warningText = mixedStatusWarning.querySelector('div');
             if (warningText) {
                 if (!hasValidBikeAssignment) {
-                    warningText.innerHTML = `<strong>⚠️ Invalid component selection:</strong> ${bikeValidationMessage}. Please select components that are all installed on the same bike or all not installed.`;
+                    warningText.innerHTML = `<strong>⚠️ Invalid component selection:</strong> ${bikeValidationMessage}. All components must be either installed on the same bike or not installed at all.`;
                 } else {
-                    warningText.innerHTML = `<strong>⚠️ Mixed component statuses:</strong> This collection contains components with different installation statuses. Bulk status changes are disabled until all components have the same status.`;
+                    warningText.innerHTML = `<strong>⚠️ Mixed component statuses:</strong> Collections can only contain components with the same installation status.`;
                 }
             }
         } else {
@@ -3843,24 +3849,93 @@ window.addEventListener('load', () => {
         bulkStatusSection.style.display = 'block';
     }
     
+    // Comprehensive validation for status changes
+    function validateStatusChange() {
+        const componentSelect = document.getElementById('components');
+        const newStatus = document.getElementById('new_status').value;
+        const collectionId = document.getElementById('collection_id').value;
+        const updatedDate = document.getElementById('updated_date').value;
+        
+        // Check if collection is saved
+        if (!collectionId) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Save the collection before changing component status';
+            validationModal.show();
+            return false;
+        }
+        
+        // Check if components are selected
+        const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
+        const selectedValues = tomSelect ? tomSelect.getValue() : [];
+        if (!selectedValues || selectedValues.length === 0) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Collections contains no components';
+            validationModal.show();
+            return false;
+        }
+        
+        // Check if new status is selected
+        if (!newStatus) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'New status must be selected';
+            validationModal.show();
+            return false;
+        }
+        
+        // Check if date is entered
+        if (!updatedDate) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Updated date is required when changing status';
+            validationModal.show();
+            return false;
+        }
+        
+        // Check business rules using existing validation logic
+        const selectedOptions = selectedValues.map(value => {
+            const option = componentSelect.querySelector(`option[value="${value}"]`);
+            return {
+                id: value,
+                status: option ? option.dataset.status : null,
+                bike: option ? option.dataset.bike : null
+            };
+        });
+        
+        // Check for mixed statuses
+        const statuses = [...new Set(selectedOptions.map(opt => opt.status))];
+        const bikes = [...new Set(selectedOptions.map(opt => opt.bike).filter(bike => bike && bike !== 'null'))];
+        const hasInstalledComponents = selectedOptions.some(opt => opt.status === 'Installed');
+        const hasNotInstalledComponents = selectedOptions.some(opt => opt.status === 'Not installed');
+        
+        if (hasInstalledComponents && hasNotInstalledComponents) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Cannot change status for mixed installed and not-installed components';
+            validationModal.show();
+            return false;
+        }
+        
+        if (hasInstalledComponents && bikes.length > 1) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Cannot change status - all installed components must be on the same bike';
+            validationModal.show();
+            return false;
+        }
+        
+        return true;
+    }
+    
     // Setup bulk status change functionality
     document.addEventListener('DOMContentLoaded', function() {
         const applyStatusBtn = document.getElementById('apply_status_change');
         if (applyStatusBtn) {
             applyStatusBtn.addEventListener('click', function() {
+                // Run comprehensive validation before allowing status change
+                if (!validateStatusChange()) {
+                    return;
+                }
+                
                 const newStatus = document.getElementById('new_status').value;
                 const collectionId = document.getElementById('collection_id').value;
                 const updatedDate = document.getElementById('updated_date').value;
-                
-                if (!newStatus || !collectionId) {
-                    showToast('Please select a new status and ensure the collection is saved first.', 'warning');
-                    return;
-                }
-                
-                if (!updatedDate) {
-                    showToast('Please select a status change date.', 'warning');
-                    return;
-                }
                 
                 // Show confirmation
                 showConfirmModal(
@@ -3916,12 +3991,39 @@ window.addEventListener('load', () => {
         });
     }
     
-    // Setup bike select change handler
+    // Setup collection form validation
+    function setupCollectionFormValidation() {
+        const collectionForm = document.getElementById('collection_form');
+        if (!collectionForm) return;
+        
+        // Add validation to the Save Collection form
+        collectionForm.onsubmit = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Check collection name is required
+            const collectionName = document.getElementById('collection_name').value.trim();
+            if (!collectionName) {
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = 'Collection name is required';
+                validationModal.show();
+                return false;
+            }
+            
+            // If validation passes, submit the form
+            this.submit();
+        };
+    }
+    
+    // Setup bike select change handler and form validation
     document.addEventListener('DOMContentLoaded', function() {
         const bikeSelect = document.getElementById('bike_id');
         if (bikeSelect) {
             bikeSelect.addEventListener('change', setupComponentValidation);
         }
+        
+        // Initialize collection form validation
+        setupCollectionFormValidation();
     });
     
 })();

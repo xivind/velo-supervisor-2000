@@ -1,7 +1,9 @@
 # ISSUES CURRENTLY IN PROGRESS
 This file (ISSUES.md) must be read on startup. This file contains information on what we are currently working on. Claude Code should ensure that this file is up to date, as the work progress.
 
-**Current Status**: Collections feature has significant gaps in implementation. Core modal and API endpoints exist, but key functionality is missing. Working on completing Phase 2-6 before Phase 7 cleanup.  
+**Current Status**: Collections feature has significant gaps in implementation. Core modal and API endpoints exist, but key functionality is missing. Working on completing Phase 2-6 before Phase 7 cleanup.
+
+**Note**: Collection icons (📦) in component overview table - need to implement `component_collections` field in payload to show collection membership icons.  
 
 # Component Collections Feature Specification
 

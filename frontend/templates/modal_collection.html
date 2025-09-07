@@ -19,7 +19,6 @@
                         <label for="bike_id" class="form-label fw-bold">Bike assignment</label>
                         <input type="hidden" id="bike_id" name="bike_id">
                         <div class="form-control bg-light" id="bike_display">Not assigned</div>
-                        <small class="form-text text-muted">Computed based on collection components</small>
                     </div>
                     
                     <!-- Component selection and description row -->
@@ -65,6 +64,9 @@
                                     <input type="text" class="form-control datepicker-input" id="updated_date" name="updated_date">
                                     <span class="input-group-text datepicker-toggle">🗓</span>
                                 </div>
+                                <small class="form-text text-muted">
+                                    <strong>Last updated:</strong> <span id="last_updated">Never updated through collections</span>
+                                </small>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">&nbsp;</label>

@@ -220,8 +220,11 @@ class BusinessLogic():
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
 
         planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
+        
+        all_collections = self.get_collections()
 
         payload = {"all_components_data": all_components_data,
+                   "all_collections": all_collections,
                    "bikes_data": bikes_data,
                    "component_types_data": component_types_data,
                    "count_installed" : component_statistics["count_installed"],
@@ -561,6 +564,37 @@ class BusinessLogic():
 
         return {"bike_workplans": bike_workplans,
                 "component_workplans": component_workplans}
+
+    def get_collections(self):
+        """Method to produce payload for collections table"""
+        all_collections = []
+        collections = database_manager.read_all_collections()
+        
+        for collection in collections:
+            # Parse component IDs from JSON
+            component_ids = json.loads(collection.components) if collection.components else []
+            component_count = len(component_ids)
+            
+            # Get bike name if bike_id exists
+            bike_name = None
+            if collection.bike_id:
+                bike = database_manager.read_single_bike(collection.bike_id)
+                bike_name = bike.bike_name if bike else None
+            
+            # Format the data tuple as expected by the template
+            collection_data = (
+                collection.collection_id,
+                collection.collection_name,
+                component_count,
+                bike_name,
+                collection.updated_date or "Never updated",
+                json.dumps(component_ids),  # Keep as JSON string for frontend
+                collection.bike_id or "",
+                collection.comment or ""
+            )
+            all_collections.append(collection_data)
+        
+        return all_collections
 
     def get_component_types(self):
         """Method to produce payload for page component types"""
