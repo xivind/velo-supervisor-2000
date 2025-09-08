@@ -87,11 +87,13 @@ CREATE TABLE collections (
 1. **Component Overview Page**: 
    - Show all collections in dedicated table
    - Allow creation/management of collections
+   - Add collection name column to component table (show "-" if no collection assigned)
    - Display collection icons next to components
 
 2. **Bike Details Page**: 
-   - Show bike-specific collections in dedicated table
-   - Same functionality as overview page but filtered by bike
+   - NO separate collections table (removed)
+   - Add collection name column to component table (show "-" if no collection assigned)
+   - Collection management via "New collection" button and component overview page
 
 3. **Component Details Page**: 
    - Show "Edit Collection" button (since component can only be in one collection)
@@ -134,10 +136,11 @@ CREATE TABLE collections (
 5. 🔲 **MISSING**: Collection deletion functionality (JavaScript handler and API endpoint)
 6. 🔲 **MISSING**: Proper error handling in JavaScript functions
 
-### Phase 3: Table Integration ✅
+### Phase 3: Table Integration 🚧
 1. ✅ Add collections tables to component overview page
-2. ✅ Add collections tables to bike details page (bike-filtered)
+2. ✅ ~~Add collections tables to bike details page~~ (REMOVED per user feedback)
 3. ✅ Integrate modal invocation from table actions
+4. 🔲 **NEW**: Add collection name column to component tables (both overview and bike details)
 
 ### Phase 4: Status Change Operations ✅
 1. ✅ Extend existing status change logic to handle collections
@@ -212,13 +215,22 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 4. 🔲 **Implement collection deletion functionality**: Add JavaScript handler and API endpoint for collection deletion
 5. 🔲 **Add proper error handling in JavaScript collection functions**: JavaScript functions need better error handling for robustness
 6. 🔲 **Implement component_collections field in payload**: Add component_collections field to show collection membership icons (📦) in component overview table
-7. 🔲 **Fix bike_details.html collections table**: Apply same date formatting (strip time) and button spacing fixes as component_overview.html
+7. ✅ ~~Fix bike_details.html collections table~~ (REMOVED - table no longer exists)
 8. 🔲 **Add column sorting JavaScript handlers**: Collections tables need JavaScript to make column sorting work (data-sort attributes exist but no handlers)
 9. 🔲 **Update component overview legend**: Add collection icon explanation to the legend
 10. 🔲 **Database null handling**: Verify that empty values are always written as null to the database for all collection fields (not empty strings)
 11. 🔲 **Database manager updated_date behavior**: Review how database manager handles updated_date when sometimes skipped - does it overwrite existing value or keep it? Ensure proper handling
 12. 🔲 **Sub_collections field**: Ensure sub_collections is always written as null (not empty array) for now until nested collections are implemented
 13. 🔲 **Retired component handling in existing collections**: What happens when a collection contains components that are retired after the collection is created, since retired components are filtered out from the dropdown?
+14. 🔲 **Collection updated_date preservation bug**: When saving collection changes (like description) without status changes, the `updated_date` field gets overwritten/nulled. The `updated_date` should only track status change operations and be preserved during regular collection saves.
+15. ✅ **Collections status change feedback**: Completed - Implemented reusable report modal feedback for "Set new status" operations. Success cases work perfectly, but failure cases still have modal conflicts (see issue #17).
+16. 🔲 **Collections and sub_collections NULL handling**: Empty `components` and `sub_collections` fields should write NULL to database instead of empty strings to maintain consistent NULL handling across all collection fields.
+17. 🔲 **Collections status change modal conflict bug**: When collection status changes fail (partial or complete failure), the loading modal hangs and doesn't close properly, causing the report modal to appear behind it. The success case works correctly after implementing forced modal cleanup, but failure cases still experience modal backdrop conflicts.
+18. 🔲 **Add collection name column to component tables**: Integrate collection names directly into component tables (both overview and bike details pages) instead of separate collections tables, showing "-" for components not in collections.
+19. 🔲 **Implement collection deletion functionality**: Add JavaScript handler and API endpoint for collection deletion - delete buttons exist but have no functionality.
+20. 🔲 **Add component details page collection integration**: Component details page references `#editCollectionModal` which doesn't exist, missing collections table and management functionality.
+21. 🔲 **Implement component_collections field for collection icons**: Add component_collections field to payload to show collection membership icons (📦) in component overview table.
+22. 🔲 **Add proper error handling to JavaScript collection functions**: JavaScript collection functions need better error handling for robustness and user feedback.
 
 ## Critical Missing Functionality:
 

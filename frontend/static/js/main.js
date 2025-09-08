@@ -3,6 +3,7 @@
 let validationModal;
 let confirmModal;
 let loadingModal;
+let reportModal;
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize modal instances with their specific options
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // These should behave normally
     confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
     loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
 
     // Function to remove backdrop on some modals
     const removeBackdropModals = [
@@ -44,6 +46,28 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Utility function to show report modal with custom content and styling
+    window.showReportModal = function(title, message, isSuccess = true, onClose = null) {
+        const header = document.getElementById('reportModalHeader');
+        const titleElement = document.getElementById('reportModalLabel');
+        const body = document.getElementById('reportModalBody');
+        
+        // Set title and message
+        titleElement.textContent = title;
+        body.innerHTML = message;
+        
+        // Style header based on success/failure
+        header.className = isSuccess ? 'modal-header bg-success text-white' : 'modal-header bg-danger text-white';
+        
+        // Show the modal
+        reportModal.show();
+        
+        // Handle optional callback when modal is closed
+        if (onClose) {
+            reportModal._element.addEventListener('hidden.bs.modal', onClose, { once: true });
+        }
+    };
     
     // Add validation to all forms with date picker inputs
     document.querySelectorAll('form').forEach(form => {
@@ -3560,17 +3584,33 @@ window.addEventListener('load', () => {
                 const comment = this.dataset.comment || '';
                 const updatedDate = this.dataset.updatedDate || '';
                 
+                // Store original components for validation
+                window.originalCollectionComponents = [...components];
+                
                 // Populate form fields
                 document.getElementById('collection_id').value = collectionId;
                 document.getElementById('collection_name').value = collectionName;
                 document.getElementById('bike_id').value = bikeId;
                 document.getElementById('comment').value = comment;
-                document.getElementById('updated_date').value = updatedDate;
+                document.getElementById('updated_date').value = ''; // Always blank - user enters new date for status changes
                 
                 // Update last updated display
                 const lastUpdatedElement = document.getElementById('last_updated');
                 if (lastUpdatedElement) {
                     lastUpdatedElement.textContent = updatedDate || 'Never updated through collections';
+                }
+                
+                // Add form submit listener to update original components when saved
+                const form = document.getElementById('collection_form');
+                if (form && !form.hasAttribute('data-collection-submit-listener')) {
+                    form.addEventListener('submit', function() {
+                        // When saving, update the original components to match current selection
+                        const componentSelect = document.getElementById('components');
+                        const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
+                        const selectedValues = tomSelect ? tomSelect.getValue() : [];
+                        window.originalCollectionComponents = [...selectedValues];
+                    });
+                    form.setAttribute('data-collection-submit-listener', 'true');
                 }
                 
                 // Update ID display
@@ -3597,6 +3637,9 @@ window.addEventListener('load', () => {
                 // Flag as new collection
                 isNewCollection = true;
                 pendingComponentData = null;
+                
+                // Clear original components validation
+                window.originalCollectionComponents = null;
                 
                 // Reset the form
                 document.getElementById('collectionModalLabel').textContent = 'New collection';
@@ -3915,6 +3958,24 @@ window.addEventListener('load', () => {
             return false;
         }
         
+        // Check if components have been modified but not saved (for existing collections)
+        if (!isNewCollection && window.originalCollectionComponents) {
+            // Compare current selection with original saved components
+            const currentComponents = [...selectedValues].sort();
+            const originalComponents = [...window.originalCollectionComponents].sort();
+            
+            // Check if arrays are different
+            const componentsChanged = currentComponents.length !== originalComponents.length || 
+                                    currentComponents.some((comp, index) => comp !== originalComponents[index]);
+            
+            if (componentsChanged) {
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = '<strong>Unsaved Component Changes</strong><br>You have modified the components in this collection but haven\'t saved the changes. Please save the collection first using the "Save Collection" button before changing component status.';
+                validationModal.show();
+                return false;
+            }
+        }
+        
         // Check business rules using existing validation logic
         const selectedOptions = selectedValues.map(value => {
             const option = componentSelect.querySelector(`option[value="${value}"]`);
@@ -3962,15 +4023,19 @@ window.addEventListener('load', () => {
                 const collectionId = document.getElementById('collection_id').value;
                 const updatedDate = document.getElementById('updated_date').value;
                 
-                // Show confirmation
-                showConfirmModal(
-                    'Change Component Status',
-                    `Are you sure you want to change the status of all components in this collection to "${newStatus}"?`,
-                    function() {
-                        // Perform bulk status change
-                        performBulkStatusChange(collectionId, newStatus, updatedDate);
-                    }
-                );
+                // Show confirmation modal
+                const modalBody = document.getElementById('confirmModalBody');
+                modalBody.innerHTML = `Are you sure you want to change the status of all components in this collection to "${newStatus}"?`;
+                confirmModal.show();
+                
+                // Handle confirm action
+                document.getElementById('confirmAction').addEventListener('click', function handleConfirm() {
+                    // Remove the event listener after use
+                    this.removeEventListener('click', handleConfirm);
+                    
+                    // Perform bulk status change
+                    performBulkStatusChange(collectionId, newStatus, updatedDate);
+                }, { once: true });
             });
         }
     });
@@ -3993,27 +4058,73 @@ window.addEventListener('load', () => {
         })
         .then(response => response.json())
         .then(data => {
+            let reportShown = false;
+            
+            // Function to show the report modal
+            const showReport = () => {
+                if (reportShown) return; // Prevent double execution
+                reportShown = true;
+                
+                // Force cleanup of loading modal
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                    backdrop.remove();
+                });
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+                
+                const title = data.success ? '✅ Status Update Complete' : '❌ Status Update Failed';
+                showReportModal(title, data.message, data.success, function() {
+                    if (data.success) {
+                        // Close collections modal and refresh page after user dismisses report
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
+                        modal.hide();
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 300);
+                    }
+                });
+            };
+            
+            // Force hide the loading modal and clean up immediately
             loadingModal.hide();
             
-            if (data.success) {
-                showToast(data.message, 'success');
-                
-                // Close modal and refresh page
-                const modal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
-                modal.hide();
-                
-                // Refresh page after short delay
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            } else {
-                showToast(data.message, 'danger');
-            }
+            // Also force immediate cleanup in case the timeout-based cleanup in showReport doesn't work
+            setTimeout(() => {
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                    backdrop.remove();
+                });
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+            }, 50);
+            
+            setTimeout(showReport, 100);
         })
         .catch(error => {
-            loadingModal.hide();
             console.error('Error:', error);
-            showToast('An error occurred while updating component statuses.', 'danger');
+            
+            let reportShown = false;
+            
+            // Function to show the error report modal
+            const showErrorReport = () => {
+                if (reportShown) return; // Prevent double execution
+                reportShown = true;
+                
+                // Force cleanup of loading modal
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                    backdrop.remove();
+                });
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+                
+                showReportModal('❌ Application Error', 'An error occurred while updating component statuses. Please try again.', false);
+            };
+            
+            // Force hide the loading modal and clean up immediately
+            loadingModal.hide();
+            setTimeout(showErrorReport, 100);
         });
     }
     

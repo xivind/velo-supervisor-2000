@@ -2259,6 +2259,22 @@ class BusinessLogic():
                 else:
                     logging.error(f"Failed to update component {component_id}: {message}")
 
+            # Update collection's updated_date to reflect status change
+            if success_count > 0:
+                try:
+                    collection_update_data = {
+                        "collection_id": collection_id,
+                        "collection_name": collection.collection_name,
+                        "components": collection.components,
+                        "bike_id": collection.bike_id,
+                        "comment": collection.comment,
+                        "updated_date": updated_date
+                    }
+                    database_manager.write_collection(collection_update_data)
+                    logging.info(f"Updated collection {collection_id} updated_date to {updated_date}")
+                except Exception as e:
+                    logging.error(f"Failed to update collection updated_date: {str(e)}")
+
             if success_count == len(component_ids):
                 message = f"Successfully updated status for all {success_count} components in collection"
                 logging.info(message)
