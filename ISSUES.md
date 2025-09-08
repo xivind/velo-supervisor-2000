@@ -206,9 +206,9 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 ### Collections Feature Ready for Production Testing
 
 ## Outstanding Collections Tasks:
-1. 🔲 **Review validation rules triggers**: Some validation rules should only trigger on 'Set new status' button, some only on 'Save collection' button, and some on both - need to review and organize properly
-2. 🔲 **Review toast messages text**: Toast messages need to be reviewed for clarity and understandability so users know exactly what went wrong and how to fix it
-3. 🔲 **Ensure frontend and backend validation alignment**: Make sure frontend validation and backend validation work well together without conflicts
+1. ✅ **Review validation rules triggers**: Completed - validation rules properly separated between 'Save collection' (name + business rules) and 'Set new status' (collection saved + components + status + date + business rules)
+2. ✅ **Review toast messages text**: Completed - all validation messages improved with structured formatting, bold headers, clear explanations, and actionable tips
+3. ✅ **Ensure frontend and backend validation alignment**: Completed - frontend validation prevents invalid submissions, backend messages aligned with "Operation cancelled" and "No changes made" formatting
 4. 🔲 **Implement collection deletion functionality**: Add JavaScript handler and API endpoint for collection deletion
 5. 🔲 **Add proper error handling in JavaScript collection functions**: JavaScript functions need better error handling for robustness
 6. 🔲 **Implement component_collections field in payload**: Add component_collections field to show collection membership icons (📦) in component overview table

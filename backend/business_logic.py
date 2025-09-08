@@ -1686,12 +1686,12 @@ class BusinessLogic():
                 component = database_manager.read_component(component_id)
                 if not component:
                     logging.warning(f"Component not found: {component_id}")
-                    return False, f"Component not found: {component_id}"
+                    return False, f"Operation cancelled: Component {component_id} not found in database. Please refresh the page and try again. No changes have been made."
                 
                 existing_collection = database_manager.read_collection_by_component(component_id)
                 if existing_collection and existing_collection.collection_id != collection_id:
                     logging.warning(f"Component {component.component_name} already belongs to collection {existing_collection.collection_name}")
-                    return False, f"Component {component.component_name} already belongs to collection {existing_collection.collection_name}"
+                    return False, f"Operation cancelled: Component {component.component_name} already belongs to collection {existing_collection.collection_name}. Please remove it from that collection first. No changes have been made."
                 
                 if component.installation_status == "Installed":
                     installed_components.append(component)
@@ -1703,18 +1703,18 @@ class BusinessLogic():
             # New business rule: Cannot mix installed and not-installed components
             if installed_components and not_installed_components:
                 logging.warning(f"Cannot create collection with both installed and not-installed components")
-                return False, f"Cannot create collection with both installed and not-installed components"
+                return False, f"Operation cancelled: Collection cannot contain both installed and not-installed components. Please select components with the same installation status. No changes have been made."
             
             # New business rule: All installed components must be on the same bike
             if installed_components and len(component_bikes) > 1:
                 bike_names = [database_manager.read_single_bike(bike_id).bike_name for bike_id in component_bikes if database_manager.read_single_bike(bike_id)]
                 logging.warning(f"All installed components in a collection must be on the same bike. Found components on: {', '.join(bike_names)}")
-                return False, f"All installed components must be on the same bike. Found components on: {', '.join(bike_names)}"
+                return False, f"Operation cancelled: All installed components in a collection must be on the same bike. Found components on bikes: {', '.join(bike_names)}. Please select components from the same bike. No changes have been made."
             
             # Existing rule: Collections with installed components must be assigned to a bike
             if installed_components and not bike_id:
                 logging.warning(f"Collections with installed components must be assigned to a bike")
-                return False, f"Collections with installed components must be assigned to a bike"
+                return False, f"Operation cancelled: Collections containing installed components must be assigned to a bike. Please assign this collection to the appropriate bike. No changes have been made."
         
         if bike_id:
             bike = database_manager.read_single_bike(bike_id)
@@ -1731,7 +1731,7 @@ class BusinessLogic():
             
             if len(current_statuses) > 1:
                 logging.warning(f"Collection has mixed component statuses, cannot perform bulk status change")
-                return False, f"Collection has mixed component statuses, cannot perform bulk status change"
+                return False, f"Status change cancelled: Collection contains components with different statuses, bulk status changes are not allowed. Please ensure all components have the same status before attempting bulk changes. No changes have been made."
         
         logging.info(f"Validation of collection {collection_id} passed")
         return True, f"Validation of collection {collection_id} passed"
