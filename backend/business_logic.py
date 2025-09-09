@@ -566,29 +566,26 @@ class BusinessLogic():
                 "component_workplans": component_workplans}
 
     def get_collections(self):
-        """Method to produce payload for collections table"""
+        """Method to produce payload for display of collections"""
         all_collections = []
         collections = database_manager.read_all_collections()
-        
+
         for collection in collections:
-            # Parse component IDs from JSON
             component_ids = json.loads(collection.components) if collection.components else []
             component_count = len(component_ids)
             
-            # Get bike name if bike_id exists
             bike_name = None
             if collection.bike_id:
                 bike = database_manager.read_single_bike(collection.bike_id)
                 bike_name = bike.bike_name if bike else None
             
-            # Format the data tuple as expected by the template
             collection_data = (
                 collection.collection_id,
                 collection.collection_name,
                 component_count,
                 bike_name,
                 collection.updated_date or "",
-                json.dumps(component_ids),  # Keep as JSON string for frontend
+                json.dumps(component_ids),
                 collection.bike_id or "",
                 collection.comment or ""
             )
@@ -2245,7 +2242,14 @@ class BusinessLogic():
 
             # Process each component in the collection
             success_count = 0
+            successful_components = []
+            failed_components = []
+            
             for component_id in component_ids:
+                # Get component details for user-friendly display
+                component = database_manager.read_component(component_id)
+                component_name = component.component_name if component else f"Component {component_id}"
+                
                 # Use existing create_history_record flow for status changes
                 success, message = self.create_history_record(
                     component_id=component_id,
@@ -2256,7 +2260,9 @@ class BusinessLogic():
                 
                 if success:
                     success_count += 1
+                    successful_components.append(component_name)
                 else:
+                    failed_components.append({"name": component_name, "error": message})
                     logging.error(f"Failed to update component {component_id}: {message}")
 
             # Update collection's updated_date to reflect status change
@@ -2275,17 +2281,42 @@ class BusinessLogic():
                 except Exception as e:
                     logging.error(f"Failed to update collection updated_date: {str(e)}")
 
-            if success_count == len(component_ids):
-                message = f"Successfully updated status for all {success_count} components in collection"
-                logging.info(message)
+            # Generate detailed feedback message
+            total_count = len(component_ids)
+            
+            if success_count == total_count:
+                # All components succeeded
+                message = f"<strong>Successfully updated status for all {success_count} components</strong><br><br>"
+                message += "<strong>Updated Components:</strong><br>"
+                message += "<br>".join([f"• {name}" for name in successful_components])
+                logging.info(f"Collection status change: all {success_count} components succeeded")
                 return True, message
+                
             elif success_count > 0:
-                message = f"Updated {success_count} of {len(component_ids)} components in collection"
-                logging.warning(message)
+                # Partial success
+                message = f"<strong>Updated {success_count} of {total_count} components successfully</strong><br><br>"
+                
+                if successful_components:
+                    message += "<strong>Successfully Updated:</strong><br>"
+                    message += "<br>".join([f"• {name}" for name in successful_components])
+                    message += "<br><br>"
+                
+                if failed_components:
+                    message += "<strong>Failed to Update:</strong><br>"
+                    for failed in failed_components:
+                        message += f"• {failed['name']}: {failed['error']}<br>"
+                
+                logging.warning(f"Collection status change: {success_count}/{total_count} components succeeded")
                 return True, message
+                
             else:
-                message = f"Failed to update any components in collection"
-                logging.error(message)
+                # All components failed
+                message = f"<strong>Failed to update any components in collection</strong><br><br>"
+                message += "<strong>All Components Failed:</strong><br>"
+                for failed in failed_components:
+                    message += f"• {failed['name']}: {failed['error']}<br>"
+                
+                logging.error("Collection status change: all components failed")
                 return False, message
 
         except Exception as error:

@@ -4059,19 +4059,32 @@ window.addEventListener('load', () => {
         
         // Force cleanup of any remaining modal artifacts
         setTimeout(() => {
-            // Remove any lingering backdrops
-            document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-                backdrop.remove();
-            });
+            // Check if any other modals are still open before removing backdrop
+            const openModals = document.querySelectorAll('.modal.show:not(#loadingModal)');
+            const hasOtherModalsOpen = openModals.length > 0;
             
-            // Remove modal-open class and body styles
-            if (document.body.classList.contains('modal-open')) {
-                document.body.classList.remove('modal-open');
-                document.body.style.removeProperty('overflow');
-                document.body.style.removeProperty('padding-right');
+            if (!hasOtherModalsOpen) {
+                // Only remove backdrop and body styles if no other modals are open
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                    backdrop.remove();
+                });
+                
+                if (document.body.classList.contains('modal-open')) {
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('overflow');
+                    document.body.style.removeProperty('padding-right');
+                }
+            } else {
+                // Other modals are open, ensure backdrop exists for them
+                if (!document.querySelector('.modal-backdrop')) {
+                    // Create new backdrop if none exists
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    document.body.appendChild(backdrop);
+                }
             }
             
-            // Force hide loading modal element directly (nuclear option)
+            // Always force hide loading modal element directly (nuclear option)
             const loadingElement = document.getElementById('loadingModal');
             if (loadingElement) {
                 loadingElement.style.display = 'none';
@@ -4115,6 +4128,16 @@ window.addEventListener('load', () => {
                         }, 300);
                     }
                 });
+                
+                // Fix double backdrop issue for error cases (collection modal stays open)
+                if (!data.success) {
+                    setTimeout(() => {
+                        const backdrops = document.querySelectorAll('.modal-backdrop');
+                        if (backdrops.length > 1) {
+                            backdrops[backdrops.length - 1].remove(); // Remove newest backdrop
+                        }
+                    }, 100);
+                }
             }, 500);
         })
         .catch(error => {

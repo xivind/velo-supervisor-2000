@@ -231,8 +231,8 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 20. 🔲 **Add component details page collection integration**: Component details page references `#editCollectionModal` which doesn't exist, missing collections table and management functionality.
 21. 🔲 **Implement component_collections field for collection icons**: Add component_collections field to payload to show collection membership icons (📦) in component overview table.
 22. 🔲 **Add proper error handling to JavaScript collection functions**: JavaScript collection functions need better error handling for robustness and user feedback.
-23. 🔲 **Collections status change timing optimization**: Current modal timing (200ms + 500ms delays) works reliably but may need adjustment for large collections. Backend operations for collections with many components will take longer, potentially requiring dynamic timeout calculation based on collection size or user-configurable timeout settings.
-24. 🔲 **Improve collections status change user feedback**: Current success/failure messages are basic. Users would benefit from detailed summaries showing what was accomplished (e.g., "Updated 8 of 10 components successfully: 2 components failed due to..."). Consider showing component-by-component results for transparency and debugging.
+23. ✅ **Collections status change timing optimization**: RESOLVED - Tested with 10-second backend delay to simulate large collections. Current modal system works perfectly: loading modal waits for actual backend response (no timeout needed), 200ms + 500ms delays are only for modal transition cleanup and work reliably. System properly handles any collection size without modification.
+24. ✅ **Improve collections status change user feedback**: COMPLETED - Enhanced backend to return detailed component-by-component feedback with friendly names and specific error messages. Implemented structured HTML messages showing successful/failed components separately. Fixed modal backdrop double-dimming issue in error scenarios. Users now get clear, actionable feedback for debugging collection status changes.
 
 ## Critical Missing Functionality:
 
@@ -254,6 +254,10 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 1. Collection templates and duplication
 2. Nested collections (using `sub_collections` field)
 3. Collection-based reporting and analytics
+
+## Accessibility Issues (Technical Debt)
+
+25. 🔲 **Fix mismatched label for attributes**: Browser console reports "The label's for attribute doesn't match any element id." This affects form accessibility and autofill functionality. Need to audit all HTML templates and ensure every `<label for="...">` has a corresponding `<input id="...">` element. Collections modal is verified clean - issue likely in older templates like component_details.html and modal_create_component.html.
 
 ## Technical Considerations
 
