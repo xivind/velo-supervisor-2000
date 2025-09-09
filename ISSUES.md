@@ -1,7 +1,7 @@
 # ISSUES CURRENTLY IN PROGRESS
 This file (ISSUES.md) must be read on startup. This file contains information on what we are currently working on. Claude Code should ensure that this file is up to date, as the work progress.
 
-**Current Status**: Collections feature has significant gaps in implementation. Core modal and API endpoints exist, but key functionality is missing. Working on completing Phase 2-6 before Phase 7 cleanup.
+**Current Status**: Collections feature core functionality is largely complete. Critical modal conflict bug resolved (issue #17). Focus shifting to remaining integration points, user experience improvements, and edge case handling. Major functional components working reliably.
 
 **Note**: Collection icons (📦) in component overview table - need to implement `component_collections` field in payload to show collection membership icons.  
 
@@ -225,12 +225,14 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 14. 🔲 **Collection updated_date preservation bug**: When saving collection changes (like description) without status changes, the `updated_date` field gets overwritten/nulled. The `updated_date` should only track status change operations and be preserved during regular collection saves.
 15. ✅ **Collections status change feedback**: Completed - Implemented reusable report modal feedback for "Set new status" operations. Success cases work perfectly, but failure cases still have modal conflicts (see issue #17).
 16. 🔲 **Collections and sub_collections NULL handling**: Empty `components` and `sub_collections` fields should write NULL to database instead of empty strings to maintain consistent NULL handling across all collection fields.
-17. 🔲 **Collections status change modal conflict bug**: When collection status changes fail (partial or complete failure), the loading modal hangs and doesn't close properly, causing the report modal to appear behind it. The success case works correctly after implementing forced modal cleanup, but failure cases still experience modal backdrop conflicts.
+17. ✅ **Collections status change modal conflict bug**: RESOLVED - Fixed complex modal conflict issue where loading modal would hang during status changes. Root cause was focus management and Bootstrap modal lifecycle conflicts in confirmation→loading→report modal chain. Solution: Added proper focus management (`confirmAction.blur()`), created reusable `forceCloseLoadingModal()` helper function with multi-level cleanup (Bootstrap methods + DOM manipulation), and established proper timing (200ms internal cleanup + 500ms transition delay). Both success and failure scenarios now work reliably.
 18. 🔲 **Add collection name column to component tables**: Integrate collection names directly into component tables (both overview and bike details pages) instead of separate collections tables, showing "-" for components not in collections.
 19. 🔲 **Implement collection deletion functionality**: Add JavaScript handler and API endpoint for collection deletion - delete buttons exist but have no functionality.
 20. 🔲 **Add component details page collection integration**: Component details page references `#editCollectionModal` which doesn't exist, missing collections table and management functionality.
 21. 🔲 **Implement component_collections field for collection icons**: Add component_collections field to payload to show collection membership icons (📦) in component overview table.
 22. 🔲 **Add proper error handling to JavaScript collection functions**: JavaScript collection functions need better error handling for robustness and user feedback.
+23. 🔲 **Collections status change timing optimization**: Current modal timing (200ms + 500ms delays) works reliably but may need adjustment for large collections. Backend operations for collections with many components will take longer, potentially requiring dynamic timeout calculation based on collection size or user-configurable timeout settings.
+24. 🔲 **Improve collections status change user feedback**: Current success/failure messages are basic. Users would benefit from detailed summaries showing what was accomplished (e.g., "Updated 8 of 10 components successfully: 2 components failed due to..."). Consider showing component-by-component results for transparency and debugging.
 
 ## Critical Missing Functionality:
 

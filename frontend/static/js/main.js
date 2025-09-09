@@ -4033,13 +4033,54 @@ window.addEventListener('load', () => {
                     // Remove the event listener after use
                     this.removeEventListener('click', handleConfirm);
                     
-                    // Perform bulk status change
-                    performBulkStatusChange(collectionId, newStatus, updatedDate);
+                    // CRITICAL: Remove focus from the button before hiding modal to prevent aria-hidden focus trap
+                    this.blur();
+                    
+                    // Close confirmation modal first
+                    confirmModal.hide();
+                    
+                    // Use timeout instead of Bootstrap events for more reliable modal transitions
+                    setTimeout(() => {
+                        performBulkStatusChange(collectionId, newStatus, updatedDate);
+                    }, 300); // Give enough time for confirm modal to close
                 }, { once: true });
             });
         }
     });
     
+    // Helper function to forcefully close loading modal when Bootstrap fails
+    function forceCloseLoadingModal() {
+        // Try Bootstrap's official methods first
+        loadingModal.hide();
+        const loadingInstance = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+        if (loadingInstance) {
+            loadingInstance.hide();
+        }
+        
+        // Force cleanup of any remaining modal artifacts
+        setTimeout(() => {
+            // Remove any lingering backdrops
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                backdrop.remove();
+            });
+            
+            // Remove modal-open class and body styles
+            if (document.body.classList.contains('modal-open')) {
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+            }
+            
+            // Force hide loading modal element directly (nuclear option)
+            const loadingElement = document.getElementById('loadingModal');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+                loadingElement.classList.remove('show');
+                loadingElement.setAttribute('aria-hidden', 'true');
+            }
+        }, 200);
+    }
+
     // Perform bulk status change via API
     function performBulkStatusChange(collectionId, newStatus, updatedDate) {
         document.getElementById('loadingMessage').textContent = 'Updating component statuses...';
@@ -4058,21 +4099,11 @@ window.addEventListener('load', () => {
         })
         .then(response => response.json())
         .then(data => {
-            let reportShown = false;
+            // Close loading modal using helper function
+            forceCloseLoadingModal();
             
-            // Function to show the report modal
-            const showReport = () => {
-                if (reportShown) return; // Prevent double execution
-                reportShown = true;
-                
-                // Force cleanup of loading modal
-                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-                    backdrop.remove();
-                });
-                document.body.classList.remove('modal-open');
-                document.body.style.removeProperty('overflow');
-                document.body.style.removeProperty('padding-right');
-                
+            // Show results after modal cleanup delay
+            setTimeout(() => {
                 const title = data.success ? '✅ Status Update Complete' : '❌ Status Update Failed';
                 showReportModal(title, data.message, data.success, function() {
                     if (data.success) {
@@ -4084,47 +4115,18 @@ window.addEventListener('load', () => {
                         }, 300);
                     }
                 });
-            };
-            
-            // Force hide the loading modal and clean up immediately
-            loadingModal.hide();
-            
-            // Also force immediate cleanup in case the timeout-based cleanup in showReport doesn't work
-            setTimeout(() => {
-                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-                    backdrop.remove();
-                });
-                document.body.classList.remove('modal-open');
-                document.body.style.removeProperty('overflow');
-                document.body.style.removeProperty('padding-right');
-            }, 50);
-            
-            setTimeout(showReport, 100);
+            }, 500);
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Collection status change error:', error);
             
-            let reportShown = false;
+            // Close loading modal using helper function
+            forceCloseLoadingModal();
             
-            // Function to show the error report modal
-            const showErrorReport = () => {
-                if (reportShown) return; // Prevent double execution
-                reportShown = true;
-                
-                // Force cleanup of loading modal
-                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-                    backdrop.remove();
-                });
-                document.body.classList.remove('modal-open');
-                document.body.style.removeProperty('overflow');
-                document.body.style.removeProperty('padding-right');
-                
+            // Show error message after modal cleanup delay
+            setTimeout(() => {
                 showReportModal('❌ Application Error', 'An error occurred while updating component statuses. Please try again.', false);
-            };
-            
-            // Force hide the loading modal and clean up immediately
-            loadingModal.hide();
-            setTimeout(showErrorReport, 100);
+            }, 400);
         });
     }
     
