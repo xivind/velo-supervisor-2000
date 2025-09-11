@@ -5,6 +5,9 @@
 {% block content %}
 <h1 id="component-overview" class="display-5 mt-5 text-center mb-4">Component overview</h1>
   
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#collectionModal">
+    <span>📦 New collection</span>
+</button>
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createComponentModal">
     <span>⚙ New component</span>
 </button>
@@ -13,9 +16,6 @@
 </button>
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
     <span>🚨 New incident</span>
-</button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#collectionModal">
-    <span>📦 New collection</span>
 </button>
 
 {% include "modal_create_component.html" %}
@@ -58,6 +58,12 @@
     </div>
 </div>
 <hr/>
+<div class="mb-3 ms-2">
+    <div class="small text-secondary d-flex align-items-center">
+      <span style="width: 230px;">🟩 Collection has components</span>
+      <span style="width: 230px;">🟥 Collection has no components</span>
+    </div>
+</div>
 <div class="card shadow mb-3">
     <div class="card-header fw-bold">Collections</div>
     <div class="card-body">
@@ -69,7 +75,7 @@
             <thead>
                 <tr>
                     <th data-sort="name">Collection <span class="sort-indicator"></span></th>
-                    <th data-sort="components">Component count <span class="sort-indicator"></span></th>
+                    <th data-sort="components">Status use<span class="sort-indicator"></span></th>
                     <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
                     <th data-sort="updated">Last updated <span class="sort-indicator"></span></th>
                     <th class="text-end"></th>
@@ -82,7 +88,7 @@
                             <td>
                                 {{ collection_name }}
                             </td>
-                            <td>{{ component_count }} components</td>
+                            <td>{% if component_count > 0 %}🟩 {{ component_count }} components{% else %}🟥 No components{% endif %}</td>
                             <td>{{ bike_name if bike_name else "Not assigned" }}</td>
                             <td>{{ updated_date.split(' ')[0] if updated_date else "-" }}</td>
                             <td class="text-end">
