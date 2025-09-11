@@ -911,7 +911,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Different handling based on column type
             switch(index) {
-                case 0: // Name column
+                case 0: // Component column
                 case 1: // Type column
                 case 6: // Bike column
                     // Remove emojis and compare case-insensitively for text columns
@@ -993,12 +993,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initial sort by Name column (index 0) in ascending order
+    // Initial sort by Component column (index 0) in ascending order
     if (headers.length > 0 && rows.length > 1) {
-        // Add sorted-asc class to the Name column header
+        // Add sorted-asc class to the Component column header
         headers[0].classList.add('sorted-asc');
         
-        // Sort by Name column (index 0) in ascending order
+        // Sort by Component column (index 0) in ascending order
         sortColumn(0, true);
     }
 });
@@ -1207,8 +1207,8 @@ document.addEventListener('DOMContentLoaded', function() {
             let cellB = rowB.querySelectorAll('td')[index].innerText.trim();
             
             // Special handling for name column (remove emojis)
-            // Special handling for name column (remove emojis and normalize case)
-            if (index === 0) { // Name column
+            // Special handling for component column (remove emojis and normalize case)
+            if (index === 0) { // Component column
                 // Remove emoji characters, trim whitespace, and convert to lowercase
                 cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡⛔]/gu, '').trim().toLowerCase();
                 cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡⛔]/gu, '').trim().toLowerCase();
