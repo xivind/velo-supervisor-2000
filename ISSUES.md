@@ -214,7 +214,7 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 3. ✅ **Ensure frontend and backend validation alignment**: Completed - frontend validation prevents invalid submissions, backend messages aligned with "Operation cancelled" and "No changes made" formatting
 4. 🔲 **Implement collection deletion functionality**: Add JavaScript handler and API endpoint for collection deletion
 5. 🔲 **Add proper error handling in JavaScript collection functions**: JavaScript functions need better error handling for robustness
-6. 🔲 **Implement component_collections field in payload**: Add component_collections field to show collection membership icons (📦) in component overview table
+6. ✅ **Implement component_collections field in payload**: COMPLETED - Added component_collections, component_collection_names, and component_collection_data fields to component overview payload
 7. ✅ ~~Fix bike_details.html collections table~~ (REMOVED - table no longer exists)
 8. 🔲 **Add column sorting JavaScript handlers**: Collections tables need JavaScript to make column sorting work (data-sort attributes exist but no handlers)
 9. 🔲 **Update component overview legend**: Add collection icon explanation to the legend
@@ -226,13 +226,116 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 15. ✅ **Collections status change feedback**: Completed - Implemented reusable report modal feedback for "Set new status" operations. Success cases work perfectly, but failure cases still have modal conflicts (see issue #17).
 16. 🔲 **Collections and sub_collections NULL handling**: Empty `components` and `sub_collections` fields should write NULL to database instead of empty strings to maintain consistent NULL handling across all collection fields.
 17. ✅ **Collections status change modal conflict bug**: RESOLVED - Fixed complex modal conflict issue where loading modal would hang during status changes. Root cause was focus management and Bootstrap modal lifecycle conflicts in confirmation→loading→report modal chain. Solution: Added proper focus management (`confirmAction.blur()`), created reusable `forceCloseLoadingModal()` helper function with multi-level cleanup (Bootstrap methods + DOM manipulation), and established proper timing (200ms internal cleanup + 500ms transition delay). Both success and failure scenarios now work reliably.
-18. 🔲 **Add collection name column to component tables**: Integrate collection names directly into component tables (both overview and bike details pages) instead of separate collections tables, showing "-" for components not in collections.
+18. ✅ **Add collection name column to component tables**: COMPLETED for component overview page - Integrated Collections column with clickable names, showing "-" for components not in collections. **Still needed for bike details page** (see implementation guide above).
 19. 🔲 **Implement collection deletion functionality**: Add JavaScript handler and API endpoint for collection deletion - delete buttons exist but have no functionality.
 20. 🔲 **Add component details page collection integration**: Component details page references `#editCollectionModal` which doesn't exist, missing collections table and management functionality.
-21. 🔲 **Implement component_collections field for collection icons**: Add component_collections field to payload to show collection membership icons (📦) in component overview table.
+21. ✅ **Implement component_collections field for collection icons**: COMPLETED - Added component_collections field to payload and integrated into component overview table (icons removed per user preference, clean text-only design).
 22. 🔲 **Add proper error handling to JavaScript collection functions**: JavaScript collection functions need better error handling for robustness and user feedback.
 23. ✅ **Collections status change timing optimization**: RESOLVED - Tested with 10-second backend delay to simulate large collections. Current modal system works perfectly: loading modal waits for actual backend response (no timeout needed), 200ms + 500ms delays are only for modal transition cleanup and work reliably. System properly handles any collection size without modification.
 24. ✅ **Improve collections status change user feedback**: COMPLETED - Enhanced backend to return detailed component-by-component feedback with friendly names and specific error messages. Implemented structured HTML messages showing successful/failed components separately. Fixed modal backdrop double-dimming issue in error scenarios. Users now get clear, actionable feedback for debugging collection status changes.
+25. ✅ **Component Overview Collections Integration**: COMPLETED - Successfully integrated Collections column into component overview table with full functionality.
+
+## ✅ COMPLETED: Component Overview Collections Integration
+
+### Implementation Details for Replication on Bike Details Page:
+
+#### **Backend Changes (business_logic.py:224-244):**
+```python
+# In get_component_overview() method, add these payload fields:
+component_collections = {}  # component_id -> True (for icons)
+component_collection_names = {}  # component_id -> collection_name  
+component_collection_data = {}  # component_id -> (collection_id, collection_name, components, bike_id, comment, updated_date)
+
+collections = database_manager.read_all_collections()
+for collection in collections:
+    component_ids = json.loads(collection.components) if collection.components else []
+    for component_id in component_ids:
+        component_collections[component_id] = True
+        component_collection_names[component_id] = collection.collection_name
+        component_collection_data[component_id] = (
+            collection.collection_id, collection.collection_name, collection.components,
+            collection.bike_id or "", collection.comment or "", collection.updated_date or ""
+        )
+
+# Add to payload:
+"component_collections": component_collections,
+"component_collection_names": component_collection_names,
+"component_collection_data": component_collection_data,
+```
+
+#### **Template Changes (component_overview.html:148-181):**
+```html
+<!-- Add Collections column header after Name -->
+<th data-sort="collection">Collection <span class="sort-indicator"></span></th>
+
+<!-- Add Collections column data -->
+<td>
+    {% if component_id in payload.component_collection_names %}
+        {% set collection_data = payload.component_collection_data[component_id] %}
+        <span class="collection-name-link" role="button" 
+              data-collection-id="{{ collection_data[0] }}"
+              data-collection-name="{{ collection_data[1] }}"
+              data-components="{{ collection_data[2] }}"
+              data-bike-id="{{ collection_data[3] }}"
+              data-comment="{{ collection_data[4] }}"
+              data-updated-date="{{ collection_data[5] }}"
+              onclick="event.stopPropagation();" 
+              style="cursor: pointer;">
+            {{ payload.component_collection_names[component_id] }}
+        </span>
+    {% else %}
+        <span class="text-muted">-</span>
+    {% endif %}
+</td>
+
+<!-- Update empty table colspan from 8 to 9 -->
+<td colspan="9" class="text-center">No components registered</td>
+```
+
+#### **JavaScript Changes (main.js:1088-1093, 1108, 3674-3735):**
+```javascript
+// 1. Update search function cell indices:
+const name = row.cells[0].textContent.toLowerCase();
+const collection = row.cells[1].textContent.toLowerCase();  // NEW
+const type = row.cells[2].textContent.toLowerCase();        // Was [1]
+const bike = row.cells[7].textContent.toLowerCase();        // Was [6]
+const rowText = `${name} ${collection} ${type} ${bike}`;    // Include collection
+
+// 2. Update "no results" colspan from 8 to 9:
+newRow.innerHTML = '<td colspan="9" class="text-center">No components match your criteria</td>';
+
+// 3. Add initial filter call on page load:
+updateRowVisibility();  // Add this after event listeners
+
+// 4. Add collection name click handlers:
+document.querySelectorAll('.collection-name-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        isNewCollection = false;
+        document.getElementById('collectionModalLabel').textContent = 'Edit collection';
+        document.getElementById('collection_form').action = '/update_collection';
+        
+        // Get data from attributes and populate modal
+        const collectionId = this.dataset.collectionId;
+        const collectionName = this.dataset.collectionName;
+        const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
+        // ... (full handler code as implemented)
+        
+        const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+        modal.show();
+    });
+});
+```
+
+### **Key Points for Bike Details Replication:**
+- Must implement same backend payload structure
+- Template column insertion requires careful cell index management  
+- JavaScript search/filter functions need cell index updates
+- Collection click handlers use data attributes (no payload passing needed)
+- Remember to add initial `updateRowVisibility()` call on page load
+- Update all colspan values for "no results" rows
 
 ## Critical Missing Functionality:
 

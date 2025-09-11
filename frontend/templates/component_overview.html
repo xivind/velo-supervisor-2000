@@ -68,7 +68,7 @@
         <table class="table table-hover" id="collectionsTable">
             <thead>
                 <tr>
-                    <th data-sort="name">Collection name <span class="sort-indicator"></span></th>
+                    <th data-sort="name">Collection <span class="sort-indicator"></span></th>
                     <th data-sort="components">Component count <span class="sort-indicator"></span></th>
                     <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
                     <th data-sort="updated">Last updated <span class="sort-indicator"></span></th>
@@ -146,6 +146,7 @@
             <thead>
                 <tr>
                     <th data-sort="name">Name <span class="sort-indicator"></span></th>
+                    <th data-sort="collection">Collection <span class="sort-indicator"></span></th>
                     <th data-sort="type">Type <span class="sort-indicator"></span></th>
                     <th data-sort="distance">Distance <span class="sort-indicator"></span></th>
                     <th data-sort="status">Status <span class="sort-indicator"></span></th>
@@ -159,7 +160,25 @@
                 {% if payload.all_components_data %}
                     {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.all_components_data %}
                         <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
-                            <td>{{ name }}{% if component_id in payload.planned_workplans["component_workplans"] %} 📝{% endif %}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}{% if component_id in payload.component_collections %} 📦{% endif %}</td>
+                            <td>{{ name }}{% if component_id in payload.planned_workplans["component_workplans"] %} 📝{% endif %}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}</td>
+                            <td>
+                                {% if component_id in payload.component_collection_names %}
+                                    {% set collection_data = payload.component_collection_data[component_id] %}
+                                    <span class="collection-name-link" role="button" 
+                                          data-collection-id="{{ collection_data[0] }}"
+                                          data-collection-name="{{ collection_data[1] }}"
+                                          data-components="{{ collection_data[2] }}"
+                                          data-bike-id="{{ collection_data[3] }}"
+                                          data-comment="{{ collection_data[4] }}"
+                                          data-updated-date="{{ collection_data[5] }}"
+                                          onclick="event.stopPropagation();" 
+                                          style="cursor: pointer;">
+                                        {{ payload.component_collection_names[component_id] }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
                             <td>{{ type }}</td>
                             <td>{{ component_distance }} km</td>
                             <td>
@@ -208,7 +227,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="8" class="text-center">No components registered</td>
+                        <td colspan="9" class="text-center">No components registered</td>
                     </tr>
                 {% endif %}
             </tbody>

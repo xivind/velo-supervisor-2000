@@ -1086,9 +1086,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Check if row matches search term
             const name = row.cells[0].textContent.toLowerCase();
-            const type = row.cells[1].textContent.toLowerCase();
-            const bike = row.cells[6].textContent.toLowerCase();
-            const rowText = `${name} ${type} ${bike}`;
+            const collection = row.cells[1].textContent.toLowerCase();
+            const type = row.cells[2].textContent.toLowerCase();
+            const bike = row.cells[7].textContent.toLowerCase();
+            const rowText = `${name} ${collection} ${type} ${bike}`;
             const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
             
             // Show row only if it matches both filter and search criteria
@@ -1104,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const tbody = table.querySelector('tbody');
                 const newRow = document.createElement('tr');
                 newRow.className = 'no-results-row';
-                newRow.innerHTML = '<td colspan="8" class="text-center">No components match your criteria</td>';
+                newRow.innerHTML = '<td colspan="9" class="text-center">No components match your criteria</td>';
                 tbody.appendChild(newRow);
             } else {
                 noResultsRow.style.display = '';
@@ -1130,6 +1131,9 @@ document.addEventListener('DOMContentLoaded', function() {
             updateRowVisibility();
         }
     });
+    
+    // Initial call to apply filter states on page load
+    updateRowVisibility();
 });
 
 // ===== Bike details page functions =====
@@ -3664,6 +3668,73 @@ window.addEventListener('load', () => {
                 const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
                 modal.show();
             });
+        });
+    });
+    
+    // Setup collection name link handlers for component table (needs to run after DOM is ready)
+    document.querySelectorAll('.collection-name-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            isNewCollection = false;
+            
+            // Configure modal for editing
+            document.getElementById('collectionModalLabel').textContent = 'Edit collection';
+            document.getElementById('collection_form').action = '/update_collection';
+            
+            // Get data from the link
+            const collectionId = this.dataset.collectionId;
+            const collectionName = this.dataset.collectionName;
+            const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
+            const bikeId = this.dataset.bikeId || '';
+            const comment = this.dataset.comment || '';
+            const updatedDate = this.dataset.updatedDate || '';
+            
+            // Store original components for validation
+            window.originalCollectionComponents = [...components];
+            
+            // Populate form fields
+            document.getElementById('collection_id').value = collectionId;
+            document.getElementById('collection_name').value = collectionName;
+            document.getElementById('bike_id').value = bikeId;
+            document.getElementById('comment').value = comment;
+            document.getElementById('updated_date').value = ''; // Always blank - user enters new date for status changes
+            
+            // Update last updated display
+            const lastUpdatedElement = document.getElementById('last_updated');
+            if (lastUpdatedElement) {
+                lastUpdatedElement.textContent = updatedDate || 'Never updated through collections';
+            }
+            
+            // Add form submit listener to update original components when saved
+            const form = document.getElementById('collection_form');
+            if (form && !form.hasAttribute('data-collection-submit-listener')) {
+                form.addEventListener('submit', function() {
+                    // When saving, update the original components to match current selection
+                    const componentSelect = document.getElementById('components');
+                    const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
+                    const selectedValues = tomSelect ? tomSelect.getValue() : [];
+                    window.originalCollectionComponents = [...selectedValues];
+                });
+                form.setAttribute('data-collection-submit-listener', 'true');
+            }
+            
+            // Update ID display
+            document.getElementById('collection-id-display').textContent = collectionId;
+            
+            // Initialize component selector and set selected components
+            initializeComponentSelector();
+            setTimeout(() => {
+                if (components && components.length > 0) {
+                    setSelectedComponents(components);
+                }
+                setupComponentValidation();
+            }, 100);
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+            modal.show();
         });
     });
     
