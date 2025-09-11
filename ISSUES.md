@@ -226,7 +226,7 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 15. ✅ **Collections status change feedback**: Completed - Implemented reusable report modal feedback for "Set new status" operations. Success cases work perfectly, but failure cases still have modal conflicts (see issue #17).
 16. 🔲 **Collections and sub_collections NULL handling**: Empty `components` and `sub_collections` fields should write NULL to database instead of empty strings to maintain consistent NULL handling across all collection fields.
 17. ✅ **Collections status change modal conflict bug**: RESOLVED - Fixed complex modal conflict issue where loading modal would hang during status changes. Root cause was focus management and Bootstrap modal lifecycle conflicts in confirmation→loading→report modal chain. Solution: Added proper focus management (`confirmAction.blur()`), created reusable `forceCloseLoadingModal()` helper function with multi-level cleanup (Bootstrap methods + DOM manipulation), and established proper timing (200ms internal cleanup + 500ms transition delay). Both success and failure scenarios now work reliably.
-18. ✅ **Add collection name column to component tables**: COMPLETED for component overview page - Integrated Collections column with clickable names, showing "-" for components not in collections. **Still needed for bike details page** (see implementation guide above).
+18. ✅ **Add collection name column to component tables**: COMPLETED for both component overview and bike details pages - Integrated Collections column with clickable names, showing "-" for components not in collections. Full functionality including backend payload, JavaScript search/sort integration, and modal click handlers.
 19. 🔲 **Implement collection deletion functionality**: Add JavaScript handler and API endpoint for collection deletion - delete buttons exist but have no functionality.
 20. 🔲 **Add component details page collection integration**: Component details page references `#editCollectionModal` which doesn't exist, missing collections table and management functionality.
 21. ✅ **Implement component_collections field for collection icons**: COMPLETED - Added component_collections field to payload and integrated into component overview table (icons removed per user preference, clean text-only design).
@@ -234,6 +234,9 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 23. ✅ **Collections status change timing optimization**: RESOLVED - Tested with 10-second backend delay to simulate large collections. Current modal system works perfectly: loading modal waits for actual backend response (no timeout needed), 200ms + 500ms delays are only for modal transition cleanup and work reliably. System properly handles any collection size without modification.
 24. ✅ **Improve collections status change user feedback**: COMPLETED - Enhanced backend to return detailed component-by-component feedback with friendly names and specific error messages. Implemented structured HTML messages showing successful/failed components separately. Fixed modal backdrop double-dimming issue in error scenarios. Users now get clear, actionable feedback for debugging collection status changes.
 25. ✅ **Component Overview Collections Integration**: COMPLETED - Successfully integrated Collections column into component overview table with full functionality.
+26. ✅ **Bike Details Collections Integration**: COMPLETED - Successfully integrated Collections column into bike details page component table with full functionality including backend payload, clickable collection names, modal integration, and JavaScript search/sort support.
+27. ✅ **Table Sorting Bug Fixes**: COMPLETED - Fixed table sorting issues in both component overview and bike details pages caused by column index shifts after Collections integration. All columns now properly support ascending/descending sort functionality.
+28. ✅ **Component Table Naming Consistency**: COMPLETED - Renamed "Name" column to "Component" in both component overview and bike details pages for improved consistency and clarity.
 
 ## ✅ COMPLETED: Component Overview Collections Integration
 
@@ -343,6 +346,11 @@ document.querySelectorAll('.collection-name-link').forEach(link => {
 - Component details page references `#editCollectionModal` which doesn't exist
 - No collections table or management functionality on component details page
 - Missing API endpoint to get collection data for a specific component
+- **SIMPLIFIED APPROACH NEEDED**: Add simple collection membership line to existing card showing:
+  - "Not part of any collection" if component not in collection
+  - "Part of collection: [Collection Name]" with clickable link to launch modal if component is in collection
+- **BACKEND**: Need to pass collection data (if any) for the specific component to component details page payload
+- **MODAL**: Reuse existing collection modal with component's collection data pre-populated
 
 ### Collection Deletion
 - Delete buttons exist in tables but no JavaScript handlers

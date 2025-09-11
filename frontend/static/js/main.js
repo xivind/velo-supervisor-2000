@@ -912,20 +912,30 @@ document.addEventListener('DOMContentLoaded', function() {
             // Different handling based on column type
             switch(index) {
                 case 0: // Component column
-                case 1: // Type column
-                case 6: // Bike column
                     // Remove emojis and compare case-insensitively for text columns
                     cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim().toLowerCase();
                     cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim().toLowerCase();
                     break;
                     
-                case 2: // Distance column
+                case 1: // Collection column
+                    // Case-insensitive text sorting for collection names
+                    cellA = cellA.toLowerCase();
+                    cellB = cellB.toLowerCase();
+                    break;
+                    
+                case 2: // Type column
+                    // Remove emojis and compare case-insensitively for text columns
+                    cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim().toLowerCase();
+                    cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim().toLowerCase();
+                    break;
+                    
+                case 3: // Distance column
                     // Extract numeric value from "X km" format
                     cellA = parseFloat(cellA.replace(/[^\d.-]/g, '')) || 0;
                     cellB = parseFloat(cellB.replace(/[^\d.-]/g, '')) || 0;
                     break;
                     
-                case 3: // Status column
+                case 4: // Status column
                     // Remove emojis, then normalize status for comparison
                     cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim();
                     cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim();
@@ -941,8 +951,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     cellB = statusOrder[cellB] || 999;
                     break;
                     
-                case 4: // Lifetime column
-                case 5: // Service column
+                case 5: // Lifetime column
+                case 6: // Service column
                     // Sort by color indicator severity (already center-aligned in cells)
                     const severityOrder = {
                         "🟢": 1, // OK
@@ -958,6 +968,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     cellA = emojiA ? severityOrder[emojiA[0]] || 999 : 999;
                     cellB = emojiB ? severityOrder[emojiB[0]] || 999 : 999;
+                    break;
+                    
+                case 7: // Bike column
+                    // Remove emojis and compare case-insensitively for text columns
+                    cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim().toLowerCase();
+                    cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡💤⛔🟢🟡🔴🟣⚪]/gu, '').trim().toLowerCase();
                     break;
             }
             
@@ -1214,20 +1230,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}⚡⛔]/gu, '').trim().toLowerCase();
             }
             
+            // Special handling for collection column (text, case-insensitive)
+            else if (index === 1) { // Collection column
+                cellA = cellA.toLowerCase();
+                cellB = cellB.toLowerCase();
+            }
+            // Special handling for type column (text, case-insensitive)
+            else if (index === 2) { // Type column
+                cellA = cellA.toLowerCase();
+                cellB = cellB.toLowerCase();
+            }
             // Special handling for distance column (extract numeric value)
-            if (index === 2) { // Distance column
+            else if (index === 3) { // Distance column
                 cellA = parseFloat(cellA.replace(' km', '')) || 0;
                 cellB = parseFloat(cellB.replace(' km', '')) || 0;
             } 
-            // Special handling for next life/srv column (numeric values)
-            else if (index === 4) { // Next life/srv column
+            // Special handling for next service column (numeric values)
+            else if (index === 5) { // Next service column
                 cellA = cellA === '-' ? Infinity : parseFloat(cellA) || 0;
                 cellB = cellB === '-' ? Infinity : parseFloat(cellB) || 0;
-            }
-            // Special handling for cost column (extract numeric value)
-            else if (index === 5) { // Cost column
-                cellA = cellA === '-' ? 0 : parseFloat(cellA.replace(' kr', '')) || 0;
-                cellB = cellB === '-' ? 0 : parseFloat(cellB.replace(' kr', '')) || 0;
             }
             
             // Compare based on parsed values or text
@@ -1245,8 +1266,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add data-sort attribute and sort indicators to headers (except Life / srv column)
     headers.forEach((header, index) => {
-        // Skip the "Life / srv" column (index 3)
-        if (index === 3) return;
+        // Skip the "Life / srv" column (index 4)
+        if (index === 4) return;
         
         // Add data-sort attribute to make headers sortable
         header.setAttribute('data-sort', '');
@@ -1274,13 +1295,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initial sort by Next service column (index 4) in ascending order
+    // Initial sort by Next service column (index 5) in ascending order
     if (headers.length > 0 && rows.length > 1) {
         // Add sorted-asc class to the Next service column header
-        headers[4].classList.add('sorted-asc');
+        headers[5].classList.add('sorted-asc');
         
-        // Sort by Next service column (index 4) in ascending order
-        sortColumn(4, true);
+        // Sort by Next service column (index 5) in ascending order
+        sortColumn(5, true);
     }
 });
 
@@ -1329,8 +1350,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Check if row matches search term
             const name = row.cells[0].textContent.toLowerCase();
-            const type = row.cells[1].textContent.toLowerCase();
-            const rowText = `${name} ${type}`;
+            const collection = row.cells[1].textContent.toLowerCase();
+            const type = row.cells[2].textContent.toLowerCase();
+            const rowText = `${name} ${collection} ${type}`;
             const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
             
             // Show row only if it matches both filter and search criteria
@@ -1371,6 +1393,50 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update visibility after clearing
             updateRowVisibility();
         }
+    });
+});
+
+// Add collection name click handlers for bike details page
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the bike details page
+    if (document.querySelector('h1#bike-details') === null) return;
+    
+    // Add click handlers to collection name links
+    document.querySelectorAll('.collection-name-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Configure modal for editing
+            isNewCollection = false;
+            document.getElementById('collectionModalLabel').textContent = 'Edit collection';
+            document.getElementById('collection_form').action = '/update_collection';
+            
+            // Get data from attributes and populate modal
+            const collectionId = this.dataset.collectionId;
+            const collectionName = this.dataset.collectionName;
+            const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
+            const bikeId = this.dataset.bikeId || '';
+            const comment = this.dataset.comment || '';
+            const updatedDate = this.dataset.updatedDate || '';
+            
+            // Store original components for validation
+            window.originalCollectionComponents = [...components];
+            
+            // Populate form fields
+            document.getElementById('collection_id').value = collectionId;
+            document.getElementById('collection_name').value = collectionName;
+            document.getElementById('bike_id').value = bikeId;
+            document.getElementById('comment').value = comment;
+            document.getElementById('updated_date').value = ''; // Always blank - user enters new date for status changes
+            
+            // Initialize component selector with current components
+            initializeComponentSelector(components);
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+            modal.show();
+        });
     });
 });
 
@@ -4305,5 +4371,190 @@ window.addEventListener('load', () => {
         // Initialize collection form validation
         setupCollectionFormValidation();
     });
+    
+    // Collections table functionality - search and sort
+    document.addEventListener('DOMContentLoaded', function() {
+        const collectionsTable = document.getElementById('collectionsTable');
+        if (!collectionsTable) return;
+        
+        // Initialize collections table search
+        initializeCollectionsSearch();
+        
+        // Initialize collections table sorting
+        initializeCollectionsSorting();
+    });
+    
+    function initializeCollectionsSearch() {
+        const searchInput = document.getElementById('collectionsSearchInput');
+        if (!searchInput) return;
+        
+        const table = document.getElementById('collectionsTable');
+        const rows = table.querySelectorAll('tbody tr');
+        
+        // Skip if there are no rows or just one "no collections" message row
+        if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+        
+        // Function to update row visibility based on search
+        function updateRowVisibility() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            let visibleRowCount = 0;
+            
+            rows.forEach(row => {
+                // Skip the "no collections created yet" row
+                if (row.cells.length === 1 && row.cells[0].colSpan) {
+                    return;
+                }
+                
+                // Get text content from searchable columns (skip status use column)
+                const collection = row.cells[0].textContent.toLowerCase();
+                const bike = row.cells[2].textContent.toLowerCase();
+                const rowText = `${collection} ${bike}`;
+                const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
+                
+                // Show/hide row based on search criteria
+                row.style.display = matchesSearch ? '' : 'none';
+                if (matchesSearch) visibleRowCount++;
+            });
+            
+            // Show "no results" message if no rows are visible
+            const existingNoResultsRow = table.querySelector('.no-results-row');
+            if (visibleRowCount === 0 && searchTerm !== '') {
+                if (!existingNoResultsRow) {
+                    const tbody = table.querySelector('tbody');
+                    const newRow = document.createElement('tr');
+                    newRow.className = 'no-results-row';
+                    newRow.innerHTML = '<td colspan="5" class="text-center">No collections match your criteria</td>';
+                    tbody.appendChild(newRow);
+                }
+            } else if (existingNoResultsRow) {
+                existingNoResultsRow.remove();
+            }
+        }
+        
+        // Listen for search input changes
+        searchInput.addEventListener('input', updateRowVisibility);
+        
+        // Clear search with Escape key
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                updateRowVisibility();
+            }
+        });
+        
+        // Initialize visibility
+        updateRowVisibility();
+    }
+    
+    function initializeCollectionsSorting() {
+        const table = document.getElementById('collectionsTable');
+        if (!table) return;
+        
+        const headers = table.querySelectorAll('th[data-sort]');
+        const tableBody = table.querySelector('tbody');
+        const rows = tableBody.querySelectorAll('tr');
+        
+        // Skip if there are no sortable rows
+        if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+        
+        let currentSortColumn = -1;
+        let currentSortDirection = 'asc';
+        
+        // Function to sort table by column
+        function sortColumn(columnIndex, ascending = true) {
+            // Get all rows and convert to array for sorting
+            const rowsArray = Array.from(rows).filter(row => {
+                // Exclude "no collections" and "no results" rows
+                return !(row.cells.length === 1 && row.cells[0].colSpan);
+            });
+            
+            // Sort the rows
+            rowsArray.sort((rowA, rowB) => {
+                let cellA = rowA.querySelectorAll('td')[columnIndex].innerText.trim();
+                let cellB = rowB.querySelectorAll('td')[columnIndex].innerText.trim();
+                
+                // Different handling based on column type
+                switch(columnIndex) {
+                    case 0: // Collection column
+                    case 2: // Bike column
+                        // Remove emojis and compare case-insensitively for text columns
+                        cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟩🟥]/gu, '').trim().toLowerCase();
+                        cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟩🟥]/gu, '').trim().toLowerCase();
+                        break;
+                        
+                    case 1: // Status column - sort by component count
+                        // Extract numeric value from "X components" format
+                        const numA = parseInt(cellA.match(/\d+/)) || 0;
+                        const numB = parseInt(cellB.match(/\d+/)) || 0;
+                        cellA = numA;
+                        cellB = numB;
+                        break;
+                        
+                    case 3: // Last updated column - handle date sorting
+                        // Convert date strings for comparison, treat "-" as earliest date
+                        if (cellA === "-") cellA = "1900-01-01";
+                        if (cellB === "-") cellB = "1900-01-01";
+                        cellA = new Date(cellA);
+                        cellB = new Date(cellB);
+                        break;
+                }
+                
+                // Compare values
+                if (cellA < cellB) return ascending ? -1 : 1;
+                if (cellA > cellB) return ascending ? 1 : -1;
+                return 0;
+            });
+            
+            // Clear the table body and re-append sorted rows
+            rowsArray.forEach(row => {
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Add click handlers to sortable headers
+        headers.forEach((header, index) => {
+            header.style.cursor = 'pointer';
+            
+            // Add sort indicator span if it doesn't exist
+            if (!header.querySelector('.sort-indicator')) {
+                const indicator = document.createElement('span');
+                indicator.className = 'sort-indicator';
+                header.appendChild(indicator);
+            }
+            
+            header.addEventListener('click', function() {
+                // Determine sort direction
+                let isAscending = true;
+                if (currentSortColumn === index && currentSortDirection === 'asc') {
+                    isAscending = false;
+                }
+                
+                // Update tracking variables
+                currentSortColumn = index;
+                currentSortDirection = isAscending ? 'asc' : 'desc';
+                
+                // Remove sort classes from all headers
+                headers.forEach(h => {
+                    h.classList.remove('sorted-asc', 'sorted-desc');
+                });
+                
+                // Add appropriate class to clicked header
+                header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+                
+                sortColumn(index, isAscending);
+            });
+        });
+        
+        // Initial sort by Collection column (index 0) in ascending order
+        if (headers.length > 0 && rows.length > 1) {
+            // Add sorted-asc class to the Collection column header
+            headers[0].classList.add('sorted-asc');
+            currentSortColumn = 0;
+            currentSortDirection = 'asc';
+            
+            // Sort by Collection column (index 0) in ascending order
+            sortColumn(0, true);
+        }
+    }
     
 })();
