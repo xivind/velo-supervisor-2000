@@ -1637,6 +1637,118 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Add collection name click handlers for component details page
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component details page
+    if (document.querySelector('h1#component-details') === null) return;
+    
+    // Function to populate collection modal with component's collection data
+    function populateCollectionModal() {
+        // Get component's collection data from the collection name link (if it exists)
+        const collectionLink = document.querySelector('.collection-name-link');
+        if (!collectionLink) return false;
+        
+        // Configure modal for editing
+        isNewCollection = false;
+        document.getElementById('collectionModalLabel').textContent = 'Edit collection';
+        document.getElementById('collection_form').action = '/update_collection';
+        
+        // Get data from attributes
+        const collectionId = collectionLink.dataset.collectionId;
+        const collectionName = collectionLink.dataset.collectionName;
+        const components = collectionLink.dataset.components ? JSON.parse(collectionLink.dataset.components) : [];
+        const bikeId = collectionLink.dataset.bikeId || '';
+        const comment = collectionLink.dataset.comment || '';
+        const updatedDate = collectionLink.dataset.updatedDate || '';
+        
+        // Store original components for validation
+        window.originalCollectionComponents = [...components];
+        
+        // Populate form fields
+        document.getElementById('collection_id').value = collectionId;
+        document.getElementById('collection_name').value = collectionName;
+        document.getElementById('comment').value = comment;
+        
+        // Clear the updated_date field to avoid conflict with component's updated_date fields
+        document.getElementById('updated_date').value = '';
+        
+        // Set bike field
+        const bikeSelect = document.getElementById('bike_id');
+        if (bikeSelect) {
+            bikeSelect.value = bikeId;
+        }
+        
+        // Initialize component selector and set selected components
+        if (window.initializeCollectionComponentSelector) {
+            window.initializeCollectionComponentSelector(components);
+        }
+        
+        return true;
+    }
+    
+    // Add click handler to collection name links
+    document.querySelectorAll('.collection-name-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Configure modal for editing
+            isNewCollection = false;
+            document.getElementById('collectionModalLabel').textContent = 'Edit collection';
+            document.getElementById('collection_form').action = '/update_collection';
+            
+            // Get data from attributes and populate modal
+            const collectionId = this.dataset.collectionId;
+            const collectionName = this.dataset.collectionName;
+            const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
+            const bikeId = this.dataset.bikeId || '';
+            const comment = this.dataset.comment || '';
+            const updatedDate = this.dataset.updatedDate || '';
+            
+            // Store original components for validation
+            window.originalCollectionComponents = [...components];
+            
+            // Populate form fields
+            document.getElementById('collection_id').value = collectionId;
+            document.getElementById('collection_name').value = collectionName;
+            document.getElementById('comment').value = comment;
+            
+            // Clear the updated_date field to avoid conflict with component's updated_date fields
+            document.getElementById('updated_date').value = '';
+            
+            // Set bike field
+            const bikeSelect = document.getElementById('bike_id');
+            if (bikeSelect) {
+                bikeSelect.value = bikeId;
+            }
+            
+            // Initialize component selector and set selected components
+            if (window.initializeCollectionComponentSelector) {
+                window.initializeCollectionComponentSelector(components);
+            }
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+            modal.show();
+        });
+    });
+    
+    // Add click handler to Edit collection button (following workplan/incident pattern)
+    document.querySelectorAll('.edit-collection-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Get component's collection data and populate modal
+            if (populateCollectionModal()) {
+                // Show the modal manually (like workplan/incident edit buttons do)
+                const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+                modal.show();
+            }
+        });
+    });
+});
+
 // Function to handle service records and history records
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component details page

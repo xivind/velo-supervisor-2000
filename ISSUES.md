@@ -237,6 +237,10 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 26. ✅ **Bike Details Collections Integration**: COMPLETED - Successfully integrated Collections column into bike details page component table with full functionality including backend payload, clickable collection names, modal integration, and JavaScript search/sort support.
 27. ✅ **Table Sorting Bug Fixes**: COMPLETED - Fixed table sorting issues in both component overview and bike details pages caused by column index shifts after Collections integration. All columns now properly support ascending/descending sort functionality.
 28. ✅ **Component Table Naming Consistency**: COMPLETED - Renamed "Name" column to "Component" in both component overview and bike details pages for improved consistency and clarity.
+29. ✅ **Component Details Collections Integration**: MOSTLY COMPLETED - Successfully integrated collections functionality into component details page with backend payload, template display, and modal inclusion. Collection membership display shows below installation history with clickable collection names.
+30. 🔲 **Component Details Edit Collection Button**: Edit collection button on component details page not working - components are not populated in modal when clicking button (though basic fields are populated). Collection name link works correctly.
+31. 🔲 **Collection Table Component Names**: Collections table in component overview should display component names in a dedicated column, similar to how workplan table shows affected components. Currently only shows component count.
+32. 🔲 **Collection Bike Assignment Field Logic**: The bike assignment field in collection modal is currently fully computed, but should allow manual bike selection while maintaining validation. Field should be partly computed (suggest based on components) but allow manual override with proper validation.
 
 ## ✅ COMPLETED: Component Overview Collections Integration
 

@@ -439,6 +439,24 @@ class BusinessLogic():
                                                    workplan.workplan_description),
                            parse_checkbox_progress(workplan.workplan_description)) for workplan in database_manager.read_planned_workplans()]
         
+        # Create component collections mapping for display and modal functionality
+        component_collection_names = {}  # component_id -> collection_name
+        component_collection_data = {}  # component_id -> (collection_id, collection_name, components, bike_id, comment, updated_date)
+        
+        collections = database_manager.read_all_collections()
+        for collection in collections:
+            component_ids = json.loads(collection.components) if collection.components else []
+            for comp_id in component_ids:
+                component_collection_names[comp_id] = collection.collection_name
+                component_collection_data[comp_id] = (
+                    collection.collection_id,
+                    collection.collection_name,
+                    collection.components,
+                    collection.bike_id or "",
+                    collection.comment or "",
+                    collection.updated_date or ""
+                )
+        
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
                    "bike_component_data": bike_component_data,
@@ -450,7 +468,9 @@ class BusinessLogic():
                    "open_incidents": open_incidents,
                    "incident_reports_data": incident_reports_data,
                    "planned_workplans": planned_workplans,
-                   "workplans_data": workplans_data}
+                   "workplans_data": workplans_data,
+                   "component_collection_names": component_collection_names,
+                   "component_collection_data": component_collection_data}
 
         return payload
 
