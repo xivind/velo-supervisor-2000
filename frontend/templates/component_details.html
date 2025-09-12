@@ -50,7 +50,16 @@
         <span>🚴 View bike</span>
     </button>
 {% endif %}
-<button type="button" class="btn btn-outline-primary me-2 edit-collection-btn" {% if payload.bike_component_data['installation_status'] == "Retired" or payload.bike_component_data['component_id'] not in payload.component_collection_names %}disabled{% endif %}>
+<button type="button" class="btn btn-outline-primary me-2 edit-collection-btn" 
+        {% if payload.bike_component_data['component_id'] in payload.component_collection_names %}
+        data-collection-id="{{ payload.component_collection_data[payload.bike_component_data['component_id']][0] }}"
+        data-collection-name="{{ payload.component_collection_data[payload.bike_component_data['component_id']][1] }}"
+        data-components="{{ payload.component_collection_data[payload.bike_component_data['component_id']][2] }}"
+        data-bike-id="{{ payload.component_collection_data[payload.bike_component_data['component_id']][3] }}"
+        data-comment="{{ payload.component_collection_data[payload.bike_component_data['component_id']][4] }}"
+        data-updated-date="{{ payload.component_collection_data[payload.bike_component_data['component_id']][5] }}"
+        {% endif %}
+        {% if payload.bike_component_data['installation_status'] == "Retired" or payload.bike_component_data['component_id'] not in payload.component_collection_names %}disabled{% endif %}>
     <span>📦 Edit collection</span>
 </button>
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createComponentModal">

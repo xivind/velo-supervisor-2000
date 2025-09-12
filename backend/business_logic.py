@@ -2270,8 +2270,8 @@ class BusinessLogic():
                              "components": json.dumps(components) if components else "[]",
                              "bike_id": bike_id,
                              "comment": comment,
-                             "sub_collections": "[]",
-                             "updated_date": None}
+                             "sub_collections": "[]"}
+            # Note: updated_date is excluded - only status changes should update this field
             
             success, message = database_manager.write_collection(collection_data)
 

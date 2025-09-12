@@ -1420,8 +1420,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const comment = this.dataset.comment || '';
             const updatedDate = this.dataset.updatedDate || '';
             
-            // Store original components for validation
+            // Store original values for validation
             window.originalCollectionComponents = [...components];
+            window.originalCollectionName = collectionName;
+            window.originalCollectionComment = comment;
             
             // Populate form fields
             document.getElementById('collection_id').value = collectionId;
@@ -1661,8 +1663,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const comment = collectionLink.dataset.comment || '';
         const updatedDate = collectionLink.dataset.updatedDate || '';
         
-        // Store original components for validation
+        // Store original values for validation
         window.originalCollectionComponents = [...components];
+        window.originalCollectionName = collectionName;
+        window.originalCollectionComment = comment;
         
         // Populate form fields
         document.getElementById('collection_id').value = collectionId;
@@ -1679,9 +1683,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Initialize component selector and set selected components
-        if (window.initializeCollectionComponentSelector) {
-            window.initializeCollectionComponentSelector(components);
-        }
+        initializeComponentSelector();
+        setTimeout(() => {
+            setSelectedComponents(components);
+        }, 100);
         
         return true;
     }
@@ -1705,8 +1710,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const comment = this.dataset.comment || '';
             const updatedDate = this.dataset.updatedDate || '';
             
-            // Store original components for validation
+            // Store original values for validation
             window.originalCollectionComponents = [...components];
+            window.originalCollectionName = collectionName;
+            window.originalCollectionComment = comment;
             
             // Populate form fields
             document.getElementById('collection_id').value = collectionId;
@@ -1723,9 +1730,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Initialize component selector and set selected components
-            if (window.initializeCollectionComponentSelector) {
-                window.initializeCollectionComponentSelector(components);
-            }
+            initializeComponentSelector();
+            setTimeout(() => {
+                setSelectedComponents(components);
+            }, 100);
             
             // Show the modal
             const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
@@ -1733,18 +1741,54 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Add click handler to Edit collection button (following workplan/incident pattern)
+    // Add click handler to Edit collection button (following workplan pattern)
     document.querySelectorAll('.edit-collection-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            // Get component's collection data and populate modal
-            if (populateCollectionModal()) {
-                // Show the modal manually (like workplan/incident edit buttons do)
-                const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
-                modal.show();
+            isNewCollection = false;
+            
+            // Configure modal for editing
+            document.getElementById('collectionModalLabel').textContent = 'Edit collection';
+            document.getElementById('collection_form').action = '/update_collection';
+            
+            // Get data from the button (following workplan pattern)
+            const collectionId = this.dataset.collectionId;
+            const collectionName = this.dataset.collectionName;
+            const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
+            const bikeId = this.dataset.bikeId || '';
+            const comment = this.dataset.comment || '';
+            const updatedDate = this.dataset.updatedDate || '';
+            
+            // Store original values for validation
+            window.originalCollectionComponents = [...components];
+            window.originalCollectionName = collectionName;
+            window.originalCollectionComment = comment;
+            
+            // Populate form fields
+            document.getElementById('collection_id').value = collectionId;
+            document.getElementById('collection_name').value = collectionName;
+            document.getElementById('comment').value = comment;
+            
+            // Clear the updated_date field to avoid conflict with component's updated_date fields
+            document.getElementById('updated_date').value = '';
+            
+            // Set bike field
+            const bikeSelect = document.getElementById('bike_id');
+            if (bikeSelect) {
+                bikeSelect.value = bikeId;
             }
+            
+            // Initialize component selector and set selected components
+            initializeComponentSelector();
+            setTimeout(() => {
+                setSelectedComponents(components);
+            }, 100);
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+            modal.show();
         });
     });
 });
@@ -3766,8 +3810,10 @@ window.addEventListener('load', () => {
                 const comment = this.dataset.comment || '';
                 const updatedDate = this.dataset.updatedDate || '';
                 
-                // Store original components for validation
+                // Store original values for validation
                 window.originalCollectionComponents = [...components];
+                window.originalCollectionName = collectionName;
+                window.originalCollectionComment = comment;
                 
                 // Populate form fields
                 document.getElementById('collection_id').value = collectionId;
@@ -3786,11 +3832,13 @@ window.addEventListener('load', () => {
                 const form = document.getElementById('collection_form');
                 if (form && !form.hasAttribute('data-collection-submit-listener')) {
                     form.addEventListener('submit', function() {
-                        // When saving, update the original components to match current selection
+                        // When saving, update the original values to match current form
                         const componentSelect = document.getElementById('components');
                         const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
                         const selectedValues = tomSelect ? tomSelect.getValue() : [];
                         window.originalCollectionComponents = [...selectedValues];
+                        window.originalCollectionName = document.getElementById('collection_name').value;
+                        window.originalCollectionComment = document.getElementById('comment').value;
                     });
                     form.setAttribute('data-collection-submit-listener', 'true');
                 }
@@ -3820,8 +3868,10 @@ window.addEventListener('load', () => {
                 isNewCollection = true;
                 pendingComponentData = null;
                 
-                // Clear original components validation
+                // Clear original values validation
                 window.originalCollectionComponents = null;
+                window.originalCollectionName = null;
+                window.originalCollectionComment = null;
                 
                 // Reset the form
                 document.getElementById('collectionModalLabel').textContent = 'New collection';
@@ -3869,8 +3919,10 @@ window.addEventListener('load', () => {
             const comment = this.dataset.comment || '';
             const updatedDate = this.dataset.updatedDate || '';
             
-            // Store original components for validation
+            // Store original values for validation
             window.originalCollectionComponents = [...components];
+            window.originalCollectionName = collectionName;
+            window.originalCollectionComment = comment;
             
             // Populate form fields
             document.getElementById('collection_id').value = collectionId;
@@ -3894,6 +3946,8 @@ window.addEventListener('load', () => {
                     const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
                     const selectedValues = tomSelect ? tomSelect.getValue() : [];
                     window.originalCollectionComponents = [...selectedValues];
+                    window.originalCollectionName = document.getElementById('collection_name').value;
+                    window.originalCollectionComment = document.getElementById('comment').value;
                 });
                 form.setAttribute('data-collection-submit-listener', 'true');
             }
@@ -4207,19 +4261,37 @@ window.addEventListener('load', () => {
             return false;
         }
         
-        // Check if components have been modified but not saved (for existing collections)
+        // Check if collection has been modified but not saved (for existing collections)
         if (!isNewCollection && window.originalCollectionComponents) {
             // Compare current selection with original saved components
             const currentComponents = [...selectedValues].sort();
             const originalComponents = [...window.originalCollectionComponents].sort();
             
-            // Check if arrays are different
+            // Check if components are different
             const componentsChanged = currentComponents.length !== originalComponents.length || 
                                     currentComponents.some((comp, index) => comp !== originalComponents[index]);
             
-            if (componentsChanged) {
+            // Check if name or description have changed
+            const currentName = document.getElementById('collection_name').value || '';
+            const currentComment = document.getElementById('comment').value || '';
+            const originalName = window.originalCollectionName || '';
+            const originalComment = window.originalCollectionComment || '';
+            
+            const nameChanged = currentName !== originalName;
+            const commentChanged = currentComment !== originalComment;
+            
+            if (componentsChanged || nameChanged || commentChanged) {
                 const modalBody = document.getElementById('validationModalBody');
-                modalBody.innerHTML = '<strong>Unsaved Component Changes</strong><br>You have modified the components in this collection but haven\'t saved the changes. Please save the collection first using the "Save Collection" button before changing component status.';
+                let changedFields = [];
+                if (componentsChanged) changedFields.push('components');
+                if (nameChanged) changedFields.push('collection name');
+                if (commentChanged) changedFields.push('description');
+                
+                const fieldList = changedFields.length > 1 
+                    ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1) 
+                    : changedFields[0];
+                
+                modalBody.innerHTML = `<strong>Unsaved Changes</strong><br>You have modified the ${fieldList} but haven't saved the changes. Please save the collection first using the "Save Collection" button before changing component status.`;
                 validationModal.show();
                 return false;
             }
