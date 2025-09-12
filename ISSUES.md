@@ -1,7 +1,7 @@
 # ISSUES CURRENTLY IN PROGRESS
 This file (ISSUES.md) must be read on startup. This file contains information on what we are currently working on. Claude Code should ensure that this file is up to date, as the work progress.
 
-**Current Status**: Collections feature core functionality is largely complete. Critical modal conflict bug resolved (issue #17). Focus shifting to remaining integration points, user experience improvements, and edge case handling. Major functional components working reliably.
+**Current Status**: Collections feature core functionality is complete and stable. Component details page edit collection button fixed. Enhanced modal UI with improved layout and validation. Focus on remaining UI enhancements and edge case handling.
 
 **Note**: Collection icons (📦) in component overview table - need to implement `component_collections` field in payload to show collection membership icons.  
 
@@ -238,9 +238,12 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 27. ✅ **Table Sorting Bug Fixes**: COMPLETED - Fixed table sorting issues in both component overview and bike details pages caused by column index shifts after Collections integration. All columns now properly support ascending/descending sort functionality.
 28. ✅ **Component Table Naming Consistency**: COMPLETED - Renamed "Name" column to "Component" in both component overview and bike details pages for improved consistency and clarity.
 29. ✅ **Component Details Collections Integration**: MOSTLY COMPLETED - Successfully integrated collections functionality into component details page with backend payload, template display, and modal inclusion. Collection membership display shows below installation history with clickable collection names.
-30. 🔲 **Component Details Edit Collection Button**: Edit collection button on component details page not working - components are not populated in modal when clicking button (though basic fields are populated). Collection name link works correctly.
+30. ✅ **Component Details Edit Collection Button**: COMPLETED - Fixed edit collection button by adding proper data attributes to button and replacing incorrect function calls. Button now works identically to collection name link.
 31. 🔲 **Collection Table Component Names**: Collections table in component overview should display component names in a dedicated column, similar to how workplan table shows affected components. Currently only shows component count.
 32. 🔲 **Collection Bike Assignment Field Logic**: The bike assignment field in collection modal is currently fully computed, but should allow manual bike selection while maintaining validation. Field should be partly computed (suggest based on components) but allow manual override with proper validation.
+33. ✅ **Collection updated_date Preservation**: COMPLETED - Fixed business logic to preserve existing updated_date values during collection saves. Only status changes should modify this field.
+34. ✅ **Enhanced Collection Validation**: COMPLETED - Expanded validation to prevent status changes when collection name, description, or components have unsaved changes. Provides clear user feedback about what needs to be saved.
+35. ✅ **Collection Modal UI Enhancement**: COMPLETED - Redesigned modal layout with better field arrangement, improved button positioning, and clearer visual hierarchy. Changed "Save Collection" to "Save details" for accuracy.
 
 ## ✅ COMPLETED: Component Overview Collections Integration
 
