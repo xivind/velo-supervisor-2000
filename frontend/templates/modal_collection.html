@@ -65,8 +65,12 @@
                             </div>
                             <div class="col-md-4 mb-1">
                                 <label for="bike_id" class="form-label fw-bold">Bike assignment</label>
-                                <input type="hidden" id="bike_id" name="bike_id">
-                                <div class="form-control bg-light" id="bike_display">Not assigned</div>
+                                <select class="form-select" id="bike_id" name="bike_id">
+                                    <!-- Options populated dynamically by JavaScript -->
+                                </select>
+                                <small class="form-text text-muted">
+                                    <strong>Current bike:</strong> <span id="current_bike_assignment">Not assigned</span>
+                                </small>
                             </div>
                         </div>
                     </div>

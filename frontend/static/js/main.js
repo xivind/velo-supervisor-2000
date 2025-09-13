@@ -1420,15 +1420,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const comment = this.dataset.comment || '';
             const updatedDate = this.dataset.updatedDate || '';
             
-            // Store original values for validation
-            window.originalCollectionComponents = [...components];
+            // Store original values for validation (filter out deleted components)
+            const componentSelect = document.getElementById('components');
+            const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
+            const existingComponents = components.filter(id => availableOptions.includes(id));
+            window.originalCollectionComponents = [...existingComponents];
             window.originalCollectionName = collectionName;
             window.originalCollectionComment = comment;
             
             // Populate form fields
             document.getElementById('collection_id').value = collectionId;
             document.getElementById('collection_name').value = collectionName;
-            document.getElementById('bike_id').value = bikeId;
+            // bike_id field is now user-selectable, not auto-populated
             document.getElementById('comment').value = comment;
             document.getElementById('updated_date').value = ''; // Always blank - user enters new date for status changes
             
@@ -1663,8 +1666,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const comment = collectionLink.dataset.comment || '';
         const updatedDate = collectionLink.dataset.updatedDate || '';
         
-        // Store original values for validation
-        window.originalCollectionComponents = [...components];
+        // Store original values for validation (filter out deleted components)
+        const componentSelect = document.getElementById('components');
+        const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
+        const existingComponents = components.filter(id => availableOptions.includes(id));
+        window.originalCollectionComponents = [...existingComponents];
         window.originalCollectionName = collectionName;
         window.originalCollectionComment = comment;
         
@@ -1676,11 +1682,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear the updated_date field to avoid conflict with component's updated_date fields
         document.getElementById('updated_date').value = '';
         
-        // Set bike field
-        const bikeSelect = document.getElementById('bike_id');
-        if (bikeSelect) {
-            bikeSelect.value = bikeId;
-        }
+        // bike_id field is now user-selectable, not auto-populated
         
         // Initialize component selector and set selected components
         initializeComponentSelector();
@@ -1710,8 +1712,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const comment = this.dataset.comment || '';
             const updatedDate = this.dataset.updatedDate || '';
             
-            // Store original values for validation
-            window.originalCollectionComponents = [...components];
+            // Store original values for validation (filter out deleted components)
+            const componentSelect = document.getElementById('components');
+            const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
+            const existingComponents = components.filter(id => availableOptions.includes(id));
+            window.originalCollectionComponents = [...existingComponents];
             window.originalCollectionName = collectionName;
             window.originalCollectionComment = comment;
             
@@ -1761,8 +1766,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const comment = this.dataset.comment || '';
             const updatedDate = this.dataset.updatedDate || '';
             
-            // Store original values for validation
-            window.originalCollectionComponents = [...components];
+            // Store original values for validation (filter out deleted components)
+            const componentSelect = document.getElementById('components');
+            const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
+            const existingComponents = components.filter(id => availableOptions.includes(id));
+            window.originalCollectionComponents = [...existingComponents];
             window.originalCollectionName = collectionName;
             window.originalCollectionComment = comment;
             
@@ -3810,8 +3818,11 @@ window.addEventListener('load', () => {
                 const comment = this.dataset.comment || '';
                 const updatedDate = this.dataset.updatedDate || '';
                 
-                // Store original values for validation
-                window.originalCollectionComponents = [...components];
+                // Store original values for validation (filter out deleted components)
+                const componentSelect = document.getElementById('components');
+                const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
+                const existingComponents = components.filter(id => availableOptions.includes(id));
+                window.originalCollectionComponents = [...existingComponents];
                 window.originalCollectionName = collectionName;
                 window.originalCollectionComment = comment;
                 
@@ -3919,15 +3930,18 @@ window.addEventListener('load', () => {
             const comment = this.dataset.comment || '';
             const updatedDate = this.dataset.updatedDate || '';
             
-            // Store original values for validation
-            window.originalCollectionComponents = [...components];
+            // Store original values for validation (filter out deleted components)
+            const componentSelect = document.getElementById('components');
+            const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
+            const existingComponents = components.filter(id => availableOptions.includes(id));
+            window.originalCollectionComponents = [...existingComponents];
             window.originalCollectionName = collectionName;
             window.originalCollectionComment = comment;
             
             // Populate form fields
             document.getElementById('collection_id').value = collectionId;
             document.getElementById('collection_name').value = collectionName;
-            document.getElementById('bike_id').value = bikeId;
+            // bike_id field is now user-selectable, not auto-populated
             document.getElementById('comment').value = comment;
             document.getElementById('updated_date').value = ''; // Always blank - user enters new date for status changes
             
@@ -4027,18 +4041,55 @@ window.addEventListener('load', () => {
     function setSelectedComponents(componentIds) {
         const componentSelect = document.getElementById('components');
         if (!componentSelect) return;
-        
+
         const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
         if (tomSelect && componentIds) {
-            tomSelect.setValue(componentIds);
+            // Filter out deleted components (only set components that exist in the dropdown)
+            const availableOptions = Array.from(componentSelect.options).map(option => option.value);
+            const existingComponentIds = componentIds.filter(id => availableOptions.includes(id));
+            tomSelect.setValue(existingComponentIds);
         }
     }
     
+    // Function to populate bike dropdown with non-retired bikes
+    function populateBikeDropdown() {
+        const bikeSelect = document.getElementById('bike_id');
+        if (!bikeSelect) return;
+
+        // Clear existing options (completely blank initially)
+        bikeSelect.innerHTML = '';
+
+        // Get all bikes from the component dropdown data (bikes are available in component options data-bike attributes)
+        const componentSelect = document.getElementById('components');
+        if (!componentSelect) return;
+
+        const bikes = new Set();
+        Array.from(componentSelect.options).forEach(option => {
+            if (option.value && option.dataset.bike && option.dataset.bikeStatus !== 'Retired') {
+                bikes.add(JSON.stringify({
+                    id: option.dataset.bikeId || '',
+                    name: option.dataset.bike
+                }));
+            }
+        });
+
+        // Add unique non-retired bikes to dropdown
+        Array.from(bikes).forEach(bikeDataStr => {
+            const bikeData = JSON.parse(bikeDataStr);
+            if (bikeData.name && bikeData.name !== 'Not assigned') {
+                const option = document.createElement('option');
+                option.value = bikeData.id;
+                option.textContent = bikeData.name;
+                bikeSelect.appendChild(option);
+            }
+        });
+    }
+
     // Setup component validation and status checking
     function setupComponentValidation() {
         const componentSelect = document.getElementById('components');
         const bikeSelect = document.getElementById('bike_id');
-        const bikeDisplay = document.getElementById('bike_display');
+        const currentBikeDisplay = document.getElementById('current_bike_assignment');
         const mixedStatusWarning = document.getElementById('mixed_status_warning');
         const bulkStatusSection = document.getElementById('bulk_status_section');
         
@@ -4079,12 +4130,13 @@ window.addEventListener('load', () => {
             }
             
             // Reset bike assignment when no components selected
-            if (bikeDisplay) {
-                bikeDisplay.textContent = 'Not assigned';
-                bikeDisplay.classList.remove('text-danger');
+            if (currentBikeDisplay) {
+                currentBikeDisplay.textContent = 'Not assigned';
+                currentBikeDisplay.classList.remove('text-danger');
             }
             if (bikeSelect) {
                 bikeSelect.value = '';
+                bikeSelect.disabled = true; // Disable when no components selected
             }
             
             return;
@@ -4140,17 +4192,28 @@ window.addEventListener('load', () => {
             computedBikeName = 'Not assigned';
         }
         
-        // Update bike display and hidden field
-        if (bikeDisplay) {
-            bikeDisplay.textContent = computedBikeName;
+        // Update current bike display and manage bike dropdown state
+        if (currentBikeDisplay) {
+            currentBikeDisplay.textContent = computedBikeName;
             if (!hasValidBikeAssignment) {
-                bikeDisplay.classList.add('text-danger');
+                currentBikeDisplay.classList.add('text-danger');
             } else {
-                bikeDisplay.classList.remove('text-danger');
+                currentBikeDisplay.classList.remove('text-danger');
             }
         }
+
         if (bikeSelect) {
-            bikeSelect.value = computedBikeId;
+            // Determine if bike field should be disabled
+            const shouldDisableBikeField = !hasValidBikeAssignment || hasInstalledComponents;
+            bikeSelect.disabled = shouldDisableBikeField;
+
+            // Clear bike selection when opening modal (always start blank)
+            bikeSelect.value = '';
+
+            // Populate bike dropdown with non-retired bikes if enabled
+            if (!shouldDisableBikeField) {
+                populateBikeDropdown();
+            }
         }
         
         // Update installation status indicator and new status dropdown
@@ -4589,10 +4652,11 @@ window.addEventListener('load', () => {
                     return;
                 }
                 
-                // Get text content from searchable columns (skip status use column)
+                // Get text content from searchable columns (include Components column)
                 const collection = row.cells[0].textContent.toLowerCase();
+                const components = row.cells[1].textContent.toLowerCase();
                 const bike = row.cells[2].textContent.toLowerCase();
-                const rowText = `${collection} ${bike}`;
+                const rowText = `${collection} ${components} ${bike}`;
                 const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
                 
                 // Show/hide row based on search criteria

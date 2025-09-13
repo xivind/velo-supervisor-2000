@@ -632,25 +632,39 @@ class BusinessLogic():
 
         for collection in collections:
             component_ids = json.loads(collection.components) if collection.components else []
-            component_count = len(component_ids)
-            
+
+            # Get detailed component information
+            component_details = []
+            for component_id in component_ids:
+                component = database_manager.read_component(component_id)
+                if component:
+                    component_details.append({
+                        'id': component_id,
+                        'name': component.component_name
+                    })
+                else:
+                    component_details.append({
+                        'id': component_id,
+                        'name': 'Deleted component'
+                    })
+
             bike_name = None
             if collection.bike_id:
                 bike = database_manager.read_single_bike(collection.bike_id)
                 bike_name = bike.bike_name if bike else None
-            
+
             collection_data = (
                 collection.collection_id,
                 collection.collection_name,
-                component_count,
                 bike_name,
                 collection.updated_date or "",
                 json.dumps(component_ids),
                 collection.bike_id or "",
-                collection.comment or ""
+                collection.comment or "",
+                component_details
             )
             all_collections.append(collection_data)
-        
+
         return all_collections
 
     def get_component_types(self):

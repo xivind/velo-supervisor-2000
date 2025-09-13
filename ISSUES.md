@@ -175,9 +175,24 @@ CREATE TABLE collections (
 9. 🔲 Ensure JavaScript reuses existing patterns (dates, validation)
 10. 🔲 Test complete Collections feature end-to-end
 
-**Status**: Core functionality partially implemented. Several key features missing before cleanup phase can begin.
+**Status**: Core functionality implemented and stable. Collections table fully enhanced with improved UX. Focus on remaining functionality gaps.
 
-## Recent Updates - Collections Modal Date Field Consolidation ✅
+## Recent Updates - Collections UI/UX Major Enhancements ✅
+
+Successfully completed comprehensive enhancements to collections system including table improvements and modal redesign:
+- ✅ **Column Redesign**: Renamed "Status use" to "Components" and replaced count display with actual component names
+- ✅ **Interactive Components**: Made component names clickable to their detail pages (following workplan table pattern)
+- ✅ **Interactive Bike Names**: Made bike names clickable to bike detail pages with proper "Not assigned" handling
+- ✅ **Enhanced Search**: Updated search functionality to include Components column for comprehensive filtering
+- ✅ **Clean UI Design**: Removed unnecessary legend and colored indicators for cleaner text-only approach
+- ✅ **Critical Bug Fix**: Resolved issue where collections with deleted components would lose remaining components when saved
+- ✅ **Backend Optimization**: Removed unused component status field from get_collections method for improved efficiency
+- ✅ **Existing Functionality Preserved**: Column sorting and all existing features continue to work seamlessly
+- ✅ **Bike Assignment Field Redesign**: Converted from computed-only to user-selectable with intelligent state management and validation
+
+Collections system now provides intuitive, workplan-style component display with full interactivity, clean design, and logical installation workflow.
+
+## Previous Updates - Collections Modal Date Field Consolidation ✅
 
 Successfully consolidated to single `updated_date` field throughout the entire system:
 - ✅ Removed duplicate `collection_updated_date` hidden field
@@ -237,13 +252,20 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 26. ✅ **Bike Details Collections Integration**: COMPLETED - Successfully integrated Collections column into bike details page component table with full functionality including backend payload, clickable collection names, modal integration, and JavaScript search/sort support.
 27. ✅ **Table Sorting Bug Fixes**: COMPLETED - Fixed table sorting issues in both component overview and bike details pages caused by column index shifts after Collections integration. All columns now properly support ascending/descending sort functionality.
 28. ✅ **Component Table Naming Consistency**: COMPLETED - Renamed "Name" column to "Component" in both component overview and bike details pages for improved consistency and clarity.
-29. ✅ **Component Details Collections Integration**: MOSTLY COMPLETED - Successfully integrated collections functionality into component details page with backend payload, template display, and modal inclusion. Collection membership display shows below installation history with clickable collection names.
+29. ✅ **Component Details Collections Integration**: COMPLETED - Successfully integrated collections functionality into component details page with backend payload, template display, and modal inclusion. Collection membership display shows below installation history with clickable collection names.
 30. ✅ **Component Details Edit Collection Button**: COMPLETED - Fixed edit collection button by adding proper data attributes to button and replacing incorrect function calls. Button now works identically to collection name link.
-31. 🔲 **Collection Table Component Names**: Collections table in component overview should display component names in a dedicated column, similar to how workplan table shows affected components. Currently only shows component count.
-32. 🔲 **Collection Bike Assignment Field Logic**: The bike assignment field in collection modal is currently fully computed, but should allow manual bike selection while maintaining validation. Field should be partly computed (suggest based on components) but allow manual override with proper validation.
+31. ✅ **Collection Table Component Names**: COMPLETED - Collections table now displays actual component names (clickable to component details) in Components column instead of component count. Follows workplan table pattern with clean text-only approach, "Not assigned" for empty collections, and proper handling of deleted components.
+32. ✅ **Collection Bike Assignment Field Logic**: COMPLETED - Converted bike assignment field from fully computed to user-selectable dropdown with intelligent state management. Field starts blank on modal open, disables when no components selected or when components already assigned to bikes, filters out retired bikes, shows current bike assignment status, and maintains all existing validation rules. Now follows same pattern as New Status field for consistent UX.
 33. ✅ **Collection updated_date Preservation**: COMPLETED - Fixed business logic to preserve existing updated_date values during collection saves. Only status changes should modify this field.
 34. ✅ **Enhanced Collection Validation**: COMPLETED - Expanded validation to prevent status changes when collection name, description, or components have unsaved changes. Provides clear user feedback about what needs to be saved.
 35. ✅ **Collection Modal UI Enhancement**: COMPLETED - Redesigned modal layout with better field arrangement, improved button positioning, and clearer visual hierarchy. Changed "Save Collection" to "Save details" for accuracy.
+36. ✅ **Collections Table Column Enhancement**: COMPLETED - Renamed "Status use" column to "Components" and replaced component count display with actual component names (clickable to detail pages).
+37. ✅ **Collections Table Bike Names Clickable**: COMPLETED - Made bike names in collections table clickable to bike detail pages, with "Not assigned" for collections without bikes.
+38. ✅ **Collections Table Search Integration**: COMPLETED - Updated collections table search functionality to include Components column content for comprehensive searching.
+39. ✅ **Collections Table Legend Removal**: COMPLETED - Removed unnecessary legend for collections table since clean text-only approach eliminates need for colored indicator explanations.
+40. ✅ **Collections Save Bug Fix**: COMPLETED - Fixed critical bug where saving collections with deleted components would accidentally remove all remaining components. Now properly filters deleted component IDs in JavaScript validation and TomSelect handling.
+41. ✅ **Collections Backend Optimization**: COMPLETED - Removed unused component status field from get_collections method, keeping only essential ID and name fields for cleaner, more efficient backend processing.
+42. ✅ **Collection Bike Assignment Field Redesign**: COMPLETED - Redesigned bike assignment field from computed-only display to user-selectable dropdown with intelligent state management, retired bike filtering, current state display, and preserved validation rules for proper installation workflow.
 
 ## ✅ COMPLETED: Component Overview Collections Integration
 

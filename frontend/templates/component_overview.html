@@ -58,12 +58,6 @@
     </div>
 </div>
 <hr/>
-<div class="mb-3 ms-2">
-    <div class="small text-secondary d-flex align-items-center">
-      <span style="width: 230px;">🟩 Collection has components</span>
-      <span style="width: 230px;">🟥 Collection has no components</span>
-    </div>
-</div>
 <div class="card shadow mb-3">
     <div class="card-header fw-bold">Collections</div>
     <div class="card-body">
@@ -75,7 +69,7 @@
             <thead>
                 <tr>
                     <th data-sort="name">Collection <span class="sort-indicator"></span></th>
-                    <th data-sort="components">Status use<span class="sort-indicator"></span></th>
+                    <th data-sort="components">Components<span class="sort-indicator"></span></th>
                     <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
                     <th data-sort="updated">Last updated <span class="sort-indicator"></span></th>
                     <th class="text-end"></th>
@@ -83,16 +77,30 @@
             </thead>
             <tbody>
                 {% if payload.all_collections %}
-                    {% for collection_id, collection_name, component_count, bike_name, updated_date, components, bike_id, comment in payload.all_collections %}
+                    {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details in payload.all_collections %}
                         <tr>
                             <td>
                                 {{ collection_name }}
                             </td>
-                            <td>{% if component_count > 0 %}🟩 {{ component_count }} components{% else %}🟥 No components{% endif %}</td>
-                            <td>{{ bike_name if bike_name else "Not assigned" }}</td>
+                            <td>
+                                {% if component_details %}
+                                    {% for component in component_details %}
+                                        <a href="/component_details/{{ component.id }}" class="text-decoration-none text-reset">{{ component.name }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    Not assigned
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if bike_name and bike_id %}
+                                    <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">{{ bike_name }}</a>
+                                {% else %}
+                                    Not assigned
+                                {% endif %}
+                            </td>
                             <td>{{ updated_date.split(' ')[0] if updated_date else "-" }}</td>
                             <td class="text-end">
-                                <button type="button" class="btn btn-outline-primary btn-sm edit-collection-btn"
+                                <button type="button" class="btn btn-outline-primary btn-sm edit-collection-btn mb-1"
                                     data-collection-id="{{ collection_id }}"
                                     data-collection-name="{{ collection_name }}"
                                     data-components="{{ components }}"
@@ -101,7 +109,7 @@
                                     data-updated-date="{{ updated_date or '' }}">
                                     ✍
                                 </button>
-                                <button type="button" class="btn btn-outline-danger btn-sm delete-collection" 
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-collection mb-1" 
                                     data-collection-id="{{ collection_id }}"
                                     data-collection-name="{{ collection_name }}">
                                     🗑
