@@ -266,6 +266,7 @@ Successfully consolidated to single `updated_date` field throughout the entire s
 40. ✅ **Collections Save Bug Fix**: COMPLETED - Fixed critical bug where saving collections with deleted components would accidentally remove all remaining components. Now properly filters deleted component IDs in JavaScript validation and TomSelect handling.
 41. ✅ **Collections Backend Optimization**: COMPLETED - Removed unused component status field from get_collections method, keeping only essential ID and name fields for cleaner, more efficient backend processing.
 42. ✅ **Collection Bike Assignment Field Redesign**: COMPLETED - Redesigned bike assignment field from computed-only display to user-selectable dropdown with intelligent state management, retired bike filtering, current state display, and preserved validation rules for proper installation workflow.
+43. 🔲 **Test and Fix Bike Assignment Field Logic**: Need to test new bike assignment field implementation and fix identified bug in the logic. Field should properly handle component selection state changes and bike dropdown population.
 
 ## ✅ COMPLETED: Component Overview Collections Integration
 
