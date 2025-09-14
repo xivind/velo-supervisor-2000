@@ -328,11 +328,12 @@ async def update_collection(collection_id: str = Form(...),
 @app.post("/change_collection_status")
 async def change_collection_status(collection_id: str = Form(...),
                                  new_status: str = Form(...),
-                                 updated_date: str = Form(...)):
+                                 updated_date: str = Form(...),
+                                 bike_id: Optional[str] = Form(None)):
     """Endpoint to change the status of all components in a collection"""
-    
-    success, message = business_logic.change_collection_status(collection_id, new_status, updated_date)
-    
+
+    success, message = business_logic.change_collection_status(collection_id, new_status, updated_date, bike_id)
+
     return JSONResponse({"success": success, "message": message})
 
 @app.post("/add_incident_record", response_class=HTMLResponse)

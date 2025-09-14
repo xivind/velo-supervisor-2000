@@ -66,7 +66,12 @@
                             <div class="col-md-4 mb-1">
                                 <label for="bike_id" class="form-label fw-bold">Bike assignment</label>
                                 <select class="form-select" id="bike_id" name="bike_id">
-                                    <!-- Options populated dynamically by JavaScript -->
+                                    <option value="" selected></option>
+                                    {% for bike_name, bike_id in payload.bikes_data %}
+                                        {% if "(Retired)" not in bike_name %}
+                                            <option value="{{ bike_id }}">{{ bike_name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
                                 </select>
                                 <small class="form-text text-muted">
                                     <strong>Current bike:</strong> <span id="current_bike_assignment">Not assigned</span>

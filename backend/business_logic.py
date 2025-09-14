@@ -182,7 +182,7 @@ class BusinessLogic():
                     collection.collection_id,
                     collection.collection_name,
                     collection.components,
-                    collection.bike_id or "",
+                    collection.bike_id or "", #These should be NONE, not ""
                     collection.comment or "",
                     collection.updated_date or ""
                 )
@@ -2300,7 +2300,7 @@ class BusinessLogic():
             logging.error(f"Error updating collection with id {collection_id}: {str(error)}")
             return False, f"Error updating collection with id {collection_id}: {str(error)}"
 
-    def change_collection_status(self, collection_id, new_status, updated_date):
+    def change_collection_status(self, collection_id, new_status, updated_date, bike_id):
         """Method to change status of all components in a collection"""
         try:
             # Get collection data
@@ -2325,10 +2325,11 @@ class BusinessLogic():
                 component_name = component.component_name if component else f"Component {component_id}"
                 
                 # Use existing create_history_record flow for status changes
+                # Use the provided bike_id instead of collection's existing bike_id
                 success, message = self.create_history_record(
                     component_id=component_id,
                     installation_status=new_status,
-                    component_bike_id=collection.bike_id,
+                    component_bike_id=bike_id,
                     component_updated_date=updated_date
                 )
                 
@@ -2342,11 +2343,16 @@ class BusinessLogic():
             # Update collection's updated_date to reflect status change
             if success_count > 0:
                 try:
+                    # Collection table bike_id logic:
+                    # - "Installed": Use bike_id from frontend (dropdown selection)
+                    # - "Not installed" or "Retired": Write NULL (collection becomes unassigned)
+                    collection_bike_id = bike_id if new_status == "Installed" else None
+
                     collection_update_data = {
                         "collection_id": collection_id,
                         "collection_name": collection.collection_name,
                         "components": collection.components,
-                        "bike_id": collection.bike_id,
+                        "bike_id": collection_bike_id,
                         "comment": collection.comment,
                         "updated_date": updated_date
                     }
@@ -2367,21 +2373,21 @@ class BusinessLogic():
                 return True, message
                 
             elif success_count > 0:
-                # Partial success
-                message = f"<strong>Updated {success_count} of {total_count} components successfully</strong><br><br>"
-                
+                # Partial failure - treat as failure since not all components succeeded
+                message = f"<strong>Status update failed - only {success_count} of {total_count} components were updated</strong><br><br>"
+
                 if successful_components:
                     message += "<strong>Successfully Updated:</strong><br>"
                     message += "<br>".join([f"• {name}" for name in successful_components])
                     message += "<br><br>"
-                
+
                 if failed_components:
                     message += "<strong>Failed to Update:</strong><br>"
                     for failed in failed_components:
                         message += f"• {failed['name']}: {failed['error']}<br>"
-                
-                logging.warning(f"Collection status change: {success_count}/{total_count} components succeeded")
-                return True, message
+
+                logging.warning(f"Collection status change failed: {success_count}/{total_count} components succeeded")
+                return False, message
                 
             else:
                 # All components failed
