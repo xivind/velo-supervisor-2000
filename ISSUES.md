@@ -1,6 +1,6 @@
 # ISSUES CURRENTLY IN PROGRESS
 
-This file (ISSUES.md) must be read on startup. This file contains information on what we are currently working on. Claude Code should ensure that this file is up to date, as the work progress.
+This file (ISSUES.md) must be read on startup. This file contains information on what we are currently working on. Claude Code should ensure that this file is up to date, as the work progress. Always reference issue [#177](https://github.com/xivind/velo-supervisor-2000/issues/177) in the commit messages.
 
 **Current Status**: Collections feature is PRODUCTION READY! Core functionality complete, stable, and fully tested. Delete functionality implemented and ready for testing.
 
@@ -15,9 +15,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **Add component details page collection integration**: Component details page references `#editCollectionModal` which doesn't exist, missing collections table and management functionality
 
 ### Data Consistency Issues
-- **Database null handling**: Verify that empty values are always written as null to the database for all collection fields (not empty strings)
-- **Sub_collections field**: Ensure sub_collections is always written as null (not empty array) for now until nested collections are implemented
-- **Collections and sub_collections NULL handling**: Empty `components` and `sub_collections` fields should write NULL to database instead of empty strings to maintain consistent NULL handling across all collection fields
 - **Collection updated_date preservation**: When saving collection changes (like description) without status changes, the `updated_date` field gets overwritten/nulled. The `updated_date` should only track status change operations and be preserved during regular collection saves
 
 ### Edge Cases & Business Logic

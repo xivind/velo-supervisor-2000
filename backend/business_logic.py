@@ -2253,10 +2253,10 @@ class BusinessLogic():
 
             collection_data = {"collection_id": collection_id,
                              "collection_name": collection_name,
-                             "components": json.dumps(components) if components else "[]",
+                             "components": json.dumps(components) if components else None,
                              "bike_id": bike_id,
                              "comment": comment,
-                             "sub_collections": "[]",
+                             "sub_collections": None,
                              "updated_date": None}
             
             success, message = database_manager.write_collection(collection_data)
@@ -2290,10 +2290,10 @@ class BusinessLogic():
 
             collection_data = {"collection_id": collection_id,
                              "collection_name": collection_name,
-                             "components": json.dumps(components) if components else "[]",
+                             "components": json.dumps(components) if components else None,
                              "bike_id": bike_id,
                              "comment": comment,
-                             "sub_collections": "[]"}
+                             "sub_collections": None}
             # Note: updated_date is excluded - only status changes should update this field
             
             success, message = database_manager.write_collection(collection_data)
