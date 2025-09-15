@@ -2231,11 +2231,7 @@ class BusinessLogic():
             self.app_state.strava_last_pull = "never"
             self.app_state.strava_days_since_last_pull = None
 
-    def add_collection(self,
-                      collection_name,
-                      components,
-                      bike_id,
-                      comment):
+    def add_collection(self, collection_name, components, bike_id, comment):
         """Method to add collection"""
         try:
             collection_id = generate_unique_id()
@@ -2269,12 +2265,7 @@ class BusinessLogic():
             logging.error(f"Error creating collection with id {collection_id}: {str(error)}")
             return False, f"Error creating collection with id {collection_id}: {str(error)}"
         
-    def update_collection(self,
-                         collection_id,
-                         collection_name,
-                         components,
-                         bike_id,
-                         comment):
+    def update_collection(self, collection_id, collection_name, components, bike_id, comment):
         """Method to update collection"""
         try:
             # Validate collection before updating
