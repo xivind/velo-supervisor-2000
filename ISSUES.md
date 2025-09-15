@@ -20,6 +20,7 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 ### Edge Cases & Business Logic
 - **Retired component handling in existing collections**: What happens when a collection contains components that are retired after the collection is created, since retired components are filtered out from the dropdown?
 - **Test and Fix Bike Assignment Field Logic**: Need to test new bike assignment field implementation and fix identified bug in the logic. Field should properly handle component selection state changes and bike dropdown population
+- **Partial collection update modal bug**: When a collection contains multiple components and only some are successfully updated, the modal stays open after the report modal is closed. The successfully updated components are not reflected in the modal state, creating inconsistency. Possible solution: Make modal behave like successful updates (close modal and refresh page) even for partial successes to ensure UI consistency
 
 ---
 
@@ -29,10 +30,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **Fix mismatched label for attributes**: Browser console reports "The label's for attribute doesn't match any element id." This affects form accessibility and autofill functionality. Need to audit all HTML templates and ensure every `<label for="...">` has a corresponding `<input id="...">` element. Collections modal is verified clean - issue likely in older templates like component_details.html and modal_create_component.html
 
 ### Backend Consistency
-- **Inconsistent NULL/Empty String Handling**: Inconsistent use of `or ""` vs `None` values throughout business_logic.py
-  - Problem: 12 occurrences of `or ""` in frontend payloads while rest of codebase uses `None` values consistently
-  - Location: Collection data payload construction (lines ~185, 259, 455, 660, etc.)
-  - Fix: Review all `or ""` patterns and change to pass `None` values for NULL database fields
 
 
 ### Architecture Issues

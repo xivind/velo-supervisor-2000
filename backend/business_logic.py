@@ -168,23 +168,23 @@ class BusinessLogic():
                                                    database_manager.read_bike_name(workplan.workplan_affected_bike_id),
                                                    workplan.workplan_description),
                            parse_checkbox_progress(workplan.workplan_description)) for workplan in database_manager.read_planned_workplans()]
-        
-        # Create component collections mapping for display and modal functionality
-        component_collection_names = {}  # component_id -> collection_name
-        component_collection_data = {}  # component_id -> (collection_id, collection_name, components, bike_id, comment, updated_date)
-        
+
+        component_collection_names = {}
+        component_collection_data = {}
         collections = database_manager.read_all_collections()
+
         for collection in collections:
             component_ids = json.loads(collection.components) if collection.components else []
+            
             for component_id in component_ids:
                 component_collection_names[component_id] = collection.collection_name
                 component_collection_data[component_id] = (
                     collection.collection_id,
                     collection.collection_name,
                     collection.components,
-                    collection.bike_id or "", #These should be NONE, not ""
-                    collection.comment or "",
-                    collection.updated_date or ""
+                    collection.bike_id,
+                    collection.comment,
+                    collection.updated_date
                 )
         
         payload = {"recent_rides": recent_rides_data,
@@ -242,24 +242,22 @@ class BusinessLogic():
         planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
         
         all_collections = self.get_collections()
-        
-        # Create component collections mapping for display and modal functionality
-        component_collection_names = {}  # component_id -> collection_name
-        component_collection_data = {}  # component_id -> (collection_id, collection_name, components, bike_id, comment, updated_date)
-        
+        component_collection_names = {}
+        component_collection_data = {}
         collections = database_manager.read_all_collections()
+        
         for collection in collections:
             component_ids = json.loads(collection.components) if collection.components else []
+
             for component_id in component_ids:
                 component_collection_names[component_id] = collection.collection_name
                 component_collection_data[component_id] = (
                     collection.collection_id,
                     collection.collection_name,
                     collection.components,
-                    collection.bike_id or "",
-                    collection.comment or "",
-                    collection.updated_date or ""
-                )
+                    collection.bike_id,
+                    collection.comment,
+                    collection.updated_date)
 
         payload = {"all_components_data": all_components_data,
                    "all_collections": all_collections,
@@ -439,24 +437,23 @@ class BusinessLogic():
                                                    workplan.workplan_description),
                            parse_checkbox_progress(workplan.workplan_description)) for workplan in database_manager.read_planned_workplans()]
         
-        # Create component collections mapping for display and modal functionality
-        component_collection_names = {}  # component_id -> collection_name
-        component_collection_data = {}  # component_id -> (collection_id, collection_name, components, bike_id, comment, updated_date)
-        
+        component_collection_names = {}
+        component_collection_data = {}
         collections = database_manager.read_all_collections()
+
         for collection in collections:
             component_ids = json.loads(collection.components) if collection.components else []
+            
             for comp_id in component_ids:
                 component_collection_names[comp_id] = collection.collection_name
                 component_collection_data[comp_id] = (
                     collection.collection_id,
                     collection.collection_name,
                     collection.components,
-                    collection.bike_id or "",
-                    collection.comment or "",
-                    collection.updated_date or ""
-                )
-        
+                    collection.bike_id,
+                    collection.comment,
+                    collection.updated_date)
+
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
                    "bike_component_data": bike_component_data,
@@ -657,10 +654,10 @@ class BusinessLogic():
                 collection.collection_id,
                 collection.collection_name,
                 bike_name,
-                collection.updated_date or "",
+                collection.updated_date,
                 json.dumps(component_ids),
-                collection.bike_id or "",
-                collection.comment or "",
+                collection.bike_id,
+                collection.comment,
                 component_details
             )
             all_collections.append(collection_data)
