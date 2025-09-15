@@ -289,15 +289,15 @@ async def update_service_record(component_id: str = Form(...),
 
 @app.post("/add_collection", response_class=HTMLResponse)
 async def add_collection(collection_name: str = Form(...),
-                        components: Optional[List[str]] = Form(None),
-                        bike_id: Optional[str] = Form(None),
-                        comment: Optional[str] = Form(None)):
+                         components: Optional[List[str]] = Form(None),
+                         bike_id: Optional[str] = Form(None),
+                         comment: Optional[str] = Form(None)):
     """Endpoint to add new collection"""
 
     success, message = business_logic.add_collection(collection_name,
-                                                   components,
-                                                   bike_id,
-                                                   comment)
+                                                     components,
+                                                     bike_id,
+                                                     comment)
     
     response = RedirectResponse(
         url=f"/component_overview?success={success}&message={message}",
@@ -307,17 +307,17 @@ async def add_collection(collection_name: str = Form(...),
 
 @app.post("/update_collection", response_class=HTMLResponse)
 async def update_collection(collection_id: str = Form(...),
-                           collection_name: str = Form(...),
-                           components: Optional[List[str]] = Form(None),
-                           bike_id: Optional[str] = Form(None),
-                           comment: Optional[str] = Form(None)):
+                            collection_name: str = Form(...),
+                            components: Optional[List[str]] = Form(None),
+                            bike_id: Optional[str] = Form(None),
+                            comment: Optional[str] = Form(None)):
     """Endpoint to update existing collection"""
 
     success, message = business_logic.update_collection(collection_id,
-                                                       collection_name,
-                                                       components,
-                                                       bike_id,
-                                                       comment)
+                                                        collection_name,
+                                                        components,
+                                                        bike_id,
+                                                        comment)
     
     response = RedirectResponse(
         url=f"/component_overview?success={success}&message={message}",
@@ -327,12 +327,15 @@ async def update_collection(collection_id: str = Form(...),
 
 @app.post("/change_collection_status")
 async def change_collection_status(collection_id: str = Form(...),
-                                 new_status: str = Form(...),
-                                 updated_date: str = Form(...),
-                                 bike_id: Optional[str] = Form(None)):
+                                   new_status: str = Form(...),
+                                   updated_date: str = Form(...),
+                                   bike_id: Optional[str] = Form(None)):
     """Endpoint to change the status of all components in a collection"""
 
-    success, message = business_logic.change_collection_status(collection_id, new_status, updated_date, bike_id)
+    success, message = business_logic.change_collection_status(collection_id,
+                                                               new_status,
+                                                               updated_date,
+                                                               bike_id)
 
     return JSONResponse({"success": success, "message": message})
 
