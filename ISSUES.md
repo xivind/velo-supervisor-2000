@@ -34,10 +34,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
   - Location: Collection data payload construction (lines ~185, 259, 455, 660, etc.)
   - Fix: Review all `or ""` patterns and change to pass `None` values for NULL database fields
 
-- **Backend validation empty string handling**: Backend validation for "Installed" status checks `component_bike_id is None` but frontend sends empty string `""`
-  - Problem: `create_history_record` validation (line 1359) only catches `None` values, not empty strings
-  - Impact: Users can install components without selecting a bike, bypassing intended validation
-  - Fix: Update backend validation to check `(component_bike_id is None or component_bike_id == '')` for consistency
 
 ### Architecture Issues
 - **HTML Code in Business Logic**: Business logic contains significant amounts of HTML formatting code

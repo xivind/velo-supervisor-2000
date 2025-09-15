@@ -1356,7 +1356,7 @@ class BusinessLogic():
                 logging.warning(f"Component {component.component_name} is not installed and can therefore not be set to 'Not installed'.")
                 return False, f"Component {component.component_name} is not installed and can therefore not be set to 'Not installed'."
             
-            if installation_status == "Installed" and component_bike_id is None:
+            if installation_status == "Installed" and (component_bike_id is None or component_bike_id == ""):
                 logging.warning(f"Status cannot be set to Installed without specifying bike. {component.component_name} is currently not assigned to a bike.")
                 return False, f"Status cannot be set to Installed without specifying bike. {component.component_name} is currently not assigned to a bike."
             
@@ -2248,7 +2248,7 @@ class BusinessLogic():
             if not is_valid:
                 return False, validation_message
 
-            bike_id = bike_id if bike_id else None
+            bike_id = None if bike_id == 'None' or bike_id == '' else bike_id
             comment = comment if comment else None
 
             collection_data = {"collection_id": collection_id,
@@ -2285,7 +2285,7 @@ class BusinessLogic():
             if not is_valid:
                 return False, validation_message
 
-            bike_id = bike_id if bike_id else None
+            bike_id = None if bike_id == 'None' or bike_id == '' else bike_id
             comment = comment if comment else None
 
             collection_data = {"collection_id": collection_id,
