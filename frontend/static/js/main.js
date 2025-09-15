@@ -788,12 +788,13 @@ document.addEventListener('DOMContentLoaded', function() {
             event.stopPropagation();
             
             // Get record details
-            const recordId = button.dataset.componentType || 
-                           button.dataset.componentId || 
-                           button.dataset.serviceId || 
+            const recordId = button.dataset.componentType ||
+                           button.dataset.componentId ||
+                           button.dataset.serviceId ||
                            button.dataset.historyId ||
                            button.dataset.incidentId ||
-                           button.dataset.workplanId;
+                           button.dataset.workplanId ||
+                           button.dataset.collectionId;
 
             let tableSelector, recordType;
             
@@ -815,6 +816,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (button.dataset.workplanId) {
                 tableSelector = 'Workplans';
                 recordType = 'workplan';
+            } else if (button.dataset.collectionId) {
+                tableSelector = 'Collections';
+                recordType = 'collection';
             }
             
             // Set up the modal

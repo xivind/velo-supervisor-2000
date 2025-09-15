@@ -496,7 +496,7 @@ async def delete_record(record_id: str = Form(...),
 
     if table_selector == "ComponentTypes":
         redirect_url = "/component_types_overview"
-    if table_selector == "Components":
+    if table_selector == "Components" or table_selector == "Collections":
         redirect_url = "/component_overview"
     if table_selector == "Services" or table_selector == "ComponentHistory":
         redirect_url = f"/component_details/{component_id}"

@@ -563,6 +563,12 @@ class DatabaseManager:
                         record.delete_instance()
                         return True, f"Deleted component: {record.component_name}, related records deleted: {services_deleted} service(s), {history_deleted} history record(s)"
                 
+                elif table_selector == "Collections":
+                    record = self.read_single_collection(record_id)
+                    if record:
+                        record.delete_instance()
+                        return True, f"Deleted collection with id {record_id}"
+
                 elif table_selector == "Services":
                     record = self.read_single_service_record(record_id)
                     if record:

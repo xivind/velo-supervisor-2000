@@ -2129,7 +2129,16 @@ class BusinessLogic():
             component = database_manager.read_component(record_id)
             component_type = component.component_type
             bike_id = database_manager.read_component(record_id).bike_id
-        
+
+        elif table_selector == "Collections":
+            collection = database_manager.read_single_collection(record_id)
+            collection_component_ids = json.loads(collection.components) if collection.components else None
+            print(table_selector)
+            if collection_component_ids:
+                logging.warning(f"Cannot delete collection {collection.collection_name} as it still contains components.")
+                return False, f"Cannot delete collection {collection.collection_name} as it still contains components. Remove all components from collection before deleting.", None
+            
+
         elif table_selector == "ComponentTypes":
             component_type = database_manager.read_single_component_type(record_id)
             if component_type.in_use > 0:
