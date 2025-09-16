@@ -28,7 +28,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 ## Code Quality & Technical Debt
 
 ### System-wide Issues
-- **Fix mismatched label for attributes**: Browser console reports "The label's for attribute doesn't match any element id." This affects form accessibility and autofill functionality. Need to audit all HTML templates and ensure every `<label for="...">` has a corresponding `<input id="...">` element. Collections modal is verified clean - issue likely in older templates like component_details.html and modal_create_component.html
 
 ### Backend Consistency
 

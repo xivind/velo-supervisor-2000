@@ -4545,24 +4545,34 @@ window.addEventListener('load', () => {
     // Perform bulk status change via API
     function performBulkStatusChange(collectionId, newStatus, updatedDate) {
         document.getElementById('loadingMessage').textContent = 'Updating component statuses...';
-        loadingModal.show();
 
-        // Determine bike_id source based on status:
-        // - "Installed": Use dropdown selection
-        // - "Not installed" or "Retired": Use current bike (preserves origin bike, or null if none)
-        let bikeIdToSend;
-
-        if (newStatus === 'Installed') {
-            // For installation, use dropdown selection
-            const bikeSelect = document.getElementById('bike_id');
-            bikeIdToSend = bikeSelect && bikeSelect.value ? bikeSelect.value : null;
-        } else {
-            // For "Not installed" and "Retired", use current bike
-            // getCurrentBikeId() returns null for "Not assigned" - that's correct behavior
-            bikeIdToSend = getCurrentBikeId();
+        // Close collection modal first to simplify modal orchestration
+        const collectionModal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
+        if (collectionModal) {
+            collectionModal.hide();
         }
 
-        fetch('/change_collection_status', {
+        // Show loading modal after brief delay to ensure clean transition
+        setTimeout(() => {
+            loadingModal.show();
+
+            // Determine bike_id source based on status:
+            // - "Installed": Use dropdown selection
+            // - "Not installed" or "Retired": Use current bike (preserves origin bike, or null if none)
+            let bikeIdToSend;
+
+            if (newStatus === 'Installed') {
+                // For installation, use dropdown selection
+                const bikeSelect = document.getElementById('bike_id');
+                bikeIdToSend = bikeSelect && bikeSelect.value ? bikeSelect.value : null;
+            } else {
+                // For "Not installed" and "Retired", use current bike
+                // getCurrentBikeId() returns null for "Not assigned" - that's correct behavior
+                bikeIdToSend = getCurrentBikeId();
+            }
+
+            // Perform the API call
+            fetch('/change_collection_status', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -4584,25 +4594,13 @@ window.addEventListener('load', () => {
                 const title = data.success ? '✅ Status Update Complete' : '❌ Status Update Failed';
                 const formattedMessage = formatCollectionStatusMessage(data.message);
                 showReportModal(title, formattedMessage, data.success, function() {
-                    if (data.success) {
-                        // Close collections modal and refresh page after user dismisses report
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
-                        modal.hide();
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 300);
-                    }
+                    // Always refresh page after user dismisses report, regardless of success/failure
+                    // Collection modal is already closed, so just refresh
+                    // Remove URL parameters to prevent toast messages on reload
+                    const url = window.location.pathname;
+                    window.history.replaceState({}, document.title, url);
+                    window.location.reload();
                 });
-                
-                // Fix double backdrop issue for error cases (collection modal stays open)
-                if (!data.success) {
-                    setTimeout(() => {
-                        const backdrops = document.querySelectorAll('.modal-backdrop');
-                        if (backdrops.length > 1) {
-                            backdrops[backdrops.length - 1].remove(); // Remove newest backdrop
-                        }
-                    }, 100);
-                }
             }, 500);
         })
         .catch(error => {
@@ -4613,9 +4611,16 @@ window.addEventListener('load', () => {
             
             // Show error message after modal cleanup delay
             setTimeout(() => {
-                showReportModal('❌ Application Error', 'An error occurred while updating component statuses. Please try again.', false);
+                showReportModal('❌ Application Error', 'An error occurred while updating component statuses. Please try again.', false, function() {
+                    // Always refresh page after user dismisses error report
+                    // Remove URL parameters to prevent toast messages on reload
+                    const url = window.location.pathname;
+                    window.history.replaceState({}, document.title, url);
+                    window.location.reload();
+                });
             }, 400);
         });
+        }, 300);
     }
     
     // Validate collection form for "Save Collection" button
