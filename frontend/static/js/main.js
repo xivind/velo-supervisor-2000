@@ -48,17 +48,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Utility function to show report modal with custom content and styling
-    window.showReportModal = function(title, message, isSuccess = true, onClose = null) {
+    window.showReportModal = function(title, message, isSuccess = true, isPartial = false, onClose = null) {
         const header = document.getElementById('reportModalHeader');
         const titleElement = document.getElementById('reportModalLabel');
         const body = document.getElementById('reportModalBody');
-        
+
         // Set title and message
         titleElement.textContent = title;
         body.innerHTML = message;
-        
-        // Style header based on success/failure
-        header.className = isSuccess ? 'modal-header bg-success text-white' : 'modal-header bg-danger text-white';
+
+        // Style header based on success/partial/failure
+        if (isSuccess) {
+            header.className = 'modal-header bg-success text-white';
+        } else if (isPartial) {
+            header.className = 'modal-header bg-warning text-dark';
+        } else {
+            header.className = 'modal-header bg-danger text-white';
+        }
         
         // Show the modal
         reportModal.show();
@@ -4591,9 +4597,12 @@ window.addEventListener('load', () => {
 
             // Show results after modal cleanup delay
             setTimeout(() => {
-                const title = data.success ? '✅ Status Update Complete' : '❌ Status Update Failed';
+                // Determine if this is a partial failure (some components succeeded, some failed)
+                const isPartialFailure = data.message && data.message.type === 'partial_failure';
+                const title = data.success ? '✅ Status Update Complete' :
+                             isPartialFailure ? '⚠️ Status Update Partial' : '❌ Status Update Failed';
                 const formattedMessage = formatCollectionStatusMessage(data.message);
-                showReportModal(title, formattedMessage, data.success, function() {
+                showReportModal(title, formattedMessage, data.success, isPartialFailure, function() {
                     // Always refresh page after user dismisses report, regardless of success/failure
                     // Collection modal is already closed, so just refresh
                     // Remove URL parameters to prevent toast messages on reload
@@ -4611,7 +4620,7 @@ window.addEventListener('load', () => {
             
             // Show error message after modal cleanup delay
             setTimeout(() => {
-                showReportModal('❌ Application Error', 'An error occurred while updating component statuses. Please try again.', false, function() {
+                showReportModal('❌ Application Error', 'An error occurred while updating component statuses. Please try again.', false, false, function() {
                     // Always refresh page after user dismisses error report
                     // Remove URL parameters to prevent toast messages on reload
                     const url = window.location.pathname;
