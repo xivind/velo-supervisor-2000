@@ -2358,41 +2358,45 @@ class BusinessLogic():
                 except Exception as e:
                     logging.error(f"Failed to update collection updated_date: {str(e)}")
 
-            # Generate detailed feedback message
+            # Generate structured feedback data
             total_count = len(component_ids)
-            
+
             if success_count == total_count:
                 # All components succeeded
-                message = f"<strong>Successfully updated status for all {success_count} components</strong><br><br>"
-                message += "<strong>Updated Components:</strong><br>"
-                message += "<br>".join([f"• {name}" for name in successful_components])
+                message = {
+                    "type": "success",
+                    "summary": f"Successfully updated status for all {success_count} components",
+                    "total_count": total_count,
+                    "success_count": success_count,
+                    "successful_components": successful_components,
+                    "failed_components": []
+                }
                 logging.info(f"Collection status change: all {success_count} components succeeded")
                 return True, message
-                
+
             elif success_count > 0:
                 # Partial failure - treat as failure since not all components succeeded
-                message = f"<strong>Status update failed - only {success_count} of {total_count} components were updated</strong><br><br>"
-
-                if successful_components:
-                    message += "<strong>Successfully Updated:</strong><br>"
-                    message += "<br>".join([f"• {name}" for name in successful_components])
-                    message += "<br><br>"
-
-                if failed_components:
-                    message += "<strong>Failed to Update:</strong><br>"
-                    for failed in failed_components:
-                        message += f"• {failed['name']}: {failed['error']}<br>"
-
+                message = {
+                    "type": "partial_failure",
+                    "summary": f"Status update failed - only {success_count} of {total_count} components were updated",
+                    "total_count": total_count,
+                    "success_count": success_count,
+                    "successful_components": successful_components,
+                    "failed_components": failed_components
+                }
                 logging.warning(f"Collection status change failed: {success_count}/{total_count} components succeeded")
                 return False, message
-                
+
             else:
                 # All components failed
-                message = f"<strong>Failed to update any components in collection</strong><br><br>"
-                message += "<strong>All Components Failed:</strong><br>"
-                for failed in failed_components:
-                    message += f"• {failed['name']}: {failed['error']}<br>"
-                
+                message = {
+                    "type": "complete_failure",
+                    "summary": "Failed to update any components in collection",
+                    "total_count": total_count,
+                    "success_count": 0,
+                    "successful_components": [],
+                    "failed_components": failed_components
+                }
                 logging.error("Collection status change: all components failed")
                 return False, message
 

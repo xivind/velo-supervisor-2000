@@ -4298,7 +4298,44 @@ window.addEventListener('load', () => {
         // Always show bulk status section if components selected
         bulkStatusSection.style.display = 'block';
     }
-    
+
+    // Format collection status change messages following existing HTML patterns
+    function formatCollectionStatusMessage(messageData) {
+        if (typeof messageData === 'string') {
+            // Backward compatibility: if message is still a string, return as-is
+            return messageData;
+        }
+
+        let html = '';
+
+        if (messageData.type === 'success') {
+            html = `<strong>${messageData.summary}</strong><br><br>`;
+            html += '<strong>Updated Components:</strong><br>';
+            html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
+
+        } else if (messageData.type === 'partial_failure') {
+            html = `<strong>${messageData.summary}</strong><br><br>`;
+
+            if (messageData.successful_components.length > 0) {
+                html += '<strong>Successfully Updated:</strong><br>';
+                html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
+                html += '<br><br>';
+            }
+
+            if (messageData.failed_components.length > 0) {
+                html += '<strong>Failed to Update:</strong><br>';
+                html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
+            }
+
+        } else if (messageData.type === 'complete_failure') {
+            html = `<strong>${messageData.summary}</strong><br><br>`;
+            html += '<strong>All Components Failed:</strong><br>';
+            html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
+        }
+
+        return html;
+    }
+
     // Comprehensive validation for status changes
     function validateStatusChange() {
         const componentSelect = document.getElementById('components');
@@ -4541,11 +4578,12 @@ window.addEventListener('load', () => {
         .then(data => {
             // Close loading modal using helper function
             forceCloseLoadingModal();
-            
+
             // Show results after modal cleanup delay
             setTimeout(() => {
                 const title = data.success ? '✅ Status Update Complete' : '❌ Status Update Failed';
-                showReportModal(title, data.message, data.success, function() {
+                const formattedMessage = formatCollectionStatusMessage(data.message);
+                showReportModal(title, formattedMessage, data.success, function() {
                     if (data.success) {
                         // Close collections modal and refresh page after user dismisses report
                         const modal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
