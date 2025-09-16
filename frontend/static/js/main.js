@@ -1427,7 +1427,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const collectionName = this.dataset.collectionName;
             const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
             const bikeId = this.dataset.bikeId || '';
-            const comment = this.dataset.comment || '';
+            const comment = (this.dataset.comment && this.dataset.comment !== 'None') ? this.dataset.comment : '';
             const updatedDate = this.dataset.updatedDate || '';
             
             // Store original values for validation (filter out deleted components)
@@ -1673,7 +1673,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const collectionName = collectionLink.dataset.collectionName;
         const components = collectionLink.dataset.components ? JSON.parse(collectionLink.dataset.components) : [];
         const bikeId = collectionLink.dataset.bikeId || '';
-        const comment = collectionLink.dataset.comment || '';
+        const comment = (collectionLink.dataset.comment && collectionLink.dataset.comment !== 'None') ? collectionLink.dataset.comment : '';
         const updatedDate = collectionLink.dataset.updatedDate || '';
         
         // Store original values for validation (filter out deleted components)
@@ -1719,7 +1719,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const collectionName = this.dataset.collectionName;
             const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
             const bikeId = this.dataset.bikeId || '';
-            const comment = this.dataset.comment || '';
+            const comment = (this.dataset.comment && this.dataset.comment !== 'None') ? this.dataset.comment : '';
             const updatedDate = this.dataset.updatedDate || '';
             
             // Store original values for validation (filter out deleted components)
@@ -1773,7 +1773,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const collectionName = this.dataset.collectionName;
             const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
             const bikeId = this.dataset.bikeId || '';
-            const comment = this.dataset.comment || '';
+            const comment = (this.dataset.comment && this.dataset.comment !== 'None') ? this.dataset.comment : '';
             const updatedDate = this.dataset.updatedDate || '';
             
             // Store original values for validation (filter out deleted components)
@@ -3833,7 +3833,7 @@ window.addEventListener('load', () => {
                 const collectionName = this.dataset.collectionName;
                 const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
                 const bikeId = this.dataset.bikeId || '';
-                const comment = this.dataset.comment || '';
+                const comment = (this.dataset.comment && this.dataset.comment !== 'None') ? this.dataset.comment : '';
                 const updatedDate = this.dataset.updatedDate || '';
                 
                 // Store original values for validation (filter out deleted components)
@@ -3945,7 +3945,7 @@ window.addEventListener('load', () => {
             const collectionName = this.dataset.collectionName;
             const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
             const bikeId = this.dataset.bikeId || '';
-            const comment = this.dataset.comment || '';
+            const comment = (this.dataset.comment && this.dataset.comment !== 'None') ? this.dataset.comment : '';
             const updatedDate = this.dataset.updatedDate || '';
             
             // Store original values for validation (filter out deleted components)
