@@ -18,10 +18,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 ### Edge Cases & Business Logic
 - **Retired component handling in existing collections**: What happens when a collection contains components that are retired after the collection is created, since retired components are filtered out from the dropdown?
 - **Test and Fix Bike Assignment Field Logic**: Need to test new bike assignment field implementation and fix identified bug in the logic. Field should properly handle component selection state changes and bike dropdown population
-- **Partial collection update modal bug**: When a collection contains multiple components and only some are successfully updated, the modal stays open after the report modal is closed. The successfully updated components are not reflected in the modal state, creating inconsistency. Possible solution: Make modal behave like successful updates (close modal and refresh page) even for partial successes to ensure UI consistency
-- **Fix collection modal validation rule order**: Change the order of validation rules for the collection modal. The rule that checks if components are saved should run before the rules for last_updated, installation status, and bike fields
-- **Collection modal orchestration**: Review and fix logic and orchestration between collection modal, loading modal, and report modal interactions
-- **Collection status change toast system incompatibility**: Collection status changes return JSON responses instead of page redirects, causing issues with the toast notification system
 
 ---
 
