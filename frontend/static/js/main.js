@@ -4356,17 +4356,54 @@ window.addEventListener('load', () => {
             validationModal.show();
             return false;
         }
-        
-        // Check if components are selected
+
+        // Check if collection has been modified but not saved (for existing collections)
         const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
         const selectedValues = tomSelect ? tomSelect.getValue() : [];
+
+        if (!isNewCollection && window.originalCollectionComponents) {
+            // Compare current selection with original saved components
+            const currentComponents = [...selectedValues].sort();
+            const originalComponents = [...window.originalCollectionComponents].sort();
+
+            // Check if components are different
+            const componentsChanged = currentComponents.length !== originalComponents.length ||
+                                    currentComponents.some((comp, index) => comp !== originalComponents[index]);
+
+            // Check if name or description have changed
+            const currentName = document.getElementById('collection_name').value || '';
+            const currentComment = document.getElementById('comment').value || '';
+            const originalName = window.originalCollectionName || '';
+            const originalComment = window.originalCollectionComment || '';
+
+            const nameChanged = currentName !== originalName;
+            const commentChanged = currentComment !== originalComment;
+
+            if (componentsChanged || nameChanged || commentChanged) {
+                const modalBody = document.getElementById('validationModalBody');
+                let changedFields = [];
+                if (componentsChanged) changedFields.push('components');
+                if (nameChanged) changedFields.push('collection name');
+                if (commentChanged) changedFields.push('description');
+
+                const fieldList = changedFields.length > 1
+                    ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
+                    : changedFields[0];
+
+                modalBody.innerHTML = `<strong>Unsaved Changes</strong><br>You have modified the ${fieldList} but haven't saved the changes. Please save the collection first using the "Save Collection" button before changing component status.`;
+                validationModal.show();
+                return false;
+            }
+        }
+
+        // Check if components are selected
         if (!selectedValues || selectedValues.length === 0) {
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = '<strong>No Components Selected</strong><br>This collection has no components. Add components to the collection before changing status.';
             validationModal.show();
             return false;
         }
-        
+
         // Check if new status is selected
         if (!newStatus) {
             const modalBody = document.getElementById('validationModalBody');
@@ -4374,7 +4411,7 @@ window.addEventListener('load', () => {
             validationModal.show();
             return false;
         }
-        
+
         // Check if date is entered
         if (!updatedDate) {
             const modalBody = document.getElementById('validationModalBody');
@@ -4389,42 +4426,6 @@ window.addEventListener('load', () => {
             if (!bikeSelect || !bikeSelect.value) {
                 const modalBody = document.getElementById('validationModalBody');
                 modalBody.innerHTML = '<strong>Bike Selection Required</strong><br>When setting status to "Installed", you must select which bike the components will be installed on.';
-                validationModal.show();
-                return false;
-            }
-        }
-        
-        // Check if collection has been modified but not saved (for existing collections)
-        if (!isNewCollection && window.originalCollectionComponents) {
-            // Compare current selection with original saved components
-            const currentComponents = [...selectedValues].sort();
-            const originalComponents = [...window.originalCollectionComponents].sort();
-            
-            // Check if components are different
-            const componentsChanged = currentComponents.length !== originalComponents.length || 
-                                    currentComponents.some((comp, index) => comp !== originalComponents[index]);
-            
-            // Check if name or description have changed
-            const currentName = document.getElementById('collection_name').value || '';
-            const currentComment = document.getElementById('comment').value || '';
-            const originalName = window.originalCollectionName || '';
-            const originalComment = window.originalCollectionComment || '';
-            
-            const nameChanged = currentName !== originalName;
-            const commentChanged = currentComment !== originalComment;
-            
-            if (componentsChanged || nameChanged || commentChanged) {
-                const modalBody = document.getElementById('validationModalBody');
-                let changedFields = [];
-                if (componentsChanged) changedFields.push('components');
-                if (nameChanged) changedFields.push('collection name');
-                if (commentChanged) changedFields.push('description');
-                
-                const fieldList = changedFields.length > 1 
-                    ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1) 
-                    : changedFields[0];
-                
-                modalBody.innerHTML = `<strong>Unsaved Changes</strong><br>You have modified the ${fieldList} but haven't saved the changes. Please save the collection first using the "Save Collection" button before changing component status.`;
                 validationModal.show();
                 return false;
             }
