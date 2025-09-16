@@ -3995,9 +3995,9 @@ window.addEventListener('load', () => {
             modal.show();
         });
     });
-    
+
     // Initialize the component selector with delayed data loading
-    function initializeComponentSelector(pendingData) {
+    window.initializeComponentSelector = function(pendingData) {
         const componentSelect = document.getElementById('components');
         if (!componentSelect) return;
         
@@ -4047,10 +4047,10 @@ window.addEventListener('load', () => {
         } catch(e) {
             console.error('TomSelect initialization error:', e);
         }
-    }
+    };
     
     // Set selected components in the TomSelect
-    function setSelectedComponents(componentIds) {
+    window.setSelectedComponents = function(componentIds) {
         const componentSelect = document.getElementById('components');
         if (!componentSelect) return;
 
@@ -4061,7 +4061,7 @@ window.addEventListener('load', () => {
             const existingComponentIds = componentIds.filter(id => availableOptions.includes(id));
             tomSelect.setValue(existingComponentIds);
         }
-    }
+    };
 
     // Helper function to get bike_id from "Current bike: [name]" display
     function getCurrentBikeId() {
@@ -4105,7 +4105,7 @@ window.addEventListener('load', () => {
     }
 
     // Setup component validation and status checking
-    function setupComponentValidation() {
+    window.setupComponentValidation = function() {
         const componentSelect = document.getElementById('components');
         const bikeSelect = document.getElementById('bike_id');
         const currentBikeDisplay = document.getElementById('current_bike_assignment');
@@ -4297,7 +4297,7 @@ window.addEventListener('load', () => {
         
         // Always show bulk status section if components selected
         bulkStatusSection.style.display = 'block';
-    }
+    };
 
     // Format collection status change messages following existing HTML patterns
     function formatCollectionStatusMessage(messageData) {

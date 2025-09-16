@@ -10,9 +10,7 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 
 ### Missing Functionality
 - **Add proper error handling in JavaScript collection functions**: JavaScript functions need better error handling for robustness and user feedback
-- **Add column sorting JavaScript handlers**: Collections tables need JavaScript to make column sorting work (data-sort attributes exist but no handlers)
-- **Update component overview legend**: Add collection icon explanation to the legend
-- **Add component details page collection integration**: Component details page references `#editCollectionModal` which doesn't exist, missing collections table and management functionality
+- **Bike overview pages should show emoji for bikes that have active collections**: Visual indicator needed to show which bikes have collections at a glance
 
 ### Data Consistency Issues
 - **Collection updated_date preservation**: When saving collection changes (like description) without status changes, the `updated_date` field gets overwritten/nulled. The `updated_date` should only track status change operations and be preserved during regular collection saves
