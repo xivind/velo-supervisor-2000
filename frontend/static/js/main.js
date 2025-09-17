@@ -3803,6 +3803,18 @@ window.addEventListener('load', () => {
                     // Call once initially to set correct state
                     updateBikeDropdownForNewStatus();
                 }
+
+                // Set up event listeners for name and description fields to detect changes
+                const collectionNameField = document.getElementById('collection_name');
+                const commentField = document.getElementById('comment');
+
+                if (collectionNameField) {
+                    collectionNameField.addEventListener('input', updateUnsavedChangesWarning);
+                }
+
+                if (commentField) {
+                    commentField.addEventListener('input', updateUnsavedChangesWarning);
+                }
             });
 
             // Setup modal hidden event
@@ -3810,9 +3822,10 @@ window.addEventListener('load', () => {
                 // Reset flags
                 isNewCollection = false;
                 pendingComponentData = null;
-                
+
                 // Hide warning sections
                 document.getElementById('mixed_status_warning').style.display = 'none';
+                document.getElementById('unsaved_changes_warning').style.display = 'none';
             });
         }
         
@@ -4049,6 +4062,18 @@ window.addEventListener('load', () => {
             ts.on('change', function() {
                 setTimeout(setupComponentValidation, 50);
             });
+
+            // Add specific handlers for item removal
+            ts.on('item_remove', function(value) {
+                // Small delay to ensure DOM is updated after item removal
+                setTimeout(() => {
+                    setupComponentValidation();
+                }, 10);
+            });
+
+            ts.on('clear', function() {
+                setTimeout(setupComponentValidation, 50);
+            });
             
         } catch(e) {
             console.error('TomSelect initialization error:', e);
@@ -4112,6 +4137,7 @@ window.addEventListener('load', () => {
 
     // Setup component validation and status checking
     window.setupComponentValidation = function() {
+
         const componentSelect = document.getElementById('components');
         const bikeSelect = document.getElementById('bike_id');
         const currentBikeDisplay = document.getElementById('current_bike_assignment');
@@ -4134,8 +4160,15 @@ window.addEventListener('load', () => {
         
         const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
         if (!tomSelect) return;
-        
-        const selectedValues = tomSelect.getValue();
+
+        // Alternative approach: inspect DOM for selected items instead of relying on getValue()
+        let selectedValues = [];
+        if (tomSelect.control) {
+            const selectedItems = tomSelect.control.querySelectorAll('.item[data-value]');
+            selectedValues = Array.from(selectedItems).map(item => item.getAttribute('data-value'));
+        } else {
+            selectedValues = tomSelect.getValue();
+        }
         if (!selectedValues || selectedValues.length === 0) {
             mixedStatusWarning.style.display = 'none';
             bulkStatusSection.style.display = 'block';
@@ -4163,7 +4196,53 @@ window.addEventListener('load', () => {
                 bikeSelect.value = '';
                 bikeSelect.disabled = true; // Disable when no components selected
             }
-            
+
+            // Check for unsaved changes even when no components selected
+            const unsavedChangesWarning = document.getElementById('unsaved_changes_warning');
+            if (unsavedChangesWarning && !isNewCollection && window.originalCollectionComponents !== null && window.originalCollectionComponents !== undefined) {
+                // Compare empty selection with original saved components
+                const currentComponents = []; // Empty selection
+                const originalComponents = [...window.originalCollectionComponents].sort();
+
+
+                // Check if components are different
+                const componentsChanged = currentComponents.length !== originalComponents.length ||
+                                        currentComponents.some((comp, index) => comp !== originalComponents[index]);
+
+
+                // Check if name or description have changed
+                const currentName = document.getElementById('collection_name').value || '';
+                const currentComment = document.getElementById('comment').value || '';
+                const originalName = window.originalCollectionName || '';
+                const originalComment = window.originalCollectionComment || '';
+
+                const nameChanged = currentName !== originalName;
+                const commentChanged = currentComment !== originalComment;
+
+                const hasChanges = componentsChanged || nameChanged || commentChanged;
+
+
+                if (hasChanges) {
+                    let changedFields = [];
+                    if (componentsChanged) changedFields.push('components');
+                    if (nameChanged) changedFields.push('collection name');
+                    if (commentChanged) changedFields.push('description');
+
+                    const fieldList = changedFields.length > 1
+                        ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
+                        : changedFields[0];
+
+
+                    const warningText = unsavedChangesWarning.querySelector('div');
+                    if (warningText) {
+                        warningText.innerHTML = `<strong>⚠️ Unsaved changes:</strong> You have modified the ${fieldList}. Save the collection to preserve these changes.`;
+                    }
+                    unsavedChangesWarning.style.display = 'block';
+                } else {
+                    unsavedChangesWarning.style.display = 'none';
+                }
+            }
+
             return;
         }
         
@@ -4300,10 +4379,118 @@ window.addEventListener('load', () => {
         } else {
             mixedStatusWarning.style.display = 'none';
         }
-        
+
+        // Check for unsaved changes using the same selectedValues
+        const unsavedChangesWarning = document.getElementById('unsaved_changes_warning');
+        if (unsavedChangesWarning) {
+
+            if (!isNewCollection && window.originalCollectionComponents !== null && window.originalCollectionComponents !== undefined) {
+            // Compare current selection with original saved components
+            const currentComponents = [...selectedValues].sort();
+            const originalComponents = [...window.originalCollectionComponents].sort();
+
+
+            // Check if components are different
+            const componentsChanged = currentComponents.length !== originalComponents.length ||
+                                    currentComponents.some((comp, index) => comp !== originalComponents[index]);
+
+
+            // Check if name or description have changed
+            const currentName = document.getElementById('collection_name').value || '';
+            const currentComment = document.getElementById('comment').value || '';
+            const originalName = window.originalCollectionName || '';
+            const originalComment = window.originalCollectionComment || '';
+
+            const nameChanged = currentName !== originalName;
+            const commentChanged = currentComment !== originalComment;
+
+            const hasChanges = componentsChanged || nameChanged || commentChanged;
+
+
+            if (hasChanges) {
+                let changedFields = [];
+                if (componentsChanged) changedFields.push('components');
+                if (nameChanged) changedFields.push('collection name');
+                if (commentChanged) changedFields.push('description');
+
+                const fieldList = changedFields.length > 1
+                    ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
+                    : changedFields[0];
+
+
+                const warningText = unsavedChangesWarning.querySelector('div');
+                if (warningText) {
+                    warningText.innerHTML = `<strong>⚠️ Unsaved changes:</strong> You have modified the ${fieldList}. Save the collection to preserve these changes.`;
+                }
+                unsavedChangesWarning.style.display = 'block';
+            } else {
+                unsavedChangesWarning.style.display = 'none';
+            }
+            }
+        }
+
         // Always show bulk status section if components selected
         bulkStatusSection.style.display = 'block';
     };
+
+    // Check for unsaved changes in collection (name, description, components)
+    function checkForUnsavedChanges() {
+        // Only check for existing collections, not new ones
+        if (isNewCollection || !window.originalCollectionComponents) {
+            return { hasChanges: false, changedFields: [] };
+        }
+
+        const componentSelect = document.getElementById('components');
+        const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
+        const selectedValues = tomSelect ? tomSelect.getValue() : [];
+
+        // Compare current selection with original saved components
+        const currentComponents = [...selectedValues].sort();
+        const originalComponents = [...window.originalCollectionComponents].sort();
+
+        // Check if components are different
+        const componentsChanged = currentComponents.length !== originalComponents.length ||
+                                currentComponents.some((comp, index) => comp !== originalComponents[index]);
+
+        // Check if name or description have changed
+        const currentName = document.getElementById('collection_name').value || '';
+        const currentComment = document.getElementById('comment').value || '';
+        const originalName = window.originalCollectionName || '';
+        const originalComment = window.originalCollectionComment || '';
+
+        const nameChanged = currentName !== originalName;
+        const commentChanged = currentComment !== originalComment;
+
+        const hasChanges = componentsChanged || nameChanged || commentChanged;
+        let changedFields = [];
+        if (componentsChanged) changedFields.push('components');
+        if (nameChanged) changedFields.push('collection name');
+        if (commentChanged) changedFields.push('description');
+
+        return { hasChanges, changedFields };
+    }
+
+    // Update unsaved changes warning display
+    function updateUnsavedChangesWarning() {
+        const unsavedChangesWarning = document.getElementById('unsaved_changes_warning');
+        if (!unsavedChangesWarning) return;
+
+        const { hasChanges, changedFields } = checkForUnsavedChanges();
+
+        if (hasChanges) {
+            const fieldList = changedFields.length > 1
+                ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
+                : changedFields[0];
+
+            const warningText = unsavedChangesWarning.querySelector('div');
+            if (warningText) {
+                warningText.innerHTML = `<strong>⚠️ Unsaved changes:</strong> You have modified the ${fieldList}. Save the collection to preserve these changes.`;
+            }
+            unsavedChangesWarning.style.display = 'block';
+        } else {
+            unsavedChangesWarning.style.display = 'none';
+        }
+    }
 
     // Format collection status change messages following existing HTML patterns
     function formatCollectionStatusMessage(messageData) {
