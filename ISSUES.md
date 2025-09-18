@@ -1,6 +1,6 @@
 # ISSUES CURRENTLY IN PROGRESS
 
-This file (ISSUES.md) must be read on startup. This file contains information on what we are currently working on. Claude Code should ensure that this file is up to date, as the work progress. Always reference issue [#177](https://github.com/xivind/velo-supervisor-2000/issues/177) in the commit messages.
+This file (ISSUES.md) must be read on startup. This file contains information on what we are currently working on. Claude Code should ensure that this file is up to date, as the work progress. Always reference issue [#177](https://github.com/xivind/velo-supervisor-2000/issues/177) in the commit messages. When issues are confirmed to be resolved, move them to the bottom of the file in a separate section, and reformulate them to a short one sentence description, to keep a log of whats have been resolved.
 
 **Current Status**: Collections feature is PRODUCTION READY! Core functionality complete, stable, and fully tested. Delete functionality implemented and ready for testing.
 
@@ -13,7 +13,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **Bike overview pages should show emoji for bikes that have active collections**: Visual indicator needed to show which bikes have collections at a glance
 
 ### Data Consistency Issues
-- **Collection updated_date preservation**: When saving collection changes (like description) without status changes, the `updated_date` field gets overwritten/nulled. The `updated_date` should only track status change operations and be preserved during regular collection saves
 
 ### Edge Cases & Business Logic
 - **Retired component handling in existing collections**: What happens when a collection contains components that are retired after the collection is created, since retired components are filtered out from the dropdown?
@@ -41,6 +40,7 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **Update business logic methods to follow app conventions**: Remove default parameters from collections methods to match app standards
 - **Organize JavaScript code in correct location**: Collections JavaScript should be properly organized in main.js
 - **Ensure JavaScript reuses existing patterns**: Collections JavaScript should follow existing patterns for dates, validation, etc.
+- **Review all user feedback messages**: In business_logic and js
 
 ---
 
@@ -85,3 +85,10 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 ### Database Operations
 - **Database backup**: Use `./backup_db.sh` (Docker-specific script)
 - **Database migration**: Run `python3 backend/db_migration.py` for schema updates between versions
+
+---
+
+## Resolved Issues
+
+- **Collection updated_date preservation**: Fixed - updated_date field is properly preserved during regular collection saves and only updated during status changes
+- **Status change modal cancel button bug**: Fixed - cancel button now properly prevents status changes and cleans up event listeners to prevent duplicate API calls

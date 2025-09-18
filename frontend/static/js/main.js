@@ -4670,22 +4670,38 @@ window.addEventListener('load', () => {
                 modalBody.innerHTML = `Are you sure you want to change the status of all components in this collection to "${newStatus}"?`;
                 confirmModal.show();
                 
+                // Create cleanup function to remove event listeners
+                function cleanup() {
+                    const confirmBtn = document.getElementById('confirmAction');
+                    const cancelBtn = document.getElementById('cancelAction');
+                    confirmBtn.removeEventListener('click', handleConfirm);
+                    cancelBtn.removeEventListener('click', handleCancel);
+                }
+
                 // Handle confirm action
-                document.getElementById('confirmAction').addEventListener('click', function handleConfirm() {
-                    // Remove the event listener after use
-                    this.removeEventListener('click', handleConfirm);
-                    
+                function handleConfirm() {
+                    cleanup();
+
                     // CRITICAL: Remove focus from the button before hiding modal to prevent aria-hidden focus trap
                     this.blur();
-                    
+
                     // Close confirmation modal first
                     confirmModal.hide();
-                    
+
                     // Use timeout instead of Bootstrap events for more reliable modal transitions
                     setTimeout(() => {
                         performBulkStatusChange(collectionId, newStatus, updatedDate);
                     }, 300); // Give enough time for confirm modal to close
-                }, { once: true });
+                }
+
+                // Handle cancel action
+                function handleCancel() {
+                    cleanup();
+                }
+
+                // Add event listeners
+                document.getElementById('confirmAction').addEventListener('click', handleConfirm);
+                document.getElementById('cancelAction').addEventListener('click', handleCancel);
             });
         }
     });
