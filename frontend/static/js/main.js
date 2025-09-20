@@ -4028,7 +4028,8 @@ window.addEventListener('load', () => {
         // Always start fresh with all options
         componentSelect.innerHTML = originalCollectionOptions;
         
-        // Remove retired options for collections (they shouldn't be in collections)
+        // Handle retired components: always remove them from dropdown initially
+        // They will be re-added with "Retired" marking when setSelectedComponents is called
         const retiredOptions = componentSelect.querySelectorAll('option[data-status="Retired"]');
         retiredOptions.forEach(option => option.remove());
         
@@ -4087,6 +4088,33 @@ window.addEventListener('load', () => {
 
         const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
         if (tomSelect && componentIds) {
+            // Check for retired components that need to be re-added to dropdown
+            componentIds.forEach(id => {
+                if (!componentSelect.querySelector(`option[value="${id}"]`)) {
+                    // This component is missing (likely retired), check original options
+                    if (originalCollectionOptions) {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = originalCollectionOptions;
+                        const missingOption = tempDiv.querySelector(`option[value="${id}"]`);
+
+                        if (missingOption && missingOption.dataset.status === 'Retired') {
+                            // Re-add retired component with "Retired" marking
+                            const retiredOption = missingOption.cloneNode(true);
+                            if (!retiredOption.textContent.includes(' - Retired')) {
+                                retiredOption.textContent = retiredOption.textContent + ' - Retired';
+                            }
+                            componentSelect.appendChild(retiredOption);
+
+                            // Notify TomSelect about the new option
+                            tomSelect.addOption({
+                                value: retiredOption.value,
+                                text: retiredOption.textContent
+                            });
+                        }
+                    }
+                }
+            });
+
             // Filter out deleted components (only set components that exist in the dropdown)
             const availableOptions = Array.from(componentSelect.options).map(option => option.value);
             const existingComponentIds = componentIds.filter(id => availableOptions.includes(id));
@@ -4143,8 +4171,40 @@ window.addEventListener('load', () => {
         const currentBikeDisplay = document.getElementById('current_bike_assignment');
         const mixedStatusWarning = document.getElementById('mixed_status_warning');
         const bulkStatusSection = document.getElementById('bulk_status_section');
-        
+        const retiredComponentWarning = document.getElementById('retired_component_warning');
+
         if (!componentSelect) return;
+
+        // Check for retired components in the collection
+        const collectionTomSelect = componentSelect.tomSelect || componentSelect.tomselect;
+        if (collectionTomSelect) {
+            let selectedValues = [];
+            if (collectionTomSelect.control) {
+                const selectedItems = collectionTomSelect.control.querySelectorAll('.item[data-value]');
+                selectedValues = Array.from(selectedItems).map(item => item.getAttribute('data-value'));
+            } else {
+                selectedValues = collectionTomSelect.getValue();
+            }
+
+            // Check if any selected component is retired
+            const retiredComponents = selectedValues.filter(id => {
+                const option = componentSelect.querySelector(`option[value="${id}"]`);
+                return option && option.dataset.status === 'Retired';
+            });
+
+            if (retiredComponents.length > 0) {
+                // Show retired component warning and disable form
+                showRetiredComponentWarning(retiredComponents.length);
+                disableCollectionForm();
+                return; // Exit early - don't process other validations
+            } else {
+                // Hide warning and enable form if no retired components
+                if (retiredComponentWarning) {
+                    retiredComponentWarning.style.display = 'none';
+                }
+                enableCollectionForm();
+            }
+        }
         
         // Create a lookup map from bike names to bike IDs
         // We'll extract this from any existing bike dropdown in the page
@@ -4432,6 +4492,51 @@ window.addEventListener('load', () => {
         // Always show bulk status section if components selected
         bulkStatusSection.style.display = 'block';
     };
+
+    // Helper function to show retired component warning
+    function showRetiredComponentWarning(retiredCount) {
+        const retiredComponentWarning = document.getElementById('retired_component_warning');
+        if (retiredComponentWarning) {
+            const warningText = retiredComponentWarning.querySelector('.alert');
+            if (warningText) {
+                const componentText = retiredCount === 1 ? 'component' : 'components';
+                warningText.innerHTML = `<strong>🔒 Collection Locked</strong><br>This collection contains ${retiredCount} retired ${componentText} and has been locked to preserve data integrity. To unlock this collection, manually adjust the installation status of the retired components outside of the collections interface.`;
+            }
+            retiredComponentWarning.style.display = 'block';
+        }
+    }
+
+    // Helper function to disable collection form
+    function disableCollectionForm() {
+        const collectionForm = document.getElementById('collection_form');
+        if (collectionForm) {
+            // Disable all form inputs and selects
+            collectionForm.querySelectorAll('input, select, textarea').forEach(element => {
+                element.disabled = true;
+            });
+
+            // Disable submit buttons but keep cancel button enabled
+            document.querySelectorAll('#collectionModal button[type="submit"], #apply_status_change').forEach(button => {
+                button.disabled = true;
+            });
+        }
+    }
+
+    // Helper function to enable collection form
+    function enableCollectionForm() {
+        const collectionForm = document.getElementById('collection_form');
+        if (collectionForm) {
+            // Re-enable all form inputs and selects
+            collectionForm.querySelectorAll('input, select, textarea').forEach(element => {
+                element.disabled = false;
+            });
+
+            // Re-enable submit buttons
+            document.querySelectorAll('#collectionModal button[type="submit"], #apply_status_change').forEach(button => {
+                button.disabled = false;
+            });
+        }
+    }
 
     // Check for unsaved changes in collection (name, description, components)
     function checkForUnsavedChanges() {

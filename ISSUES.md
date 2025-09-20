@@ -9,14 +9,13 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 ## Outstanding Collections Tasks
 
 ### Missing Functionality
-- **Add proper error handling in JavaScript collection functions**: JavaScript functions need better error handling for robustness and user feedback
 - **Bike overview pages should show emoji for bikes that have active collections**: Visual indicator needed to show which bikes have collections at a glance
 
 ### Data Consistency Issues
 
 ### Edge Cases & Business Logic
-- **Retired component handling in existing collections**: What happens when a collection contains components that are retired after the collection is created, since retired components are filtered out from the dropdown?
-- **Test and Fix Bike Assignment Field Logic**: Need to test new bike assignment field implementation and fix identified bug in the logic. Field should properly handle component selection state changes and bike dropdown population
+- **Collection modal component field state bug**: After setting a collection status to retired, the first collection modal opened afterward has greyed out components field. Canceling and reopening fixes the issue - likely a form state cleanup problem
+- **Set new status button page reload**: The "Set new status" button should reload the page after completion so users can see the toast notification at the top of the page
 
 ---
 
@@ -92,3 +91,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 
 - **Collection updated_date preservation**: Fixed - updated_date field is properly preserved during regular collection saves and only updated during status changes
 - **Status change modal cancel button bug**: Fixed - cancel button now properly prevents status changes and cleans up event listeners to prevent duplicate API calls
+- **JavaScript collection error handling**: Reviewed - current error handling is sufficient for form submissions and API calls
+- **Bike assignment field logic**: Tested and confirmed working correctly with proper component selection state changes and dropdown population
+- **Retired component handling in existing collections**: Fixed - collections with retired components are now locked with clear warning, retired components show as "- Retired" but are preserved for data integrity
