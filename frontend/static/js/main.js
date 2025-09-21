@@ -3823,9 +3823,21 @@ window.addEventListener('load', () => {
                 isNewCollection = false;
                 pendingComponentData = null;
 
-                // Hide warning sections
+                // Hide ALL warning sections
                 document.getElementById('mixed_status_warning').style.display = 'none';
                 document.getElementById('unsaved_changes_warning').style.display = 'none';
+                const retiredWarning = document.getElementById('retired_component_warning');
+                if (retiredWarning) {
+                    retiredWarning.style.display = 'none';
+                }
+
+                // Always re-enable form to ensure clean state for next open
+                enableCollectionForm();
+
+                // Reset original collection tracking variables
+                window.originalCollectionComponents = null;
+                window.originalCollectionName = null;
+                window.originalCollectionComment = null;
             });
         }
         
@@ -4196,6 +4208,10 @@ window.addEventListener('load', () => {
                 // Show retired component warning and disable form
                 showRetiredComponentWarning(retiredComponents.length);
                 disableCollectionForm();
+                // Hide bulk status section for retired components
+                if (bulkStatusSection) {
+                    bulkStatusSection.style.display = 'none';
+                }
                 return; // Exit early - don't process other validations
             } else {
                 // Hide warning and enable form if no retired components
@@ -4510,9 +4526,12 @@ window.addEventListener('load', () => {
     function disableCollectionForm() {
         const collectionForm = document.getElementById('collection_form');
         if (collectionForm) {
-            // Disable all form inputs and selects
+            // Disable all form inputs and selects EXCEPT the component selector
+            // Keep component selector enabled so users can remove retired components
             collectionForm.querySelectorAll('input, select, textarea').forEach(element => {
-                element.disabled = true;
+                if (element.id !== 'components') {
+                    element.disabled = true;
+                }
             });
 
             // Disable submit buttons but keep cancel button enabled

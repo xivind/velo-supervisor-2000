@@ -14,7 +14,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 ### Data Consistency Issues
 
 ### Edge Cases & Business Logic
-- **Collection modal component field state bug**: After setting a collection status to retired, the first collection modal opened afterward has greyed out components field. Canceling and reopening fixes the issue - likely a form state cleanup problem
 - **Set new status button page reload**: The "Set new status" button should reload the page after completion so users can see the toast notification at the top of the page
 
 ---
@@ -94,3 +93,4 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **JavaScript collection error handling**: Reviewed - current error handling is sufficient for form submissions and API calls
 - **Bike assignment field logic**: Tested and confirmed working correctly with proper component selection state changes and dropdown population
 - **Retired component handling in existing collections**: Fixed - collections with retired components are now locked with clear warning, retired components show as "- Retired" but are preserved for data integrity
+- **Collection modal component field state bug**: Fixed - improved modal state cleanup to prevent form state persistence between modal sessions, component selector stays enabled for retired component removal
