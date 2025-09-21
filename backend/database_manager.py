@@ -253,12 +253,6 @@ class DatabaseManager:
         """Method to read all collections"""
         return Collections.select()
 
-    def read_collections_by_bike(self, bike_id):
-        """Method to read collections for a specific bike"""
-        return (Collections
-                .select()
-                .where(Collections.bike_id == bike_id))
-
     def read_collection_by_component(self, component_id):
         """Method to find collection containing a specific component"""
         all_collections = Collections.select()
