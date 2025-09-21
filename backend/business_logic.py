@@ -75,12 +75,15 @@ class BusinessLogic():
                                compliance_report))
 
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
-        
+
         planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
+
+        assigned_collections = [collection.bike_id for collection in database_manager.read_all_collections() if collection.bike_id]
 
         payload = {"bikes_data": bikes_data,
                    "open_incidents": open_incidents,
-                   "planned_workplans": planned_workplans}
+                   "planned_workplans": planned_workplans,
+                   "assigned_collections": assigned_collections}
 
         return payload
 
@@ -623,7 +626,7 @@ class BusinessLogic():
                 "component_workplans": component_workplans}
 
     def get_collections(self):
-        """Method to produce payload for display of collections"""
+        """Method to produce payload for displaying table of all collections"""
         all_collections = []
         collections = database_manager.read_all_collections()
 

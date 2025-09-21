@@ -9,7 +9,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 ## Outstanding Collections Tasks
 
 ### Missing Functionality
-- **Bike overview pages should show emoji for bikes that have active collections**: Visual indicator needed to show which bikes have collections at a glance
 
 ### Data Consistency Issues
 
@@ -94,3 +93,4 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **Bike assignment field logic**: Tested and confirmed working correctly with proper component selection state changes and dropdown population
 - **Retired component handling in existing collections**: Fixed - collections with retired components are now locked with clear warning, retired components show as "- Retired" but are preserved for data integrity
 - **Collection modal component field state bug**: Fixed - improved modal state cleanup to prevent form state persistence between modal sessions, component selector stays enabled for retired component removal
+- **Bike overview collection indicators**: Added - bike overview page now shows 📦 emoji indicators for bikes that have collections assigned, with legend entry "Assigned collections"
