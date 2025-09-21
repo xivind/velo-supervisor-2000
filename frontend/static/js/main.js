@@ -4500,7 +4500,7 @@ window.addEventListener('load', () => {
             const warningText = retiredComponentWarning.querySelector('.alert');
             if (warningText) {
                 const componentText = retiredCount === 1 ? 'component' : 'components';
-                warningText.innerHTML = `<strong>🔒 Collection Locked</strong><br>This collection contains ${retiredCount} retired ${componentText} and has been locked to preserve data integrity. To unlock this collection, manually adjust the installation status of the retired components outside of the collections interface.`;
+                warningText.innerHTML = `<strong>🔒 Collection Locked</strong><br>This collection contains ${retiredCount} retired ${componentText} and has been locked to preserve data integrity. To unlock this collection, either remove the retired components from the selector above, or manually adjust the installation status of the retired components from the component details page.`;
             }
             retiredComponentWarning.style.display = 'block';
         }
