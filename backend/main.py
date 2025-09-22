@@ -253,48 +253,14 @@ async def update_history_record(component_id: str = Form(...),
 
     return response
 
-@app.post("/add_service_record", response_class=HTMLResponse)
-async def add_service(component_id: str = Form(...),
-                      service_date: str = Form(...),
-                      service_description: str = Form(...)):
-    """Endpoint to add service"""
-
-    success, message = business_logic.create_service_record(component_id,
-                                                            service_date,
-                                                            service_description)
-
-    response = RedirectResponse(
-        url=f"/component_details/{component_id}?success={success}&message={message}",
-        status_code=303)
-
-    return response
-
-@app.post("/update_service_record", response_class=HTMLResponse)
-async def update_service_record(component_id: str = Form(...),
-                                service_id: str = Form(...),
-                                service_date: str = Form(...),
-                                service_description: str = Form(...)):
-    """Endpoint to update an existing service record"""
-
-    success, message = business_logic.update_service_record(component_id,
-                                                            service_id,
-                                                            service_date,
-                                                            service_description)
-
-    response = RedirectResponse(
-        url=f"/component_details/{component_id}?success={success}&message={message}",
-        status_code=303)
-
-    return response
-
 @app.post("/add_collection", response_class=HTMLResponse)
 async def add_collection(collection_name: str = Form(...),
-                         components: Optional[List[str]] = Form(None),
-                         bike_id: Optional[str] = Form(None),
-                         comment: Optional[str] = Form(None)):
+                            components: Optional[List[str]] = Form(None),
+                            bike_id: Optional[str] = Form(None),
+                            comment: Optional[str] = Form(None)):
     """Endpoint to add new collection"""
 
-    success, message = business_logic.add_collection(collection_name,
+    success, message = business_logic.create_collection(collection_name,
                                                      components,
                                                      bike_id,
                                                      comment)
@@ -338,6 +304,40 @@ async def change_collection_status(collection_id: str = Form(...),
                                                                bike_id)
 
     return JSONResponse({"success": success, "message": message})
+
+@app.post("/add_service_record", response_class=HTMLResponse)
+async def add_service(component_id: str = Form(...),
+                      service_date: str = Form(...),
+                      service_description: str = Form(...)):
+    """Endpoint to add service"""
+
+    success, message = business_logic.create_service_record(component_id,
+                                                            service_date,
+                                                            service_description)
+
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
+@app.post("/update_service_record", response_class=HTMLResponse)
+async def update_service_record(component_id: str = Form(...),
+                                service_id: str = Form(...),
+                                service_date: str = Form(...),
+                                service_description: str = Form(...)):
+    """Endpoint to update an existing service record"""
+
+    success, message = business_logic.update_service_record(component_id,
+                                                            service_id,
+                                                            service_date,
+                                                            service_description)
+
+    response = RedirectResponse(
+        url=f"/component_details/{component_id}?success={success}&message={message}",
+        status_code=303)
+
+    return response
 
 @app.post("/add_incident_record", response_class=HTMLResponse)
 async def add_incident_record(incident_date: str = Form(...),

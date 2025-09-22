@@ -13,7 +13,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 ### Data Consistency Issues
 
 ### Edge Cases & Business Logic
-- **Set new status button page reload**: The "Set new status" button should reload the page after completion so users can see the toast notification at the top of the page
 
 ---
 
@@ -31,13 +30,26 @@ This file (ISSUES.md) must be read on startup. This file contains information on
   - Architecture: Proper separation of concerns maintained - business logic returns data, frontend handles presentation
 
 ### Code Organization & Conventions
-- **Review and fix main.py endpoints**: Ensure collections endpoints follow app conventions
-- **Ensure endpoints are placed in correct location**: Collections endpoints should be positioned appropriately in main.py
-- **Ensure business logic methods are placed correctly**: Collections methods should follow business_logic.py organization patterns
-- **Update business logic methods to follow app conventions**: Remove default parameters from collections methods to match app standards
 - **Organize JavaScript code in correct location**: Collections JavaScript should be properly organized in main.js
 - **Ensure JavaScript reuses existing patterns**: Collections JavaScript should follow existing patterns for dates, validation, etc.
 - **Review all user feedback messages**: In business_logic and js
+
+### QA Review - Files to Review
+- **QA: business_logic.py collections read methods**: Review collections get/read methods for proper implementation
+- **QA: business_logic.py date validation bug**: Date field validation is insufficient and needs improvement
+- **QA: database_manager.py**: Review collections database methods for proper implementation
+- **QA: database_model.py**: Review Collections table schema and model definition
+- **QA: db_migration.py**: Review migration script for collections schema updates
+- **QA: main.js**: Review collections JavaScript code for organization and pattern consistency
+- **QA: modal_collection.html**: Review collection modal template for proper structure and accessibility
+- **QA: modal_report.html**: Review report modal template used by collections status changes
+- **QA: component_overview.html**: Review collections table display and integration
+- **QA: component_details.html**: Review collection information display on component pages
+- **QA: bike_details.html**: Review collection information display on bike pages
+- **QA: index.html**: Review collection indicators on bike overview page
+
+### Database & Migration Tasks
+- **Update database template**: Update backend/template_db.sqlite so users starting fresh don't need to run migration for collections schema
 
 ---
 
@@ -94,3 +106,9 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **Retired component handling in existing collections**: Fixed - collections with retired components are now locked with clear warning, retired components show as "- Retired" but are preserved for data integrity
 - **Collection modal component field state bug**: Fixed - improved modal state cleanup to prevent form state persistence between modal sessions, component selector stays enabled for retired component removal
 - **Bike overview collection indicators**: Added - bike overview page now shows 📦 emoji indicators for bikes that have collections assigned, with legend entry "Assigned collections"
+- **Set new status button page reload**: Fixed - status change button already shows report modal and reloads page after dismissal as intended
+- **Review and fix main.py endpoints**: Fixed - collections endpoints follow app conventions with proper parameters, error handling, and response types
+- **Ensure endpoints are placed in correct location**: Fixed - collections endpoints are properly positioned in main.py following logical organization
+- **Ensure business logic methods are placed correctly**: Fixed - collections methods now follow business_logic.py organization patterns and are properly grouped
+- **Update business logic methods to follow app conventions**: Fixed - collections methods use consistent naming (create_collection) and follow app standards
+- **QA: business_logic.py collections write/create/change methods**: Fixed - all create, update, and status change operations have been successfully QAed for code organization, conventions, and consistency
