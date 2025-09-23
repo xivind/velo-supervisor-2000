@@ -35,9 +35,7 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **Review all user feedback messages**: In business_logic and js
 
 ### QA Review - Files to Review
-- **QA: business_logic.py collections read methods**: Review collections get/read methods for proper implementation
 - **QA: business_logic.py date validation bug**: Date field validation is insufficient and needs improvement
-- **QA: database_manager.py**: Review collections database methods for proper implementation
 - **QA: database_model.py**: Review Collections table schema and model definition
 - **QA: db_migration.py**: Review migration script for collections schema updates
 - **QA: main.js**: Review collections JavaScript code for organization and pattern consistency
@@ -112,3 +110,5 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **Ensure business logic methods are placed correctly**: Fixed - collections methods now follow business_logic.py organization patterns and are properly grouped
 - **Update business logic methods to follow app conventions**: Fixed - collections methods use consistent naming (create_collection) and follow app standards
 - **QA: business_logic.py collections write/create/change methods**: Fixed - all create, update, and status change operations have been successfully QAed for code organization, conventions, and consistency
+- **QA: business_logic.py collections read methods**: Fixed - eliminated code duplication with helper method, improved naming consistency, standardized payload structure, and confirmed appropriate error handling for read operations
+- **QA: database_manager.py collections methods**: Fixed - collections database methods reviewed and confirmed to follow proper implementation patterns

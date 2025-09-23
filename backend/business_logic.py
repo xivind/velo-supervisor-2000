@@ -172,23 +172,7 @@ class BusinessLogic():
                                                    workplan.workplan_description),
                            parse_checkbox_progress(workplan.workplan_description)) for workplan in database_manager.read_planned_workplans()]
 
-        component_collection_names = {}
-        component_collection_data = {}
-        collections = database_manager.read_all_collections()
-
-        for collection in collections:
-            component_ids = json.loads(collection.components) if collection.components else []
-            
-            for component_id in component_ids:
-                component_collection_names[component_id] = collection.collection_name
-                component_collection_data[component_id] = (
-                    collection.collection_id,
-                    collection.collection_name,
-                    collection.components,
-                    collection.bike_id,
-                    collection.comment,
-                    collection.updated_date
-                )
+        component_collection_names, component_collection_data = self.get_component_collection_mapping()
         
         payload = {"recent_rides": recent_rides_data,
                    "bikes_data": bikes_data,
@@ -244,28 +228,10 @@ class BusinessLogic():
 
         planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
         
-        all_collections = self.get_collections()
-        component_collection_names = {}
-        component_collection_data = {}
-        collections = database_manager.read_all_collections()
-        
-        for collection in collections:
-            component_ids = json.loads(collection.components) if collection.components else []
-
-            for component_id in component_ids:
-                component_collection_names[component_id] = collection.collection_name
-                component_collection_data[component_id] = (
-                    collection.collection_id,
-                    collection.collection_name,
-                    collection.components,
-                    collection.bike_id,
-                    collection.comment,
-                    collection.updated_date)
+        all_collections = self.get_all_collections()
+        component_collection_names, component_collection_data = self.get_component_collection_mapping()
 
         payload = {"all_components_data": all_components_data,
-                   "all_collections": all_collections,
-                   "component_collection_names": component_collection_names,
-                   "component_collection_data": component_collection_data,
                    "bikes_data": bikes_data,
                    "component_types_data": component_types_data,
                    "count_installed" : component_statistics["count_installed"],
@@ -283,7 +249,10 @@ class BusinessLogic():
                    "count_service_status_grey" : component_statistics["count_service_status_grey"],
                    "sum_cost" : component_statistics["sum_cost"],
                    "open_incidents": open_incidents,
-                   "planned_workplans": planned_workplans}
+                   "planned_workplans": planned_workplans,
+                   "all_collections": all_collections,
+                   "component_collection_names": component_collection_names,
+                   "component_collection_data": component_collection_data}
 
         return payload
 
@@ -440,22 +409,7 @@ class BusinessLogic():
                                                    workplan.workplan_description),
                            parse_checkbox_progress(workplan.workplan_description)) for workplan in database_manager.read_planned_workplans()]
         
-        component_collection_names = {}
-        component_collection_data = {}
-        collections = database_manager.read_all_collections()
-
-        for collection in collections:
-            component_ids = json.loads(collection.components) if collection.components else []
-            
-            for comp_id in component_ids:
-                component_collection_names[comp_id] = collection.collection_name
-                component_collection_data[comp_id] = (
-                    collection.collection_id,
-                    collection.collection_name,
-                    collection.components,
-                    collection.bike_id,
-                    collection.comment,
-                    collection.updated_date)
+        component_collection_names, component_collection_data = self.get_component_collection_mapping()
 
         payload = {"bikes_data": bikes_data,
                    "component_types_data": component_types_data,
@@ -474,6 +428,62 @@ class BusinessLogic():
 
         return payload
 
+    def get_component_collection_mapping(self):
+        """Method to create component-to-collection mapping dictionaries"""
+        component_collection_names = {}
+        component_collection_data = {}
+        collections = database_manager.read_all_collections()
+
+        for collection in collections:
+            component_ids = json.loads(collection.components) if collection.components else []
+            for component_id in component_ids:
+                component_collection_names[component_id] = collection.collection_name
+                component_collection_data[component_id] = (collection.collection_id,
+                                                           collection.collection_name,
+                                                           collection.components,
+                                                           collection.bike_id,
+                                                           collection.comment,
+                                                           collection.updated_date)
+
+        return component_collection_names, component_collection_data
+
+    def get_all_collections(self):
+        """Method to produce payload for displaying table of all collections"""
+        all_collections = []
+        collections = database_manager.read_all_collections()
+
+        for collection in collections:
+            component_ids = json.loads(collection.components) if collection.components else []
+
+            component_details = []
+            for component_id in component_ids:
+                component = database_manager.read_component(component_id)
+                if component:
+                    component_details.append({'id': component_id,
+                                              'name': component.component_name})
+                else:
+                    component_details.append({'id': component_id,
+                                              'name': 'Deleted component'})
+
+            bike_name = None
+
+            if collection.bike_id:
+                bike = database_manager.read_single_bike(collection.bike_id)
+                bike_name = bike.bike_name if bike else None
+
+            collection_data = (collection.collection_id,
+                               collection.collection_name,
+                               bike_name,
+                               collection.updated_date,
+                               json.dumps(component_ids),
+                               collection.bike_id,
+                               collection.comment,
+                               component_details)
+            
+            all_collections.append(collection_data)
+
+        return all_collections
+    
     def get_incident_reports(self):
         """Method to produce payload for page incident reports"""
         all_components_data = database_manager.read_all_components()
@@ -624,48 +634,6 @@ class BusinessLogic():
 
         return {"bike_workplans": bike_workplans,
                 "component_workplans": component_workplans}
-
-    def get_collections(self):
-        """Method to produce payload for displaying table of all collections"""
-        all_collections = []
-        collections = database_manager.read_all_collections()
-
-        for collection in collections:
-            component_ids = json.loads(collection.components) if collection.components else []
-
-            # Get detailed component information
-            component_details = []
-            for component_id in component_ids:
-                component = database_manager.read_component(component_id)
-                if component:
-                    component_details.append({
-                        'id': component_id,
-                        'name': component.component_name
-                    })
-                else:
-                    component_details.append({
-                        'id': component_id,
-                        'name': 'Deleted component'
-                    })
-
-            bike_name = None
-            if collection.bike_id:
-                bike = database_manager.read_single_bike(collection.bike_id)
-                bike_name = bike.bike_name if bike else None
-
-            collection_data = (
-                collection.collection_id,
-                collection.collection_name,
-                bike_name,
-                collection.updated_date,
-                json.dumps(component_ids),
-                collection.bike_id,
-                collection.comment,
-                component_details
-            )
-            all_collections.append(collection_data)
-
-        return all_collections
 
     def get_component_types(self):
         """Method to produce payload for page component types"""
