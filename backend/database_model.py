@@ -91,7 +91,7 @@ class Collections(BaseModel):
     collection_id = CharField(primary_key=True, unique=True)
     collection_name = CharField()
     components = CharField()
-    bike_id = CharField(null=True)
+    bike_id = CharField()
     sub_collections = CharField()
     updated_date = CharField()
     comment = CharField()

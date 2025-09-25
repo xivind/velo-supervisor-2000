@@ -499,7 +499,7 @@
                 <tbody>
                     {% if payload.component_history_data %}
                         {% for history_id, updated_date, update_reason, bike_id, bike_name, bike_total_distance, mileage in payload.component_history_data %}
-                        <tr {% if bike_name != "Not assigned" %} role="button" role="button" onclick="window.location='/bike_details/{{ bike_id }}';"{% endif %}>
+                        <tr {% if bike_name != "Not assigned" %} role="button" onclick="window.location='/bike_details/{{ bike_id }}';"{% endif %}>
                             <td>{{ updated_date }}</td>
                             <td>{% if update_reason == "Not installed" %}Uninstalled{% else %}{{ update_reason }}{% endif %}</td>
                             <td>{{ bike_name }}{% if bike_name != "Not assigned" %} ({{ bike_total_distance }} km){% endif %}</td>
