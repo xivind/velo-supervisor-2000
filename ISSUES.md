@@ -36,15 +36,7 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 
 ### QA Review - Files to Review
 - **QA: business_logic.py date validation bug**: Date field validation is insufficient and needs improvement
-- **QA: database_model.py**: Review Collections table schema and model definition
-- **QA: db_migration.py**: Review migration script for collections schema updates
 - **QA: main.js**: Review collections JavaScript code for organization and pattern consistency
-- **QA: modal_collection.html**: Review collection modal template for proper structure and accessibility
-- **QA: modal_report.html**: Review report modal template used by collections status changes
-- **QA: component_overview.html**: Review collections table display and integration
-- **QA: component_details.html**: Review collection information display on component pages
-- **QA: bike_details.html**: Review collection information display on bike pages
-- **QA: index.html**: Review collection indicators on bike overview page
 
 ### Database & Migration Tasks
 - **Update database template**: Update backend/template_db.sqlite so users starting fresh don't need to run migration for collections schema
@@ -112,3 +104,11 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **QA: business_logic.py collections write/create/change methods**: Fixed - all create, update, and status change operations have been successfully QAed for code organization, conventions, and consistency
 - **QA: business_logic.py collections read methods**: Fixed - eliminated code duplication with helper method, improved naming consistency, standardized payload structure, and confirmed appropriate error handling for read operations
 - **QA: database_manager.py collections methods**: Fixed - collections database methods reviewed and confirmed to follow proper implementation patterns
+- **QA: database_model.py**: Fixed - Collections table schema reviewed and database consistency issue resolved (removed redundant null=True)
+- **QA: db_migration.py**: Fixed - migration script for collections schema reviewed and confirmed to be properly implemented
+- **QA: modal_collection.html**: Fixed - collection modal template structure and accessibility reviewed, HTML syntax issues resolved
+- **QA: modal_report.html**: Fixed - report modal template used by collections status changes reviewed and confirmed to be properly structured
+- **QA: component_overview.html**: Fixed - collections table display and integration reviewed and confirmed to be well-implemented
+- **QA: component_details.html**: Fixed - collection information display on component pages reviewed, duplicate role attribute fixed
+- **QA: bike_details.html**: Fixed - collection information display on bike pages reviewed and confirmed to be properly integrated
+- **QA: index.html**: Fixed - collection indicators on bike overview page reviewed and confirmed to be correctly implemented
