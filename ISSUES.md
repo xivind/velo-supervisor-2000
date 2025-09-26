@@ -36,7 +36,12 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 
 ### QA Review - Files to Review
 - **QA: business_logic.py date validation bug**: Date field validation is insufficient and needs improvement
-- **QA: main.js**: Review collections JavaScript code for organization and pattern consistency
+- **QA: main.js**: ⚠️ **MAJOR ISSUES FOUND** - Collections JavaScript has severe code duplication and organization problems:
+  - **Code Duplication**: Three nearly identical modal setup functions across different page handlers (lines 1415-1456, 1661-1704, 3845-3953)
+  - **Inconsistent Patterns**: Different function names, initialization approaches, and error handling across pages
+  - **Organization Issues**: Massive 1500-line IIFE block mixing modal, validation, API, and table management concerns
+  - **Global Variable Pollution**: Heavy use of window.original* variables
+  - **Functionality is robust** but needs refactoring to eliminate duplication and improve maintainability
 
 ### Database & Migration Tasks
 - **Update database template**: Update backend/template_db.sqlite so users starting fresh don't need to run migration for collections schema

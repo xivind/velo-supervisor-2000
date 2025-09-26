@@ -868,6 +868,100 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Shared function to edit a collection (eliminates code duplication across pages)
+function editCollection(element, options = {}) {
+    // Configure modal for editing
+    isNewCollection = false;
+    document.getElementById('collectionModalLabel').textContent = 'Edit collection';
+    document.getElementById('collection_form').action = '/update_collection';
+
+    // Get data from element attributes
+    const collectionId = element.dataset.collectionId;
+    const collectionName = element.dataset.collectionName;
+    const components = element.dataset.components ? JSON.parse(element.dataset.components) : [];
+    const bikeId = element.dataset.bikeId || '';
+    const comment = (element.dataset.comment && element.dataset.comment !== 'None') ? element.dataset.comment : '';
+    const updatedDate = element.dataset.updatedDate || '';
+
+    // Store original values for validation (filter out deleted components)
+    const componentSelect = document.getElementById('components');
+    const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
+    const existingComponents = components.filter(id => availableOptions.includes(id));
+    window.originalCollectionComponents = [...existingComponents];
+    window.originalCollectionName = collectionName;
+    window.originalCollectionComment = comment;
+
+    // Populate form fields
+    document.getElementById('collection_id').value = collectionId;
+    document.getElementById('collection_name').value = collectionName;
+    document.getElementById('comment').value = comment;
+    document.getElementById('updated_date').value = ''; // Always blank - user enters new date for status changes
+
+    // Set bike field - now always set for consistency
+    const bikeSelect = document.getElementById('bike_id');
+    if (bikeSelect) {
+        bikeSelect.value = bikeId;
+    }
+
+    // Update last updated display (collections page feature now available everywhere)
+    const lastUpdatedElement = document.getElementById('last_updated');
+    if (lastUpdatedElement) {
+        lastUpdatedElement.textContent = updatedDate || 'Never updated through collections';
+    }
+
+    // Add form submit listener to update original components when saved (collections page feature)
+    const form = document.getElementById('collection_form');
+    if (form && !form.hasAttribute('data-collection-submit-listener')) {
+        form.addEventListener('submit', function() {
+            // When saving, update the original values to match current form
+            const componentSelect = document.getElementById('components');
+            const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
+            const selectedValues = tomSelect ? tomSelect.getValue() : [];
+            window.originalCollectionComponents = [...selectedValues];
+            window.originalCollectionName = document.getElementById('collection_name').value;
+            window.originalCollectionComment = document.getElementById('comment').value;
+        });
+        form.setAttribute('data-collection-submit-listener', 'true');
+    }
+
+    // Update ID display (collections page feature now available everywhere)
+    const collectionIdDisplay = document.getElementById('collection-id-display');
+    if (collectionIdDisplay) {
+        collectionIdDisplay.textContent = collectionId;
+    }
+
+    // Initialize component selector - use consistent delayed timing for all pages
+    if (options.useDelayedComponentSelection) {
+        initializeComponentSelector();
+        setTimeout(() => {
+            if (components && components.length > 0) {
+                setSelectedComponents(components);
+            }
+            // Add extra delay to ensure TomSelect is fully initialized
+            setTimeout(() => {
+                // CRITICAL FIX: Update original components to match what was actually selected
+                // This ensures change detection works correctly on all pages
+                const componentSelect = document.getElementById('components');
+                const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
+                if (tomSelect) {
+                    window.originalCollectionComponents = [...tomSelect.getValue()];
+                }
+                setupComponentValidation();
+            }, 50);
+        }, 100);
+    } else {
+        initializeComponentSelector(components);
+        // Use same timing as delayed version for consistency
+        setTimeout(() => {
+            setupComponentValidation();
+        }, 150);
+    }
+
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+    modal.show();
+}
+
 // ===== Bike overview page functions =====
 
 // Function to update visibility of bike cards
@@ -1417,40 +1511,10 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             e.stopPropagation();
             
-            // Configure modal for editing
-            isNewCollection = false;
-            document.getElementById('collectionModalLabel').textContent = 'Edit collection';
-            document.getElementById('collection_form').action = '/update_collection';
-            
-            // Get data from attributes and populate modal
-            const collectionId = this.dataset.collectionId;
-            const collectionName = this.dataset.collectionName;
-            const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
-            const bikeId = this.dataset.bikeId || '';
-            const comment = (this.dataset.comment && this.dataset.comment !== 'None') ? this.dataset.comment : '';
-            const updatedDate = this.dataset.updatedDate || '';
-            
-            // Store original values for validation (filter out deleted components)
-            const componentSelect = document.getElementById('components');
-            const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
-            const existingComponents = components.filter(id => availableOptions.includes(id));
-            window.originalCollectionComponents = [...existingComponents];
-            window.originalCollectionName = collectionName;
-            window.originalCollectionComment = comment;
-            
-            // Populate form fields
-            document.getElementById('collection_id').value = collectionId;
-            document.getElementById('collection_name').value = collectionName;
-            // bike_id field is now user-selectable, not auto-populated
-            document.getElementById('comment').value = comment;
-            document.getElementById('updated_date').value = ''; // Always blank - user enters new date for status changes
-            
-            // Initialize component selector with current components
-            initializeComponentSelector(components);
-            
-            // Show the modal
-            const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
-            modal.show();
+            // Use shared function to edit collection with delayed component selection
+            editCollection(this, {
+                useDelayedComponentSelection: true
+            });
         });
     });
 });
@@ -1657,51 +1721,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on the component details page
     if (document.querySelector('h1#component-details') === null) return;
     
-    // Function to populate collection modal with component's collection data
-    function populateCollectionModal() {
-        // Get component's collection data from the collection name link (if it exists)
-        const collectionLink = document.querySelector('.collection-name-link');
-        if (!collectionLink) return false;
-        
-        // Configure modal for editing
-        isNewCollection = false;
-        document.getElementById('collectionModalLabel').textContent = 'Edit collection';
-        document.getElementById('collection_form').action = '/update_collection';
-        
-        // Get data from attributes
-        const collectionId = collectionLink.dataset.collectionId;
-        const collectionName = collectionLink.dataset.collectionName;
-        const components = collectionLink.dataset.components ? JSON.parse(collectionLink.dataset.components) : [];
-        const bikeId = collectionLink.dataset.bikeId || '';
-        const comment = (collectionLink.dataset.comment && collectionLink.dataset.comment !== 'None') ? collectionLink.dataset.comment : '';
-        const updatedDate = collectionLink.dataset.updatedDate || '';
-        
-        // Store original values for validation (filter out deleted components)
-        const componentSelect = document.getElementById('components');
-        const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
-        const existingComponents = components.filter(id => availableOptions.includes(id));
-        window.originalCollectionComponents = [...existingComponents];
-        window.originalCollectionName = collectionName;
-        window.originalCollectionComment = comment;
-        
-        // Populate form fields
-        document.getElementById('collection_id').value = collectionId;
-        document.getElementById('collection_name').value = collectionName;
-        document.getElementById('comment').value = comment;
-        
-        // Clear the updated_date field to avoid conflict with component's updated_date fields
-        document.getElementById('updated_date').value = '';
-        
-        // bike_id field is now user-selectable, not auto-populated
-        
-        // Initialize component selector and set selected components
-        initializeComponentSelector();
-        setTimeout(() => {
-            setSelectedComponents(components);
-        }, 100);
-        
-        return true;
-    }
     
     // Add click handler to collection name links
     document.querySelectorAll('.collection-name-link').forEach(link => {
@@ -1709,50 +1728,10 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             e.stopPropagation();
             
-            // Configure modal for editing
-            isNewCollection = false;
-            document.getElementById('collectionModalLabel').textContent = 'Edit collection';
-            document.getElementById('collection_form').action = '/update_collection';
-            
-            // Get data from attributes and populate modal
-            const collectionId = this.dataset.collectionId;
-            const collectionName = this.dataset.collectionName;
-            const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
-            const bikeId = this.dataset.bikeId || '';
-            const comment = (this.dataset.comment && this.dataset.comment !== 'None') ? this.dataset.comment : '';
-            const updatedDate = this.dataset.updatedDate || '';
-            
-            // Store original values for validation (filter out deleted components)
-            const componentSelect = document.getElementById('components');
-            const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
-            const existingComponents = components.filter(id => availableOptions.includes(id));
-            window.originalCollectionComponents = [...existingComponents];
-            window.originalCollectionName = collectionName;
-            window.originalCollectionComment = comment;
-            
-            // Populate form fields
-            document.getElementById('collection_id').value = collectionId;
-            document.getElementById('collection_name').value = collectionName;
-            document.getElementById('comment').value = comment;
-            
-            // Clear the updated_date field to avoid conflict with component's updated_date fields
-            document.getElementById('updated_date').value = '';
-            
-            // Set bike field
-            const bikeSelect = document.getElementById('bike_id');
-            if (bikeSelect) {
-                bikeSelect.value = bikeId;
-            }
-            
-            // Initialize component selector and set selected components
-            initializeComponentSelector();
-            setTimeout(() => {
-                setSelectedComponents(components);
-            }, 100);
-            
-            // Show the modal
-            const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
-            modal.show();
+            // Use shared function to edit collection with delayed component selection
+            editCollection(this, {
+                useDelayedComponentSelection: true
+            });
         });
     });
     
@@ -1762,51 +1741,10 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             e.stopPropagation();
             
-            isNewCollection = false;
-            
-            // Configure modal for editing
-            document.getElementById('collectionModalLabel').textContent = 'Edit collection';
-            document.getElementById('collection_form').action = '/update_collection';
-            
-            // Get data from the button (following workplan pattern)
-            const collectionId = this.dataset.collectionId;
-            const collectionName = this.dataset.collectionName;
-            const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
-            const bikeId = this.dataset.bikeId || '';
-            const comment = (this.dataset.comment && this.dataset.comment !== 'None') ? this.dataset.comment : '';
-            const updatedDate = this.dataset.updatedDate || '';
-            
-            // Store original values for validation (filter out deleted components)
-            const componentSelect = document.getElementById('components');
-            const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
-            const existingComponents = components.filter(id => availableOptions.includes(id));
-            window.originalCollectionComponents = [...existingComponents];
-            window.originalCollectionName = collectionName;
-            window.originalCollectionComment = comment;
-            
-            // Populate form fields
-            document.getElementById('collection_id').value = collectionId;
-            document.getElementById('collection_name').value = collectionName;
-            document.getElementById('comment').value = comment;
-            
-            // Clear the updated_date field to avoid conflict with component's updated_date fields
-            document.getElementById('updated_date').value = '';
-            
-            // Set bike field
-            const bikeSelect = document.getElementById('bike_id');
-            if (bikeSelect) {
-                bikeSelect.value = bikeId;
-            }
-            
-            // Initialize component selector and set selected components
-            initializeComponentSelector();
-            setTimeout(() => {
-                setSelectedComponents(components);
-            }, 100);
-            
-            // Show the modal
-            const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
-            modal.show();
+            // Use shared function to edit collection with delayed component selection
+            editCollection(this, {
+                useDelayedComponentSelection: true
+            });
         });
     });
 });
@@ -3847,71 +3785,10 @@ window.addEventListener('load', () => {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                isNewCollection = false;
-                
-                // Configure modal for editing
-                document.getElementById('collectionModalLabel').textContent = 'Edit collection';
-                document.getElementById('collection_form').action = '/update_collection';
-                
-                // Get data from the button
-                const collectionId = this.dataset.collectionId;
-                const collectionName = this.dataset.collectionName;
-                const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
-                const bikeId = this.dataset.bikeId || '';
-                const comment = (this.dataset.comment && this.dataset.comment !== 'None') ? this.dataset.comment : '';
-                const updatedDate = this.dataset.updatedDate || '';
-                
-                // Store original values for validation (filter out deleted components)
-                const componentSelect = document.getElementById('components');
-                const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
-                const existingComponents = components.filter(id => availableOptions.includes(id));
-                window.originalCollectionComponents = [...existingComponents];
-                window.originalCollectionName = collectionName;
-                window.originalCollectionComment = comment;
-                
-                // Populate form fields
-                document.getElementById('collection_id').value = collectionId;
-                document.getElementById('collection_name').value = collectionName;
-                document.getElementById('bike_id').value = bikeId;
-                document.getElementById('comment').value = comment;
-                document.getElementById('updated_date').value = ''; // Always blank - user enters new date for status changes
-                
-                // Update last updated display
-                const lastUpdatedElement = document.getElementById('last_updated');
-                if (lastUpdatedElement) {
-                    lastUpdatedElement.textContent = updatedDate || 'Never updated through collections';
-                }
-                
-                // Add form submit listener to update original components when saved
-                const form = document.getElementById('collection_form');
-                if (form && !form.hasAttribute('data-collection-submit-listener')) {
-                    form.addEventListener('submit', function() {
-                        // When saving, update the original values to match current form
-                        const componentSelect = document.getElementById('components');
-                        const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
-                        const selectedValues = tomSelect ? tomSelect.getValue() : [];
-                        window.originalCollectionComponents = [...selectedValues];
-                        window.originalCollectionName = document.getElementById('collection_name').value;
-                        window.originalCollectionComment = document.getElementById('comment').value;
-                    });
-                    form.setAttribute('data-collection-submit-listener', 'true');
-                }
-                
-                // Update ID display
-                document.getElementById('collection-id-display').textContent = collectionId;
-                
-                // Initialize component selector and set selected components
-                initializeComponentSelector();
-                setTimeout(() => {
-                    if (components && components.length > 0) {
-                        setSelectedComponents(components);
-                    }
-                    setupComponentValidation();
-                }, 100);
-                
-                // Show the modal
-                const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
-                modal.show();
+                // Use shared function to edit collection with delayed component selection
+                editCollection(this, {
+                    useDelayedComponentSelection: true
+                });
             });
         });
         
