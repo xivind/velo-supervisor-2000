@@ -71,7 +71,7 @@
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>🧑‍🔧 New service</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
+<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#workplanRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>📝 New workplan</span>
 </button>
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
