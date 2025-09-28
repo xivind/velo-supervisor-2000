@@ -868,7 +868,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Shared function to edit a collection (eliminates code duplication across pages)
+// Functions related to the collection modal
+
+// Shared function to edit a collection
 function editCollection(element, options = {}) {
     // Configure modal for editing
     isNewCollection = false;
@@ -961,6 +963,1172 @@ function editCollection(element, options = {}) {
     const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
     modal.show();
 }
+
+// Function to initialize collection features
+(function() {
+    // Only run this code if the collection modal is present
+    if (!document.getElementById('collectionModal')) {
+        return;
+    }
+    
+    // Local variables
+    let pendingComponentData = null;
+    let isNewCollection = false;
+    let originalCollectionOptions = null;
+    
+    // Initialize when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        const collectionModal = document.getElementById('collectionModal');
+        if (collectionModal) {
+            // Setup modal shown event
+            collectionModal.addEventListener('shown.bs.modal', function() {
+                // Initialize date picker (this will auto-set current date for empty inputs)
+                initializeDatePickers(collectionModal);
+
+                // If it's a new collection, we need special handling
+                if (isNewCollection) {
+                    initializeComponentSelector(null);
+
+                    if (pendingComponentData) {
+                        setTimeout(() => {
+                            setSelectedComponents(pendingComponentData);
+                        }, 100);
+                    }
+                }
+
+                // Set up component validation
+                setupComponentValidation();
+
+                // Set up new status dropdown event listener
+                const newStatusSelect = document.getElementById('new_status');
+                if (newStatusSelect) {
+                    newStatusSelect.addEventListener('change', updateBikeDropdownForNewStatus);
+                    // Call once initially to set correct state
+                    updateBikeDropdownForNewStatus();
+                }
+
+                // Set up event listeners for name and description fields to detect changes
+                const collectionNameField = document.getElementById('collection_name');
+                const commentField = document.getElementById('comment');
+
+                // Prevent duplicate event listeners from accumulating
+                if (collectionNameField && !collectionNameField.hasAttribute('data-input-listener')) {
+                    collectionNameField.addEventListener('input', updateUnsavedChangesWarning);
+                    collectionNameField.setAttribute('data-input-listener', 'true');
+                }
+
+                if (commentField && !commentField.hasAttribute('data-input-listener')) {
+                    commentField.addEventListener('input', updateUnsavedChangesWarning);
+                    commentField.setAttribute('data-input-listener', 'true');
+                }
+            });
+
+            // Setup modal hidden event
+            collectionModal.addEventListener('hidden.bs.modal', function() {
+                // Reset flags
+                isNewCollection = false;
+                pendingComponentData = null;
+
+                // Hide ALL warning sections
+                document.getElementById('mixed_status_warning').style.display = 'none';
+                document.getElementById('unsaved_changes_warning').style.display = 'none';
+                const retiredWarning = document.getElementById('retired_component_warning');
+                if (retiredWarning) {
+                    retiredWarning.style.display = 'none';
+                }
+
+                // Always re-enable form to ensure clean state for next open
+                enableCollectionForm();
+
+                // Reset original collection tracking variables
+                window.originalCollectionComponents = null;
+                window.originalCollectionName = null;
+                window.originalCollectionComment = null;
+            });
+        }
+        
+        // Setup edit collection buttons
+        document.querySelectorAll('.edit-collection-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Use shared function to edit collection with delayed component selection
+                editCollection(this, {
+                    useDelayedComponentSelection: true
+                });
+            });
+        });
+        
+        // Setup new collection button
+        document.querySelectorAll('[data-bs-target="#collectionModal"]').forEach(button => {
+            button.addEventListener('click', function() {
+                // Flag as new collection
+                isNewCollection = true;
+                pendingComponentData = null;
+                
+                // Clear original values validation
+                window.originalCollectionComponents = null;
+                window.originalCollectionName = null;
+                window.originalCollectionComment = null;
+                
+                // Reset the form
+                document.getElementById('collectionModalLabel').textContent = 'New collection';
+                document.getElementById('collection_form').action = '/add_collection';
+                document.getElementById('collection_form').reset();
+                document.getElementById('collection_id').value = '';
+                
+                // Reset ID display to placeholder text
+                document.getElementById('collection-id-display').textContent = 'Not created yet';
+                
+                // Clear TomSelect if it's already initialized
+                const componentSelect = document.getElementById('components');
+                if (componentSelect.tomSelect || componentSelect.tomselect) {
+                    const ts = componentSelect.tomSelect || componentSelect.tomselect;
+                    ts.clear();
+                }
+                
+                // Hide warning sections
+                document.getElementById('mixed_status_warning').style.display = 'none';
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+                modal.show();
+            });
+        });
+    });
+
+    // Initialize the component selector with delayed data loading
+    window.initializeComponentSelector = function(pendingData) {
+        const componentSelect = document.getElementById('components');
+        if (!componentSelect) return;
+        
+        // Backup original options on first run
+        if (!originalCollectionOptions) {
+            originalCollectionOptions = componentSelect.innerHTML;
+        }
+        
+        // Always start fresh with all options
+        componentSelect.innerHTML = originalCollectionOptions;
+        
+        // Handle retired components: always remove them from dropdown initially
+        // They will be re-added with "Retired" marking when setSelectedComponents is called
+        const retiredOptions = componentSelect.querySelectorAll('option[data-status="Retired"]');
+        retiredOptions.forEach(option => option.remove());
+        
+        // Destroy existing TomSelect if it exists
+        if (componentSelect.tomSelect || componentSelect.tomselect) {
+            const ts = componentSelect.tomSelect || componentSelect.tomselect;
+            ts.destroy();
+        }
+        
+        // Initialize TomSelect with the current option set
+        try {
+            const ts = new TomSelect(componentSelect, {
+                plugins: ['remove_button'],
+                maxItems: null,
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                create: false,
+                placeholder: 'Search to add components to collection...',
+                shouldOpen: function() {
+                    return this.isFocused && this.inputValue.length > 0;
+                },
+                openOnFocus: false,
+                closeAfterSelect: true
+            });
+            
+            // Store the new instance
+            componentSelect.tomSelect = ts;
+            
+            // Add change handler for validation
+            ts.on('change', function() {
+                setTimeout(setupComponentValidation, 50);
+            });
+
+            // Add specific handlers for item removal
+            ts.on('item_remove', function(value) {
+                // Small delay to ensure DOM is updated after item removal
+                setTimeout(() => {
+                    setupComponentValidation();
+                }, 10);
+            });
+
+            ts.on('clear', function() {
+                setTimeout(setupComponentValidation, 50);
+            });
+            
+        } catch(e) {
+            console.error('TomSelect initialization error:', e);
+        }
+    };
+    
+    // Set selected components in the TomSelect
+    window.setSelectedComponents = function(componentIds) {
+        const componentSelect = document.getElementById('components');
+        if (!componentSelect) return;
+
+        const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
+        if (tomSelect && componentIds) {
+            // Check for retired components that need to be re-added to dropdown
+            componentIds.forEach(id => {
+                if (!componentSelect.querySelector(`option[value="${id}"]`)) {
+                    // This component is missing (likely retired), check original options
+                    if (originalCollectionOptions) {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = originalCollectionOptions;
+                        const missingOption = tempDiv.querySelector(`option[value="${id}"]`);
+
+                        if (missingOption && missingOption.dataset.status === 'Retired') {
+                            // Re-add retired component with "Retired" marking
+                            const retiredOption = missingOption.cloneNode(true);
+                            if (!retiredOption.textContent.includes(' - Retired')) {
+                                retiredOption.textContent = retiredOption.textContent + ' - Retired';
+                            }
+                            componentSelect.appendChild(retiredOption);
+
+                            // Notify TomSelect about the new option
+                            tomSelect.addOption({
+                                value: retiredOption.value,
+                                text: retiredOption.textContent
+                            });
+                        }
+                    }
+                }
+            });
+
+            // Filter out deleted components (only set components that exist in the dropdown)
+            const availableOptions = Array.from(componentSelect.options).map(option => option.value);
+            const existingComponentIds = componentIds.filter(id => availableOptions.includes(id));
+            tomSelect.setValue(existingComponentIds);
+        }
+    };
+
+    // Helper function to get bike_id from "Current bike: [name]" display
+    function getCurrentBikeId() {
+        const currentBikeDisplay = document.getElementById('current_bike_assignment');
+        const bikeSelect = document.getElementById('bike_id');
+
+        if (!currentBikeDisplay || !bikeSelect) return null;
+
+        const currentBikeName = currentBikeDisplay.textContent.trim();
+
+        // Handle special cases
+        if (currentBikeName === 'Not assigned' || currentBikeName === 'Unable to compute bike') {
+            return null;
+        }
+
+        // Find the bike_id from the bike dropdown options
+        const bikeOption = Array.from(bikeSelect.options).find(option =>
+            option.textContent.trim() === currentBikeName && option.value !== ''
+        );
+
+        return bikeOption ? bikeOption.value : null;
+    }
+
+    // Update bike dropdown state based on selected new status
+    function updateBikeDropdownForNewStatus() {
+        const newStatusSelect = document.getElementById('new_status');
+        const bikeSelect = document.getElementById('bike_id');
+
+        if (!newStatusSelect || !bikeSelect) return;
+
+        const selectedStatus = newStatusSelect.value;
+
+        // Disable bike dropdown for "Not installed" and "Retired" statuses
+        if (selectedStatus === 'Not installed' || selectedStatus === 'Retired') {
+            bikeSelect.disabled = true;
+            bikeSelect.value = ''; // Clear selection since it won't be used
+        } else if (selectedStatus === 'Installed') {
+            // Enable bike dropdown for "Installed" status (user must select bike)
+            bikeSelect.disabled = false;
+        }
+    }
+
+    // Setup component validation and status checking
+    window.setupComponentValidation = function() {
+
+        const componentSelect = document.getElementById('components');
+        const bikeSelect = document.getElementById('bike_id');
+        const currentBikeDisplay = document.getElementById('current_bike_assignment');
+        const mixedStatusWarning = document.getElementById('mixed_status_warning');
+        const bulkStatusSection = document.getElementById('bulk_status_section');
+        const retiredComponentWarning = document.getElementById('retired_component_warning');
+
+        if (!componentSelect) return;
+
+        // Check for retired components in the collection
+        const collectionTomSelect = componentSelect.tomSelect || componentSelect.tomselect;
+        if (collectionTomSelect) {
+            let selectedValues = [];
+            if (collectionTomSelect.control) {
+                const selectedItems = collectionTomSelect.control.querySelectorAll('.item[data-value]');
+                selectedValues = Array.from(selectedItems).map(item => item.getAttribute('data-value'));
+            } else {
+                selectedValues = collectionTomSelect.getValue();
+            }
+
+            // Check if any selected component is retired
+            const retiredComponents = selectedValues.filter(id => {
+                const option = componentSelect.querySelector(`option[value="${id}"]`);
+                return option && option.dataset.status === 'Retired';
+            });
+
+            if (retiredComponents.length > 0) {
+                // Show retired component warning and disable form
+                showRetiredComponentWarning(retiredComponents.length);
+                disableCollectionForm();
+                // Hide bulk status section for retired components
+                if (bulkStatusSection) {
+                    bulkStatusSection.style.display = 'none';
+                }
+                return; // Exit early - don't process other validations
+            } else {
+                // Hide warning and enable form if no retired components
+                if (retiredComponentWarning) {
+                    retiredComponentWarning.style.display = 'none';
+                }
+                enableCollectionForm();
+            }
+        }
+        
+        // Create a lookup map from bike names to bike IDs
+        // We'll extract this from any existing bike dropdown in the page
+        const bikeNameToIdMap = {};
+        const existingBikeSelect = document.querySelector('select[name*="bike"]');
+        if (existingBikeSelect) {
+            Array.from(existingBikeSelect.options).forEach(option => {
+                if (option.value && option.textContent.trim()) {
+                    bikeNameToIdMap[option.textContent.trim()] = option.value;
+                }
+            });
+        }
+        
+        const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
+        if (!tomSelect) return;
+
+        // Alternative approach: inspect DOM for selected items instead of relying on getValue()
+        let selectedValues = [];
+        if (tomSelect.control) {
+            const selectedItems = tomSelect.control.querySelectorAll('.item[data-value]');
+            selectedValues = Array.from(selectedItems).map(item => item.getAttribute('data-value'));
+        } else {
+            selectedValues = tomSelect.getValue();
+        }
+        if (!selectedValues || selectedValues.length === 0) {
+            mixedStatusWarning.style.display = 'none';
+            bulkStatusSection.style.display = 'block';
+            
+            // Handle empty selection state
+            const installationStatusDisplay = document.getElementById('current_installation_status');
+            const newStatusSelect = document.getElementById('new_status');
+            
+            if (installationStatusDisplay) {
+                installationStatusDisplay.textContent = 'No components selected';
+                installationStatusDisplay.classList.remove('text-danger');
+            }
+            
+            if (newStatusSelect) {
+                newStatusSelect.innerHTML = '<option value=""></option>';
+                newStatusSelect.disabled = true;
+            }
+            
+            // Reset bike assignment when no components selected
+            if (currentBikeDisplay) {
+                currentBikeDisplay.textContent = 'Not assigned';
+                currentBikeDisplay.classList.remove('text-danger');
+            }
+            if (bikeSelect) {
+                bikeSelect.value = '';
+                bikeSelect.disabled = true; // Disable when no components selected
+            }
+
+            // Check for unsaved changes even when no components selected
+            const unsavedChangesWarning = document.getElementById('unsaved_changes_warning');
+            if (unsavedChangesWarning && !isNewCollection && window.originalCollectionComponents !== null && window.originalCollectionComponents !== undefined) {
+                // Compare empty selection with original saved components
+                const currentComponents = []; // Empty selection
+                const originalComponents = [...window.originalCollectionComponents].sort();
+
+
+                // Check if components are different
+                const componentsChanged = currentComponents.length !== originalComponents.length ||
+                                        currentComponents.some((comp, index) => comp !== originalComponents[index]);
+
+
+                // Check if name or description have changed
+                const currentName = document.getElementById('collection_name').value || '';
+                const currentComment = document.getElementById('comment').value || '';
+                const originalName = window.originalCollectionName || '';
+                const originalComment = window.originalCollectionComment || '';
+
+                const nameChanged = currentName !== originalName;
+                const commentChanged = currentComment !== originalComment;
+
+                const hasChanges = componentsChanged || nameChanged || commentChanged;
+
+
+                if (hasChanges) {
+                    let changedFields = [];
+                    if (componentsChanged) changedFields.push('components');
+                    if (nameChanged) changedFields.push('collection name');
+                    if (commentChanged) changedFields.push('description');
+
+                    const fieldList = changedFields.length > 1
+                        ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
+                        : changedFields[0];
+
+
+                    const warningText = unsavedChangesWarning.querySelector('div');
+                    if (warningText) {
+                        warningText.innerHTML = `<strong>⚠️ Unsaved changes:</strong> You have modified the ${fieldList}. Save the collection to preserve these changes.`;
+                    }
+                    unsavedChangesWarning.style.display = 'block';
+                } else {
+                    unsavedChangesWarning.style.display = 'none';
+                }
+            }
+
+            return;
+        }
+        
+        // Get status information for selected components
+        const selectedOptions = selectedValues.map(value => {
+            const option = componentSelect.querySelector(`option[value="${value}"]`);
+            return {
+                id: value,
+                status: option ? option.dataset.status : null,
+                bike: option ? option.dataset.bike : null
+            };
+        });
+        
+        // Check for mixed statuses and bikes
+        const statuses = [...new Set(selectedOptions.map(opt => opt.status))];
+        const bikes = [...new Set(selectedOptions.map(opt => opt.bike).filter(bike => bike && bike !== 'null'))];
+        const hasMixedStatuses = statuses.length > 1;
+        
+        // Check for installed components
+        const hasInstalledComponents = selectedOptions.some(opt => opt.status === 'Installed');
+        const hasNotInstalledComponents = selectedOptions.some(opt => opt.status === 'Not installed');
+        
+        // Compute bike assignment based on business rules
+        let computedBikeId = '';
+        let computedBikeName = 'Not assigned';
+        let hasValidBikeAssignment = true;
+        let bikeValidationMessage = '';
+        
+        if (selectedOptions.length === 0) {
+            // No components selected - no bike assignment
+            computedBikeId = '';
+            computedBikeName = 'Not assigned';
+        } else if (hasInstalledComponents && hasNotInstalledComponents) {
+            // Mixed installation status - invalid
+            hasValidBikeAssignment = false;
+            bikeValidationMessage = 'Cannot mix installed and not-installed components in same collection';
+            computedBikeName = 'Unable to compute bike';
+        } else if (hasInstalledComponents) {
+            // All installed - must be on same bike
+            if (bikes.length === 1) {
+                computedBikeName = bikes[0] || 'Unknown bike';
+                computedBikeId = bikeNameToIdMap[computedBikeName] || '';
+            } else if (bikes.length > 1) {
+                hasValidBikeAssignment = false;
+                bikeValidationMessage = 'Installed components must be on the same bike';
+                computedBikeName = 'Unable to compute bike';
+            }
+        } else {
+            // All not installed - no bike assignment
+            computedBikeId = '';
+            computedBikeName = 'Not assigned';
+        }
+        
+        // Update current bike display and manage bike dropdown state
+        if (currentBikeDisplay) {
+            currentBikeDisplay.textContent = computedBikeName;
+            if (!hasValidBikeAssignment) {
+                currentBikeDisplay.classList.add('text-danger');
+            } else {
+                currentBikeDisplay.classList.remove('text-danger');
+            }
+        }
+
+        if (bikeSelect) {
+            // Determine if bike field should be disabled
+            const shouldDisableBikeField = !hasValidBikeAssignment || hasInstalledComponents;
+            bikeSelect.disabled = shouldDisableBikeField;
+
+            // Clear bike selection when opening modal (always start blank)
+            bikeSelect.value = '';
+
+            // Bike dropdown is now populated by template, no need for JavaScript population
+        }
+        
+        // Update installation status indicator and new status dropdown
+        const installationStatusDisplay = document.getElementById('current_installation_status');
+        const newStatusSelect = document.getElementById('new_status');
+        
+        if (installationStatusDisplay) {
+            if (hasMixedStatuses || !hasValidBikeAssignment) {
+                // Unable to compute status due to validation issues
+                installationStatusDisplay.innerHTML = 'Unable to compute status';
+                installationStatusDisplay.classList.add('text-danger');
+                
+                // Disable dropdown when status can't be computed
+                if (newStatusSelect) {
+                    newStatusSelect.innerHTML = '<option value=""></option>';
+                    newStatusSelect.disabled = true;
+                }
+            } else if (statuses.length === 1) {
+                const currentStatus = statuses[0];
+                let icon = '';
+                if (currentStatus === 'Installed') {
+                    icon = '⚡';
+                } else if (currentStatus === 'Not installed') {
+                    icon = '💤';
+                } else if (currentStatus === 'Retired') {
+                    icon = '⛔';
+                }
+                installationStatusDisplay.innerHTML = `${icon} ${currentStatus}`;
+                installationStatusDisplay.classList.remove('text-danger');
+                
+                // Update dropdown to exclude current status
+                if (newStatusSelect) {
+                    newStatusSelect.disabled = false;
+                    let options = '<option value=""></option>';
+                    
+                    if (currentStatus !== 'Installed') {
+                        options += '<option value="Installed">Installed</option>';
+                    }
+                    if (currentStatus !== 'Not installed') {
+                        options += '<option value="Not installed">Not installed</option>';
+                    }
+                    if (currentStatus !== 'Retired') {
+                        options += '<option value="Retired">Retired</option>';
+                    }
+                    
+                    newStatusSelect.innerHTML = options;
+                }
+            }
+        }
+        
+        // Show/hide mixed status warning - now includes bike validation
+        if (hasMixedStatuses || !hasValidBikeAssignment) {
+            mixedStatusWarning.style.display = 'block';
+            const warningText = mixedStatusWarning.querySelector('div');
+            if (warningText) {
+                if (!hasValidBikeAssignment) {
+                    warningText.innerHTML = `<strong>⚠️ Invalid component selection:</strong> ${bikeValidationMessage}. All components must be either installed on the same bike or not installed at all.`;
+                } else {
+                    warningText.innerHTML = `<strong>⚠️ Mixed component statuses:</strong> Collections can only contain components with the same installation status.`;
+                }
+            }
+        } else {
+            mixedStatusWarning.style.display = 'none';
+        }
+
+        // Check for unsaved changes using the same selectedValues
+        const unsavedChangesWarning = document.getElementById('unsaved_changes_warning');
+        if (unsavedChangesWarning) {
+
+            if (!isNewCollection && window.originalCollectionComponents !== null && window.originalCollectionComponents !== undefined) {
+            // Compare current selection with original saved components
+            const currentComponents = [...selectedValues].sort();
+            const originalComponents = [...window.originalCollectionComponents].sort();
+
+
+            // Check if components are different
+            const componentsChanged = currentComponents.length !== originalComponents.length ||
+                                    currentComponents.some((comp, index) => comp !== originalComponents[index]);
+
+
+            // Check if name or description have changed
+            const currentName = document.getElementById('collection_name').value || '';
+            const currentComment = document.getElementById('comment').value || '';
+            const originalName = window.originalCollectionName || '';
+            const originalComment = window.originalCollectionComment || '';
+
+            const nameChanged = currentName !== originalName;
+            const commentChanged = currentComment !== originalComment;
+
+            const hasChanges = componentsChanged || nameChanged || commentChanged;
+
+
+            if (hasChanges) {
+                let changedFields = [];
+                if (componentsChanged) changedFields.push('components');
+                if (nameChanged) changedFields.push('collection name');
+                if (commentChanged) changedFields.push('description');
+
+                const fieldList = changedFields.length > 1
+                    ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
+                    : changedFields[0];
+
+
+                const warningText = unsavedChangesWarning.querySelector('div');
+                if (warningText) {
+                    warningText.innerHTML = `<strong>⚠️ Unsaved changes:</strong> You have modified the ${fieldList}. Save the collection to preserve these changes.`;
+                }
+                unsavedChangesWarning.style.display = 'block';
+            } else {
+                unsavedChangesWarning.style.display = 'none';
+            }
+            }
+        }
+
+        // Always show bulk status section if components selected
+        bulkStatusSection.style.display = 'block';
+    };
+
+    // Helper function to show retired component warning
+    function showRetiredComponentWarning(retiredCount) {
+        const retiredComponentWarning = document.getElementById('retired_component_warning');
+        if (retiredComponentWarning) {
+            const warningText = retiredComponentWarning.querySelector('.alert');
+            if (warningText) {
+                const componentText = retiredCount === 1 ? 'component' : 'components';
+                warningText.innerHTML = `<strong>🔒 Collection Locked</strong><br>This collection contains ${retiredCount} retired ${componentText} and has been locked to preserve data integrity. To unlock this collection, either remove the retired components from the selector above, or manually adjust the installation status of the retired components from the component details page.`;
+            }
+            retiredComponentWarning.style.display = 'block';
+        }
+    }
+
+    // Helper function to disable collection form
+    function disableCollectionForm() {
+        const collectionForm = document.getElementById('collection_form');
+        if (collectionForm) {
+            // Disable all form inputs and selects EXCEPT the component selector
+            // Keep component selector enabled so users can remove retired components
+            collectionForm.querySelectorAll('input, select, textarea').forEach(element => {
+                if (element.id !== 'components') {
+                    element.disabled = true;
+                }
+            });
+
+            // Disable submit buttons but keep cancel button enabled
+            document.querySelectorAll('#collectionModal button[type="submit"], #apply_status_change').forEach(button => {
+                button.disabled = true;
+            });
+        }
+    }
+
+    // Helper function to enable collection form
+    function enableCollectionForm() {
+        const collectionForm = document.getElementById('collection_form');
+        if (collectionForm) {
+            // Re-enable all form inputs and selects
+            collectionForm.querySelectorAll('input, select, textarea').forEach(element => {
+                element.disabled = false;
+            });
+
+            // Re-enable submit buttons
+            document.querySelectorAll('#collectionModal button[type="submit"], #apply_status_change').forEach(button => {
+                button.disabled = false;
+            });
+        }
+    }
+
+    // Check for unsaved changes in collection (name, description, components)
+    function checkForUnsavedChanges() {
+        // Only check for existing collections, not new ones
+        if (isNewCollection || !window.originalCollectionComponents) {
+            return { hasChanges: false, changedFields: [] };
+        }
+
+        const componentSelect = document.getElementById('components');
+        const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
+        const selectedValues = tomSelect ? tomSelect.getValue() : [];
+
+        // Compare current selection with original saved components
+        const currentComponents = [...selectedValues].sort();
+        const originalComponents = [...window.originalCollectionComponents].sort();
+
+        // Check if components are different
+        const componentsChanged = currentComponents.length !== originalComponents.length ||
+                                currentComponents.some((comp, index) => comp !== originalComponents[index]);
+
+        // Check if name or description have changed
+        const currentName = document.getElementById('collection_name').value || '';
+        const currentComment = document.getElementById('comment').value || '';
+        const originalName = window.originalCollectionName || '';
+        const originalComment = window.originalCollectionComment || '';
+
+        const nameChanged = currentName !== originalName;
+        const commentChanged = currentComment !== originalComment;
+
+        const hasChanges = componentsChanged || nameChanged || commentChanged;
+        let changedFields = [];
+        if (componentsChanged) changedFields.push('components');
+        if (nameChanged) changedFields.push('collection name');
+        if (commentChanged) changedFields.push('description');
+
+        return { hasChanges, changedFields };
+    }
+
+    // Update unsaved changes warning display
+    function updateUnsavedChangesWarning() {
+        const unsavedChangesWarning = document.getElementById('unsaved_changes_warning');
+        if (!unsavedChangesWarning) return;
+
+        const { hasChanges, changedFields } = checkForUnsavedChanges();
+
+        if (hasChanges) {
+            const fieldList = changedFields.length > 1
+                ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
+                : changedFields[0];
+
+            const warningText = unsavedChangesWarning.querySelector('div');
+            if (warningText) {
+                warningText.innerHTML = `<strong>⚠️ Unsaved changes:</strong> You have modified the ${fieldList}. Save the collection to preserve these changes.`;
+            }
+            unsavedChangesWarning.style.display = 'block';
+        } else {
+            unsavedChangesWarning.style.display = 'none';
+        }
+    }
+
+    // Format collection status change messages following existing HTML patterns
+    function formatCollectionStatusMessage(messageData) {
+        if (typeof messageData === 'string') {
+            // Backward compatibility: if message is still a string, return as-is
+            return messageData;
+        }
+
+        let html = '';
+
+        if (messageData.type === 'success') {
+            html = `<strong>${messageData.summary}</strong><br><br>`;
+            html += '<strong>Updated components:</strong><br>';
+            html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
+
+        } else if (messageData.type === 'partial_failure') {
+            html = `<strong>${messageData.summary}</strong><br><br>`;
+
+            if (messageData.successful_components.length > 0) {
+                html += '<strong>Successfully updated:</strong><br>';
+                html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
+                html += '<br><br>';
+            }
+
+            if (messageData.failed_components.length > 0) {
+                html += '<strong>Failed to update:</strong><br>';
+                html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
+            }
+
+        } else if (messageData.type === 'complete_failure') {
+            html = `<strong>${messageData.summary}</strong><br><br>`;
+            html += '<strong>All components failed:</strong><br>';
+            html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
+        }
+
+        return html;
+    }
+
+    // Comprehensive validation for status changes
+    function validateStatusChange() {
+        const componentSelect = document.getElementById('components');
+        const newStatus = document.getElementById('new_status').value;
+        const collectionId = document.getElementById('collection_id').value;
+        const updatedDate = document.getElementById('updated_date').value;
+        
+        // Check if collection is saved
+        if (!collectionId) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Collection not saved. Save the collection first using the "Save details" button, before changing status.';
+            validationModal.show();
+            return false;
+        }
+
+        // Check if collection has been modified but not saved (for existing collections)
+        const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
+        const selectedValues = tomSelect ? tomSelect.getValue() : [];
+
+        if (!isNewCollection && window.originalCollectionComponents) {
+            // Compare current selection with original saved components
+            const currentComponents = [...selectedValues].sort();
+            const originalComponents = [...window.originalCollectionComponents].sort();
+
+            // Check if components are different
+            const componentsChanged = currentComponents.length !== originalComponents.length ||
+                                    currentComponents.some((comp, index) => comp !== originalComponents[index]);
+
+            // Check if name or description have changed
+            const currentName = document.getElementById('collection_name').value || '';
+            const currentComment = document.getElementById('comment').value || '';
+            const originalName = window.originalCollectionName || '';
+            const originalComment = window.originalCollectionComment || '';
+
+            const nameChanged = currentName !== originalName;
+            const commentChanged = currentComment !== originalComment;
+
+            if (componentsChanged || nameChanged || commentChanged) {
+                const modalBody = document.getElementById('validationModalBody');
+                let changedFields = [];
+                if (componentsChanged) changedFields.push('components');
+                if (nameChanged) changedFields.push('collection name');
+                if (commentChanged) changedFields.push('description');
+
+                const fieldList = changedFields.length > 1
+                    ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
+                    : changedFields[0];
+
+                modalBody.innerHTML = `You have modified the ${fieldList}, but haven't saved the changes. Save the collection first using the "Save details" button, before changing status.`;
+                validationModal.show();
+                return false;
+            }
+        }
+
+        // Check if components are selected
+        if (!selectedValues || selectedValues.length === 0) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'No components selected. This collection has no components. Add components to the collection before changing status.';
+            validationModal.show();
+            return false;
+        }
+
+        // Check if new status is selected
+        if (!newStatus) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Status selection required. Select a new status from the dropdown before applying the change.';
+            validationModal.show();
+            return false;
+        }
+
+        // Check if date is entered
+        if (!updatedDate) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Date required. Select the date when this status change occurred before applying the change.';
+            validationModal.show();
+            return false;
+        }
+
+        // Check if bike is selected when status is "Installed"
+        if (newStatus === 'Installed') {
+            const bikeSelect = document.getElementById('bike_id');
+            if (!bikeSelect || !bikeSelect.value) {
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = 'Bike selection required. When setting status to "Installed", you must select which bike the components will be installed on.';
+                validationModal.show();
+                return false;
+            }
+        }
+        
+        // Check business rules using existing validation logic
+        const selectedOptions = selectedValues.map(value => {
+            const option = componentSelect.querySelector(`option[value="${value}"]`);
+            return {
+                id: value,
+                status: option ? option.dataset.status : null,
+                bike: option ? option.dataset.bike : null
+            };
+        });
+        
+        // Check for mixed statuses
+        const statuses = [...new Set(selectedOptions.map(opt => opt.status))];
+        const bikes = [...new Set(selectedOptions.map(opt => opt.bike).filter(bike => bike && bike !== 'null'))];
+        const hasInstalledComponents = selectedOptions.some(opt => opt.status === 'Installed');
+        const hasNotInstalledComponents = selectedOptions.some(opt => opt.status === 'Not installed');
+        
+        if (hasInstalledComponents && hasNotInstalledComponents) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Status change blocked. This collection contains both installed and not-installed components. Status changes can only be applied when all components have the same installation status.<br><br><em>Tip: Edit the collection to include only components with the same status, then try again.</em>';
+            validationModal.show();
+            return false;
+        }
+        
+        if (hasInstalledComponents && bikes.length > 1) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Status change blocked. This collection contains installed components from different bikes. Status changes can only be applied when all installed components are on the same bike.<br><br><em>Tip: Edit the collection to include only components from the same bike, then try again.</em>';
+            validationModal.show();
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Setup bulk status change functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const applyStatusBtn = document.getElementById('apply_status_change');
+        if (applyStatusBtn) {
+            applyStatusBtn.addEventListener('click', function() {
+                // Run comprehensive validation before allowing status change
+                if (!validateStatusChange()) {
+                    return;
+                }
+                
+                const newStatus = document.getElementById('new_status').value;
+                const collectionId = document.getElementById('collection_id').value;
+                const updatedDate = document.getElementById('updated_date').value;
+                
+                // Show confirmation modal
+                const modalBody = document.getElementById('confirmModalBody');
+                modalBody.innerHTML = `Are you sure you want to change the status of all components in this collection to "${newStatus}"?`;
+                confirmModal.show();
+                
+                // Create cleanup function to remove event listeners
+                function cleanup() {
+                    const confirmBtn = document.getElementById('confirmAction');
+                    const cancelBtn = document.getElementById('cancelAction');
+                    confirmBtn.removeEventListener('click', handleConfirm);
+                    cancelBtn.removeEventListener('click', handleCancel);
+                }
+
+                // Handle confirm action
+                function handleConfirm() {
+                    cleanup();
+
+                    // CRITICAL: Remove focus from the button before hiding modal to prevent aria-hidden focus trap
+                    this.blur();
+
+                    // Close confirmation modal first
+                    confirmModal.hide();
+
+                    // Use timeout instead of Bootstrap events for more reliable modal transitions
+                    setTimeout(() => {
+                        performBulkStatusChange(collectionId, newStatus, updatedDate);
+                    }, 300); // Give enough time for confirm modal to close
+                }
+
+                // Handle cancel action
+                function handleCancel() {
+                    cleanup();
+                }
+
+                // Add event listeners
+                document.getElementById('confirmAction').addEventListener('click', handleConfirm);
+                document.getElementById('cancelAction').addEventListener('click', handleCancel);
+            });
+        }
+    });
+    
+    // Helper function to forcefully close loading modal when Bootstrap fails
+    function forceCloseLoadingModal() {
+        // Try Bootstrap's official methods first
+        loadingModal.hide();
+        const loadingInstance = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+        if (loadingInstance) {
+            loadingInstance.hide();
+        }
+        
+        // Force cleanup of any remaining modal artifacts
+        setTimeout(() => {
+            // Check if any other modals are still open before removing backdrop
+            const openModals = document.querySelectorAll('.modal.show:not(#loadingModal)');
+            const hasOtherModalsOpen = openModals.length > 0;
+            
+            if (!hasOtherModalsOpen) {
+                // Only remove backdrop and body styles if no other modals are open
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                    backdrop.remove();
+                });
+                
+                if (document.body.classList.contains('modal-open')) {
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('overflow');
+                    document.body.style.removeProperty('padding-right');
+                }
+            } else {
+                // Other modals are open, ensure backdrop exists for them
+                if (!document.querySelector('.modal-backdrop')) {
+                    // Create new backdrop if none exists
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    document.body.appendChild(backdrop);
+                }
+            }
+            
+            // Always force hide loading modal element directly (nuclear option)
+            const loadingElement = document.getElementById('loadingModal');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+                loadingElement.classList.remove('show');
+                loadingElement.setAttribute('aria-hidden', 'true');
+            }
+        }, 200);
+    }
+
+    // Perform bulk status change via API
+    function performBulkStatusChange(collectionId, newStatus, updatedDate) {
+        document.getElementById('loadingMessage').textContent = 'Updating component statuses...';
+
+        // Close collection modal first to simplify modal orchestration
+        const collectionModal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
+        if (collectionModal) {
+            collectionModal.hide();
+        }
+
+        // Show loading modal after brief delay to ensure clean transition
+        setTimeout(() => {
+            loadingModal.show();
+
+            // Determine bike_id source based on status:
+            // - "Installed": Use dropdown selection
+            // - "Not installed" or "Retired": Use current bike (preserves origin bike, or null if none)
+            let bikeIdToSend;
+
+            if (newStatus === 'Installed') {
+                // For installation, use dropdown selection
+                const bikeSelect = document.getElementById('bike_id');
+                bikeIdToSend = bikeSelect && bikeSelect.value ? bikeSelect.value : null;
+            } else {
+                // For "Not installed" and "Retired", use current bike
+                // getCurrentBikeId() returns null for "Not assigned" - that's correct behavior
+                bikeIdToSend = getCurrentBikeId();
+            }
+
+            // Perform the API call
+            fetch('/change_collection_status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                collection_id: collectionId,
+                new_status: newStatus,
+                updated_date: updatedDate,
+                bike_id: bikeIdToSend || ''  // Send bike_id based on status logic
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Close loading modal using helper function
+            forceCloseLoadingModal();
+
+            // Show results after modal cleanup delay
+            setTimeout(() => {
+                // Determine if this is a partial failure (some components succeeded, some failed)
+                const isPartialFailure = data.message && data.message.type === 'partial_failure';
+                const title = data.success ? '✅ Status update complete' :
+                             isPartialFailure ? '⚠️ Status update partial' : '❌ Status update failed';
+                const formattedMessage = formatCollectionStatusMessage(data.message);
+                showReportModal(title, formattedMessage, data.success, isPartialFailure, function() {
+                    // Always refresh page after user dismisses report, regardless of success/failure
+                    // Collection modal is already closed, so just refresh
+                    // Remove URL parameters to prevent toast messages on reload
+                    const url = window.location.pathname;
+                    window.history.replaceState({}, document.title, url);
+                    window.location.reload();
+                });
+            }, 500);
+        })
+        .catch(error => {
+            console.error('Collection status change error:', error);
+            
+            // Close loading modal using helper function
+            forceCloseLoadingModal();
+            
+            // Show error message after modal cleanup delay
+            setTimeout(() => {
+                showReportModal('❌ Application error', 'An error occurred while updating component statuses. Please try again.', false, false, function() {
+                    // Always refresh page after user dismisses error report
+                    // Remove URL parameters to prevent toast messages on reload
+                    const url = window.location.pathname;
+                    window.history.replaceState({}, document.title, url);
+                    window.location.reload();
+                });
+            }, 400);
+        });
+        }, 300);
+    }
+    
+    // Validate collection form for "Save details" button
+    function validateCollectionForm() {
+        const collectionName = document.getElementById('collection_name').value.trim();
+        const componentSelect = document.getElementById('components');
+        const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
+        const selectedValues = tomSelect ? tomSelect.getValue() : [];
+        
+        // Collection name is required
+        if (!collectionName) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Collection name required. Enter a name for this collection before saving.';
+            validationModal.show();
+            return false;
+        }
+        
+        // Only validate component business rules if components are selected
+        if (selectedValues && selectedValues.length > 0) {
+            // Check for collection creation business rules (mixed statuses/bikes)
+            const selectedOptions = selectedValues.map(value => {
+                const option = componentSelect.querySelector(`option[value="${value}"]`);
+                return {
+                    id: value,
+                    status: option ? option.dataset.status : null,
+                    bike: option ? option.dataset.bike : null
+                };
+            });
+            
+            const hasInstalledComponents = selectedOptions.some(opt => opt.status === 'Installed');
+            const hasNotInstalledComponents = selectedOptions.some(opt => opt.status === 'Not installed');
+            const bikes = [...new Set(selectedOptions.map(opt => opt.bike).filter(bike => bike && bike !== 'null'))];
+            
+            // Cannot mix installed and not-installed components
+            if (hasInstalledComponents && hasNotInstalledComponents) {
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = 'Cannot save collection. Installed and not-installed components cannot be in the same collection. Select components with the same installation status.';
+                validationModal.show();
+                return false;
+            }
+            
+            // All installed components must be on the same bike
+            if (hasInstalledComponents && bikes.length > 1) {
+                const modalBody = document.getElementById('validationModalBody');
+                modalBody.innerHTML = 'Cannot save collection. All installed components must be on the same bike. Select components from the same bike.';
+                validationModal.show();
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    // Setup collection form validation
+    function setupCollectionFormValidation() {
+        const collectionForm = document.getElementById('collection_form');
+        if (!collectionForm) return;
+        
+        // Add validation to the Save Collection form
+        collectionForm.onsubmit = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Run collection form validation
+            if (!validateCollectionForm()) {
+                return false; // This prevents form submission
+            }
+
+            // For add_collection and update_collection, use bike_id from "Current bike" display
+            const currentBikeId = getCurrentBikeId();
+            const bikeIdField = document.getElementById('bike_id');
+
+            if (bikeIdField) {
+                // Temporarily set the bike_id field value to the Current bike ID
+                const originalValue = bikeIdField.value;
+                const originalDisabled = bikeIdField.disabled;
+
+                bikeIdField.value = currentBikeId || '';
+                bikeIdField.disabled = false; // Enable field so it gets submitted
+
+                // Submit the form
+                this.submit();
+
+                // Restore original values after submission (though modal will likely close)
+                bikeIdField.value = originalValue;
+                bikeIdField.disabled = originalDisabled;
+            } else {
+                // If bike_id field doesn't exist, just submit normally
+                this.submit();
+            }
+        };
+    }
+    
+    // Setup form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize collection form validation
+        setupCollectionFormValidation();
+    });
+
+})();
 
 // ===== Bike overview page functions =====
 
@@ -1255,6 +2423,210 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial call to apply filter states on page load
     updateRowVisibility();
 });
+
+// Initialize collections table search and sort functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the component overview page
+    if (document.querySelector('h1#component-overview') === null) return;
+
+    const collectionsTable = document.getElementById('collectionsTable');
+    if (!collectionsTable) return;
+
+    // Initialize collections table search
+    initializeCollectionsSearch();
+
+    // Initialize collections table sorting
+    initializeCollectionsSorting();
+
+    // Setup collection name link handlers for component table
+    document.querySelectorAll('.collection-name-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Use shared function to edit collection with delayed component selection
+            editCollection(this, {
+                useDelayedComponentSelection: true
+            });
+        });
+    });
+});
+
+// Collections table search functionality
+function initializeCollectionsSearch() {
+    const searchInput = document.getElementById('collectionsSearchInput');
+    if (!searchInput) return;
+
+    const table = document.getElementById('collectionsTable');
+    const rows = table.querySelectorAll('tbody tr');
+
+    // Skip if there are no rows or just one "no collections" message row
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+
+    // Function to update row visibility based on search
+    function updateRowVisibility() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let visibleRowCount = 0;
+
+        rows.forEach(row => {
+            // Skip the "no collections created yet" row
+            if (row.cells.length === 1 && row.cells[0].colSpan) {
+                return;
+            }
+
+            // Get text content from searchable columns (include Components column)
+            const collection = row.cells[0].textContent.toLowerCase();
+            const components = row.cells[1].textContent.toLowerCase();
+            const bike = row.cells[2].textContent.toLowerCase();
+            const rowText = `${collection} ${components} ${bike}`;
+            const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
+
+            // Show/hide row based on search criteria
+            row.style.display = matchesSearch ? '' : 'none';
+            if (matchesSearch) visibleRowCount++;
+        });
+
+        // Show "no results" message if no rows are visible
+        const existingNoResultsRow = table.querySelector('.no-results-row');
+        if (visibleRowCount === 0 && searchTerm !== '') {
+            if (!existingNoResultsRow) {
+                const tbody = table.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'no-results-row';
+                newRow.innerHTML = '<td colspan="5" class="text-center">No collections match your criteria</td>';
+                tbody.appendChild(newRow);
+            }
+        } else if (existingNoResultsRow) {
+            existingNoResultsRow.remove();
+        }
+    }
+
+    // Listen for search input changes
+    searchInput.addEventListener('input', updateRowVisibility);
+
+    // Clear search with Escape key
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            updateRowVisibility();
+        }
+    });
+
+    // Initialize visibility
+    updateRowVisibility();
+}
+
+// Collections table sorting functionality
+function initializeCollectionsSorting() {
+    const table = document.getElementById('collectionsTable');
+    if (!table) return;
+
+    const headers = table.querySelectorAll('th[data-sort]');
+    const tableBody = table.querySelector('tbody');
+    const rows = tableBody.querySelectorAll('tr');
+
+    // Skip if there are no sortable rows
+    if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
+
+    let currentSortColumn = -1;
+    let currentSortDirection = 'asc';
+
+    // Function to sort table by column
+    function sortColumn(columnIndex, ascending = true) {
+        // Get all rows and convert to array for sorting
+        const rowsArray = Array.from(rows).filter(row => {
+            // Exclude "no collections" and "no results" rows
+            return !(row.cells.length === 1 && row.cells[0].colSpan);
+        });
+
+        // Sort the rows
+        rowsArray.sort((rowA, rowB) => {
+            let cellA = rowA.querySelectorAll('td')[columnIndex].innerText.trim();
+            let cellB = rowB.querySelectorAll('td')[columnIndex].innerText.trim();
+
+            // Different handling based on column type
+            switch(columnIndex) {
+                case 0: // Collection column
+                case 2: // Bike column
+                    // Remove emojis and compare case-insensitively for text columns
+                    cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟩🟥]/gu, '').trim().toLowerCase();
+                    cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟩🟥]/gu, '').trim().toLowerCase();
+                    break;
+
+                case 1: // Status column - sort by component count
+                    // Extract numeric value from "X components" format
+                    const numA = parseInt(cellA.match(/\d+/)) || 0;
+                    const numB = parseInt(cellB.match(/\d+/)) || 0;
+                    cellA = numA;
+                    cellB = numB;
+                    break;
+
+                case 3: // Last updated column - handle date sorting
+                    // Convert date strings for comparison, treat "-" as earliest date
+                    if (cellA === "-") cellA = "1900-01-01";
+                    if (cellB === "-") cellB = "1900-01-01";
+                    cellA = new Date(cellA);
+                    cellB = new Date(cellB);
+                    break;
+            }
+
+            // Compare values
+            if (cellA < cellB) return ascending ? -1 : 1;
+            if (cellA > cellB) return ascending ? 1 : -1;
+            return 0;
+        });
+
+        // Clear the table body and re-append sorted rows
+        rowsArray.forEach(row => {
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Add click handlers to sortable headers
+    headers.forEach((header, index) => {
+        header.style.cursor = 'pointer';
+
+        // Add sort indicator span if it doesn't exist
+        if (!header.querySelector('.sort-indicator')) {
+            const indicator = document.createElement('span');
+            indicator.className = 'sort-indicator';
+            header.appendChild(indicator);
+        }
+
+        header.addEventListener('click', function() {
+            // Determine sort direction
+            let isAscending = true;
+            if (currentSortColumn === index && currentSortDirection === 'asc') {
+                isAscending = false;
+            }
+
+            // Update tracking variables
+            currentSortColumn = index;
+            currentSortDirection = isAscending ? 'asc' : 'desc';
+
+            // Remove sort classes from all headers
+            headers.forEach(h => {
+                h.classList.remove('sorted-asc', 'sorted-desc');
+            });
+
+            // Add appropriate class to clicked header
+            header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+
+            sortColumn(index, isAscending);
+        });
+    });
+
+    // Initial sort by Collection column (index 0) in ascending order
+    if (headers.length > 0 && rows.length > 1) {
+        // Add sorted-asc class to the Collection column header
+        headers[0].classList.add('sorted-asc');
+        currentSortColumn = 0;
+        currentSortDirection = 'asc';
+
+        // Sort by Collection column (index 0) in ascending order
+        sortColumn(0, true);
+    }
+}
 
 // ===== Bike details page functions =====
 
@@ -3696,1428 +5068,3 @@ window.addEventListener('load', () => {
         timeElement.textContent = 'Timing unavailable';
     }
 });
-
-// ===== Collections page functions =====
-
-// Function to initialize collection features
-(function() {
-    // Only run this code if the collection modal is present
-    if (!document.getElementById('collectionModal')) {
-        return;
-    }
-    
-    // Local variables
-    let pendingComponentData = null;
-    let isNewCollection = false;
-    let originalCollectionOptions = null;
-    
-    // Initialize when the DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        const collectionModal = document.getElementById('collectionModal');
-        if (collectionModal) {
-            // Setup modal shown event
-            collectionModal.addEventListener('shown.bs.modal', function() {
-                // Initialize date picker (this will auto-set current date for empty inputs)
-                initializeDatePickers(collectionModal);
-
-                // If it's a new collection, we need special handling
-                if (isNewCollection) {
-                    initializeComponentSelector(null);
-
-                    if (pendingComponentData) {
-                        setTimeout(() => {
-                            setSelectedComponents(pendingComponentData);
-                        }, 100);
-                    }
-                }
-
-                // Set up component validation
-                setupComponentValidation();
-
-                // Set up new status dropdown event listener
-                const newStatusSelect = document.getElementById('new_status');
-                if (newStatusSelect) {
-                    newStatusSelect.addEventListener('change', updateBikeDropdownForNewStatus);
-                    // Call once initially to set correct state
-                    updateBikeDropdownForNewStatus();
-                }
-
-                // Set up event listeners for name and description fields to detect changes
-                const collectionNameField = document.getElementById('collection_name');
-                const commentField = document.getElementById('comment');
-
-                if (collectionNameField) {
-                    collectionNameField.addEventListener('input', updateUnsavedChangesWarning);
-                }
-
-                if (commentField) {
-                    commentField.addEventListener('input', updateUnsavedChangesWarning);
-                }
-            });
-
-            // Setup modal hidden event
-            collectionModal.addEventListener('hidden.bs.modal', function() {
-                // Reset flags
-                isNewCollection = false;
-                pendingComponentData = null;
-
-                // Hide ALL warning sections
-                document.getElementById('mixed_status_warning').style.display = 'none';
-                document.getElementById('unsaved_changes_warning').style.display = 'none';
-                const retiredWarning = document.getElementById('retired_component_warning');
-                if (retiredWarning) {
-                    retiredWarning.style.display = 'none';
-                }
-
-                // Always re-enable form to ensure clean state for next open
-                enableCollectionForm();
-
-                // Reset original collection tracking variables
-                window.originalCollectionComponents = null;
-                window.originalCollectionName = null;
-                window.originalCollectionComment = null;
-            });
-        }
-        
-        // Setup edit collection buttons
-        document.querySelectorAll('.edit-collection-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Use shared function to edit collection with delayed component selection
-                editCollection(this, {
-                    useDelayedComponentSelection: true
-                });
-            });
-        });
-        
-        // Setup new collection button
-        document.querySelectorAll('[data-bs-target="#collectionModal"]').forEach(button => {
-            button.addEventListener('click', function() {
-                // Flag as new collection
-                isNewCollection = true;
-                pendingComponentData = null;
-                
-                // Clear original values validation
-                window.originalCollectionComponents = null;
-                window.originalCollectionName = null;
-                window.originalCollectionComment = null;
-                
-                // Reset the form
-                document.getElementById('collectionModalLabel').textContent = 'New collection';
-                document.getElementById('collection_form').action = '/add_collection';
-                document.getElementById('collection_form').reset();
-                document.getElementById('collection_id').value = '';
-                
-                // Reset ID display to placeholder text
-                document.getElementById('collection-id-display').textContent = 'Not created yet';
-                
-                // Clear TomSelect if it's already initialized
-                const componentSelect = document.getElementById('components');
-                if (componentSelect.tomSelect || componentSelect.tomselect) {
-                    const ts = componentSelect.tomSelect || componentSelect.tomselect;
-                    ts.clear();
-                }
-                
-                // Hide warning sections
-                document.getElementById('mixed_status_warning').style.display = 'none';
-                
-                // Show the modal
-                const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
-                modal.show();
-            });
-        });
-    });
-    
-    // Setup collection name link handlers for component table (needs to run after DOM is ready)
-    document.querySelectorAll('.collection-name-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            isNewCollection = false;
-            
-            // Configure modal for editing
-            document.getElementById('collectionModalLabel').textContent = 'Edit collection';
-            document.getElementById('collection_form').action = '/update_collection';
-            
-            // Get data from the link
-            const collectionId = this.dataset.collectionId;
-            const collectionName = this.dataset.collectionName;
-            const components = this.dataset.components ? JSON.parse(this.dataset.components) : [];
-            const bikeId = this.dataset.bikeId || '';
-            const comment = (this.dataset.comment && this.dataset.comment !== 'None') ? this.dataset.comment : '';
-            const updatedDate = this.dataset.updatedDate || '';
-            
-            // Store original values for validation (filter out deleted components)
-            const componentSelect = document.getElementById('components');
-            const availableOptions = componentSelect ? Array.from(componentSelect.options).map(option => option.value) : [];
-            const existingComponents = components.filter(id => availableOptions.includes(id));
-            window.originalCollectionComponents = [...existingComponents];
-            window.originalCollectionName = collectionName;
-            window.originalCollectionComment = comment;
-            
-            // Populate form fields
-            document.getElementById('collection_id').value = collectionId;
-            document.getElementById('collection_name').value = collectionName;
-            // bike_id field is now user-selectable, not auto-populated
-            document.getElementById('comment').value = comment;
-            document.getElementById('updated_date').value = ''; // Always blank - user enters new date for status changes
-            
-            // Update last updated display
-            const lastUpdatedElement = document.getElementById('last_updated');
-            if (lastUpdatedElement) {
-                lastUpdatedElement.textContent = updatedDate || 'Never updated through collections';
-            }
-            
-            // Add form submit listener to update original components when saved
-            const form = document.getElementById('collection_form');
-            if (form && !form.hasAttribute('data-collection-submit-listener')) {
-                form.addEventListener('submit', function() {
-                    // When saving, update the original components to match current selection
-                    const componentSelect = document.getElementById('components');
-                    const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
-                    const selectedValues = tomSelect ? tomSelect.getValue() : [];
-                    window.originalCollectionComponents = [...selectedValues];
-                    window.originalCollectionName = document.getElementById('collection_name').value;
-                    window.originalCollectionComment = document.getElementById('comment').value;
-                });
-                form.setAttribute('data-collection-submit-listener', 'true');
-            }
-            
-            // Update ID display
-            document.getElementById('collection-id-display').textContent = collectionId;
-            
-            // Initialize component selector and set selected components
-            initializeComponentSelector();
-            setTimeout(() => {
-                if (components && components.length > 0) {
-                    setSelectedComponents(components);
-                }
-                setupComponentValidation();
-            }, 100);
-            
-            // Show the modal
-            const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
-            modal.show();
-        });
-    });
-
-    // Initialize the component selector with delayed data loading
-    window.initializeComponentSelector = function(pendingData) {
-        const componentSelect = document.getElementById('components');
-        if (!componentSelect) return;
-        
-        // Backup original options on first run
-        if (!originalCollectionOptions) {
-            originalCollectionOptions = componentSelect.innerHTML;
-        }
-        
-        // Always start fresh with all options
-        componentSelect.innerHTML = originalCollectionOptions;
-        
-        // Handle retired components: always remove them from dropdown initially
-        // They will be re-added with "Retired" marking when setSelectedComponents is called
-        const retiredOptions = componentSelect.querySelectorAll('option[data-status="Retired"]');
-        retiredOptions.forEach(option => option.remove());
-        
-        // Destroy existing TomSelect if it exists
-        if (componentSelect.tomSelect || componentSelect.tomselect) {
-            const ts = componentSelect.tomSelect || componentSelect.tomselect;
-            ts.destroy();
-        }
-        
-        // Initialize TomSelect with the current option set
-        try {
-            const ts = new TomSelect(componentSelect, {
-                plugins: ['remove_button'],
-                maxItems: null,
-                valueField: 'value',
-                labelField: 'text',
-                searchField: ['text'],
-                create: false,
-                placeholder: 'Search to add components to collection...',
-                shouldOpen: function() {
-                    return this.isFocused && this.inputValue.length > 0;
-                },
-                openOnFocus: false,
-                closeAfterSelect: true
-            });
-            
-            // Store the new instance
-            componentSelect.tomSelect = ts;
-            
-            // Add change handler for validation
-            ts.on('change', function() {
-                setTimeout(setupComponentValidation, 50);
-            });
-
-            // Add specific handlers for item removal
-            ts.on('item_remove', function(value) {
-                // Small delay to ensure DOM is updated after item removal
-                setTimeout(() => {
-                    setupComponentValidation();
-                }, 10);
-            });
-
-            ts.on('clear', function() {
-                setTimeout(setupComponentValidation, 50);
-            });
-            
-        } catch(e) {
-            console.error('TomSelect initialization error:', e);
-        }
-    };
-    
-    // Set selected components in the TomSelect
-    window.setSelectedComponents = function(componentIds) {
-        const componentSelect = document.getElementById('components');
-        if (!componentSelect) return;
-
-        const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
-        if (tomSelect && componentIds) {
-            // Check for retired components that need to be re-added to dropdown
-            componentIds.forEach(id => {
-                if (!componentSelect.querySelector(`option[value="${id}"]`)) {
-                    // This component is missing (likely retired), check original options
-                    if (originalCollectionOptions) {
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = originalCollectionOptions;
-                        const missingOption = tempDiv.querySelector(`option[value="${id}"]`);
-
-                        if (missingOption && missingOption.dataset.status === 'Retired') {
-                            // Re-add retired component with "Retired" marking
-                            const retiredOption = missingOption.cloneNode(true);
-                            if (!retiredOption.textContent.includes(' - Retired')) {
-                                retiredOption.textContent = retiredOption.textContent + ' - Retired';
-                            }
-                            componentSelect.appendChild(retiredOption);
-
-                            // Notify TomSelect about the new option
-                            tomSelect.addOption({
-                                value: retiredOption.value,
-                                text: retiredOption.textContent
-                            });
-                        }
-                    }
-                }
-            });
-
-            // Filter out deleted components (only set components that exist in the dropdown)
-            const availableOptions = Array.from(componentSelect.options).map(option => option.value);
-            const existingComponentIds = componentIds.filter(id => availableOptions.includes(id));
-            tomSelect.setValue(existingComponentIds);
-        }
-    };
-
-    // Helper function to get bike_id from "Current bike: [name]" display
-    function getCurrentBikeId() {
-        const currentBikeDisplay = document.getElementById('current_bike_assignment');
-        const bikeSelect = document.getElementById('bike_id');
-
-        if (!currentBikeDisplay || !bikeSelect) return null;
-
-        const currentBikeName = currentBikeDisplay.textContent.trim();
-
-        // Handle special cases
-        if (currentBikeName === 'Not assigned' || currentBikeName === 'Unable to compute bike') {
-            return null;
-        }
-
-        // Find the bike_id from the bike dropdown options
-        const bikeOption = Array.from(bikeSelect.options).find(option =>
-            option.textContent.trim() === currentBikeName && option.value !== ''
-        );
-
-        return bikeOption ? bikeOption.value : null;
-    }
-
-    // Update bike dropdown state based on selected new status
-    function updateBikeDropdownForNewStatus() {
-        const newStatusSelect = document.getElementById('new_status');
-        const bikeSelect = document.getElementById('bike_id');
-
-        if (!newStatusSelect || !bikeSelect) return;
-
-        const selectedStatus = newStatusSelect.value;
-
-        // Disable bike dropdown for "Not installed" and "Retired" statuses
-        if (selectedStatus === 'Not installed' || selectedStatus === 'Retired') {
-            bikeSelect.disabled = true;
-            bikeSelect.value = ''; // Clear selection since it won't be used
-        } else if (selectedStatus === 'Installed') {
-            // Enable bike dropdown for "Installed" status (user must select bike)
-            bikeSelect.disabled = false;
-        }
-    }
-
-    // Setup component validation and status checking
-    window.setupComponentValidation = function() {
-
-        const componentSelect = document.getElementById('components');
-        const bikeSelect = document.getElementById('bike_id');
-        const currentBikeDisplay = document.getElementById('current_bike_assignment');
-        const mixedStatusWarning = document.getElementById('mixed_status_warning');
-        const bulkStatusSection = document.getElementById('bulk_status_section');
-        const retiredComponentWarning = document.getElementById('retired_component_warning');
-
-        if (!componentSelect) return;
-
-        // Check for retired components in the collection
-        const collectionTomSelect = componentSelect.tomSelect || componentSelect.tomselect;
-        if (collectionTomSelect) {
-            let selectedValues = [];
-            if (collectionTomSelect.control) {
-                const selectedItems = collectionTomSelect.control.querySelectorAll('.item[data-value]');
-                selectedValues = Array.from(selectedItems).map(item => item.getAttribute('data-value'));
-            } else {
-                selectedValues = collectionTomSelect.getValue();
-            }
-
-            // Check if any selected component is retired
-            const retiredComponents = selectedValues.filter(id => {
-                const option = componentSelect.querySelector(`option[value="${id}"]`);
-                return option && option.dataset.status === 'Retired';
-            });
-
-            if (retiredComponents.length > 0) {
-                // Show retired component warning and disable form
-                showRetiredComponentWarning(retiredComponents.length);
-                disableCollectionForm();
-                // Hide bulk status section for retired components
-                if (bulkStatusSection) {
-                    bulkStatusSection.style.display = 'none';
-                }
-                return; // Exit early - don't process other validations
-            } else {
-                // Hide warning and enable form if no retired components
-                if (retiredComponentWarning) {
-                    retiredComponentWarning.style.display = 'none';
-                }
-                enableCollectionForm();
-            }
-        }
-        
-        // Create a lookup map from bike names to bike IDs
-        // We'll extract this from any existing bike dropdown in the page
-        const bikeNameToIdMap = {};
-        const existingBikeSelect = document.querySelector('select[name*="bike"]');
-        if (existingBikeSelect) {
-            Array.from(existingBikeSelect.options).forEach(option => {
-                if (option.value && option.textContent.trim()) {
-                    bikeNameToIdMap[option.textContent.trim()] = option.value;
-                }
-            });
-        }
-        
-        const tomSelect = componentSelect.tomSelect || componentSelect.tomselect;
-        if (!tomSelect) return;
-
-        // Alternative approach: inspect DOM for selected items instead of relying on getValue()
-        let selectedValues = [];
-        if (tomSelect.control) {
-            const selectedItems = tomSelect.control.querySelectorAll('.item[data-value]');
-            selectedValues = Array.from(selectedItems).map(item => item.getAttribute('data-value'));
-        } else {
-            selectedValues = tomSelect.getValue();
-        }
-        if (!selectedValues || selectedValues.length === 0) {
-            mixedStatusWarning.style.display = 'none';
-            bulkStatusSection.style.display = 'block';
-            
-            // Handle empty selection state
-            const installationStatusDisplay = document.getElementById('current_installation_status');
-            const newStatusSelect = document.getElementById('new_status');
-            
-            if (installationStatusDisplay) {
-                installationStatusDisplay.textContent = 'No components selected';
-                installationStatusDisplay.classList.remove('text-danger');
-            }
-            
-            if (newStatusSelect) {
-                newStatusSelect.innerHTML = '<option value=""></option>';
-                newStatusSelect.disabled = true;
-            }
-            
-            // Reset bike assignment when no components selected
-            if (currentBikeDisplay) {
-                currentBikeDisplay.textContent = 'Not assigned';
-                currentBikeDisplay.classList.remove('text-danger');
-            }
-            if (bikeSelect) {
-                bikeSelect.value = '';
-                bikeSelect.disabled = true; // Disable when no components selected
-            }
-
-            // Check for unsaved changes even when no components selected
-            const unsavedChangesWarning = document.getElementById('unsaved_changes_warning');
-            if (unsavedChangesWarning && !isNewCollection && window.originalCollectionComponents !== null && window.originalCollectionComponents !== undefined) {
-                // Compare empty selection with original saved components
-                const currentComponents = []; // Empty selection
-                const originalComponents = [...window.originalCollectionComponents].sort();
-
-
-                // Check if components are different
-                const componentsChanged = currentComponents.length !== originalComponents.length ||
-                                        currentComponents.some((comp, index) => comp !== originalComponents[index]);
-
-
-                // Check if name or description have changed
-                const currentName = document.getElementById('collection_name').value || '';
-                const currentComment = document.getElementById('comment').value || '';
-                const originalName = window.originalCollectionName || '';
-                const originalComment = window.originalCollectionComment || '';
-
-                const nameChanged = currentName !== originalName;
-                const commentChanged = currentComment !== originalComment;
-
-                const hasChanges = componentsChanged || nameChanged || commentChanged;
-
-
-                if (hasChanges) {
-                    let changedFields = [];
-                    if (componentsChanged) changedFields.push('components');
-                    if (nameChanged) changedFields.push('collection name');
-                    if (commentChanged) changedFields.push('description');
-
-                    const fieldList = changedFields.length > 1
-                        ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
-                        : changedFields[0];
-
-
-                    const warningText = unsavedChangesWarning.querySelector('div');
-                    if (warningText) {
-                        warningText.innerHTML = `<strong>⚠️ Unsaved changes:</strong> You have modified the ${fieldList}. Save the collection to preserve these changes.`;
-                    }
-                    unsavedChangesWarning.style.display = 'block';
-                } else {
-                    unsavedChangesWarning.style.display = 'none';
-                }
-            }
-
-            return;
-        }
-        
-        // Get status information for selected components
-        const selectedOptions = selectedValues.map(value => {
-            const option = componentSelect.querySelector(`option[value="${value}"]`);
-            return {
-                id: value,
-                status: option ? option.dataset.status : null,
-                bike: option ? option.dataset.bike : null
-            };
-        });
-        
-        // Check for mixed statuses and bikes
-        const statuses = [...new Set(selectedOptions.map(opt => opt.status))];
-        const bikes = [...new Set(selectedOptions.map(opt => opt.bike).filter(bike => bike && bike !== 'null'))];
-        const hasMixedStatuses = statuses.length > 1;
-        
-        // Check for installed components
-        const hasInstalledComponents = selectedOptions.some(opt => opt.status === 'Installed');
-        const hasNotInstalledComponents = selectedOptions.some(opt => opt.status === 'Not installed');
-        
-        // Compute bike assignment based on business rules
-        let computedBikeId = '';
-        let computedBikeName = 'Not assigned';
-        let hasValidBikeAssignment = true;
-        let bikeValidationMessage = '';
-        
-        if (selectedOptions.length === 0) {
-            // No components selected - no bike assignment
-            computedBikeId = '';
-            computedBikeName = 'Not assigned';
-        } else if (hasInstalledComponents && hasNotInstalledComponents) {
-            // Mixed installation status - invalid
-            hasValidBikeAssignment = false;
-            bikeValidationMessage = 'Cannot mix installed and not-installed components in same collection';
-            computedBikeName = 'Unable to compute bike';
-        } else if (hasInstalledComponents) {
-            // All installed - must be on same bike
-            if (bikes.length === 1) {
-                computedBikeName = bikes[0] || 'Unknown bike';
-                computedBikeId = bikeNameToIdMap[computedBikeName] || '';
-            } else if (bikes.length > 1) {
-                hasValidBikeAssignment = false;
-                bikeValidationMessage = 'Installed components must be on the same bike';
-                computedBikeName = 'Unable to compute bike';
-            }
-        } else {
-            // All not installed - no bike assignment
-            computedBikeId = '';
-            computedBikeName = 'Not assigned';
-        }
-        
-        // Update current bike display and manage bike dropdown state
-        if (currentBikeDisplay) {
-            currentBikeDisplay.textContent = computedBikeName;
-            if (!hasValidBikeAssignment) {
-                currentBikeDisplay.classList.add('text-danger');
-            } else {
-                currentBikeDisplay.classList.remove('text-danger');
-            }
-        }
-
-        if (bikeSelect) {
-            // Determine if bike field should be disabled
-            const shouldDisableBikeField = !hasValidBikeAssignment || hasInstalledComponents;
-            bikeSelect.disabled = shouldDisableBikeField;
-
-            // Clear bike selection when opening modal (always start blank)
-            bikeSelect.value = '';
-
-            // Bike dropdown is now populated by template, no need for JavaScript population
-        }
-        
-        // Update installation status indicator and new status dropdown
-        const installationStatusDisplay = document.getElementById('current_installation_status');
-        const newStatusSelect = document.getElementById('new_status');
-        
-        if (installationStatusDisplay) {
-            if (hasMixedStatuses || !hasValidBikeAssignment) {
-                // Unable to compute status due to validation issues
-                installationStatusDisplay.innerHTML = 'Unable to compute status';
-                installationStatusDisplay.classList.add('text-danger');
-                
-                // Disable dropdown when status can't be computed
-                if (newStatusSelect) {
-                    newStatusSelect.innerHTML = '<option value=""></option>';
-                    newStatusSelect.disabled = true;
-                }
-            } else if (statuses.length === 1) {
-                const currentStatus = statuses[0];
-                let icon = '';
-                if (currentStatus === 'Installed') {
-                    icon = '⚡';
-                } else if (currentStatus === 'Not installed') {
-                    icon = '💤';
-                } else if (currentStatus === 'Retired') {
-                    icon = '⛔';
-                }
-                installationStatusDisplay.innerHTML = `${icon} ${currentStatus}`;
-                installationStatusDisplay.classList.remove('text-danger');
-                
-                // Update dropdown to exclude current status
-                if (newStatusSelect) {
-                    newStatusSelect.disabled = false;
-                    let options = '<option value=""></option>';
-                    
-                    if (currentStatus !== 'Installed') {
-                        options += '<option value="Installed">Installed</option>';
-                    }
-                    if (currentStatus !== 'Not installed') {
-                        options += '<option value="Not installed">Not installed</option>';
-                    }
-                    if (currentStatus !== 'Retired') {
-                        options += '<option value="Retired">Retired</option>';
-                    }
-                    
-                    newStatusSelect.innerHTML = options;
-                }
-            }
-        }
-        
-        // Show/hide mixed status warning - now includes bike validation
-        if (hasMixedStatuses || !hasValidBikeAssignment) {
-            mixedStatusWarning.style.display = 'block';
-            const warningText = mixedStatusWarning.querySelector('div');
-            if (warningText) {
-                if (!hasValidBikeAssignment) {
-                    warningText.innerHTML = `<strong>⚠️ Invalid component selection:</strong> ${bikeValidationMessage}. All components must be either installed on the same bike or not installed at all.`;
-                } else {
-                    warningText.innerHTML = `<strong>⚠️ Mixed component statuses:</strong> Collections can only contain components with the same installation status.`;
-                }
-            }
-        } else {
-            mixedStatusWarning.style.display = 'none';
-        }
-
-        // Check for unsaved changes using the same selectedValues
-        const unsavedChangesWarning = document.getElementById('unsaved_changes_warning');
-        if (unsavedChangesWarning) {
-
-            if (!isNewCollection && window.originalCollectionComponents !== null && window.originalCollectionComponents !== undefined) {
-            // Compare current selection with original saved components
-            const currentComponents = [...selectedValues].sort();
-            const originalComponents = [...window.originalCollectionComponents].sort();
-
-
-            // Check if components are different
-            const componentsChanged = currentComponents.length !== originalComponents.length ||
-                                    currentComponents.some((comp, index) => comp !== originalComponents[index]);
-
-
-            // Check if name or description have changed
-            const currentName = document.getElementById('collection_name').value || '';
-            const currentComment = document.getElementById('comment').value || '';
-            const originalName = window.originalCollectionName || '';
-            const originalComment = window.originalCollectionComment || '';
-
-            const nameChanged = currentName !== originalName;
-            const commentChanged = currentComment !== originalComment;
-
-            const hasChanges = componentsChanged || nameChanged || commentChanged;
-
-
-            if (hasChanges) {
-                let changedFields = [];
-                if (componentsChanged) changedFields.push('components');
-                if (nameChanged) changedFields.push('collection name');
-                if (commentChanged) changedFields.push('description');
-
-                const fieldList = changedFields.length > 1
-                    ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
-                    : changedFields[0];
-
-
-                const warningText = unsavedChangesWarning.querySelector('div');
-                if (warningText) {
-                    warningText.innerHTML = `<strong>⚠️ Unsaved changes:</strong> You have modified the ${fieldList}. Save the collection to preserve these changes.`;
-                }
-                unsavedChangesWarning.style.display = 'block';
-            } else {
-                unsavedChangesWarning.style.display = 'none';
-            }
-            }
-        }
-
-        // Always show bulk status section if components selected
-        bulkStatusSection.style.display = 'block';
-    };
-
-    // Helper function to show retired component warning
-    function showRetiredComponentWarning(retiredCount) {
-        const retiredComponentWarning = document.getElementById('retired_component_warning');
-        if (retiredComponentWarning) {
-            const warningText = retiredComponentWarning.querySelector('.alert');
-            if (warningText) {
-                const componentText = retiredCount === 1 ? 'component' : 'components';
-                warningText.innerHTML = `<strong>🔒 Collection Locked</strong><br>This collection contains ${retiredCount} retired ${componentText} and has been locked to preserve data integrity. To unlock this collection, either remove the retired components from the selector above, or manually adjust the installation status of the retired components from the component details page.`;
-            }
-            retiredComponentWarning.style.display = 'block';
-        }
-    }
-
-    // Helper function to disable collection form
-    function disableCollectionForm() {
-        const collectionForm = document.getElementById('collection_form');
-        if (collectionForm) {
-            // Disable all form inputs and selects EXCEPT the component selector
-            // Keep component selector enabled so users can remove retired components
-            collectionForm.querySelectorAll('input, select, textarea').forEach(element => {
-                if (element.id !== 'components') {
-                    element.disabled = true;
-                }
-            });
-
-            // Disable submit buttons but keep cancel button enabled
-            document.querySelectorAll('#collectionModal button[type="submit"], #apply_status_change').forEach(button => {
-                button.disabled = true;
-            });
-        }
-    }
-
-    // Helper function to enable collection form
-    function enableCollectionForm() {
-        const collectionForm = document.getElementById('collection_form');
-        if (collectionForm) {
-            // Re-enable all form inputs and selects
-            collectionForm.querySelectorAll('input, select, textarea').forEach(element => {
-                element.disabled = false;
-            });
-
-            // Re-enable submit buttons
-            document.querySelectorAll('#collectionModal button[type="submit"], #apply_status_change').forEach(button => {
-                button.disabled = false;
-            });
-        }
-    }
-
-    // Check for unsaved changes in collection (name, description, components)
-    function checkForUnsavedChanges() {
-        // Only check for existing collections, not new ones
-        if (isNewCollection || !window.originalCollectionComponents) {
-            return { hasChanges: false, changedFields: [] };
-        }
-
-        const componentSelect = document.getElementById('components');
-        const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
-        const selectedValues = tomSelect ? tomSelect.getValue() : [];
-
-        // Compare current selection with original saved components
-        const currentComponents = [...selectedValues].sort();
-        const originalComponents = [...window.originalCollectionComponents].sort();
-
-        // Check if components are different
-        const componentsChanged = currentComponents.length !== originalComponents.length ||
-                                currentComponents.some((comp, index) => comp !== originalComponents[index]);
-
-        // Check if name or description have changed
-        const currentName = document.getElementById('collection_name').value || '';
-        const currentComment = document.getElementById('comment').value || '';
-        const originalName = window.originalCollectionName || '';
-        const originalComment = window.originalCollectionComment || '';
-
-        const nameChanged = currentName !== originalName;
-        const commentChanged = currentComment !== originalComment;
-
-        const hasChanges = componentsChanged || nameChanged || commentChanged;
-        let changedFields = [];
-        if (componentsChanged) changedFields.push('components');
-        if (nameChanged) changedFields.push('collection name');
-        if (commentChanged) changedFields.push('description');
-
-        return { hasChanges, changedFields };
-    }
-
-    // Update unsaved changes warning display
-    function updateUnsavedChangesWarning() {
-        const unsavedChangesWarning = document.getElementById('unsaved_changes_warning');
-        if (!unsavedChangesWarning) return;
-
-        const { hasChanges, changedFields } = checkForUnsavedChanges();
-
-        if (hasChanges) {
-            const fieldList = changedFields.length > 1
-                ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
-                : changedFields[0];
-
-            const warningText = unsavedChangesWarning.querySelector('div');
-            if (warningText) {
-                warningText.innerHTML = `<strong>⚠️ Unsaved changes:</strong> You have modified the ${fieldList}. Save the collection to preserve these changes.`;
-            }
-            unsavedChangesWarning.style.display = 'block';
-        } else {
-            unsavedChangesWarning.style.display = 'none';
-        }
-    }
-
-    // Format collection status change messages following existing HTML patterns
-    function formatCollectionStatusMessage(messageData) {
-        if (typeof messageData === 'string') {
-            // Backward compatibility: if message is still a string, return as-is
-            return messageData;
-        }
-
-        let html = '';
-
-        if (messageData.type === 'success') {
-            html = `<strong>${messageData.summary}</strong><br><br>`;
-            html += '<strong>Updated Components:</strong><br>';
-            html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
-
-        } else if (messageData.type === 'partial_failure') {
-            html = `<strong>${messageData.summary}</strong><br><br>`;
-
-            if (messageData.successful_components.length > 0) {
-                html += '<strong>Successfully Updated:</strong><br>';
-                html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
-                html += '<br><br>';
-            }
-
-            if (messageData.failed_components.length > 0) {
-                html += '<strong>Failed to Update:</strong><br>';
-                html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
-            }
-
-        } else if (messageData.type === 'complete_failure') {
-            html = `<strong>${messageData.summary}</strong><br><br>`;
-            html += '<strong>All Components Failed:</strong><br>';
-            html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
-        }
-
-        return html;
-    }
-
-    // Comprehensive validation for status changes
-    function validateStatusChange() {
-        const componentSelect = document.getElementById('components');
-        const newStatus = document.getElementById('new_status').value;
-        const collectionId = document.getElementById('collection_id').value;
-        const updatedDate = document.getElementById('updated_date').value;
-        
-        // Check if collection is saved
-        if (!collectionId) {
-            const modalBody = document.getElementById('validationModalBody');
-            modalBody.innerHTML = '<strong>Collection Not Saved</strong><br>Please save the collection first using the "Save Collection" button before changing component status.';
-            validationModal.show();
-            return false;
-        }
-
-        // Check if collection has been modified but not saved (for existing collections)
-        const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
-        const selectedValues = tomSelect ? tomSelect.getValue() : [];
-
-        if (!isNewCollection && window.originalCollectionComponents) {
-            // Compare current selection with original saved components
-            const currentComponents = [...selectedValues].sort();
-            const originalComponents = [...window.originalCollectionComponents].sort();
-
-            // Check if components are different
-            const componentsChanged = currentComponents.length !== originalComponents.length ||
-                                    currentComponents.some((comp, index) => comp !== originalComponents[index]);
-
-            // Check if name or description have changed
-            const currentName = document.getElementById('collection_name').value || '';
-            const currentComment = document.getElementById('comment').value || '';
-            const originalName = window.originalCollectionName || '';
-            const originalComment = window.originalCollectionComment || '';
-
-            const nameChanged = currentName !== originalName;
-            const commentChanged = currentComment !== originalComment;
-
-            if (componentsChanged || nameChanged || commentChanged) {
-                const modalBody = document.getElementById('validationModalBody');
-                let changedFields = [];
-                if (componentsChanged) changedFields.push('components');
-                if (nameChanged) changedFields.push('collection name');
-                if (commentChanged) changedFields.push('description');
-
-                const fieldList = changedFields.length > 1
-                    ? changedFields.slice(0, -1).join(', ') + ' and ' + changedFields.slice(-1)
-                    : changedFields[0];
-
-                modalBody.innerHTML = `<strong>Unsaved Changes</strong><br>You have modified the ${fieldList} but haven't saved the changes. Please save the collection first using the "Save Collection" button before changing component status.`;
-                validationModal.show();
-                return false;
-            }
-        }
-
-        // Check if components are selected
-        if (!selectedValues || selectedValues.length === 0) {
-            const modalBody = document.getElementById('validationModalBody');
-            modalBody.innerHTML = '<strong>No Components Selected</strong><br>This collection has no components. Add components to the collection before changing status.';
-            validationModal.show();
-            return false;
-        }
-
-        // Check if new status is selected
-        if (!newStatus) {
-            const modalBody = document.getElementById('validationModalBody');
-            modalBody.innerHTML = '<strong>Status Selection Required</strong><br>Please select a new status from the dropdown before applying the change.';
-            validationModal.show();
-            return false;
-        }
-
-        // Check if date is entered
-        if (!updatedDate) {
-            const modalBody = document.getElementById('validationModalBody');
-            modalBody.innerHTML = '<strong>Date Required</strong><br>Please select the date when this status change occurred before applying the change.';
-            validationModal.show();
-            return false;
-        }
-
-        // Check if bike is selected when status is "Installed"
-        if (newStatus === 'Installed') {
-            const bikeSelect = document.getElementById('bike_id');
-            if (!bikeSelect || !bikeSelect.value) {
-                const modalBody = document.getElementById('validationModalBody');
-                modalBody.innerHTML = '<strong>Bike Selection Required</strong><br>When setting status to "Installed", you must select which bike the components will be installed on.';
-                validationModal.show();
-                return false;
-            }
-        }
-        
-        // Check business rules using existing validation logic
-        const selectedOptions = selectedValues.map(value => {
-            const option = componentSelect.querySelector(`option[value="${value}"]`);
-            return {
-                id: value,
-                status: option ? option.dataset.status : null,
-                bike: option ? option.dataset.bike : null
-            };
-        });
-        
-        // Check for mixed statuses
-        const statuses = [...new Set(selectedOptions.map(opt => opt.status))];
-        const bikes = [...new Set(selectedOptions.map(opt => opt.bike).filter(bike => bike && bike !== 'null'))];
-        const hasInstalledComponents = selectedOptions.some(opt => opt.status === 'Installed');
-        const hasNotInstalledComponents = selectedOptions.some(opt => opt.status === 'Not installed');
-        
-        if (hasInstalledComponents && hasNotInstalledComponents) {
-            const modalBody = document.getElementById('validationModalBody');
-            modalBody.innerHTML = '<strong>Status Change Not Allowed</strong><br>This collection contains both installed and not-installed components. Status changes can only be applied when all components have the same installation status.<br><br><em>Tip: Edit the collection to include only components with the same status, then try again.</em>';
-            validationModal.show();
-            return false;
-        }
-        
-        if (hasInstalledComponents && bikes.length > 1) {
-            const modalBody = document.getElementById('validationModalBody');
-            modalBody.innerHTML = '<strong>Status Change Not Allowed</strong><br>This collection contains installed components from different bikes. Status changes can only be applied when all installed components are on the same bike.<br><br><em>Tip: Edit the collection to include only components from the same bike, then try again.</em>';
-            validationModal.show();
-            return false;
-        }
-        
-        return true;
-    }
-    
-    // Setup bulk status change functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const applyStatusBtn = document.getElementById('apply_status_change');
-        if (applyStatusBtn) {
-            applyStatusBtn.addEventListener('click', function() {
-                // Run comprehensive validation before allowing status change
-                if (!validateStatusChange()) {
-                    return;
-                }
-                
-                const newStatus = document.getElementById('new_status').value;
-                const collectionId = document.getElementById('collection_id').value;
-                const updatedDate = document.getElementById('updated_date').value;
-                
-                // Show confirmation modal
-                const modalBody = document.getElementById('confirmModalBody');
-                modalBody.innerHTML = `Are you sure you want to change the status of all components in this collection to "${newStatus}"?`;
-                confirmModal.show();
-                
-                // Create cleanup function to remove event listeners
-                function cleanup() {
-                    const confirmBtn = document.getElementById('confirmAction');
-                    const cancelBtn = document.getElementById('cancelAction');
-                    confirmBtn.removeEventListener('click', handleConfirm);
-                    cancelBtn.removeEventListener('click', handleCancel);
-                }
-
-                // Handle confirm action
-                function handleConfirm() {
-                    cleanup();
-
-                    // CRITICAL: Remove focus from the button before hiding modal to prevent aria-hidden focus trap
-                    this.blur();
-
-                    // Close confirmation modal first
-                    confirmModal.hide();
-
-                    // Use timeout instead of Bootstrap events for more reliable modal transitions
-                    setTimeout(() => {
-                        performBulkStatusChange(collectionId, newStatus, updatedDate);
-                    }, 300); // Give enough time for confirm modal to close
-                }
-
-                // Handle cancel action
-                function handleCancel() {
-                    cleanup();
-                }
-
-                // Add event listeners
-                document.getElementById('confirmAction').addEventListener('click', handleConfirm);
-                document.getElementById('cancelAction').addEventListener('click', handleCancel);
-            });
-        }
-    });
-    
-    // Helper function to forcefully close loading modal when Bootstrap fails
-    function forceCloseLoadingModal() {
-        // Try Bootstrap's official methods first
-        loadingModal.hide();
-        const loadingInstance = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
-        if (loadingInstance) {
-            loadingInstance.hide();
-        }
-        
-        // Force cleanup of any remaining modal artifacts
-        setTimeout(() => {
-            // Check if any other modals are still open before removing backdrop
-            const openModals = document.querySelectorAll('.modal.show:not(#loadingModal)');
-            const hasOtherModalsOpen = openModals.length > 0;
-            
-            if (!hasOtherModalsOpen) {
-                // Only remove backdrop and body styles if no other modals are open
-                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-                    backdrop.remove();
-                });
-                
-                if (document.body.classList.contains('modal-open')) {
-                    document.body.classList.remove('modal-open');
-                    document.body.style.removeProperty('overflow');
-                    document.body.style.removeProperty('padding-right');
-                }
-            } else {
-                // Other modals are open, ensure backdrop exists for them
-                if (!document.querySelector('.modal-backdrop')) {
-                    // Create new backdrop if none exists
-                    const backdrop = document.createElement('div');
-                    backdrop.className = 'modal-backdrop fade show';
-                    document.body.appendChild(backdrop);
-                }
-            }
-            
-            // Always force hide loading modal element directly (nuclear option)
-            const loadingElement = document.getElementById('loadingModal');
-            if (loadingElement) {
-                loadingElement.style.display = 'none';
-                loadingElement.classList.remove('show');
-                loadingElement.setAttribute('aria-hidden', 'true');
-            }
-        }, 200);
-    }
-
-    // Perform bulk status change via API
-    function performBulkStatusChange(collectionId, newStatus, updatedDate) {
-        document.getElementById('loadingMessage').textContent = 'Updating component statuses...';
-
-        // Close collection modal first to simplify modal orchestration
-        const collectionModal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
-        if (collectionModal) {
-            collectionModal.hide();
-        }
-
-        // Show loading modal after brief delay to ensure clean transition
-        setTimeout(() => {
-            loadingModal.show();
-
-            // Determine bike_id source based on status:
-            // - "Installed": Use dropdown selection
-            // - "Not installed" or "Retired": Use current bike (preserves origin bike, or null if none)
-            let bikeIdToSend;
-
-            if (newStatus === 'Installed') {
-                // For installation, use dropdown selection
-                const bikeSelect = document.getElementById('bike_id');
-                bikeIdToSend = bikeSelect && bikeSelect.value ? bikeSelect.value : null;
-            } else {
-                // For "Not installed" and "Retired", use current bike
-                // getCurrentBikeId() returns null for "Not assigned" - that's correct behavior
-                bikeIdToSend = getCurrentBikeId();
-            }
-
-            // Perform the API call
-            fetch('/change_collection_status', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                collection_id: collectionId,
-                new_status: newStatus,
-                updated_date: updatedDate,
-                bike_id: bikeIdToSend || ''  // Send bike_id based on status logic
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Close loading modal using helper function
-            forceCloseLoadingModal();
-
-            // Show results after modal cleanup delay
-            setTimeout(() => {
-                // Determine if this is a partial failure (some components succeeded, some failed)
-                const isPartialFailure = data.message && data.message.type === 'partial_failure';
-                const title = data.success ? '✅ Status Update Complete' :
-                             isPartialFailure ? '⚠️ Status Update Partial' : '❌ Status Update Failed';
-                const formattedMessage = formatCollectionStatusMessage(data.message);
-                showReportModal(title, formattedMessage, data.success, isPartialFailure, function() {
-                    // Always refresh page after user dismisses report, regardless of success/failure
-                    // Collection modal is already closed, so just refresh
-                    // Remove URL parameters to prevent toast messages on reload
-                    const url = window.location.pathname;
-                    window.history.replaceState({}, document.title, url);
-                    window.location.reload();
-                });
-            }, 500);
-        })
-        .catch(error => {
-            console.error('Collection status change error:', error);
-            
-            // Close loading modal using helper function
-            forceCloseLoadingModal();
-            
-            // Show error message after modal cleanup delay
-            setTimeout(() => {
-                showReportModal('❌ Application Error', 'An error occurred while updating component statuses. Please try again.', false, false, function() {
-                    // Always refresh page after user dismisses error report
-                    // Remove URL parameters to prevent toast messages on reload
-                    const url = window.location.pathname;
-                    window.history.replaceState({}, document.title, url);
-                    window.location.reload();
-                });
-            }, 400);
-        });
-        }, 300);
-    }
-    
-    // Validate collection form for "Save Collection" button
-    function validateCollectionForm() {
-        const collectionName = document.getElementById('collection_name').value.trim();
-        const componentSelect = document.getElementById('components');
-        const tomSelect = componentSelect ? (componentSelect.tomSelect || componentSelect.tomselect) : null;
-        const selectedValues = tomSelect ? tomSelect.getValue() : [];
-        
-        // Collection name is required
-        if (!collectionName) {
-            const modalBody = document.getElementById('validationModalBody');
-            modalBody.innerHTML = '<strong>Collection Name Required</strong><br>Please enter a name for this collection before saving.';
-            validationModal.show();
-            return false;
-        }
-        
-        // Only validate component business rules if components are selected
-        if (selectedValues && selectedValues.length > 0) {
-            // Check for collection creation business rules (mixed statuses/bikes)
-            const selectedOptions = selectedValues.map(value => {
-                const option = componentSelect.querySelector(`option[value="${value}"]`);
-                return {
-                    id: value,
-                    status: option ? option.dataset.status : null,
-                    bike: option ? option.dataset.bike : null
-                };
-            });
-            
-            const hasInstalledComponents = selectedOptions.some(opt => opt.status === 'Installed');
-            const hasNotInstalledComponents = selectedOptions.some(opt => opt.status === 'Not installed');
-            const bikes = [...new Set(selectedOptions.map(opt => opt.bike).filter(bike => bike && bike !== 'null'))];
-            
-            // Cannot mix installed and not-installed components
-            if (hasInstalledComponents && hasNotInstalledComponents) {
-                const modalBody = document.getElementById('validationModalBody');
-                modalBody.innerHTML = 'Cannot save collection: Installed and not-installed components cannot be in the same collection. Please select components with the same installation status.';
-                validationModal.show();
-                return false;
-            }
-            
-            // All installed components must be on the same bike
-            if (hasInstalledComponents && bikes.length > 1) {
-                const modalBody = document.getElementById('validationModalBody');
-                modalBody.innerHTML = 'Cannot save collection: All installed components must be on the same bike. Please select components from the same bike.';
-                validationModal.show();
-                return false;
-            }
-        }
-        
-        return true;
-    }
-    
-    // Setup collection form validation
-    function setupCollectionFormValidation() {
-        const collectionForm = document.getElementById('collection_form');
-        if (!collectionForm) return;
-        
-        // Add validation to the Save Collection form
-        collectionForm.onsubmit = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Run collection form validation
-            if (!validateCollectionForm()) {
-                return false; // This prevents form submission
-            }
-
-            // For add_collection and update_collection, use bike_id from "Current bike" display
-            const currentBikeId = getCurrentBikeId();
-            const bikeIdField = document.getElementById('bike_id');
-
-            if (bikeIdField) {
-                // Temporarily set the bike_id field value to the Current bike ID
-                const originalValue = bikeIdField.value;
-                const originalDisabled = bikeIdField.disabled;
-
-                bikeIdField.value = currentBikeId || '';
-                bikeIdField.disabled = false; // Enable field so it gets submitted
-
-                // Submit the form
-                this.submit();
-
-                // Restore original values after submission (though modal will likely close)
-                bikeIdField.value = originalValue;
-                bikeIdField.disabled = originalDisabled;
-            } else {
-                // If bike_id field doesn't exist, just submit normally
-                this.submit();
-            }
-        };
-    }
-    
-    // Setup form validation
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize collection form validation
-        setupCollectionFormValidation();
-    });
-    
-    // Collections table functionality - search and sort
-    document.addEventListener('DOMContentLoaded', function() {
-        const collectionsTable = document.getElementById('collectionsTable');
-        if (!collectionsTable) return;
-        
-        // Initialize collections table search
-        initializeCollectionsSearch();
-        
-        // Initialize collections table sorting
-        initializeCollectionsSorting();
-    });
-    
-    function initializeCollectionsSearch() {
-        const searchInput = document.getElementById('collectionsSearchInput');
-        if (!searchInput) return;
-        
-        const table = document.getElementById('collectionsTable');
-        const rows = table.querySelectorAll('tbody tr');
-        
-        // Skip if there are no rows or just one "no collections" message row
-        if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
-        
-        // Function to update row visibility based on search
-        function updateRowVisibility() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            let visibleRowCount = 0;
-            
-            rows.forEach(row => {
-                // Skip the "no collections created yet" row
-                if (row.cells.length === 1 && row.cells[0].colSpan) {
-                    return;
-                }
-                
-                // Get text content from searchable columns (include Components column)
-                const collection = row.cells[0].textContent.toLowerCase();
-                const components = row.cells[1].textContent.toLowerCase();
-                const bike = row.cells[2].textContent.toLowerCase();
-                const rowText = `${collection} ${components} ${bike}`;
-                const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
-                
-                // Show/hide row based on search criteria
-                row.style.display = matchesSearch ? '' : 'none';
-                if (matchesSearch) visibleRowCount++;
-            });
-            
-            // Show "no results" message if no rows are visible
-            const existingNoResultsRow = table.querySelector('.no-results-row');
-            if (visibleRowCount === 0 && searchTerm !== '') {
-                if (!existingNoResultsRow) {
-                    const tbody = table.querySelector('tbody');
-                    const newRow = document.createElement('tr');
-                    newRow.className = 'no-results-row';
-                    newRow.innerHTML = '<td colspan="5" class="text-center">No collections match your criteria</td>';
-                    tbody.appendChild(newRow);
-                }
-            } else if (existingNoResultsRow) {
-                existingNoResultsRow.remove();
-            }
-        }
-        
-        // Listen for search input changes
-        searchInput.addEventListener('input', updateRowVisibility);
-        
-        // Clear search with Escape key
-        searchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                searchInput.value = '';
-                updateRowVisibility();
-            }
-        });
-        
-        // Initialize visibility
-        updateRowVisibility();
-    }
-    
-    function initializeCollectionsSorting() {
-        const table = document.getElementById('collectionsTable');
-        if (!table) return;
-        
-        const headers = table.querySelectorAll('th[data-sort]');
-        const tableBody = table.querySelector('tbody');
-        const rows = tableBody.querySelectorAll('tr');
-        
-        // Skip if there are no sortable rows
-        if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) return;
-        
-        let currentSortColumn = -1;
-        let currentSortDirection = 'asc';
-        
-        // Function to sort table by column
-        function sortColumn(columnIndex, ascending = true) {
-            // Get all rows and convert to array for sorting
-            const rowsArray = Array.from(rows).filter(row => {
-                // Exclude "no collections" and "no results" rows
-                return !(row.cells.length === 1 && row.cells[0].colSpan);
-            });
-            
-            // Sort the rows
-            rowsArray.sort((rowA, rowB) => {
-                let cellA = rowA.querySelectorAll('td')[columnIndex].innerText.trim();
-                let cellB = rowB.querySelectorAll('td')[columnIndex].innerText.trim();
-                
-                // Different handling based on column type
-                switch(columnIndex) {
-                    case 0: // Collection column
-                    case 2: // Bike column
-                        // Remove emojis and compare case-insensitively for text columns
-                        cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟩🟥]/gu, '').trim().toLowerCase();
-                        cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟩🟥]/gu, '').trim().toLowerCase();
-                        break;
-                        
-                    case 1: // Status column - sort by component count
-                        // Extract numeric value from "X components" format
-                        const numA = parseInt(cellA.match(/\d+/)) || 0;
-                        const numB = parseInt(cellB.match(/\d+/)) || 0;
-                        cellA = numA;
-                        cellB = numB;
-                        break;
-                        
-                    case 3: // Last updated column - handle date sorting
-                        // Convert date strings for comparison, treat "-" as earliest date
-                        if (cellA === "-") cellA = "1900-01-01";
-                        if (cellB === "-") cellB = "1900-01-01";
-                        cellA = new Date(cellA);
-                        cellB = new Date(cellB);
-                        break;
-                }
-                
-                // Compare values
-                if (cellA < cellB) return ascending ? -1 : 1;
-                if (cellA > cellB) return ascending ? 1 : -1;
-                return 0;
-            });
-            
-            // Clear the table body and re-append sorted rows
-            rowsArray.forEach(row => {
-                tableBody.appendChild(row);
-            });
-        }
-        
-        // Add click handlers to sortable headers
-        headers.forEach((header, index) => {
-            header.style.cursor = 'pointer';
-            
-            // Add sort indicator span if it doesn't exist
-            if (!header.querySelector('.sort-indicator')) {
-                const indicator = document.createElement('span');
-                indicator.className = 'sort-indicator';
-                header.appendChild(indicator);
-            }
-            
-            header.addEventListener('click', function() {
-                // Determine sort direction
-                let isAscending = true;
-                if (currentSortColumn === index && currentSortDirection === 'asc') {
-                    isAscending = false;
-                }
-                
-                // Update tracking variables
-                currentSortColumn = index;
-                currentSortDirection = isAscending ? 'asc' : 'desc';
-                
-                // Remove sort classes from all headers
-                headers.forEach(h => {
-                    h.classList.remove('sorted-asc', 'sorted-desc');
-                });
-                
-                // Add appropriate class to clicked header
-                header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
-                
-                sortColumn(index, isAscending);
-            });
-        });
-        
-        // Initial sort by Collection column (index 0) in ascending order
-        if (headers.length > 0 && rows.length > 1) {
-            // Add sorted-asc class to the Collection column header
-            headers[0].classList.add('sorted-asc');
-            currentSortColumn = 0;
-            currentSortDirection = 'asc';
-            
-            // Sort by Collection column (index 0) in ascending order
-            sortColumn(0, true);
-        }
-    }
-    
-})();
