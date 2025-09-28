@@ -29,22 +29,11 @@ This file (ISSUES.md) must be read on startup. This file contains information on
   - Implementation: `formatCollectionStatusMessage()` function formats collection status messages following existing HTML patterns
   - Architecture: Proper separation of concerns maintained - business logic returns data, frontend handles presentation
 
-### Code Organization & Conventions
-- **Organize JavaScript code in correct location**: Collections JavaScript should be properly organized in main.js
-- **Ensure JavaScript reuses existing patterns**: Collections JavaScript should follow existing patterns for dates, validation, etc.
-- **Review all user feedback messages**: In business_logic and js
-
 ### QA Review - Files to Review
 - **QA: business_logic.py date validation bug**: Date field validation is insufficient and needs improvement
-- **QA: main.js**: ⚠️ **MAJOR ISSUES FOUND** - Collections JavaScript has severe code duplication and organization problems:
-  - **Code Duplication**: Three nearly identical modal setup functions across different page handlers (lines 1415-1456, 1661-1704, 3845-3953)
-  - **Inconsistent Patterns**: Different function names, initialization approaches, and error handling across pages
-  - **Organization Issues**: Massive 1500-line IIFE block mixing modal, validation, API, and table management concerns
-  - **Global Variable Pollution**: Heavy use of window.original* variables
-  - **Functionality is robust** but needs refactoring to eliminate duplication and improve maintainability
 
-### Database & Migration Tasks
-- **Update database template**: Update backend/template_db.sqlite so users starting fresh don't need to run migration for collections schema
+### Testing & Quality Assurance
+- **Create comprehensive test protocol for collections feature**: Develop systematic testing checklist covering all collections functionality, edge cases, validation scenarios, and cross-page integration to ensure production readiness
 
 ---
 
@@ -117,3 +106,7 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **QA: component_details.html**: Fixed - collection information display on component pages reviewed, duplicate role attribute fixed
 - **QA: bike_details.html**: Fixed - collection information display on bike pages reviewed and confirmed to be properly integrated
 - **QA: index.html**: Fixed - collection indicators on bike overview page reviewed and confirmed to be correctly implemented
+- **QA: main.js JavaScript refactoring**: Fixed - eliminated severe code duplication across page handlers, reorganized collections IIFE to shared functions section, improved code maintainability and consistency
+- **JavaScript code organization**: Fixed - collections JavaScript properly organized in main.js with functions placed in correct sections following existing patterns
+- **User feedback messages review**: Fixed - reviewed and improved all collections-related user feedback messages for better UX, made messages more concise and professional
+- **Database template update**: Fixed - updated backend/template_db.sqlite with collections schema so users starting fresh don't need migration
