@@ -33,7 +33,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **QA: business_logic.py date validation bug**: Date field validation is insufficient and needs improvement
 
 ### Testing & Quality Assurance
-- **Create comprehensive test protocol for collections feature**: Develop systematic testing checklist covering all collections functionality, edge cases, validation scenarios, and cross-page integration to ensure production readiness
 
 ---
 
@@ -110,3 +109,4 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **JavaScript code organization**: Fixed - collections JavaScript properly organized in main.js with functions placed in correct sections following existing patterns
 - **User feedback messages review**: Fixed - reviewed and improved all collections-related user feedback messages for better UX, made messages more concise and professional
 - **Database template update**: Fixed - updated backend/template_db.sqlite with collections schema so users starting fresh don't need migration
+- **Collections test protocol creation**: Fixed - created comprehensive COLLECTIONS_TEST_PROTOCOL.md with 135 test cases covering all functionality, business rules, UI components, error handling, and user workflows
