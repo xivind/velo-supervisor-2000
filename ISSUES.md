@@ -30,7 +30,6 @@ This file (ISSUES.md) must be read on startup. This file contains information on
   - Architecture: Proper separation of concerns maintained - business logic returns data, frontend handles presentation
 
 ### QA Review - Files to Review
-- **QA: business_logic.py date validation bug**: Date field validation is insufficient and needs improvement
 
 ### Testing & Quality Assurance
 
@@ -110,3 +109,4 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **User feedback messages review**: Fixed - reviewed and improved all collections-related user feedback messages for better UX, made messages more concise and professional
 - **Database template update**: Fixed - updated backend/template_db.sqlite with collections schema so users starting fresh don't need migration
 - **Collections test protocol creation**: Fixed - created comprehensive COLLECTIONS_TEST_PROTOCOL.md with 135 test cases covering all functionality, business rules, UI components, error handling, and user workflows
+- **Collection status change date validation**: Fixed - added frontend date format validation to match validation pattern used throughout the application
