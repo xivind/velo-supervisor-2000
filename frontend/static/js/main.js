@@ -1802,6 +1802,15 @@ function editCollection(element, options = {}) {
             return false;
         }
 
+        // Validate date format
+        const dateInput = document.getElementById('updated_date');
+        if (!validateDateInput(dateInput)) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Invalid date format. Expected format: YYYY-MM-DD HH:MM (e.g., 2025-02-04 14:30)';
+            validationModal.show();
+            return false;
+        }
+
         // Check if bike is selected when status is "Installed"
         if (newStatus === 'Installed') {
             const bikeSelect = document.getElementById('bike_id');
