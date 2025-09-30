@@ -49,7 +49,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
-    asyncio.create_task(business_logic.pull_strava_background("recent"))
+    # asyncio.create_task(business_logic.pull_strava_background("recent"))
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
@@ -253,6 +253,58 @@ async def update_history_record(component_id: str = Form(...),
 
     return response
 
+@app.post("/add_collection", response_class=HTMLResponse)
+async def add_collection(collection_name: str = Form(...),
+                            components: Optional[List[str]] = Form(None),
+                            bike_id: Optional[str] = Form(None),
+                            comment: Optional[str] = Form(None)):
+    """Endpoint to add new collection"""
+
+    success, message = business_logic.create_collection(collection_name,
+                                                     components,
+                                                     bike_id,
+                                                     comment)
+    
+    response = RedirectResponse(
+        url=f"/component_overview?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
+@app.post("/update_collection", response_class=HTMLResponse)
+async def update_collection(collection_id: str = Form(...),
+                            collection_name: str = Form(...),
+                            components: Optional[List[str]] = Form(None),
+                            bike_id: Optional[str] = Form(None),
+                            comment: Optional[str] = Form(None)):
+    """Endpoint to update existing collection"""
+
+    success, message = business_logic.update_collection(collection_id,
+                                                        collection_name,
+                                                        components,
+                                                        bike_id,
+                                                        comment)
+    
+    response = RedirectResponse(
+        url=f"/component_overview?success={success}&message={message}",
+        status_code=303)
+
+    return response
+
+@app.post("/change_collection_status")
+async def change_collection_status(collection_id: str = Form(...),
+                                   new_status: str = Form(...),
+                                   updated_date: str = Form(...),
+                                   bike_id: Optional[str] = Form(None)):
+    """Endpoint to change the status of all components in a collection"""
+
+    success, message = business_logic.change_collection_status(collection_id,
+                                                               new_status,
+                                                               updated_date,
+                                                               bike_id)
+
+    return JSONResponse({"success": success, "message": message})
+
 @app.post("/add_service_record", response_class=HTMLResponse)
 async def add_service(component_id: str = Form(...),
                       service_date: str = Form(...),
@@ -447,7 +499,7 @@ async def delete_record(record_id: str = Form(...),
 
     if table_selector == "ComponentTypes":
         redirect_url = "/component_types_overview"
-    if table_selector == "Components":
+    if table_selector == "Components" or table_selector == "Collections":
         redirect_url = "/component_overview"
     if table_selector == "Services" or table_selector == "ComponentHistory":
         redirect_url = f"/component_details/{component_id}"
