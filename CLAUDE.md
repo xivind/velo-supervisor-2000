@@ -47,10 +47,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Key Features
 - **Component tracking**: Bicycle component lifetime and service intervals
+- **Collections**: Group components for bulk operations (e.g., seasonal wheelsets)
 - **Strava integration**: Automatic activity data sync
 - **Incident reports**: Track maintenance issues
 - **Workplans**: Maintenance scheduling
 - **Service history**: Component maintenance records
+
+### Testing
+- **Test protocols**: Located in `tests/` directory
+- **Manual testing approach**: Comprehensive test protocols document expected behavior and test cases
+- **Available protocols**: See `tests/README.md` for full list and testing approach
+- **Collections testing**: `tests/test_protocol_collections.md` (135 test cases)
 
 ## Development Notes
 
