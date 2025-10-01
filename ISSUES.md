@@ -108,5 +108,5 @@ This file (ISSUES.md) must be read on startup. This file contains information on
 - **JavaScript code organization**: Fixed - collections JavaScript properly organized in main.js with functions placed in correct sections following existing patterns
 - **User feedback messages review**: Fixed - reviewed and improved all collections-related user feedback messages for better UX, made messages more concise and professional
 - **Database template update**: Fixed - updated backend/template_db.sqlite with collections schema so users starting fresh don't need migration
-- **Collections test protocol creation**: Fixed - created comprehensive COLLECTIONS_TEST_PROTOCOL.md with 135 test cases covering all functionality, business rules, UI components, error handling, and user workflows
+- **Collections test protocol creation**: Fixed - created comprehensive test protocol with 135 test cases covering all functionality, business rules, UI components, error handling, and user workflows (see tests/test_protocol_collections.md)
 - **Collection status change date validation**: Fixed - added frontend date format validation to match validation pattern used throughout the application
