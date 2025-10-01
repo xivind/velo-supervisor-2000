@@ -155,6 +155,15 @@ async def config_overview(request: Request,
                                        "success": success,
                                        "message": message})
 
+@app.get("/help", response_class=HTMLResponse)
+async def help_page(request: Request):
+    """Endpoint for help page"""
+
+    template_path = "help.html"
+
+    return templates.TemplateResponse(template_path,
+                                      {"request": request})
+
 @app.post("/create_component", response_class=HTMLResponse)
 async def create_component(component_id: Optional[str] = Form(None),
                            component_installation_status: str = Form(...),
