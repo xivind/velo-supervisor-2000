@@ -15,19 +15,19 @@ This protocol ensures comprehensive testing of the collections feature across al
 ### 1.1 Collection Creation Tests (`/add_collection`)
 
 #### ✅ **Happy Path Scenarios**
-- [ ] **TEST-CR-001**: Create collection with valid name and multiple components
-- [ ] **TEST-CR-002**: Create empty collection (template) with name only
-- [ ] **TEST-CR-003**: Create collection with all installed components from same bike
-- [ ] **TEST-CR-004**: Create collection with all not-installed components
-- [ ] **TEST-CR-005**: Create collection with optional comment field
+- [x] ✅ **TEST-CR-001**: Create collection with valid name and multiple components
+- [x] ✅ **TEST-CR-002**: Create empty collection (template) with name only
+- [x] ✅ **TEST-CR-003**: Create collection with all installed components from same bike
+- [x] ✅ **TEST-CR-004**: Create collection with all not-installed components
+- [x] ✅ **TEST-CR-005**: Create collection with optional comment field
 
 #### ❌ **Validation & Error Scenarios**
-- [ ] **TEST-CR-006**: Submit empty collection name (should show frontend validation error)
-- [ ] **TEST-CR-007**: Mix installed and not-installed components (should fail with business rule error)
-- [ ] **TEST-CR-008**: Select installed components from different bikes (should fail)
-- [ ] **TEST-CR-009**: Add component already in another collection (should fail)
-- [ ] **TEST-CR-010**: Submit with non-existent component IDs (should fail gracefully)
-- [ ] **TEST-CR-011**: Submit with invalid bike ID (should fail gracefully)
+- [x] ✅ **TEST-CR-006**: Submit empty collection name (should show frontend validation error)
+- [x] ✅ **TEST-CR-007**: Mix installed and not-installed components (should fail with business rule error)
+- [x] ✅ **TEST-CR-008**: Select installed components from different bikes (should fail)
+- [x] ✅ **TEST-CR-009**: Add component already in another collection (should fail)
+- [x] ✅ **TEST-CR-010**: Submit with non-existent component IDs (should fail gracefully)
+- [x] ✅ **TEST-CR-011**: Submit with invalid bike ID (should fail gracefully)
 
 ### 1.2 Collection Update Tests (`/update_collection`)
 
