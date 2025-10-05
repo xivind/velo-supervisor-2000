@@ -32,29 +32,29 @@ This protocol ensures comprehensive testing of the collections feature across al
 ### 1.2 Collection Update Tests (`/update_collection`)
 
 #### ✅ **Update Scenarios**
-- [ ] **TEST-UP-001**: Update collection name successfully
-- [ ] **TEST-UP-002**: Update collection comment field
-- [ ] **TEST-UP-003**: Add components to existing collection
-- [ ] **TEST-UP-004**: Remove components from collection
-- [ ] **TEST-UP-005**: Change bike assignment for collection
-- [ ] **TEST-UP-006**: Convert populated collection to template (remove all components)
-- [ ] **TEST-UP-007**: Verify `updated_date` field is preserved during regular updates
+- [x] ✅ **TEST-UP-001**: Update collection name successfully
+- [x] ✅ **TEST-UP-002**: Update collection comment field
+- [x] ✅ **TEST-UP-003**: Add components to existing collection
+- [x] ✅ **TEST-UP-004**: Remove components from collection
+- [x] ✅ **TEST-UP-005**: Change bike assignment for collection
+- [x] ✅ **TEST-UP-006**: Convert populated collection to template (remove all components)
+- [x] ✅ **TEST-UP-007**: Verify `updated_date` field is preserved during regular updates
 
 #### ❌ **Update Error Scenarios**
-- [ ] **TEST-UP-008**: Apply same validation rules as creation (mixed status, different bikes)
-- [ ] **TEST-UP-009**: Update non-existent collection ID (should fail)
-- [ ] **TEST-UP-010**: Update with duplicate component assignments
+- [x] ✅ **TEST-UP-008**: Apply same validation rules as creation (mixed status, different bikes)
+- [x] ✅ **TEST-UP-009**: Update non-existent collection ID (should fail)
+- [x] ✅ **TEST-UP-010**: Update with duplicate component assignments
 
 ### 1.3 Collection Deletion Tests (`/delete_record`)
 
 #### ✅ **Deletion Scenarios**
-- [ ] **TEST-DEL-001**: Delete empty collection (template) successfully
-- [ ] **TEST-DEL-002**: Verify components remain untouched after collection deletion
-- [ ] **TEST-DEL-003**: Verify collection is removed from all page displays
+- [x] ✅ **TEST-DEL-001**: Delete empty collection (template) successfully
+- [x] ✅ **TEST-DEL-002**: Verify components remain untouched after collection deletion
+- [x] ✅ **TEST-DEL-003**: Verify collection is removed from all page displays
 
 #### ❌ **Deletion Restrictions**
-- [ ] **TEST-DEL-004**: Attempt to delete collection with components (should fail)
-- [ ] **TEST-DEL-005**: Delete non-existent collection ID (should handle gracefully)
+- [x] ✅ **TEST-DEL-004**: Attempt to delete collection with components (should fail)
+- [x] ✅ **TEST-DEL-005**: Delete non-existent collection ID (should handle gracefully)
 
 ---
 
