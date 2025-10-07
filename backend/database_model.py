@@ -86,6 +86,21 @@ class Components(BaseModel):
         table_name = "components"
 
 
+class Collections(BaseModel):
+    """Model for table: collections"""
+    collection_id = CharField(primary_key=True, unique=True)
+    collection_name = CharField()
+    components = CharField()
+    bike_id = CharField()
+    sub_collections = CharField()
+    updated_date = CharField()
+    comment = CharField()
+    
+    class Meta:
+        """Extends model with extra attributes"""
+        table_name = "collections"
+
+
 class ComponentHistory(BaseModel):
     """Model for table: component_history"""
     history_id = CharField(primary_key=True, unique=True)

@@ -12,6 +12,7 @@
         <span class="me-3"><span class="badge bike_no_components" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> No parts registered / no active parts</span>
         <span class="me-3">📝 Unfinished workplans</span>
         <span class="me-3">🚨 Open incidents</span>
+        <span class="me-3">📦 Assigned collections</span>
     </div>
     <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" id="showRetiredBikes">
@@ -35,6 +36,7 @@
                         <span>
                             {% if bike_id in payload.planned_workplans["bike_workplans"] %}📝{% endif %}
                             {% if bike_id in payload.open_incidents["bike_incidents"] %}🚨{% endif %}
+                            {% if bike_id in payload.assigned_collections %}📦{% endif %}
                         </span>
                     </div>
                     <div class="card-body">
