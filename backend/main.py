@@ -49,7 +49,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
-    # asyncio.create_task(business_logic.pull_strava_background("recent"))
+    asyncio.create_task(business_logic.pull_strava_background("recent"))
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
@@ -154,6 +154,15 @@ async def config_overview(request: Request,
                                        "payload": payload,
                                        "success": success,
                                        "message": message})
+
+@app.get("/help", response_class=HTMLResponse)
+async def help_page(request: Request):
+    """Endpoint for help page"""
+
+    template_path = "help.html"
+
+    return templates.TemplateResponse(template_path,
+                                      {"request": request})
 
 @app.post("/create_component", response_class=HTMLResponse)
 async def create_component(component_id: Optional[str] = Form(None),
