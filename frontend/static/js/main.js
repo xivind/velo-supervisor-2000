@@ -749,7 +749,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('serviceId').value = serviceId;
             document.getElementById('serviceComponentId').value = componentId || '';
             document.getElementById('serviceDescription').value = serviceDescription;
-            
+
+            // Update ID display with actual service ID
+            document.getElementById('service-id-display').textContent = serviceId || 'Not created yet';
+
             // Show the modal FIRST
             const serviceModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
             serviceModal.show();
@@ -771,7 +774,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Populate the history modal
             document.getElementById('editHistoryId').value = historyId;
             document.getElementById('editHistoryComponentId').value = componentId;
-            
+
+            // Update ID display with actual installation record ID
+            document.getElementById('installation-id-display').textContent = historyId || 'Not created yet';
+
             // Show the modal FIRST
             const historyModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
             historyModal.show();
@@ -3155,6 +3161,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('serviceId').value = '';
         document.getElementById('serviceDescription').value = '';
 
+        // Reset ID display to placeholder text
+        document.getElementById('service-id-display').textContent = 'Not created yet';
+
         // Set current date/time by default
         const now = new Date();
         const formattedDate = now.getFullYear() + '-' + 
@@ -3182,7 +3191,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('serviceComponentId').value = this.dataset.componentId;
             document.getElementById('serviceId').value = this.dataset.serviceId;
             document.getElementById('serviceDescription').value = this.dataset.serviceDescription;
-            
+
+            // Update ID display with actual service ID
+            document.getElementById('service-id-display').textContent = this.dataset.serviceId || 'Not created yet';
+
             // Simply set the input value directly and avoid using the API
             document.getElementById('serviceDate').value = this.dataset.serviceDate;
             
@@ -3199,7 +3211,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             document.getElementById('editHistoryComponentId').value = componentId;
             document.getElementById('editHistoryId').value = historyId;
-            
+
+            // Update ID display with actual installation record ID
+            document.getElementById('installation-id-display').textContent = historyId || 'Not created yet';
+
             // Simply set the input value directly and avoid using the API
             document.getElementById('editUpdatedDate').value = updatedDate;
             
