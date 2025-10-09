@@ -120,7 +120,7 @@ Always structure your output as:
 - Provide clear handover documents to **full-stack-developer**
 - Work with **qa-reviewer** to ensure migrations are testable
 - Update **documentation-specialist** on schema changes for CLAUDE.md
-- Document all work in issues.md following project conventions
+- Document all work in handover documents in `.handovers/database/` following project conventions
 
 ## Critical Constraints
 

@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**🚨 IMPORTANT**: Claude Code must ALWAYS read this repository-level CLAUDE.md file at startup. The CLAUDE.md file describes the application Velo Supervisor 2000, application architecture, design principles, learning points, and other key information that must be consulted when working on the application. Additionally, the ISSUES.md file must be read on startup. The ISSUES.md file contains information on what we are currently working on. Claude Code should ensure that the ISSUES.md file is up to date, as the work progress. Furthermore, on startup, Claude Code should state what we are working on and ask what parts we should focus on.
+**🚨 IMPORTANT**: Claude Code must ALWAYS read this repository-level CLAUDE.md file at startup. The CLAUDE.md file describes the application Velo Supervisor 2000, application architecture, design principles, learning points, and other key information that must be consulted when working on the application.
 
 ---
 
@@ -142,18 +142,57 @@ Agents will follow their defined roles and responsibilities as documented in the
 
 ---
 
-## Handover Guidelines
+## Agent Communication via Handovers
 
-### Handover File Location
-All handovers stored in `.handovers/[agent-name]/[feature-name].md`
+Agents communicate through **handover documents** stored in `.handovers/`. These documents serve as persistent records of decisions, work completed, and context for the next agent in the workflow.
 
-### Handover Template
-Use `.handovers/TEMPLATE.md` for all handovers
+### Handover Structure
 
-### Handover Naming Convention
-`[feature-name]-[source-agent]-to-[target-agent].md`
+```
+.handovers/
+├── CLAUDE.md              # Detailed instructions for using handovers
+├── TEMPLATE.md            # Template for creating new handovers
+├── architecture/          # Architecture plans from @architect
+├── database/              # Database designs from @database-expert
+├── ux/                   # UI/UX specs from @ux-designer
+├── fullstack/            # Implementation notes from @fullstack-developer
+├── review/               # Code reviews from @code-reviewer
+└── documentation/        # Doc updates from @docs-maintainer
+```
 
-Example: `workplan-filters-architect-to-fullstack.md`
+### Naming Convention
+
+**Pattern:** `[feature-name]-[source-agent]-to-[target-agent].md`
+
+**Examples:**
+- `architecture/tire-pressure-architect-to-ux-designer.md`
+- `ux/tire-pressure-ux-designer-to-fullstack.md`
+- `fullstack/tire-pressure-fullstack-to-reviewer.md`
+
+### Creating Handovers
+
+1. Copy `.handovers/TEMPLATE.md` to appropriate subdirectory
+2. Follow naming convention
+3. Fill all sections: Context, Deliverables, Decisions, Next Steps
+4. Include specific file paths and line numbers
+5. Document the "why" behind decisions
+
+### Reading Handovers
+
+```bash
+# Find recent handovers
+find .handovers -name "*.md" -mtime -7
+
+# Find handovers for you
+find .handovers -name "*to-ux-designer.md"
+
+# Search by feature
+find .handovers -name "*tire-pressure*"
+```
+
+### Detailed Instructions
+
+See `.handovers/CLAUDE.md` for comprehensive instructions on creating and using handovers.
 
 ---
 
@@ -286,9 +325,9 @@ Application uses rotating file logs configured in `uvicorn_log_config.ini`, logs
 
 ## Important Notes
 
-- 📁 Handovers are NOT committed to git (in .gitignore)
+- 📁 Handovers ARE committed to git (serve as architectural decision records)
 - 🔍 Always search project knowledge before assuming
 - 💬 Clear communication in handovers is critical
 - 🧪 Test before marking work complete
-- 📝 Document decisions and rationale
-- 📋 Keep ISSUES.md up to date with work progress
+- 📝 Document decisions and rationale in handovers
+- 📋 Check recent handovers to understand current work context

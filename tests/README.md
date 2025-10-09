@@ -41,7 +41,7 @@ As development continues, additional test protocols should be created for:
 2. Follow each test case step-by-step
 3. Verify actual results match expected results
 4. Document any failures or unexpected behavior
-5. Update ISSUES.md with any bugs discovered
+5. Create a handover document in `.handovers/` with any bugs discovered
 
 ## Contributing
 
@@ -54,7 +54,7 @@ When adding new features:
    - Edge cases and error handling
    - UI/UX behavior
 3. Run through all test cases before marking feature complete
-4. Reference test protocol completion in ISSUES.md
+4. Reference test protocol completion in handover document
 
 ## Notes
 
