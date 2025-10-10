@@ -76,12 +76,13 @@ Velo Supervisor 2000 is a FastAPI + Bootstrap web application for tracking bicyc
 ## Sub-Agent Team
 
 ### Available Agents
-1. **@architect** - System design and architecture decisions
-2. **@ux-designer** - UI/UX design and specifications
-3. **@fullstack-developer** - Full-stack implementation (Python + templates)
-4. **@database-expert** - Database schema and migrations
-5. **@code-reviewer** - Code quality and best practices
-6. **@docs-maintainer** - Documentation and commit messages
+1. **@product-manager** - Requirements gathering, user stories, and feature scoping (interactive)
+2. **@architect** - System design and architecture decisions
+3. **@ux-designer** - UI/UX design and specifications
+4. **@fullstack-developer** - Full-stack implementation (Python + templates)
+5. **@database-expert** - Database schema and migrations
+6. **@code-reviewer** - Code quality and best practices
+7. **@docs-maintainer** - Documentation and commit messages
 
 Agents will follow their defined roles and responsibilities as documented in their respective files in `.claude/agents/`
 
@@ -92,29 +93,34 @@ Agents will follow their defined roles and responsibilities as documented in the
 ### For New Features
 
 ```
-1. @architect 
+1. @product-manager (for vague/unclear requirements)
+   ↓ produces requirements document with user stories
+
+2. @architect
    ↓ produces architecture document
-   
-2. @database-expert (if schema changes needed)
+
+3. @database-expert (if schema changes needed)
    ↓ produces migration plan + scripts
-   
-3. @ux-designer (if UI changes needed)
+
+4. @ux-designer (if UI changes needed)
    ↓ produces UX specifications
-   
-4. @fullstack-developer
+
+5. @fullstack-developer
    ↓ implements complete feature (backend + frontend)
-   
-5. @code-reviewer
+
+6. @code-reviewer
    ↓ reviews implementation
-   
-6. @fullstack-developer (if revisions needed)
+
+7. @fullstack-developer (if revisions needed)
    ↓ addresses review findings
-   
-7. @docs-maintainer
+
+8. @docs-maintainer
    ↓ updates documentation + creates commit messages
-   
-8. HUMAN: Review, commit, and push
+
+9. HUMAN: Review, commit, and push
 ```
+
+**Note**: Skip @product-manager if requirements are already crystal clear. Start with @architect in that case.
 
 ### For Bug Fixes
 
@@ -152,6 +158,7 @@ Agents communicate through **handover documents** stored in `.handovers/`. These
 .handovers/
 ├── CLAUDE.md              # Detailed instructions for using handovers
 ├── TEMPLATE.md            # Template for creating new handovers
+├── requirements/          # Requirements and user stories from @product-manager
 ├── architecture/          # Architecture plans from @architect
 ├── database/              # Database designs from @database-expert
 ├── ux/                   # UI/UX specs from @ux-designer
@@ -165,6 +172,7 @@ Agents communicate through **handover documents** stored in `.handovers/`. These
 **Pattern:** `[feature-name]-[source-agent]-to-[target-agent].md`
 
 **Examples:**
+- `requirements/component-swap-requirements.md`
 - `architecture/tire-pressure-architect-to-ux-designer.md`
 - `ux/tire-pressure-ux-designer-to-fullstack.md`
 - `fullstack/tire-pressure-fullstack-to-reviewer.md`

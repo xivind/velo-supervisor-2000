@@ -12,6 +12,7 @@ This directory contains handover documents that facilitate communication between
 .handovers/
 ├── CLAUDE.md         # This file - instructions for using handovers
 ├── TEMPLATE.md       # Template for creating new handovers
+├── requirements/     # Requirements and user stories from @product-manager
 ├── architecture/     # Architecture plans and decisions from @architect
 ├── database/         # Database schema designs and migrations from @database-expert
 ├── ux/              # UI/UX designs and specifications from @ux-designer
@@ -25,6 +26,7 @@ This directory contains handover documents that facilitate communication between
 **Pattern:** `[feature-name]-[source-agent]-to-[target-agent].md`
 
 **Examples:**
+- `component-swap-requirements.md` (requirements document from @product-manager)
 - `tire-pressure-tracking-architect-to-ux-designer.md`
 - `warranty-schema-database-to-fullstack.md`
 - `collections-review-fullstack-to-reviewer.md`
@@ -80,7 +82,10 @@ find .handovers -name "*tire-pressure*"
 ### Feature Development Flow
 
 ```
-@architect
+@product-manager (for vague/unclear requirements)
+  ↓ creates requirements/[feature]-requirements.md
+
+@architect (reads product-manager's handover)
   ↓ creates architecture/[feature]-architect-to-ux-designer.md
 
 @ux-designer (reads architect's handover)
@@ -96,6 +101,8 @@ find .handovers -name "*tire-pressure*"
 @docs-maintainer (reads reviewer's handover)
   ↓ creates documentation/[feature]-docs-complete.md
 ```
+
+**Note**: Skip @product-manager if requirements are already crystal clear. Start with @architect in that case.
 
 ### Bug Fix Flow
 
