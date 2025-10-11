@@ -11,7 +11,7 @@ Velo Supervisor 2000 is a FastAPI + Bootstrap web application for tracking bicyc
 
 **Tech Stack:**
 - Backend: Python, FastAPI, SQLite with Peewee ORM
-- Frontend: Bootstrap 5, Jinja2 templates (server-side rendered), vanilla JavaScript
+- Frontend: Bootstrap 5, Jinja2 templates (server-side rendered), vanilla JavaScript, TomSelect for multi-select dropdowns
 - Integration: Strava API
 - Deployment: Docker (optional), local development with uvicorn
 
@@ -96,34 +96,38 @@ Agents will follow their defined roles and responsibilities as documented in the
 1. @product-manager (for vague/unclear requirements)
    ↓ produces requirements document with user stories
 
-2. @architect + @ux-designer (IN PARALLEL)
-   │   ├─ @architect: produces architecture document
-   │   └─ @ux-designer: produces UX specifications
-   │   (These agents can read each other's handovers and iterate if needed)
-   ↓ both complete
+2. @ux-designer
+   ↓ produces initial UX specifications (v1) based on requirements
 
-3. @database-expert (if schema changes needed)
+3. @architect
+   ↓ produces architecture document using requirements + UX handover as input
+
+4. @ux-designer
+   ↓ updates UX specifications (v2) to align with architecture
+
+5. @database-expert (if schema changes needed)
    ↓ produces migration plan + scripts
 
-4. @fullstack-developer
+6. @fullstack-developer
    ↓ implements complete feature (backend + frontend)
 
-5. @code-reviewer
+7. @code-reviewer
    ↓ reviews implementation
 
-6. @fullstack-developer (if revisions needed)
+8. @fullstack-developer (if revisions needed)
    ↓ addresses review findings
 
-7. @docs-maintainer
+9. @docs-maintainer
    ↓ updates documentation + creates commit messages
 
-8. HUMAN: Review, commit, and push
+10. HUMAN: Review, commit, and push
 ```
 
 **Note**:
-- Skip @product-manager if requirements are already crystal clear. Start with @architect + @ux-designer in that case.
-- @architect and @ux-designer work in parallel and may interact by reading each other's handovers
-- If architectural decisions affect UX or vice versa, agents can iterate
+- Skip @product-manager if requirements are already crystal clear. Start with @ux-designer in that case.
+- @ux-designer creates initial UX design first, then @architect uses it as input
+- @ux-designer then aligns their design with architectural constraints
+- This sequential approach ensures UX and architecture are properly coordinated
 
 ### For Bug Fixes
 
@@ -258,6 +262,10 @@ See `.handovers/CLAUDE.md` for comprehensive instructions on creating and using 
 ### Frontend
 - Bootstrap 5 utility classes only (no custom CSS compilation)
 - Vanilla JavaScript (no frameworks beyond what's already used)
+- **TomSelect**: Use TomSelect for multi-select dropdowns when populating data from backend
+  - Common pattern: Initialize with `new TomSelect(element, {plugins: ['remove_button'], maxItems: null})`
+  - Store instance on element: `element.tomSelect = ts`
+  - Used in: Collections, Incidents, Workplans for component selection
 - Progressive enhancement
 - Mobile-first responsive design
 

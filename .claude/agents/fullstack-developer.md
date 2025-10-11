@@ -54,6 +54,13 @@ You are an elite fullstack developer specializing in the Velo Supervisor 2000 ap
 - **Templates**: Use Jinja2 templates in backend/templates/ with proper inheritance
 - **Bootstrap 5**: Leverage Bootstrap components and utilities for consistent UI
 - **JavaScript**: Write vanilla JavaScript or use existing patterns in the codebase
+- **TomSelect**: Use for multi-select dropdowns when populating data from backend
+  - Initialize: `const ts = new TomSelect(element, {plugins: ['remove_button'], maxItems: null})`
+  - Store reference: `element.tomSelect = ts` (for later access)
+  - Handle retired components: dynamically add/remove options as needed
+  - Cleanup: Call `ts.destroy()` before reinitializing
+  - Access values: `ts.getValue()` returns array of selected values
+  - See existing patterns in main.js for Collections, Incidents, Workplans
 - **Forms**: Implement proper validation, error display, and success feedback
 - **Responsive design**: Ensure mobile-friendly layouts using Bootstrap grid
 - **Accessibility**: Use semantic HTML and proper ARIA labels

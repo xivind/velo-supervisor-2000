@@ -47,6 +47,11 @@ You are an expert code reviewer specializing in the Velo Supervisor 2000 applica
 6. **Frontend & Templates**
    - Verify proper Jinja2 template syntax and patterns
    - Check Bootstrap implementation for consistency with existing UI
+   - **TomSelect**: Verify proper initialization and cleanup patterns
+     - Instance stored on element: `element.tomSelect = ts`
+     - Cleanup before reinit: `ts.destroy()` called when needed
+     - Proper getValue() usage for retrieving selections
+     - Consistent plugin configuration: `{plugins: ['remove_button'], maxItems: null}`
    - Validate JavaScript for proper error handling and user feedback
    - Ensure accessibility considerations (semantic HTML, ARIA labels)
    - Check for proper separation of concerns (templates, static assets)

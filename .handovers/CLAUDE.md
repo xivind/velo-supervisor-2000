@@ -88,11 +88,14 @@ find .handovers -name "*tire-pressure*"
 @product-manager (for vague/unclear requirements)
   ↓ creates requirements/[feature]-requirements.md
 
-@architect + @ux-designer (IN PARALLEL - both read requirements)
-  │   ├─ @architect: creates architecture/[feature]-architect-handover.md
-  │   └─ @ux-designer: creates ux/[feature]-ux-designer-handover.md
-  │   (These agents can read each other's handovers and iterate if needed)
-  ↓ both complete
+@ux-designer (reads requirements)
+  ↓ creates ux/[feature]-ux-designer-handover.md (v1 - initial UX design)
+
+@architect (reads requirements + UX handover)
+  ↓ creates architecture/[feature]-architect-handover.md
+
+@ux-designer (reads architecture handover)
+  ↓ updates ux/[feature]-ux-designer-handover.md (v2 - aligned with architecture)
 
 @database-expert (if schema changes needed)
   ↓ creates database/[feature]-database-handover.md
@@ -109,9 +112,11 @@ find .handovers -name "*tire-pressure*"
 ```
 
 **Notes**:
-- Skip @product-manager if requirements are already crystal clear. Start with @architect + @ux-designer in that case.
-- @architect and @ux-designer work in parallel and may interact by reading each other's handovers
-- If architectural decisions affect UX or vice versa, agents can iterate
+- Skip @product-manager if requirements are already crystal clear. Start with @ux-designer in that case.
+- @ux-designer creates initial UX design first (v1)
+- @architect uses UX handover as input when designing architecture
+- @ux-designer then updates their handover (v2) to align with architectural constraints
+- This sequential approach ensures proper coordination between UX and architecture
 
 ### Bug Fix Flow
 
