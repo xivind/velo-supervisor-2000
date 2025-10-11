@@ -23,19 +23,21 @@ This directory contains handover documents that facilitate communication between
 
 ## Naming Convention
 
-**Pattern:** `[feature-name]-[source-agent]-to-[target-agent].md`
+**Pattern:** `[feature-name]-[source-agent]-handover.md` or `[feature-name]-[source-agent]-to-[target-agent].md`
 
 **Examples:**
 - `component-swap-requirements.md` (requirements document from @product-manager)
-- `tire-pressure-tracking-architect-to-ux-designer.md`
-- `warranty-schema-database-to-fullstack.md`
-- `collections-review-fullstack-to-reviewer.md`
+- `tire-pressure-architect-handover.md` (architect working in parallel)
+- `tire-pressure-ux-designer-handover.md` (ux-designer working in parallel)
+- `warranty-schema-database-handover.md`
+- `collections-fullstack-to-reviewer.md`
 - `strava-webhooks-decision-architect.md` (decision record without handoff)
 
 **Rules:**
 - Use lowercase with hyphens
 - Be descriptive but concise
-- Include source and target agent (unless it's a decision record)
+- Use `-handover.md` for agents that work in parallel (architect, ux-designer)
+- Use `-to-[target].md` when there's a specific next agent (fullstack-to-reviewer)
 - Keep related handovers using same feature prefix
 
 ## When You're Creating a Handover
@@ -50,9 +52,10 @@ This directory contains handover documents that facilitate communication between
 **Example workflow for @architect:**
 ```bash
 # Copy template
-cp .handovers/TEMPLATE.md .handovers/architecture/user-auth-architect-to-ux-designer.md
+cp .handovers/TEMPLATE.md .handovers/architecture/user-auth-architect-handover.md
 
 # Edit and fill in all sections
+# Note: @ux-designer is working in parallel - may check their handover and iterate
 # Save when complete
 ```
 
@@ -85,13 +88,16 @@ find .handovers -name "*tire-pressure*"
 @product-manager (for vague/unclear requirements)
   ↓ creates requirements/[feature]-requirements.md
 
-@architect (reads product-manager's handover)
-  ↓ creates architecture/[feature]-architect-to-ux-designer.md
+@architect + @ux-designer (IN PARALLEL - both read requirements)
+  │   ├─ @architect: creates architecture/[feature]-architect-handover.md
+  │   └─ @ux-designer: creates ux/[feature]-ux-designer-handover.md
+  │   (These agents can read each other's handovers and iterate if needed)
+  ↓ both complete
 
-@ux-designer (reads architect's handover)
-  ↓ creates ux/[feature]-ux-designer-to-fullstack.md
+@database-expert (if schema changes needed)
+  ↓ creates database/[feature]-database-handover.md
 
-@fullstack-developer (reads ux-designer's handover)
+@fullstack-developer (reads architect + ux-designer handovers)
   ↓ creates fullstack/[feature]-fullstack-to-reviewer.md
 
 @code-reviewer (reads fullstack's handover)
@@ -102,7 +108,10 @@ find .handovers -name "*tire-pressure*"
   ↓ creates documentation/[feature]-docs-complete.md
 ```
 
-**Note**: Skip @product-manager if requirements are already crystal clear. Start with @architect in that case.
+**Notes**:
+- Skip @product-manager if requirements are already crystal clear. Start with @architect + @ux-designer in that case.
+- @architect and @ux-designer work in parallel and may interact by reading each other's handovers
+- If architectural decisions affect UX or vice versa, agents can iterate
 
 ### Bug Fix Flow
 

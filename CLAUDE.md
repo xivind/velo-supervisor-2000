@@ -96,31 +96,34 @@ Agents will follow their defined roles and responsibilities as documented in the
 1. @product-manager (for vague/unclear requirements)
    ↓ produces requirements document with user stories
 
-2. @architect
-   ↓ produces architecture document
+2. @architect + @ux-designer (IN PARALLEL)
+   │   ├─ @architect: produces architecture document
+   │   └─ @ux-designer: produces UX specifications
+   │   (These agents can read each other's handovers and iterate if needed)
+   ↓ both complete
 
 3. @database-expert (if schema changes needed)
    ↓ produces migration plan + scripts
 
-4. @ux-designer (if UI changes needed)
-   ↓ produces UX specifications
-
-5. @fullstack-developer
+4. @fullstack-developer
    ↓ implements complete feature (backend + frontend)
 
-6. @code-reviewer
+5. @code-reviewer
    ↓ reviews implementation
 
-7. @fullstack-developer (if revisions needed)
+6. @fullstack-developer (if revisions needed)
    ↓ addresses review findings
 
-8. @docs-maintainer
+7. @docs-maintainer
    ↓ updates documentation + creates commit messages
 
-9. HUMAN: Review, commit, and push
+8. HUMAN: Review, commit, and push
 ```
 
-**Note**: Skip @product-manager if requirements are already crystal clear. Start with @architect in that case.
+**Note**:
+- Skip @product-manager if requirements are already crystal clear. Start with @architect + @ux-designer in that case.
+- @architect and @ux-designer work in parallel and may interact by reading each other's handovers
+- If architectural decisions affect UX or vice versa, agents can iterate
 
 ### For Bug Fixes
 
