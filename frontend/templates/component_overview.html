@@ -22,6 +22,7 @@
 {% include "modal_incident_record.html" %}
 {% include "modal_workplan_record.html" %}
 {% include "modal_collection.html" %}
+{% include "modal_quick_swap.html" %}
 
 <hr/>
 <div class="card shadow mb-4">
@@ -235,7 +236,18 @@
                                 {{ bike }}
                             </td>
                             <td class="text-end">
-                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}" onclick="event.stopPropagation();">🗑</button>
+                                {% if installation_status == "Installed" %}
+                                <button type="button" class="btn btn-outline-primary btn-sm quick-swap-btn mb-1"
+                                    data-component-id="{{ component_id }}"
+                                    onclick="event.stopPropagation();">
+                                    ♻
+                                </button>
+                                {% endif %}
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-record mb-1"
+                                    data-component-id="{{ component_id }}"
+                                    onclick="event.stopPropagation();">
+                                    🗑
+                                </button>
                             </td>
                         </tr>
                     {% endfor %}

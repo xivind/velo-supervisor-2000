@@ -262,6 +262,45 @@ async def update_history_record(component_id: str = Form(...),
 
     return response
 
+@app.post("/quick_swap")
+async def quick_swap(old_component_id: str = Form(...),
+                     fate: str = Form(...),
+                     swap_date: str = Form(...),
+                     new_component_id: Optional[str] = Form(None),
+                     create_new: Optional[str] = Form(None),
+                     new_component_name: Optional[str] = Form(None),
+                     new_component_type: Optional[str] = Form(None),
+                     new_service_interval: Optional[str] = Form(None),
+                     new_lifetime_expected: Optional[str] = Form(None),
+                     new_cost: Optional[str] = Form(None),
+                     new_offset: Optional[int] = Form(0),
+                     new_notes: Optional[str] = Form(None)):
+    """Endpoint to swap one component with another"""
+
+    if create_new == "true":
+        new_component_data = {"component_name": new_component_name,
+                              "component_type": new_component_type,
+                              "service_interval": new_service_interval,
+                              "lifetime_expected": new_lifetime_expected,
+                              "cost": new_cost,
+                              "offset": new_offset,
+                              "notes": new_notes}
+
+        success, message = business_logic.quick_swap_orchestrator(old_component_id,
+                                                                  fate,
+                                                                  swap_date,
+                                                                  None,
+                                                                  new_component_data)
+
+    else:
+        success, message = business_logic.quick_swap_orchestrator(old_component_id,
+                                                                  fate,
+                                                                  swap_date,
+                                                                  new_component_id,
+                                                                  None)
+
+    return JSONResponse({"success": success, "message": message})
+
 @app.post("/add_collection", response_class=HTMLResponse)
 async def add_collection(collection_name: str = Form(...),
                             components: Optional[List[str]] = Form(None),
@@ -273,7 +312,7 @@ async def add_collection(collection_name: str = Form(...),
                                                      components,
                                                      bike_id,
                                                      comment)
-    
+
     response = RedirectResponse(
         url=f"/component_overview?success={success}&message={message}",
         status_code=303)

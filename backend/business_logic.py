@@ -1470,6 +1470,139 @@ class BusinessLogic():
             logging.error(f"An error occurred processing history records for component {component_id}: {str(error)}")
             return False, f"Error processing history records for component {component_id}: {str(error)}"
 
+    def quick_swap_orchestrator(self,
+                                old_component_id,
+                                fate,
+                                swap_date,
+                                new_component_id,
+                                new_component_data):
+        """Method to orchestrate swap of one component with another"""
+        try:
+            logging.info(f"Quick swap: Starting swap operation for component {old_component_id}")
+
+            old_component = database_manager.read_component(old_component_id)
+            if not old_component:
+                logging.error(f"Quick swap failed: Old component not found: {old_component_id}")
+                return False, "Component not found"
+
+            logging.info(f"Quick swap: Old component validated: {old_component.component_name}")
+
+            is_valid, validation_message = self.validate_quick_swap(old_component,
+                                                                    fate,
+                                                                    new_component_id,
+                                                                    new_component_data)
+
+            if not is_valid:
+                logging.error(f"Quick swap validation failed for {old_component.component_name}: {validation_message}")
+                return False, validation_message
+
+            bike_id = old_component.bike_id
+            bike = database_manager.read_single_bike(bike_id)
+            logging.info(f"Quick swap: Validation passed. Bike: {bike.bike_name}, Fate: {fate}")
+
+            if new_component_data:
+                logging.info(f"Quick swap: Creating new component '{new_component_data['component_name']}' of type {new_component_data['component_type']}")
+
+                success, message, new_component_id = self.create_component(component_id=None,
+                                                                           component_installation_status="Not installed",
+                                                                           component_updated_date=swap_date,
+                                                                           component_name=new_component_data["component_name"],
+                                                                           component_type=new_component_data["component_type"],
+                                                                           component_bike_id=None,
+                                                                           expected_lifetime=new_component_data["lifetime_expected"],
+                                                                           service_interval=new_component_data["service_interval"],
+                                                                           cost=new_component_data["cost"],
+                                                                           offset=new_component_data["offset"],
+                                                                           component_notes=new_component_data["notes"])
+
+                if success == False:
+                    logging.error(f"Quick swap failed: Failed to create new component '{new_component_data['component_name']}': {message}")
+                    return False, f"Quick swap failed: Could not create new component. {message}"
+
+                elif success == "warning":
+                    logging.warning(f"Quick swap: New component created with warning: {message}")
+
+                logging.info(f"Quick swap: New component created successfully with ID {new_component_id}")
+            else:
+                new_component = database_manager.read_component(new_component_id)
+                logging.info(f"Quick swap: Using existing component: {new_component.component_name}")
+
+            logging.info(f"Quick swap: Setting {old_component.component_name} to '{fate}'")
+
+            success, message = self.create_history_record(component_id=old_component_id,
+                                                          installation_status=fate,
+                                                          component_bike_id=bike_id,
+                                                          component_updated_date=swap_date)
+
+            if not success:
+                logging.error(f"Quick swap failed: Could not update old component status: {message}")
+                if new_component_data:
+                    logging.warning(f"Quick swap partial failure: New component {new_component_id} was created but did not get installed as the old component could not be updated")
+                    return False, f"Quick swap partially failed: New component was created but old component could not be updated. {message}"
+                else:
+                    return False, f"Quick swap failed: Could not update old component status. {message}"
+
+            logging.info(f"Quick swap: Old component status updated successfully")
+
+            new_component = database_manager.read_component(new_component_id)
+            logging.info(f"Quick swap: Installing {new_component.component_name} on {bike.bike_name}")
+
+            success, message = self.create_history_record(component_id=new_component_id,
+                                                          installation_status="Installed",
+                                                          component_bike_id=bike_id,
+                                                          component_updated_date=swap_date)
+
+            if not success:
+                logging.error(f"Quick swap failed: Could not install new component: {message}")
+                logging.warning(f"Quick swap partial failure: {old_component.component_name} is now '{fate}' but {new_component.component_name} could not be installed")
+                return False, f"Quick swap partially failed: Old component is now '{fate}' but new component could not be installed. {message}"
+
+            old_component_refreshed = database_manager.read_component(old_component_id)
+            new_component_refreshed = database_manager.read_component(new_component_id)
+
+            success_message = f"Component swapped successfully: {old_component_refreshed.component_name} set to {fate}, {new_component_refreshed.component_name} installed on {bike.bike_name}"
+            logging.info(f"Quick swap completed successfully: {success_message}")
+
+            return True, success_message
+
+        except Exception as error:
+            logging.error(f"Quick swap operation failed with unexpected error: {str(error)}")
+            return False, f"Swap operation failed due to an unexpected error: {str(error)}"
+
+    def validate_quick_swap(self, old_component, fate, new_component_id, new_component_data):
+        """Method to validate quick swap operation"""
+        if old_component.installation_status != "Installed":
+            return False, "Component must be installed to be swapped"
+
+        if fate not in ["Not installed", "Retired"]:
+            return False, "Invalid fate selection"
+
+        if not old_component.bike_id:
+            return False, "Old component has no bike assignment"
+
+        if new_component_id:
+            new_component = database_manager.read_component(new_component_id)
+            if not new_component:
+                return False, "Selected component not found"
+
+            if new_component.installation_status != "Not installed":
+                return False, "Selected component is not available for installation"
+
+            if old_component.component_type != new_component.component_type:
+                return False, f"Components must be of the same type. Cannot swap {old_component.component_type} with {new_component.component_type}."
+
+        elif new_component_data:
+            if not new_component_data.get("component_name"):
+                return False, "Component name is required"
+
+            if new_component_data.get("component_type") != old_component.component_type:
+                return False, f"New component type must match old component type: {old_component.component_type}"
+
+        else:
+            return False, "Must provide either new_component_id or new_component_data"
+
+        return True, ""
+
     def create_collection(self, collection_name, components, bike_id, comment):
         """Method to create collection"""
         try:
@@ -1596,6 +1729,8 @@ class BusinessLogic():
     def change_collection_status(self, collection_id, new_status, updated_date, bike_id):
         """Method to change status of all components in a collection"""
         try:
+            logging.info(f"Starting collection status change for collection {collection_id} to '{new_status}'")
+
             collection = database_manager.read_single_collection(collection_id)
             if not collection:
                 return False, f"Collection {collection_id} not found"
