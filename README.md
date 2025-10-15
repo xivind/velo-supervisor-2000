@@ -25,7 +25,7 @@ TODO
 There are still some bugs scattered around. If you find any, please submit them as an <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issue</a>.
 
 ## Versioning and branches
-Velo Supervisor 2000 uses <a href="https://semver.org/" class="text-decoration-none">Semantic Versioning Specification (SemVer)</a> as versioning scheme. Versions are expressed as tags. A Github action runs each time the repository receives a commit or a pull request is accepted, and writes the current version to `current_version.txt`. Use these commands to create new tags:
+Velo Supervisor 2000 uses <a href="https://semver.org/" class="text-decoration-none">Semantic Versioning Specification (SemVer)</a> as versioning scheme. Versions are expressed as tags. A Github action runs each time the master branch of the repository receives a commit or a pull request is accepted, and writes the current version to `current_version.txt`. Use these commands to create new tags:
 - `git tag -a vX.Y.Z -m "Version X.Y.Z"`
 - `git push --tags`
 
@@ -39,11 +39,20 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.4.5**  
+**Planned for v0.4.6**  
 
 - See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
-**v0.4.4 (CURRENT)**  
+**v0.4.5 (CURRENT)**  
+*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.4 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
+
+There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the velo supervisor 2000 database. Remember to backup the database first.
+
+- New feature: Collection feature
+- New feature: First draft of help page / user docs
+- Minor bug fixes
+
+**v0.4.4**  
 
 - Rearranged tables for incidents and workplans on bike details and component pages, and made these tables more informative
 - Tables for incidents and workplans on component details page are hidden when there are no records to show
