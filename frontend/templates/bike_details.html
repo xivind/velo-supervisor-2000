@@ -24,6 +24,8 @@
     {% include "modal_collection.html" %}
 {% endwith %}
 
+{% include "modal_quick_swap.html" %}
+
 <h1 id="bike-details" class="display-5 mt-5 text-center mb-4">Bike details</h1>
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#collectionModal">
     <span>📦 New collection</span>
@@ -232,6 +234,7 @@
                             <th>Distance</th>
                             <th class="text-center text-nowrap">Life <span class="fw-bold">|</span> Srv</th>
                             <th class="text-center">Next service</th>
+                            <th class="text-end"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -302,11 +305,14 @@
                                             {{ [lifetime_remaining, service_next]|min }}
                                         {% endif %}
                                     </td>
+                                    <td class="text-end">
+                                        {% if installation_status == "Installed" %}<button type="button" class="mb-1 btn btn-outline-primary btn-sm quick-swap-btn" data-component-id="{{ component_id }}" onclick="event.stopPropagation();">♻</button>{% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="6" class="text-center">Bike has no registered components</td>
+                                <td colspan="7" class="text-center">Bike has no registered components</td>
                             </tr>
                         {% endif %}
                     </tbody>

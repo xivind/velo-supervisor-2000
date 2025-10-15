@@ -73,6 +73,7 @@
                 <ul>
                     <li><strong>⭐</strong> Mandatory component type (required on all bikes)</li>
                     <li><strong>📦</strong> Bike has collections assigned</li>
+                    <li><strong>♻</strong> Quick swap - replace component in one operation</li>
                     <li><strong>🟩</strong> Component type in use / Healthy status</li>
                     <li><strong>🟥</strong> Component type not used / Attention needed</li>
                     <li><strong>⚠</strong> Warning or requires attention</li>
@@ -190,6 +191,29 @@
                     <li>Choose bike assignment if changing to "Active"</li>
                     <li>Confirm - a new history record is created</li>
                 </ol>
+
+                <h6 class="mt-3">Quick Swap Components (♻)</h6>
+                <p>Quickly replace an installed component with another in a single operation. This streamlines what was previously a 4-6 step process.</p>
+                <ol>
+                    <li>Find an installed component (on Component Overview, Bike Details, or Component Details pages)</li>
+                    <li>Click the <strong>♻ Quick swap</strong> button</li>
+                    <li>Choose what happens to the old component: "Not installed" or "Retired"</li>
+                    <li>Select a replacement:
+                        <ul>
+                            <li><strong>Swap to existing component:</strong> Choose from available components of matching type</li>
+                            <li><strong>Create new component:</strong> Check the box to create a new component with settings copied from current</li>
+                        </ul>
+                    </li>
+                    <li>Set the swap date (defaults to current date/time)</li>
+                    <li>Click <strong>"Swap components"</strong> - both components update simultaneously</li>
+                </ol>
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Component type matching enforced automatically (can't swap brake pads with saddle)</li>
+                    <li>Health warnings appear if selecting worn components</li>
+                    <li>Two history records created with synchronized timestamps</li>
+                    <li>Fast workflow - perfect for routine component replacements</li>
+                </ul>
 
                 <h6 class="mt-3">Creating and Using Collections</h6>
                 <ol>
@@ -360,7 +384,7 @@
                 <p>For technical issues, database migrations, or Docker deployment:</p>
                 <ul>
                     <li>Check <code>CLAUDE.md</code> in the repository for technical documentation</li>
-                    <li>Review <code>ISSUES.md</code> for known issues and resolutions</li>
+                    <li>Review handover documents in <code>.handovers/</code> for recent work and architectural decisions</li>
                     <li>Check application logs in CONFIG page</li>
                 </ul>
             </div>

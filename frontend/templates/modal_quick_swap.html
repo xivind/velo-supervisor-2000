@@ -1,0 +1,143 @@
+<div class="modal fade" id="quickSwapModal" tabindex="-1" aria-labelledby="quickSwapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="quickSwapModalLabel">Quick swap</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info mb-3" role="alert" id="swap-bike-context">
+                    <strong>Swapping component on:</strong> <span id="swap-bike-name"></span>
+                </div>
+
+                <form id="quick_swap_form">
+                    <div class="mb-3">
+                        <label for="old_component_id" class="form-label fw-bold">Component to swap out</label>
+                        <select class="form-select" id="old_component_id" name="old_component_id" required placeholder="Select component to swap out...">
+                            <option value=""></option>
+                            {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
+                                {% if status == "Installed" %}
+                                <option value="{{ component_id }}"
+                                        data-name="{{ name }}"
+                                        data-type="{{ type }}"
+                                        data-status="{{ status }}"
+                                        data-bike="{{ bike }}"
+                                        data-lifetime-remaining="{{ lifetime }}"
+                                        data-service-next="{{ service }}"
+                                        data-cost="{{ cost }}">
+                                    {{ name }} ({{ type }}) - {{ bike }}
+                                </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Component fate</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="fate" id="fate_not_installed" value="Not installed">
+                            <label class="form-check-label" for="fate_not_installed">
+                                Not installed
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="fate" id="fate_retired" value="Retired">
+                            <label class="form-check-label" for="fate_retired">
+                                Retired
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <label for="new_component_id" class="form-label fw-bold">Swap to existing component</label>
+                        <select class="form-select" id="new_component_id" name="new_component_id" placeholder="Select component...">
+                            <option value=""></option>
+                            {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
+                                {% if status == "Not installed" %}
+                                <option value="{{ component_id }}"
+                                        data-type="{{ type }}"
+                                        data-status="{{ status }}"
+                                        data-lifetime-remaining="{{ lifetime }}"
+                                        data-service-next="{{ service }}"
+                                        data-cost="{{ cost }}">
+                                    {{ name }} ({{ type }})
+                                </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Showing only components not assigned and of the same type as the component to be swapped out</small>
+                    </div>
+
+                    <div id="component_health_warnings"></div>
+
+                    <div class="text-center mb-3">
+                        <strong>OR</strong>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="create_new_component" name="create_new">
+                        <label class="form-check-label" for="create_new_component">
+                            Create new component (copy settings from current)
+                        </label>
+                    </div>
+
+                    <div id="create_new_form" style="display: none;">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title mb-3">New component details</h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_component_name" class="form-label fw-bold">Component name</label>
+                                        <input type="text" class="form-control" id="new_component_name" name="new_component_name">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_component_type" class="form-label fw-bold">Component type</label>
+                                        <input type="text" class="form-control" id="new_component_type" name="new_component_type" disabled>
+                                        <small class="form-text text-muted">Type must match component being replaced</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_service_interval" class="form-label fw-bold">Service interval (km)</label>
+                                        <input type="number" min="0" class="form-control" id="new_service_interval" name="new_service_interval">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_lifetime_expected" class="form-label fw-bold">Expected lifetime (km)</label>
+                                        <input type="number" min="0" class="form-control" id="new_lifetime_expected" name="new_lifetime_expected">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_cost" class="form-label fw-bold">Cost</label>
+                                        <input type="number" min="0" class="form-control" id="new_cost" name="new_cost">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_offset" class="form-label fw-bold">Offset (km)</label>
+                                        <input type="number" min="0" class="form-control" id="new_offset" name="new_offset">
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label for="new_notes" class="form-label fw-bold">Notes</label>
+                                        <textarea class="form-control" id="new_notes" name="new_notes" rows="1"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <label for="swap_date" class="form-label fw-bold">Swap date</label>
+                        <div class="input-group date-input-group">
+                            <input type="text" class="form-control datepicker-input" id="swap_date" name="swap_date" required>
+                            <span class="input-group-text datepicker-toggle">🗓</span>
+                        </div>
+                        <small class="form-text text-muted">Both components will be updated with this date</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submit_quick_swap_btn">Swap components</button>
+            </div>
+        </div>
+    </div>
+</div>
