@@ -1537,7 +1537,7 @@ class BusinessLogic():
             if not success:
                 logging.error(f"Quick swap failed: Could not update old component status: {message}")
                 if new_component_data:
-                    logging.warning(f"Quick swap partial failure: New component {new_component_id} was created but did not get installed as the old component could not be updated")
+                    logging.warning(f"Quick swap partial failure: New component '{new_component.component_name}' (ID: {new_component_id}) was created with status 'Not installed'. Old component '{old_component.component_name}' (ID: {old_component_id}) could not be updated to '{fate}'. Please fix manually: {message}")
                     return False, f"Quick swap partially failed: New component was created but old component could not be updated. {message}"
                 else:
                     return False, f"Quick swap failed: Could not update old component status. {message}"
