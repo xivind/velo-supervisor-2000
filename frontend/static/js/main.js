@@ -2345,10 +2345,12 @@ function editCollection(element, options = {}) {
         if (!newComponentTomSelect) return;
 
         const newComponentSelect = document.getElementById('new_component_id');
+        const warningDiv = document.getElementById('no_matching_components_warning');
         newComponentSelect.innerHTML = originalNewComponentOptions;
 
         newComponentTomSelect.clearOptions();
 
+        let matchingComponentsCount = 0;
         const options = Array.from(newComponentSelect.querySelectorAll('option'));
         options.forEach(option => {
             if (option.value === '') {
@@ -2361,10 +2363,20 @@ function editCollection(element, options = {}) {
                     value: option.value,
                     text: option.textContent
                 });
+                matchingComponentsCount++;
             }
         });
 
         newComponentTomSelect.refreshOptions(false);
+
+        // Show warning and disable dropdown if no matching components found
+        if (matchingComponentsCount === 0) {
+            warningDiv.style.display = 'block';
+            newComponentTomSelect.disable();
+        } else {
+            warningDiv.style.display = 'none';
+            newComponentTomSelect.enable();
+        }
     }
 
     function checkComponentHealth(componentId) {
