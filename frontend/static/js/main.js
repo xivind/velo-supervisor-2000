@@ -1,4 +1,6 @@
-// ===== Modal components for feedback to user ====
+// ====================================================================================
+// Modal components for feedback to user
+// ====================================================================================
 
 let validationModal;
 let confirmModal;
@@ -243,9 +245,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// ===== Functions used on multiple pages =====
+// ====================================================================================
+// Functions used on multiple pages
+// ====================================================================================
 
-// Toast handler
+// ----- Toast handler -----
 document.addEventListener('DOMContentLoaded', function() {
     // Get URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -399,6 +403,8 @@ function parseDateForPicker(dateString) {
         return null;
     }
 }
+
+// ----- Date validation and picker functions -----
 
 // Function to validate date format (YYYY-MM-DD HH:MM)
 function validateDateInput(input) {
@@ -735,6 +741,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// ----- Service and history record edit buttons -----
+
 // Add event listeners for your modal buttons
 document.addEventListener('DOMContentLoaded', function() {
     // Service record edit button
@@ -749,7 +757,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('serviceId').value = serviceId;
             document.getElementById('serviceComponentId').value = componentId || '';
             document.getElementById('serviceDescription').value = serviceDescription;
-            
+
+            // Update ID display with actual service ID
+            document.getElementById('service-id-display').textContent = serviceId || 'Not created yet';
+
             // Show the modal FIRST
             const serviceModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
             serviceModal.show();
@@ -771,7 +782,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Populate the history modal
             document.getElementById('editHistoryId').value = historyId;
             document.getElementById('editHistoryComponentId').value = componentId;
-            
+
+            // Update ID display with actual installation record ID
+            document.getElementById('installation-id-display').textContent = historyId || 'Not created yet';
+
             // Show the modal FIRST
             const historyModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
             historyModal.show();
@@ -963,6 +977,8 @@ function editCollection(element, options = {}) {
     const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
     modal.show();
 }
+
+// ----- Collection modal and management -----
 
 // Function to initialize collection features
 (function() {
@@ -1911,7 +1927,7 @@ function editCollection(element, options = {}) {
     });
     
     // Helper function to forcefully close loading modal when Bootstrap fails
-    function forceCloseLoadingModal() {
+    window.forceCloseLoadingModal = function() {
         // Try Bootstrap's official methods first
         loadingModal.hide();
         const loadingInstance = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
@@ -2028,7 +2044,7 @@ function editCollection(element, options = {}) {
             
             // Show error message after modal cleanup delay
             setTimeout(() => {
-                showReportModal('❌ Application error', 'An error occurred while updating component statuses. Please try again.', false, false, function() {
+                showReportModal('❌ Application error', 'An error occurred while updating component statuses. Give it another go.', false, false, function() {
                     // Always refresh page after user dismisses error report
                     // Remove URL parameters to prevent toast messages on reload
                     const url = window.location.pathname;
@@ -2139,7 +2155,381 @@ function editCollection(element, options = {}) {
 
 })();
 
-// ===== Bike overview page functions =====
+// ----- Quick Swap -----
+
+(function() {
+    if (!document.getElementById('quickSwapModal')) {
+        return;
+    }
+
+    let newComponentTomSelect = null;
+    let selectedOldComponent = null;
+    let originalNewComponentOptions = null;
+
+    // Modal event listeners
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const quickSwapModal = document.getElementById('quickSwapModal');
+        if (!quickSwapModal) return;
+
+        quickSwapModal.addEventListener('shown.bs.modal', function() {
+            initializeDatePickers(quickSwapModal);
+
+            const oldComponentSelect = document.getElementById('old_component_id');
+            const newComponentSelect = document.getElementById('new_component_id');
+
+            if (!originalNewComponentOptions && newComponentSelect) {
+                originalNewComponentOptions = newComponentSelect.innerHTML;
+            }
+
+            if (newComponentSelect && !newComponentTomSelect) {
+                newComponentTomSelect = new TomSelect(newComponentSelect, {
+                    plugins: ['remove_button'],
+                    maxItems: 1,
+                    placeholder: 'Select component to install...',
+                    create: false
+                });
+                newComponentSelect.tomSelect = newComponentTomSelect;
+
+                newComponentTomSelect.on('change', function(value) {
+                    checkComponentHealth(value);
+                });
+            }
+
+            if (selectedOldComponent && oldComponentSelect) {
+                oldComponentSelect.value = selectedOldComponent;
+                oldComponentSelect.disabled = true;
+                handleOldComponentChange(selectedOldComponent);
+            }
+        });
+
+        quickSwapModal.addEventListener('hidden.bs.modal', function() {
+            const oldComponentSelect = document.getElementById('old_component_id');
+
+            if (oldComponentSelect) {
+                oldComponentSelect.disabled = false;
+            }
+
+            if (newComponentTomSelect) {
+                newComponentTomSelect.destroy();
+                newComponentTomSelect = null;
+            }
+
+            selectedOldComponent = null;
+            document.getElementById('quick_swap_form').reset();
+            document.getElementById('create_new_form').style.display = 'none';
+            document.getElementById('component_health_warnings').innerHTML = '';
+            document.getElementById('swap-bike-context').style.display = 'none';
+        });
+
+        document.querySelectorAll('.quick-swap-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const componentId = this.dataset.componentId;
+                selectedOldComponent = componentId;
+
+                const modal = new bootstrap.Modal(document.getElementById('quickSwapModal'));
+                modal.show();
+            });
+        });
+
+        document.getElementById('create_new_component').addEventListener('change', function() {
+            const createNewForm = document.getElementById('create_new_form');
+            const newComponentSelect = document.getElementById('new_component_id');
+
+            if (this.checked) {
+                createNewForm.style.display = 'block';
+                newComponentSelect.disabled = true;
+                if (newComponentTomSelect) {
+                    newComponentTomSelect.clear();
+                    newComponentTomSelect.disable();
+                }
+
+                // Get the component data from the selected old component
+                const oldComponentSelect = document.getElementById('old_component_id');
+                const selectedValue = oldComponentSelect.value;
+
+                if (selectedValue) {
+                    const oldOption = oldComponentSelect.querySelector(`option[value="${selectedValue}"]`);
+                    if (oldOption) {
+                        const componentName = oldOption.dataset.name;
+                        const componentType = oldOption.dataset.type;
+                        const componentCost = oldOption.dataset.cost;
+
+                        // Pre-fill component name, type, and cost from old component
+                        document.getElementById('new_component_name').value = componentName || '';
+                        document.getElementById('new_component_type').value = componentType;
+                        document.getElementById('new_cost').value = componentCost || '';
+
+                        // Find matching component type in the create component modal's dropdown
+                        const componentTypeSelect = document.getElementById('component_type');
+                        if (componentTypeSelect) {
+                            const typeOption = componentTypeSelect.querySelector(`option[value="${componentType}"]`);
+                            if (typeOption) {
+                                // Pre-fill with component type defaults
+                                document.getElementById('new_service_interval').value = typeOption.getAttribute('service_interval') || '';
+                                document.getElementById('new_lifetime_expected').value = typeOption.getAttribute('expected_lifetime') || '';
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Clear form when unchecking
+                createNewForm.style.display = 'none';
+                document.getElementById('new_component_name').value = '';
+                document.getElementById('new_component_type').value = '';
+                document.getElementById('new_service_interval').value = '';
+                document.getElementById('new_lifetime_expected').value = '';
+                document.getElementById('new_cost').value = '';
+                document.getElementById('new_offset').value = '';
+                document.getElementById('new_notes').value = '';
+
+                newComponentSelect.disabled = false;
+                if (newComponentTomSelect) {
+                    newComponentTomSelect.enable();
+                }
+            }
+        });
+
+        document.getElementById('submit_quick_swap_btn').addEventListener('click', function() {
+            if (!validateQuickSwapForm()) {
+                return;
+            }
+
+            performQuickSwap();
+        });
+    });
+
+    // Helper functions
+
+    function handleOldComponentChange(componentId) {
+        if (!componentId) return;
+
+        const oldComponentSelect = document.getElementById('old_component_id');
+        const selectedOption = oldComponentSelect.querySelector(`option[value="${componentId}"]`);
+        if (!selectedOption) return;
+
+        const bikeNameSpan = document.getElementById('swap-bike-name');
+        const bikeContextDiv = document.getElementById('swap-bike-context');
+        const bikeName = selectedOption.dataset.bike;
+
+        if (bikeName && bikeName !== 'Not assigned') {
+            bikeNameSpan.textContent = bikeName;
+            bikeContextDiv.style.display = 'block';
+        } else {
+            bikeContextDiv.style.display = 'none';
+        }
+
+        const fateNotInstalled = document.getElementById('fate_not_installed');
+
+        // Always default to "Not installed"
+        fateNotInstalled.checked = true;
+
+        filterNewComponentsByType(selectedOption.dataset.type);
+
+        const swapDateInput = document.getElementById('swap_date');
+        if (!swapDateInput.value) {
+            const now = new Date();
+            const formatted = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0');
+            swapDateInput.value = formatted;
+        }
+    }
+
+    function filterNewComponentsByType(componentType) {
+        if (!newComponentTomSelect) return;
+
+        const newComponentSelect = document.getElementById('new_component_id');
+        const warningDiv = document.getElementById('no_matching_components_warning');
+        newComponentSelect.innerHTML = originalNewComponentOptions;
+
+        newComponentTomSelect.clearOptions();
+
+        let matchingComponentsCount = 0;
+        const options = Array.from(newComponentSelect.querySelectorAll('option'));
+        options.forEach(option => {
+            if (option.value === '') {
+                newComponentTomSelect.addOption({
+                    value: '',
+                    text: option.textContent
+                });
+            } else if (option.dataset.type === componentType) {
+                newComponentTomSelect.addOption({
+                    value: option.value,
+                    text: option.textContent
+                });
+                matchingComponentsCount++;
+            }
+        });
+
+        newComponentTomSelect.refreshOptions(false);
+
+        // Show warning and disable dropdown if no matching components found
+        if (matchingComponentsCount === 0) {
+            warningDiv.style.display = 'block';
+            newComponentTomSelect.disable();
+        } else {
+            warningDiv.style.display = 'none';
+            newComponentTomSelect.enable();
+        }
+    }
+
+    function checkComponentHealth(componentId) {
+        const warningsDiv = document.getElementById('component_health_warnings');
+        warningsDiv.innerHTML = '';
+
+        if (!componentId) return;
+
+        const newComponentSelect = document.getElementById('new_component_id');
+        const selectedOption = newComponentSelect.querySelector(`option[value="${componentId}"]`);
+        if (!selectedOption) return;
+
+        const warnings = [];
+        const lifetimeRemaining = parseInt(selectedOption.dataset.lifetimeRemaining) || 999999;
+        const serviceNext = parseInt(selectedOption.dataset.serviceNext) || 999999;
+
+        if (lifetimeRemaining <= 500 && lifetimeRemaining > 0) {
+            warnings.push(`⚠️ This component has only ${lifetimeRemaining} km of expected lifetime remaining`);
+        }
+
+        if (serviceNext <= 100 && serviceNext > 0) {
+            warnings.push(`⚠️ This component needs service in ${serviceNext} km`);
+        }
+
+        if (warnings.length > 0) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-warning mt-2';
+            alertDiv.innerHTML = '<strong>Component Health Warning:</strong><br>' + warnings.join('<br>');
+            warningsDiv.appendChild(alertDiv);
+        }
+    }
+
+    function validateQuickSwapForm() {
+        const oldComponentId = document.getElementById('old_component_id').value;
+        const fateChecked = document.querySelector('input[name="fate"]:checked');
+        const swapDateInput = document.getElementById('swap_date');
+        const createNew = document.getElementById('create_new_component').checked;
+
+        if (!oldComponentId) {
+            showValidationModal('Validation Error', 'Select a component to swap out.');
+            return false;
+        }
+
+        if (!fateChecked) {
+            showValidationModal('Validation Error', 'Select the fate of the component being swapped out.');
+            return false;
+        }
+
+        if (!validateDateInput(swapDateInput)) {
+            showValidationModal('Validation Error', 'Enter a valid swap date in the format YYYY-MM-DD HH:MM.');
+            return false;
+        }
+
+        if (createNew) {
+            const newName = document.getElementById('new_component_name').value.trim();
+            const newType = document.getElementById('new_component_type').value.trim();
+
+            if (!newName) {
+                showValidationModal('Validation Error', 'Enter a name for the new component.');
+                return false;
+            }
+
+            if (!newType) {
+                showValidationModal('Validation Error', 'Component type is required for the new component.');
+                return false;
+            }
+        } else {
+            const newComponentId = document.getElementById('new_component_id').value;
+            if (!newComponentId) {
+                showValidationModal('Validation Error', 'Select a component to install or check "Create new component".');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function showValidationModal(title, message) {
+        const validationModal = bootstrap.Modal.getInstance(document.getElementById('validationModal')) ||
+            new bootstrap.Modal(document.getElementById('validationModal'));
+        document.getElementById('validationModalLabel').textContent = title;
+        document.getElementById('validationModalBody').textContent = message;
+        validationModal.show();
+    }
+
+    function performQuickSwap() {
+        const quickSwapModal = bootstrap.Modal.getInstance(document.getElementById('quickSwapModal'));
+        if (quickSwapModal) {
+            quickSwapModal.hide();
+        }
+
+        document.getElementById('loadingMessage').textContent = 'Swapping components...';
+
+        setTimeout(() => {
+            loadingModal.show();
+
+            const formData = new FormData();
+            formData.append('old_component_id', document.getElementById('old_component_id').value);
+            formData.append('fate', document.querySelector('input[name="fate"]:checked').value);
+            formData.append('swap_date', document.getElementById('swap_date').value);
+
+            const createNew = document.getElementById('create_new_component').checked;
+
+            if (createNew) {
+                formData.append('create_new', 'true');
+                formData.append('new_component_name', document.getElementById('new_component_name').value);
+                formData.append('new_component_type', document.getElementById('new_component_type').value);
+                formData.append('new_service_interval', document.getElementById('new_service_interval').value);
+                formData.append('new_lifetime_expected', document.getElementById('new_lifetime_expected').value);
+                formData.append('new_cost', document.getElementById('new_cost').value);
+                formData.append('new_offset', document.getElementById('new_offset').value);
+                formData.append('new_notes', document.getElementById('new_notes').value);
+            } else {
+                formData.append('new_component_id', document.getElementById('new_component_id').value);
+            }
+
+            fetch('/quick_swap', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                forceCloseLoadingModal();
+
+                setTimeout(() => {
+                    const title = data.success ? '✅ Swap complete' : '❌ Swap failed';
+                    showReportModal(title, data.message, data.success, false, function() {
+                        const url = window.location.pathname;
+                        window.history.replaceState({}, document.title, url);
+                        window.location.reload();
+                    });
+                }, 500);
+            })
+            .catch(error => {
+                console.error('Quick swap error:', error);
+                forceCloseLoadingModal();
+
+                setTimeout(() => {
+                    showReportModal('❌ Application error', 'An error occurred while swapping components. Give it another go.', false, false, function() {
+                        const url = window.location.pathname;
+                        window.history.replaceState({}, document.title, url);
+                        window.location.reload();
+                    });
+                }, 400);
+            });
+        }, 100);
+    }
+
+})();
+
+// ====================================================================================
+// Bike overview page functions
+// ====================================================================================
 
 // Function to update visibility of bike cards
 document.addEventListener('DOMContentLoaded', function() {
@@ -2164,7 +2554,11 @@ document.addEventListener('DOMContentLoaded', function() {
     showRetiredBikesSwitch.addEventListener('change', updateBikeVisibility);
 });
 
-// ===== Component overview page functions =====
+// ====================================================================================
+// Component overview page functions
+// ====================================================================================
+
+// ----- Table sorting functionality -----
 
 // Script to sort component table
 document.addEventListener('DOMContentLoaded', function() {
@@ -2461,6 +2855,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// ----- Collections table search and filtering -----
+
 // Collections table search functionality
 function initializeCollectionsSearch() {
     const searchInput = document.getElementById('collectionsSearchInput');
@@ -2637,7 +3033,9 @@ function initializeCollectionsSorting() {
     }
 }
 
-// ===== Bike details page functions =====
+// ====================================================================================
+// Bike details page functions
+// ====================================================================================
 
 // Function for filtering table components for single bike
 document.addEventListener('DOMContentLoaded', function() {
@@ -2749,10 +3147,10 @@ document.addEventListener('DOMContentLoaded', function() {
         nodeList.forEach(node => tableBody.appendChild(node));
     };
 
-    // Add data-sort attribute and sort indicators to headers (except Life / srv column)
+    // Add data-sort attribute and sort indicators to headers (except Life / srv column and action column)
     headers.forEach((header, index) => {
-        // Skip the "Life / srv" column (index 4)
-        if (index === 4) return;
+        // Skip the "Life / srv" column (index 4) and action column (index 6)
+        if (index === 4 || index === 6) return;
         
         // Add data-sort attribute to make headers sortable
         header.setAttribute('data-sort', '');
@@ -2853,7 +3251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const tbody = componentsBikeTable.querySelector('tbody');
                 const newRow = document.createElement('tr');
                 newRow.className = 'no-results-row';
-                newRow.innerHTML = '<td colspan="6" class="text-center">No components match your criteria</td>';
+                newRow.innerHTML = '<td colspan="7" class="text-center">No components match your criteria</td>';
                 tbody.appendChild(newRow);
             } else {
                 noResultsRow.style.display = '';
@@ -2900,7 +3298,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ===== Component details page functions =====
+// ====================================================================================
+// Component details page functions
+// ====================================================================================
 
 // Function to handle component form status and bike selection synchronization
 function initializeComponentForm(formElement) {
@@ -3155,6 +3555,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('serviceId').value = '';
         document.getElementById('serviceDescription').value = '';
 
+        // Reset ID display to placeholder text
+        document.getElementById('service-id-display').textContent = 'Not created yet';
+
         // Set current date/time by default
         const now = new Date();
         const formattedDate = now.getFullYear() + '-' + 
@@ -3182,7 +3585,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('serviceComponentId').value = this.dataset.componentId;
             document.getElementById('serviceId').value = this.dataset.serviceId;
             document.getElementById('serviceDescription').value = this.dataset.serviceDescription;
-            
+
+            // Update ID display with actual service ID
+            document.getElementById('service-id-display').textContent = this.dataset.serviceId || 'Not created yet';
+
             // Simply set the input value directly and avoid using the API
             document.getElementById('serviceDate').value = this.dataset.serviceDate;
             
@@ -3199,7 +3605,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             document.getElementById('editHistoryComponentId').value = componentId;
             document.getElementById('editHistoryId').value = historyId;
-            
+
+            // Update ID display with actual installation record ID
+            document.getElementById('installation-id-display').textContent = historyId || 'Not created yet';
+
             // Simply set the input value directly and avoid using the API
             document.getElementById('editUpdatedDate').value = updatedDate;
             
@@ -3208,7 +3617,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ===== Incident reports page functions =====
+// ====================================================================================
+// Incident reports page functions
+// ====================================================================================
 
 // Function to initialize incident features
 (function() {
@@ -3967,7 +4378,9 @@ function setupIncidentSearch() {
     });
 }
 
-// ===== Workplan page functions =====
+// ====================================================================================
+// Workplan page functions
+// ====================================================================================
 
 // Function to initialize workplan features
 (function() {
@@ -4699,7 +5112,9 @@ function setupWorkplanSearch() {
     });
 }
 
-// ===== Component types page functions =====
+// ====================================================================================
+// Component types page functions
+// ====================================================================================
 
 // Function to modify component types
 document.addEventListener('DOMContentLoaded', function() {
@@ -4952,7 +5367,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// ===== Configuration page functions =====
+// ====================================================================================
+// Configuration page functions
+// ====================================================================================
 
 // Function for fetching logs
 document.addEventListener('DOMContentLoaded', function() {
@@ -5025,7 +5442,9 @@ function handleUpdate(endpoint, message) {
         });
 }
 
-// ===== Footer page functions =====
+// ====================================================================================
+// Footer page functions
+// ====================================================================================
 
 // Modern performance timing code
 window.addEventListener('load', () => {
@@ -5077,3 +5496,4 @@ window.addEventListener('load', () => {
         timeElement.textContent = 'Timing unavailable';
     }
 });
+

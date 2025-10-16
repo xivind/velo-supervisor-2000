@@ -36,6 +36,8 @@
     {% include "modal_workplan_record.html" %}
 {% endwith %}
 
+{% include "modal_quick_swap.html" %}
+
 <h1 id="component-details" class="display-5 mt-5 mb-4 text-center">Component details</h1>
 {% if payload.bike_component_data['bike_id'] %}
     <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary me-2">
@@ -62,11 +64,11 @@
         {% if payload.bike_component_data['installation_status'] == "Retired" or payload.bike_component_data['component_id'] not in payload.component_collection_names %}disabled{% endif %}>
     <span>📦 Edit collection</span>
 </button>
+<button type="button" class="btn btn-outline-primary me-2 quick-swap-btn" data-component-id="{{ payload.bike_component_data['component_id'] }}" {% if payload.bike_component_data['installation_status'] != "Installed" %}disabled{% endif %}>
+    <span>♻ Quick swap</span>
+</button>
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createComponentModal">
     <span>⛓ Duplicate</span>
-</button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#replaceComponentModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-    <span>♻ Replace</span>
 </button>
 <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>🧑‍🔧 New service</span>

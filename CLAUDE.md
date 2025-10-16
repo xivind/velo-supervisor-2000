@@ -2,30 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**🚨 IMPORTANT**: Claude Code must ALWAYS read this repository-level CLAUDE.md file at startup. The CLAUDE.md file describes the application Velo Supervisor 2000, application architecture, design principles, learning points, and other key information that must be consulted when working on the application.Additionally, the ISSUES.md file must be read on startup. The ISSUES.md file contains information on what we are currently working on. Claude Code should ensure that the ISSUES.md file is up to date, as the work progress. Furthermore, on startup, Claude Code should state what we are working on and ask what parts we should focus on.
+**🚨 IMPORTANT**: Claude Code must ALWAYS read this repository-level CLAUDE.md file at startup. The CLAUDE.md file describes the application Velo Supervisor 2000, application architecture, design principles, learning points, and other key information that must be consulted when working on the application.
 
-## Development Commands
+---
 
-### Running the Application
-- **Development (local)**: From the `backend` directory, run: `uvicorn main:app --log-config uvicorn_log_config.ini`
-- **Docker deployment**: Use `./create-container-vs2000.sh` to build and deploy as Docker container
-- **Server runs on**: Port 8000 (http://localhost:8000)
+## Project Overview
+Velo Supervisor 2000 is a FastAPI + Bootstrap web application for tracking bicycle component lifecycles using Strava activity data.
 
-### Dependencies
-- **Install Python dependencies**: `pip install -r requirements.txt`
-- **Python version**: 3.9+ (as specified in DOCKERFILE)
-- **Create virtual environment**: Recommended for local development
+**Tech Stack:**
+- Backend: Python, FastAPI, SQLite with Peewee ORM
+- Frontend: Bootstrap 5, Jinja2 templates (server-side rendered), vanilla JavaScript, TomSelect for multi-select dropdowns
+- Integration: Strava API
+- Deployment: Docker (optional), local development with uvicorn
 
-### Database Operations
-- **Database backup**: Use `./backup_db.sh` (Docker-specific script)
-- **Database migration**: Run `python3 backend/db_migration.py` for schema updates between versions
-- **Template database**: Located at `backend/template_db.sqlite`
+---
 
 ## Architecture Overview
 
 ### Project Structure
 - **Backend**: FastAPI application with Jinja2 templates for server-side rendering
-- **Frontend**: HTML templates with JavaScript, CSS assets in `frontend/static/`
+- **Frontend**: HTML templates with JavaScript, Javascript and CSS assets in `frontend/static/`
 - **Database**: SQLite with Peewee ORM
 - **External API**: Strava integration for activity data
 
@@ -50,14 +46,272 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Collections**: Group components for bulk operations (e.g., seasonal wheelsets)
 - **Strava integration**: Automatic activity data sync
 - **Incident reports**: Track maintenance issues
-- **Workplans**: Maintenance scheduling
+- **Workplans**: Maintenance scheduling with Markdown support
 - **Service history**: Component maintenance records
 
+---
+
+## Development Commands
+
+### Running the Application
+- **Development (local)**: From the `backend` directory, run: `uvicorn main:app --log-config uvicorn_log_config.ini`
+- **Docker deployment**: Use `./create-container-vs2000.sh` to build and deploy as Docker container
+- **Server runs on**: Port 8000 (http://localhost:8000)
+
+### Dependencies
+- **Install Python dependencies**: `pip install -r requirements.txt`
+- **Python version**: 3.9+ (as specified in DOCKERFILE)
+- **Create virtual environment**: Recommended for local development
+
+### Database Operations
+- **Database backup**: Use `./backup_db.sh` (Docker-specific script)
+- **Database migration**: Run `python3 backend/db_migration.py` for schema updates between versions
+- **Template database**: Located at `backend/template_db.sqlite`
+
 ### Testing
-- **Test protocols**: Located in `tests/` directory
-- **Manual testing approach**: Comprehensive test protocols document expected behavior and test cases
-- **Available protocols**: See `tests/README.md` for full list and testing approach
-- **Collections testing**: `tests/test_protocol_collections.md` (135 test cases)
+- **WE NEED TO IMPLEMENT PIPELINE FOR TESTING**
+
+---
+
+## Sub-Agent Team
+
+### Available Agents
+1. **@product-manager** - Requirements gathering, user stories, and feature scoping (interactive)
+2. **@architect** - System design and architecture decisions
+3. **@ux-designer** - UI/UX design and specifications
+4. **@fullstack-developer** - Full-stack implementation (Python + templates)
+5. **@database-expert** - Database schema and migrations
+6. **@code-reviewer** - Code quality and best practices
+7. **@docs-maintainer** - Documentation and commit messages
+
+Agents will follow their defined roles and responsibilities as documented in their respective files in `.claude/agents/`
+
+---
+
+## Standard Development Workflow
+
+### For New Features
+
+```
+1. @product-manager (for vague/unclear requirements)
+   ↓ produces requirements document with user stories
+
+2. @ux-designer
+   ↓ produces initial UX specifications (v1) based on requirements
+
+3. @architect
+   ↓ produces architecture document using requirements + UX handover as input
+
+4. @ux-designer
+   ↓ updates UX specifications (v2) to align with architecture
+
+5. @database-expert (if schema changes needed)
+   ↓ produces migration plan + scripts
+
+6. @fullstack-developer
+   ↓ implements complete feature (backend + frontend)
+
+7. @code-reviewer
+   ↓ reviews implementation
+
+8. @fullstack-developer (if revisions needed)
+   ↓ addresses review findings
+
+9. @docs-maintainer
+   ↓ updates documentation + creates commit messages
+
+10. HUMAN: Review, commit, and push
+```
+
+**Note**:
+- Skip @product-manager if requirements are already crystal clear. Start with @ux-designer in that case.
+- @ux-designer creates initial UX design first, then @architect uses it as input
+- @ux-designer then aligns their design with architectural constraints
+- This sequential approach ensures UX and architecture are properly coordinated
+
+### For Bug Fixes
+
+```
+1. @fullstack-developer
+   ↓ analyzes and fixes bug
+   
+2. @code-reviewer
+   ↓ validates fix
+   
+3. @docs-maintainer
+   ↓ creates commit message
+   
+4. HUMAN: Review, commit, and push
+```
+
+### For Documentation Updates
+
+```
+1. @docs-maintainer
+   ↓ updates documentation
+   
+2. HUMAN: Review, commit, and push
+```
+
+---
+
+## Agent Communication via Handovers
+
+Agents communicate through **handover documents** stored in `.handovers/`. These documents serve as persistent records of decisions, work completed, and context for the next agent in the workflow.
+
+### Handover Structure
+
+```
+.handovers/
+├── CLAUDE.md              # Detailed instructions for using handovers
+├── TEMPLATE.md            # Template for creating new handovers
+├── requirements/          # Requirements and user stories from @product-manager
+├── architecture/          # Architecture plans from @architect
+├── database/              # Database designs from @database-expert
+├── ux/                   # UI/UX specs from @ux-designer
+├── fullstack/            # Implementation notes from @fullstack-developer
+├── review/               # Code reviews from @code-reviewer
+└── documentation/        # Doc updates from @docs-maintainer
+```
+
+### Naming Convention
+
+**Pattern:** `[feature-name]-[source-agent]-to-[target-agent].md`
+
+**Examples:**
+- `requirements/component-swap-requirements.md`
+- `architecture/tire-pressure-architect-to-ux-designer.md`
+- `ux/tire-pressure-ux-designer-to-fullstack.md`
+- `fullstack/tire-pressure-fullstack-to-reviewer.md`
+
+### Creating Handovers
+
+1. Copy `.handovers/TEMPLATE.md` to appropriate subdirectory
+2. Follow naming convention
+3. Fill all sections: Context, Deliverables, Decisions, Next Steps
+4. Include specific file paths and line numbers
+5. Document the "why" behind decisions
+
+### Reading Handovers
+
+```bash
+# Find recent handovers
+find .handovers -name "*.md" -mtime -7
+
+# Find handovers for you
+find .handovers -name "*to-ux-designer.md"
+
+# Search by feature
+find .handovers -name "*tire-pressure*"
+```
+
+### Detailed Instructions
+
+See `.handovers/CLAUDE.md` for comprehensive instructions on creating and using handovers.
+
+---
+
+## Git Workflow Rules
+
+### For All Agents
+- ❌ NEVER execute `git commit`, `git push`, or `git merge`
+- ✅ Produce artifacts that the human will review and commit
+- ✅ Can use `git status`, `git diff`, `git log` for context
+- ✅ Reference commits/PRs in handover documents when needed
+- ✅ Work always in **dev branch**
+- ❌ Never commit directly to **master** or **staging**
+- ✅ Human reviews and commits all agent work
+
+### For fullstack-developer
+- Can use `git status` and `git diff` to check work
+- Can use `git log` to understand context
+- Must notify in handover when work is ready to commit
+
+### For code-reviewer
+- Can use `git diff` to review changes
+- Can reference `git log` for context
+- Produces commit message suggestions in review document
+
+### For docs-maintainer
+- Produces well-formatted commit messages
+- Updates CHANGELOG.md
+- Creates PR description templates
+
+### Commit Process
+1. Agent completes work
+2. Agent creates handover document
+3. HUMAN reviews work
+4. HUMAN commits using messages from docs-maintainer
+
+### Branch Strategy
+- Feature branches: `feature/[feature-name]`
+- Bug branches: `fix/[bug-description]`
+- Always branch from and merge back to **dev**
+- Never commit directly to **master** or **staging**
+
+---
+
+## Code Style & Standards
+
+### Python (Backend)
+- Follow PEP 8
+- Async/await for I/O operations
+- Comprehensive error handling, but avoid unneeded complexity
+- Document all public functions
+
+### Frontend
+- Bootstrap 5 utility classes only (no custom CSS compilation)
+- Vanilla JavaScript (no frameworks beyond what's already used)
+- **TomSelect**: Use TomSelect for multi-select dropdowns when populating data from backend
+  - Common pattern: Initialize with `new TomSelect(element, {plugins: ['remove_button'], maxItems: null})`
+  - Store instance on element: `element.tomSelect = ts`
+  - Used in: Collections, Incidents, Workplans for component selection
+- Progressive enhancement
+- Mobile-first responsive design
+
+### Database
+- Use SQLite best practices with Peewee ORM
+- Always create migration scripts for schema changes
+- Document schema changes
+- Never delete data without user confirmation
+- **Note**: This project uses breaking database schema changes between versions
+
+---
+
+## Testing Requirements
+
+### Before Creating Handover
+- ✅ Code runs without errors
+- ✅ Manual testing completed
+- ✅ No obvious bugs introduced
+- ✅ Existing functionality preserved
+
+### For fullstack-developer
+- Test both backend and frontend
+- Verify database operations
+- Check responsive behavior
+- Test error handling
+
+---
+
+## Communication Patterns
+
+### Requesting Work
+```
+@architect - Please design the architecture for [feature]
+Based on: [context or requirements]
+Output needed: Architecture document in .handovers/architecture/
+```
+
+### Handover Format
+Each agent ends their response with:
+```
+**Handover Created:** `.handovers/[path]/[filename].md`
+**Next Agent:** @[agent-name]
+**Action Required:** [Brief description]
+```
+
+---
 
 ## Development Notes
 
@@ -69,3 +323,30 @@ The application is designed to run in Docker with mounted volumes for data persi
 
 ### Logging
 Application uses rotating file logs configured in `uvicorn_log_config.ini`, logs stored in `/data/logs/` when running in Docker.
+
+---
+
+## Emergency Procedures
+
+### If Agent Gets Stuck
+1. Document the blocker in handover
+2. Mark status as "BLOCKED"
+3. Human investigates
+4. Provide additional context or simplify task
+
+### If Code Breaks Production
+1. Immediate rollback by human
+2. @fullstack-developer investigates
+3. @code-reviewer validates fix
+4. Fast-track commit
+
+---
+
+## Important Notes
+
+- 📁 Handovers ARE committed to git (serve as architectural decision records)
+- 🔍 Always search project knowledge before assuming
+- 💬 Clear communication in handovers is critical
+- 🧪 Test before marking work complete
+- 📝 Document decisions and rationale in handovers
+- 📋 Check recent handovers to understand current work context

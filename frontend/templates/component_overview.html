@@ -22,41 +22,8 @@
 {% include "modal_incident_record.html" %}
 {% include "modal_workplan_record.html" %}
 {% include "modal_collection.html" %}
+{% include "modal_quick_swap.html" %}
 
-<hr/>
-<div class="card shadow mb-4">
-    <div class="card-header fw-bold">Component statistics</div>
-    <div class="card-body">
-        <p class="card-text d-flex justify-content-between align-items-center">
-            <span>⚡ <strong>Installed:</strong> {{ payload.count_installed }}</span>
-            <span>💤 <strong>Not installed:</strong> {{ payload.count_not_installed }}</span>
-            <span>⛔ <strong>Retired:</strong> {{ payload.count_retired }}</span>
-            <span>💰 <strong>Expected cost:</strong> {% if payload.sum_cost == "No estimate" %} {{ payload.sum_cost }} {% else %} {{ payload.sum_cost }} kr{% endif %}</span>
-        </p>
-        <hr/>
-        <div class="row">
-            <p class="card-text text-center">
-                <span class="fw-bold text-secondary">Lifetime statistics installed components</span>
-            </p>
-            <div class="col"><span>🟢 Lifetime OK: {{ payload.count_lifetime_status_green }}</span></div>
-            <div class="col"><span>🟡 End of life approaching: {{ payload.count_lifetime_status_yellow }}</span></div>
-            <div class="col"><span>🔴 Due for replacement: {{ payload.count_lifetime_status_red }}</span></div>
-            <div class="col"><span>🟣 Lifetime exceeded: {{ payload.count_lifetime_status_purple }}</span></div>
-            <div class="col"><span>⚪ Lifetime not defined: {{ payload.count_lifetime_status_grey }}</span></div>
-        </div>
-        <hr/>
-        <div class="row">
-            <p class="card-text text-center">
-                <span class="fw-bold text-secondary">Service statistics installed components</span>
-            </p>
-            <div class="col"><span>🟢 Service OK: {{ payload.count_service_status_green }}</span></div>
-            <div class="col"><span>🟡 Service approaching: {{ payload.count_service_status_yellow }}</span></div>
-            <div class="col"><span>🔴 Due for service: {{ payload.count_service_status_red }}</span></div>
-            <div class="col"><span>🟣 Service int. exceeded: {{ payload.count_service_status_purple }}</span></div>
-            <div class="col"><span>⚪ Service int. not defined: {{ payload.count_service_status_grey }}</span></div>
-        </div>  
-    </div>
-</div>
 <hr/>
 <div class="card shadow mb-3">
     <div class="card-header fw-bold">Collections</div>
@@ -235,7 +202,18 @@
                                 {{ bike }}
                             </td>
                             <td class="text-end">
-                                <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record" data-component-id="{{ component_id }}" onclick="event.stopPropagation();">🗑</button>
+                                {% if installation_status == "Installed" %}
+                                <button type="button" class="btn btn-outline-primary btn-sm quick-swap-btn mb-1"
+                                    data-component-id="{{ component_id }}"
+                                    onclick="event.stopPropagation();">
+                                    ♻
+                                </button>
+                                {% endif %}
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-record mb-1"
+                                    data-component-id="{{ component_id }}"
+                                    onclick="event.stopPropagation();">
+                                    🗑
+                                </button>
                             </td>
                         </tr>
                     {% endfor %}
@@ -246,6 +224,40 @@
                 {% endif %}
             </tbody>
         </table>
+    </div>
+</div>
+<hr/>
+<div class="card shadow mb-4">
+    <div class="card-header fw-bold">Component statistics</div>
+    <div class="card-body">
+        <p class="card-text d-flex justify-content-between align-items-center">
+            <span>⚡ <strong>Installed:</strong> {{ payload.count_installed }}</span>
+            <span>💤 <strong>Not installed:</strong> {{ payload.count_not_installed }}</span>
+            <span>⛔ <strong>Retired:</strong> {{ payload.count_retired }}</span>
+            <span>💰 <strong>Expected cost:</strong> {% if payload.sum_cost == "No estimate" %} {{ payload.sum_cost }} {% else %} {{ payload.sum_cost }} kr{% endif %}</span>
+        </p>
+        <hr/>
+        <div class="row">
+            <p class="card-text text-center">
+                <span class="fw-bold text-secondary">Lifetime statistics installed components</span>
+            </p>
+            <div class="col"><span>🟢 Lifetime OK: {{ payload.count_lifetime_status_green }}</span></div>
+            <div class="col"><span>🟡 End of life approaching: {{ payload.count_lifetime_status_yellow }}</span></div>
+            <div class="col"><span>🔴 Due for replacement: {{ payload.count_lifetime_status_red }}</span></div>
+            <div class="col"><span>🟣 Lifetime exceeded: {{ payload.count_lifetime_status_purple }}</span></div>
+            <div class="col"><span>⚪ Lifetime not defined: {{ payload.count_lifetime_status_grey }}</span></div>
+        </div>
+        <hr/>
+        <div class="row">
+            <p class="card-text text-center">
+                <span class="fw-bold text-secondary">Service statistics installed components</span>
+            </p>
+            <div class="col"><span>🟢 Service OK: {{ payload.count_service_status_green }}</span></div>
+            <div class="col"><span>🟡 Service approaching: {{ payload.count_service_status_yellow }}</span></div>
+            <div class="col"><span>🔴 Due for service: {{ payload.count_service_status_red }}</span></div>
+            <div class="col"><span>🟣 Service int. exceeded: {{ payload.count_service_status_purple }}</span></div>
+            <div class="col"><span>⚪ Service int. not defined: {{ payload.count_service_status_grey }}</span></div>
+        </div>
     </div>
 </div>
 {% endblock %}
