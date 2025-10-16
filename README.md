@@ -48,6 +48,8 @@ As a principle, development is to be done in the dev-branch. When changes are re
 
 There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the velo supervisor 2000 database. Remember to backup the database first.
 
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+
 - New feature: Collection feature
 - New feature: First draft of help page / user docs
 - Minor bug fixes
