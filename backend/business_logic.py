@@ -1483,7 +1483,7 @@ class BusinessLogic():
             old_component = database_manager.read_component(old_component_id)
             if not old_component:
                 logging.error(f"Quick swap failed: Old component not found: {old_component_id}")
-                return False, "Component not found"
+                return False, f"Quick swap failed: The component to be swapped (ID: {old_component_id}) was not found."
 
             logging.info(f"Quick swap: Old component validated: {old_component.component_name}")
 
@@ -1523,6 +1523,8 @@ class BusinessLogic():
                     logging.warning(f"Quick swap: New component created with warning: {message}")
 
                 logging.info(f"Quick swap: New component created successfully with ID {new_component_id}")
+                new_component = database_manager.read_component(new_component_id)
+            
             else:
                 new_component = database_manager.read_component(new_component_id)
                 logging.info(f"Quick swap: Using existing component: {new_component.component_name}")
@@ -1537,14 +1539,12 @@ class BusinessLogic():
             if not success:
                 logging.error(f"Quick swap failed: Could not update old component status: {message}")
                 if new_component_data:
-                    logging.warning(f"Quick swap partial failure: New component '{new_component.component_name}' (ID: {new_component_id}) was created with status 'Not installed'. Old component '{old_component.component_name}' (ID: {old_component_id}) could not be updated to '{fate}'. Please fix manually: {message}")
-                    return False, f"Quick swap partially failed: New component was created but old component could not be updated. {message}"
+                    logging.warning(f"Quick swap partial failure: New component '{new_component.component_name}' (ID: {new_component_id}) was created with status 'Not installed'. Old component '{old_component.component_name}' (ID: {old_component_id}) could not be updated to '{fate}'. Manual fix required: {message}")
+                    return False, f"Quick swap partially failed: New component '{new_component.component_name}' was created but remains 'Not installed'. Old component '{old_component.component_name}' remains 'Installed' on {bike.bike_name}. Manual fix required: {message}"
                 else:
-                    return False, f"Quick swap failed: Could not update old component status. {message}"
+                    return False, f"Quick swap failed: Could not update '{old_component.component_name}' to '{fate}'. Existing component '{new_component.component_name}' was not touched. {message}"
 
             logging.info(f"Quick swap: Old component status updated successfully")
-
-            new_component = database_manager.read_component(new_component_id)
             logging.info(f"Quick swap: Installing {new_component.component_name} on {bike.bike_name}")
 
             success, message = self.create_history_record(component_id=new_component_id,
@@ -1555,19 +1555,19 @@ class BusinessLogic():
             if not success:
                 logging.error(f"Quick swap failed: Could not install new component: {message}")
                 logging.warning(f"Quick swap partial failure: {old_component.component_name} is now '{fate}' but {new_component.component_name} could not be installed")
-                return False, f"Quick swap partially failed: Old component is now '{fate}' but new component could not be installed. {message}"
+                return False, f"Quick swap partially failed: '{old_component.component_name}' is now '{fate}', but '{new_component.component_name}' could not be installed on {bike.bike_name}. Manual fix required: {message}"
 
             old_component_refreshed = database_manager.read_component(old_component_id)
             new_component_refreshed = database_manager.read_component(new_component_id)
 
-            success_message = f"Component swapped successfully: {old_component_refreshed.component_name} set to {fate}, {new_component_refreshed.component_name} installed on {bike.bike_name}"
+            success_message = f"Component swapped successfully: {old_component_refreshed.component_name} set to {fate}. {new_component_refreshed.component_name} installed on {bike.bike_name}"
             logging.info(f"Quick swap completed successfully: {success_message}")
 
             return True, success_message
 
         except Exception as error:
             logging.error(f"Quick swap operation failed with unexpected error: {str(error)}")
-            return False, f"Swap operation failed due to an unexpected error: {str(error)}"
+            return False, f"Quick swap failed due to an unexpected error: {str(error)}. Components may be in an inconsistent state. Please check component statuses manually and review the application log for details."
 
     def validate_quick_swap(self, old_component, fate, new_component_id, new_component_data):
         """Method to validate quick swap operation"""
