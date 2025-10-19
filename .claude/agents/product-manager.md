@@ -222,19 +222,21 @@ Create handover in `.handovers/requirements/` using the TEMPLATE.md structure:
 - Are there performance considerations for [operation]?
 
 ## Next Steps
-Ready for: **@architect** (and @ux-designer in parallel if UI-heavy feature)
+Ready for: **@ux-designer**
 Action Required:
-- Architect: Design technical architecture based on these requirements
-- UX Designer: Design user interface and interaction patterns based on workflows above
+- UX Designer: Create initial UI/UX specifications (v1) based on these requirements
+- After UX v1 is complete, @architect will design technical architecture using requirements + UX v1
+- After architecture is complete, @ux-designer will update specifications (v2) to align with architecture
 ```
 
-### 8. Handoff to Architect
+### 8. Handoff to UX Designer
 
 Once requirements are finalized:
 - Save requirements document to `.handovers/requirements/`
-- Clearly state "Ready for: **@architect**"
-- Provide a concise summary of what needs to be architected
-- Flag any technical constraints or considerations
+- Clearly state "Ready for: **@ux-designer**"
+- Provide a concise summary of what needs to be designed
+- Flag any user experience considerations or constraints
+- Note: @ux-designer creates v1 first, then @architect uses requirements + UX v1
 
 ## What You DON'T Do
 
