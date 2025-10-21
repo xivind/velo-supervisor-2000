@@ -15,7 +15,7 @@ The Component Status Refinement feature transforms the current distance-only com
 **Primary Improvements:**
 1. **Hybrid Time + Distance Calculations**: Components evaluated on BOTH time and distance (worst case wins)
 2. **Simplified Status Thresholds**: Clean logic comparing remaining value against absolute threshold (no percentage needed)
-3. **Simplified Status Levels**: Removing "Service approaching" / "End of life approaching" intermediate states (3-level system: OK / Due / Exceeded)
+3. **Simplified Status Levels**: Removing "Service approaching" / "End of life approaching" intermediate states (3-level system: OK / Due / Exceeded) with emoji indicators (🟢 green / 🟡 yellow / 🔴 red)
 4. **Time-Based Tracking**: NEW time intervals (service_interval_days, lifetime_expected_days) with same inheritance pattern as existing distance intervals
 5. **User-Configurable Thresholds**: NEW threshold fields (threshold_km, threshold_days) with same inheritance pattern as existing distance intervals
 6. **Comprehensive UI Updates**: Display both time-based and distance-based progress bars, days remaining, and intelligent status indicators
@@ -140,9 +140,9 @@ Replace current 4-level status system with 3 levels:
 - "Service interval exceeded" / "Lifetime exceeded" (>100%)
 
 **New System:**
-- **"OK"** (Healthy, no action needed)
-- **"Due for service"** / **"Due for replacement"** (Action recommended soon)
-- **"Service exceeded"** / **"Lifetime exceeded"** (Action overdue)
+- **"OK"** (Healthy, no action needed) - 🟢 Green indicator
+- **"Due for service"** / **"Due for replacement"** (Action recommended soon) - 🟡 Yellow indicator
+- **"Service exceeded"** / **"Lifetime exceeded"** (Action overdue) - 🔴 Red indicator
 
 **FR-1.2: "Due for Service/Replacement" Logic (Simplified)**
 
@@ -364,7 +364,12 @@ While database fields are nullable for flexibility, application-level validation
 
 **Single "Status" column** in component tables shows worst case of time vs. distance.
 
-**Visual indicator (icon/badge) showing which factor triggered status:**
+**Status color indicators:**
+- 🟢 Green: "OK" status
+- 🟡 Yellow: "Due for service" or "Due for replacement" status
+- 🔴 Red: "Service exceeded" or "Lifetime exceeded" status
+
+**Trigger indicator (icon/badge) showing which factor triggered status:**
 
 | Icon | Meaning | Example |
 |------|---------|---------|
@@ -373,9 +378,10 @@ While database fields are nullable for flexibility, application-level validation
 | 📍📅 | Both triggered | Both time AND distance at same status level |
 
 **Example display:**
-- "Due for replacement 📅" (time-triggered)
-- "Service exceeded 📍" (distance-triggered)
-- "Due for replacement 📍📅" (both at "Due" level)
+- "Due for replacement 🟡 📅" (time-triggered, yellow indicator)
+- "Service exceeded 🔴 📍" (distance-triggered, red indicator)
+- "Due for replacement 🟡 📍📅" (both at "Due" level, yellow indicator)
+- "OK 🟢" (healthy component, green indicator)
 
 **FR-4.2: Progress Bars for Time and Distance**
 
@@ -397,7 +403,7 @@ While database fields are nullable for flexibility, application-level validation
 **Progress bar data:**
 - Progress bar fill percentage
 - Label: "Lifetime reached in 78 days" or "Next service in 78 days"
-- Color coding (green/yellow/red based on status)
+- Color coding based on status: 🟢 green for "OK", 🟡 yellow for "Due", 🔴 red for "Exceeded"
 
 **FR-4.3: Days Remaining Display**
 
@@ -526,14 +532,14 @@ elif component.lifetime_status == "End of life approaching" or component.service
 **New logic (simplified to 3 levels):**
 ```python
 if component.lifetime_status == "Lifetime exceeded" or component.service_status == "Service exceeded":
-    critical += 1
+    critical += 1  # 🔴 Red
 elif component.lifetime_status == "Due for replacement" or component.service_status == "Due for service":
-    warning += 1
+    warning += 1  # 🟡 Yellow
 elif component.lifetime_status == "OK" or component.service_status == "OK":
-    ok += 1
+    ok += 1  # 🟢 Green
 ```
 
-Remove "approaching" level from bike status calculations.
+Remove "approaching" level from bike status calculations. Bike status uses same 3-color indicator system: 🟢 green / 🟡 yellow / 🔴 red.
 
 ---
 
@@ -732,10 +738,11 @@ Component with 365 day lifetime:
 - [ ] Component status can ONLY be: "OK", "Due for service", "Service exceeded", "Due for replacement", "Lifetime exceeded", or NULL
 - [ ] "Service approaching" status is removed from system
 - [ ] "End of life approaching" status is removed from system
-- [ ] Component overview statistics display 3 color categories (green/yellow/red) instead of 4
+- [ ] Component overview statistics display 3 color categories (🟢 green / 🟡 yellow / 🔴 red) instead of 4 (previously 🟢🟡🔴🟣)
+- [ ] Status indicators use: 🟢 for "OK", 🟡 for "Due", 🔴 for "Exceeded"
 - [ ] Bike status aggregation logic updated to reflect 3 levels (OK / Warning / Critical)
 - [ ] Existing components with "approaching" status migrated to "OK" or "Due" based on new thresholds
-- [ ] UI legend/documentation updated to reflect 3-level system
+- [ ] UI legend/documentation updated to reflect 3-level system with emoji indicators
 
 **Edge Cases:**
 - What if component has exactly threshold_km remaining (e.g., 300km remaining, threshold_km = 300km)? Use < operator, so this would be "OK" (300 < 300 is false)
@@ -1170,7 +1177,7 @@ The following open-ended questions should guide the UI/UX design for the Compone
 
 ### General Interface Design
 
-1. **How should the refined 3-level status system (OK / Due / Exceeded) be visually distinguished from the current 4-level system?** What color schemes, badge styles, and iconography will make the simplified system immediately understandable?
+1. **How should the refined 3-level status system (OK / Due / Exceeded) be visually distinguished from the current 4-level system?** The color scheme is defined: 🟢 green for "OK", 🟡 yellow for "Due", 🔴 red for "Exceeded" (replacing the previous 4-color system 🟢🟡🔴🟣). What badge styles and visual treatment will make the simplified system immediately understandable and consistent with existing UI patterns?
 
 2. **How should users configure the 6 new fields (2 time intervals, 2 distance intervals, 2 thresholds) without overwhelming them?** Should fields be grouped, collapsed, or presented with progressive disclosure?
 
