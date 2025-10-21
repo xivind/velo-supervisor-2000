@@ -55,7 +55,7 @@ This directory contains handover documents that facilitate communication between
 cp .handovers/TEMPLATE.md .handovers/architecture/user-auth-architect-handover.md
 
 # Edit and fill in all sections
-# Note: @ux-designer is working in parallel - may check their handover and iterate
+# Note: Read @ux-designer's v1 handover first - use it as input for architecture design
 # Save when complete
 ```
 
