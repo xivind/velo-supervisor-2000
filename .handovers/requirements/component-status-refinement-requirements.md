@@ -15,7 +15,7 @@ The Component Status Refinement feature transforms the current distance-only com
 **Primary Improvements:**
 1. **Hybrid Time + Distance Calculations**: Components evaluated on BOTH time and distance (worst case wins)
 2. **Simplified Status Thresholds**: Clean logic comparing remaining value against absolute threshold (no percentage needed)
-3. **Simplified Status Levels**: Removing "Service approaching" / "End of life approaching" intermediate states (3-level system: OK / Due / Exceeded) with emoji indicators (🟢 green / 🟡 yellow / 🔴 red)
+3. **Simplified Status Levels**: Removing "Service approaching" / "End of life approaching" intermediate states (4-level system: OK / Due / Exceeded / Not defined) with emoji indicators (🟢 green / 🟡 yellow / 🔴 red / ⚪ white)
 4. **Time-Based Tracking**: NEW time intervals (service_interval_days, lifetime_expected_days) with same inheritance pattern as existing distance intervals
 5. **User-Configurable Thresholds**: NEW threshold fields (threshold_km, threshold_days) with same inheritance pattern as existing distance intervals
 6. **Comprehensive UI Updates**: Display both time-based and distance-based progress bars, days remaining, and intelligent status indicators
@@ -81,7 +81,7 @@ IF reached > 100%: "Service interval exceeded" / "Lifetime exceeded"
 >
 > **Reality:** 200km remaining is approximately 2 weeks of normal riding - not yet critical.
 >
-> **Desired behavior:** "OK" status because 200km >= 300km threshold (user-configured) → Stays "OK" until closer to end.
+> **Desired behavior:** "Due for replacement" status because 200km < 300km threshold (user-configured) → Component triggers warning when remaining distance drops below threshold. User could set lower threshold (e.g., 100km) to avoid premature warnings if desired.
 
 **Scenario 3: Tire (Hybrid Time + Distance)**
 > Elena's gravel tire has 5,000km expected lifetime AND 730 days (2 years) time-based lifetime. After 650 days and 4,200km, rubber is visibly deteriorating (800km and 80 days remaining).
@@ -131,7 +131,7 @@ IF reached > 100%: "Service interval exceeded" / "Lifetime exceeded"
 
 **FR-1.1: Simplified Status Levels**
 
-Replace current 4-level status system with 3 levels:
+Replace current 4-level status system with new 4-level system:
 
 **Previous System:**
 - "OK" (0-70%)
@@ -143,6 +143,7 @@ Replace current 4-level status system with 3 levels:
 - **"OK"** (Healthy, no action needed) - 🟢 Green indicator
 - **"Due for service"** / **"Due for replacement"** (Action recommended soon) - 🟡 Yellow indicator
 - **"Service exceeded"** / **"Lifetime exceeded"** (Action overdue) - 🔴 Red indicator
+- **"Not defined"** (No maintenance intervals configured) - ⚪ White indicator
 
 **FR-1.2: "Due for Service/Replacement" Logic (Simplified)**
 
@@ -202,7 +203,7 @@ ELSE
 **Validation Rules:**
 - If component has `service_interval` OR `lifetime_expected` (any distance interval) → `threshold_km` is **REQUIRED** (not NULL)
 - If component has `service_interval_days` OR `lifetime_expected_days` (any time interval) → `threshold_days` is **REQUIRED** (not NULL)
-- Same threshold used for BOTH service and lifetime calculations (one `threshold_km` for both distance-based service AND lifetime)
+- Same threshold used for BOTH service and lifetime calculations (one `threshold_km` for both distance-based service AND lifetime and one `threshold_days` for both time-based service AND time-based lifetime)
 
 **Rationale:**
 - Long-lifetime components (e.g., 10,000km cassette) benefit from higher absolute thresholds (e.g., 1,000km)
@@ -279,10 +280,15 @@ END IF
 2. "Due for service/replacement"
 3. "OK" (best)
 
-**Example:**
+**Example 1: Time is worse**
 - Distance-based: 1,500km remaining, threshold_km = 500km → "OK" (1,500 >= 500)
 - Time-based: 15 days remaining, threshold_days = 30 days → "Due for replacement" (15 < 30)
-- **Final: "Due for replacement"** (time-based is worse)
+- **Final: "Due for replacement" with 📅 indicator** (time-based is worse, time triggered)
+
+**Example 2: Both below thresholds**
+- Distance-based: 150km remaining, threshold_km = 200km → "Due for replacement" (150 < 200)
+- Time-based: 20 days remaining, threshold_days = 30 days → "Due for replacement" (20 < 30)
+- **Final: "Due for replacement" with 📍📅 indicator** (both at same severity level, BOTH triggered)
 
 **FR-2.5: Single-Interval Components (Time-Only or Distance-Only)**
 
@@ -325,10 +331,19 @@ END IF
 | `lifetime_remaining_days` | IntegerField | Calculated | N/A | Days until lifetime expected (calculated field) |
 | `service_next_days` | IntegerField | Calculated | N/A | Days until next service (calculated field) |
 
+**EXISTING Fields Being Modified (Not New):**
+
+The following fields ALREADY exist in the Components table and are being modified in HOW they are calculated:
+
+| Field Name | Type | Nullable | Current Behavior | New Behavior |
+|------------|------|----------|------------------|--------------|
+| `lifetime_status` | CharField | No | Calculated from distance only | Worst case of (distance-based lifetime, time-based lifetime) |
+| `service_status` | CharField | No | Calculated from distance only | Worst case of (distance-based service, time-based service) |
+
+**CRITICAL:** These two status fields remain **separate and independent**. They are NOT merged into a single field.
+
 **Note on calculated fields:**
-- These may be stored in database OR calculated on-the-fly (architect to decide based on performance)
-- If stored: must be updated when time passes (requires update strategy)
-- If calculated: no storage, computed during query (may impact performance)
+- These should be stored in database and must be updated automatically when time passes (requires update strategy)
 
 **FR-3.3: Validation Rules (Application-Level)**
 
@@ -339,22 +354,23 @@ While database fields are nullable for flexibility, application-level validation
 
 **FR-3.4: Migration Strategy (Backward Compatibility)**
 
-**Existing components during migration:**
-- Set all new fields as follows:
-  - `service_interval_days` → NULL (no time intervals exist currently)
-  - `lifetime_expected_days` → NULL (no time intervals exist currently)
-  - `threshold_km` → 200 (all existing components have distance intervals, so this is required)
-  - `threshold_days` → NULL (no time intervals exist yet, so not needed)
-- User can configure time intervals as needed post-migration
+**For ComponentTypes table during migration:**
+- `service_interval_days` → NULL (no time intervals exist currently)
+- `lifetime_expected_days` → NULL (no time intervals exist currently)
+- `threshold_km` → 200 (for ComponentTypes WITH service_interval OR lifetime_expected defined)
+- `threshold_km` → NULL (for ComponentTypes with NO distance intervals defined)
+- `threshold_days` → NULL (no time intervals exist yet, so not needed)
+
+**For Components table during migration:**
+- `service_interval_days` → NULL (no time intervals exist currently)
+- `lifetime_expected_days` → NULL (no time intervals exist currently)
+- `threshold_km` → 200 (for Components WITH service_interval OR lifetime_expected defined)
+- `threshold_km` → NULL (for Components with NO distance intervals defined)
+- `threshold_days` → NULL (no time intervals exist yet, so not needed)
+
+**Post-migration:**
+- User can configure time intervals as needed
 - No automatic population of time intervals (ensures data quality and user control)
-
-**Default behavior for new components (post-migration):**
-- Inherit NULL for time intervals (user opts in by configuring ComponentType)
-- Inherit threshold values from ComponentType (user configures sensible defaults per type)
-
-**Status calculations during transition:**
-- Components with NULL time intervals → distance-only calculations (existing behavior preserved)
-- Components with configured time intervals → hybrid time + distance calculations (new behavior)
 
 ---
 
@@ -362,26 +378,68 @@ While database fields are nullable for flexibility, application-level validation
 
 **FR-4.1: Status Badge with Trigger Indicator**
 
-**Single "Status" column** in component tables shows worst case of time vs. distance.
+**CRITICAL: Two Database Fields, Different Display Contexts**
+
+The Components table stores **TWO separate status fields**:
+- `lifetime_status` - Component replacement status
+- `service_status` - Component maintenance status
+
+**Status display depends on UI context:**
+
+**1. Component Tables (Overview/List Pages) - Single Status Column**
+
+To conserve horizontal space in tables, display a **single "Status" column** showing:
+- **Worst case of (`lifetime_status` vs `service_status`)**
+- The status text indicates which field: "Due for replacement" (lifetime) or "Due for service" (service)
+- Trigger indicator shows whether time (📅) or distance (📍) caused this status
+
+**2. Component Detail Page - Both Statuses Shown Separately**
+
+On the component detail page, display **BOTH statuses independently**:
+- Lifetime Status: Shows `lifetime_status` with its own trigger indicator
+- Service Status: Shows `service_status` with its own trigger indicator
+
+---
 
 **Status color indicators:**
 - 🟢 Green: "OK" status
 - 🟡 Yellow: "Due for service" or "Due for replacement" status
 - 🔴 Red: "Service exceeded" or "Lifetime exceeded" status
+- ⚪ White: "Not defined" status (no intervals configured for this component)
 
 **Trigger indicator (icon/badge) showing which factor triggered status:**
 
 | Icon | Meaning | Example |
 |------|---------|---------|
-| 📍 | Distance-triggered | Distance reached "Due" threshold, time is OK |
-| 📅 | Time-triggered | Time reached "Due" threshold, distance is OK |
-| 📍📅 | Both triggered | Both time AND distance at same status level |
+| 📍 | Distance-triggered only | Distance (km) below threshold, time is OK (above threshold or not configured) |
+| 📅 | Time-triggered only | Time (days) below threshold, distance is OK (above threshold or not configured) |
+| 📍📅 | Both triggered | **BOTH** time AND distance are below their respective thresholds |
 
-**Example display:**
-- "Due for replacement 🟡 📅" (time-triggered, yellow indicator)
-- "Service exceeded 🔴 📍" (distance-triggered, red indicator)
-- "Due for replacement 🟡 📍📅" (both at "Due" level, yellow indicator)
-- "OK 🟢" (healthy component, green indicator)
+**Example display (component tables - worst case shown):**
+- "Due for replacement 🟡 📅" (lifetime is worse, time below threshold only, yellow indicator)
+- "Service exceeded 🔴 📍" (service is worse, distance below threshold only, red indicator)
+- "Due for replacement 🟡 📍📅" (lifetime is worse, **BOTH** time AND distance below their thresholds, yellow indicator)
+- "OK 🟢" (both lifetime and service are OK, green indicator)
+
+**Example 1: Component with different lifetime vs service statuses (table view shows worst)**
+- `lifetime_status` = "OK 🟢" (5,000km remaining, 200 days remaining)
+- `service_status` = "Due for service 🟡 📍" (150km remaining < 200km threshold)
+- **Table displays:** "Due for service 🟡 📍" (service is worse than lifetime)
+
+**Example 2: Both time AND distance below thresholds (📍📅 indicator)**
+- Component has:
+  - 180km remaining, threshold_km = 200km → Distance below threshold ✓
+  - 25 days remaining, threshold_days = 30 days → Time below threshold ✓
+- `lifetime_status` = "Due for replacement 🟡 📍📅"
+- **Table displays:** "Due for replacement 🟡 📍📅" (BOTH factors contributing to status)
+
+**Example 3: Component with no intervals configured (⚪ indicator)**
+- Component has:
+  - service_interval = NULL, lifetime_expected = NULL
+  - service_interval_days = NULL, lifetime_expected_days = NULL
+- `lifetime_status` = "Not defined ⚪"
+- `service_status` = "Not defined ⚪"
+- **Table displays:** "Not defined ⚪" (no maintenance intervals configured, no trigger indicator)
 
 **FR-4.2: Progress Bars for Time and Distance**
 
@@ -409,7 +467,7 @@ While database fields are nullable for flexibility, application-level validation
 
 **Display format (consistent with existing km remaining format):**
 - "Lifetime remaining: 78 days" (or "Lifetime reached in 78 days")
-- "Service next: 45 days" (or "Next service in 45 days")
+- "Next service: 45 days" (or "Next service in 45 days")
 - Negative values: "Lifetime exceeded by 15 days"
 
 **FR-4.4: Component Creation/Edit Forms**
@@ -419,12 +477,13 @@ While database fields are nullable for flexibility, application-level validation
 - Service Interval (days): [____] days
 - Lifetime Expected (km): [____] km
 - Lifetime Expected (days): [____] days
-- Status Threshold (%): [90] % (default 90, editable)
-- Status Threshold (km): [500] km (default 500, editable)
+- Status Threshold (km): [____] km
+- Status Threshold (days): [____] days
+- All these fields are inherited from component types, and NULL if empty in component types
 
 **Behavior:**
 - Empty/blank field → stored as NULL in database
-- User can leave any combination blank
+- User can leave any combination blank, but validation rules apply see validation rules
 - Consistent interface regardless of component type
 
 **Form validation:**
@@ -436,8 +495,9 @@ While database fields are nullable for flexibility, application-level validation
 
 Same field layout as component forms, but:
 - Fields represent defaults for new components of this type
-- Existing components NOT automatically updated when type defaults change
-- User must manually update components if desired
+- **Changing ComponentType defaults does NOT automatically update existing components** (e.g., changing "Chain" type's service_interval from 250km to 300km does NOT update existing chain components)
+- User must manually update existing components if desired after changing type defaults
+- Component type form for new component types always starts with all blank fields 
 
 ---
 
@@ -453,7 +513,7 @@ def compute_component_status(self, mode, reached_distance_percent):
 
 **New function signature (proposed):**
 ```python
-def compute_component_status(mode, remaining_value, threshold_value):
+def compute_component_status(self, mode, remaining_value, threshold_value):
     """
     Compute component status using simplified threshold logic.
 
@@ -476,16 +536,24 @@ def compute_component_status(mode, remaining_value, threshold_value):
 
 **FR-5.2: Update Functions for Lifetime and Service Status**
 
+**CRITICAL: Two Separate Database Fields**
+
+The Components table has **two independent status fields**:
+- `lifetime_status` (CharField) - Status for component replacement/end-of-life
+- `service_status` (CharField) - Status for component service/maintenance
+
+Each field is updated by its respective function and applies worst-case logic (time vs distance) independently within its domain.
+
 **Current functions:**
-- `update_component_lifetime_status(component)`
-- `update_component_service_status(component)`
+- `update_component_lifetime_status(component)` → updates **`lifetime_status`** field
+- `update_component_service_status(component)` → updates **`service_status`** field
 
 **Enhancement needed:**
-- Calculate BOTH distance-based and time-based statuses
-- Apply worst-case logic to determine final status
-- Update component record with final status
+- Calculate BOTH distance-based and time-based statuses FOR EACH FUNCTION
+- Apply worst-case logic to determine final status WITHIN EACH DOMAIN (lifetime separate from service)
+- Update component record with final status IN THE RESPECTIVE FIELD
 
-**Pseudocode:**
+**Pseudocode for update_component_lifetime_status:** 
 ```python
 def update_component_lifetime_status(component):
     distance_status = None
@@ -513,8 +581,40 @@ def update_component_lifetime_status(component):
     # Worst-case logic
     final_status = determine_worst_status(distance_status, time_status)
 
-    # Write to database
+    # Write to database - updates lifetime_status field
     database_manager.write_component_lifetime_status(component, remaining_km, remaining_days, final_status)
+```
+
+**Pseudocode for update_component_service_status:**
+```python
+def update_component_service_status(component):
+    distance_status = None
+    time_status = None
+
+    # Distance-based calculation (if service_interval is not NULL)
+    if component.service_interval and component.threshold_km:
+        remaining_km = component.service_next  # Already calculated elsewhere
+        distance_status = compute_component_status(
+            "service",
+            remaining_km,
+            component.threshold_km
+        )
+
+    # Time-based calculation (if service_interval_days is not NULL)
+    if component.service_interval_days and component.threshold_days:
+        days_since_last_service = calculate_days_since_last_service(component)
+        remaining_days = component.service_interval_days - days_since_last_service
+        time_status = compute_component_status(
+            "service",
+            remaining_days,
+            component.threshold_days
+        )
+
+    # Worst-case logic
+    final_status = determine_worst_status(distance_status, time_status)
+
+    # Write to database - updates service_status field
+    database_manager.write_component_service_status(component, remaining_km, remaining_days, final_status)
 ```
 
 **FR-5.3: Bike Status Aggregation Updates**
@@ -557,81 +657,11 @@ Time-based fields update CONTINUOUSLY (every component ages every day).
 - Need efficient approach that balances accuracy with performance
 
 **Options for Architect to Consider:**
-
-**Option A: Lazy Calculation (On-Demand)**
-- Time-based fields calculated during query/display
-- No stored values for `component_age_days`, `lifetime_remaining_days`, `service_next_days`
-- Pro: No scheduled tasks, always accurate
-- Con: Calculation overhead on EVERY component view
-
-**Option B: Scheduled Batch Update**
-- Nightly cron job updates all components' time-based fields
-- Pro: Pre-computed, fast queries
-- Con: Stale data (up to 24 hours old), requires scheduling infrastructure
-
-**Option C: Hybrid Lazy + Cached**
-- Calculate on first access each day, cache until next day
-- Store `last_time_calculation_date` per component
-- Pro: Balance of accuracy and performance
-- Con: More complex logic
-
-**Option D: User-Triggered Refresh**
-- Time-based fields updated when user views component or bike page
-- "Last updated: 2 hours ago" indicator
-- Pro: User-controlled, no background tasks
-- Con: May feel stale if user doesn't refresh frequently
-
-**Questions for @architect:**
-1. Which approach best fits the existing application architecture?
-2. Are there performance implications for lazy calculation across 100+ components?
-3. Should time-based fields be stored in database or calculated on-the-fly?
-4. How to handle staleness in component overview pages (showing 50+ components)?
-5. Is there existing infrastructure for scheduled tasks (cron, celery, etc.)?
-
----
-
-### FR-7: Status Threshold Configuration (CRITICAL DESIGN QUESTION)
-
-**Question for @architect:**
-
-Should we use SEPARATE threshold fields for time vs. distance, or SHARED threshold field?
-
-**Option A: Shared Threshold (Current Proposal)**
-- Single `status_threshold_percentage` field (e.g., 90%)
-- Applied to BOTH time and distance calculations
-- Single `status_threshold_km` field (e.g., 500km)
-- **Question: How to interpret "500km" threshold for time-based status?**
-  - Convert to days based on interval? (e.g., 500 days if lifetime is 3650 days)
-  - Use percentage only for time, absolute only for distance?
-
-**Option B: Separate Thresholds**
-- `status_threshold_percentage` (shared, used for both)
-- `status_threshold_km` (distance only)
-- `status_threshold_days` (time only)
-- Example: 90% AND <500km for distance, 90% AND <30 days for time
-- Pro: Maximum flexibility
-- Con: More fields, more complexity
-
-**Example to clarify:**
-
-Component with 365 day lifetime:
-- Current age: 328 days (89.8%, 37 days remaining)
-- Threshold: 90%
-
-**Using shared percentage + absolute km threshold:**
-- Percentage check: 89.8% > 90% (FALSE)
-- Absolute check: 37 days < ??? (Need threshold in days)
-- **How to define absolute day threshold?**
-
-**Proposed resolution:**
-- Use `status_threshold_percentage` for BOTH time and distance (shared)
-- Use `status_threshold_km` for distance calculations ONLY
-- Add `status_threshold_days` for time calculations ONLY
-- Default `status_threshold_days` = 30 days (similar logic to 500km)
-
-**Architect to decide:**
-- Is separate threshold necessary?
-- Or can we derive day threshold from percentage alone (e.g., 90% of 365 days = 328 days → threshold is "remaining < 37 days")?
+- Create a system or task manager that allows for scheduled runs of select functions. Should be able to be used by other functions as well.
+- Create a function that can be called from the schedule task manager that updates time related fields, but excluded retired components from this function.
+- Retired functions should have some kind of marking, making it clear that how old they are and so on are now frozen and no longer updated after retirement
+- Time-based fields should be stored in database, but there could be exceptions for fields that are not used as input in other calculations
+- Whats the best way to add a schedule manager, is there some kind of framework og library we could use? It must be able to run in the container as part of the python script, without blocking the main thread
 
 ---
 
@@ -660,11 +690,7 @@ Component with 365 day lifetime:
 - What if component installed, uninstalled, reinstalled? Age timer never resets
 - What if service record exists but no service_interval_days configured? No time-based service status
 - What if component has lifetime_expected_days but no distance lifetime? Show time progress bar only
-
-**Out of Scope (Future Enhancements):**
-- Automatic notifications when components reach time-based thresholds
-- Pausing time-based aging when bike is marked as "in storage"
-- Different deterioration rates for different storage conditions
+- What if component has status retired? Do not update component after retirement date, only show last values at the time of retirement
 
 ---
 
@@ -685,14 +711,10 @@ Component with 365 day lifetime:
 - [ ] Component with time-based "OK" and distance-based "Due" shows "Due" status
 
 **Edge Cases:**
-- What if BOTH time and distance are at "Due" level simultaneously? Show 📍📅 indicator
-- What if time = "Exceeded" and distance = "Due"? Show "Exceeded" (worse)
-- What if component has NULL for one interval type? Only calculate status for configured interval
-- What if BOTH intervals are NULL? Status = NULL (no maintenance defined)
-
-**Out of Scope (Future Enhancements):**
-- Configurable weighting (e.g., prioritize time over distance)
-- Separate status badges for time vs. distance (showing both simultaneously)
+- What if BOTH time and distance are below their respective thresholds simultaneously? Show 📍📅 indicator (both contributing to status)
+- What if time = "Exceeded" and distance = "Due"? Show "Exceeded" (worse) with appropriate trigger indicator
+- What if component has NULL for one interval type? Only calculate status for configured interval, show 📍 or 📅 only
+- What if BOTH intervals are NULL? Status = "Not defined" ⚪ (no maintenance intervals configured), no trigger indicator
 
 ---
 
@@ -703,11 +725,12 @@ Component with 365 day lifetime:
 **So that** I avoid premature warnings and focus on components that truly need attention
 
 **Acceptance Criteria:**
-- [ ] Component with 200km remaining shows "OK" status when threshold_km = 300km (200 >= 300 is false, so not "Due")
 - [ ] Component with 200km remaining shows "Due" status when threshold_km = 300km (200 < 300)
+- [ ] Component with 400km remaining shows "OK" status when threshold_km = 300km (400 >= 300)
 - [ ] Component with 800km remaining shows "OK" status when threshold_km = 300km (800 >= 300)
 - [ ] Component at exactly 0km remaining shows "Exceeded" status (0 <= 0)
 - [ ] Component with negative remaining km shows "Exceeded" status (-100 < 0)
+- [ ] Component with negative remaining days shows "Exceeded" status (-5 < 0)
 - [ ] User can customize `threshold_km` at component type level
 - [ ] User can customize `threshold_days` at component type level
 - [ ] Individual components inherit thresholds from type but can override
@@ -715,16 +738,16 @@ Component with 365 day lifetime:
 - [ ] Form validation: threshold_days must be >0 when configured
 - [ ] Application validation: threshold_km required when distance intervals exist
 - [ ] Application validation: threshold_days required when time intervals exist
+- [ ] Threshold validation: threshold_km must be <= MIN(service_interval, lifetime_expected) when both are defined
+- [ ] Threshold validation: threshold_km must be <= service_interval OR lifetime_expected when only one is defined
+- [ ] Threshold validation: threshold_days must be <= MIN(service_interval_days, lifetime_expected_days) when both are defined
+- [ ] Threshold validation: threshold_days must be <= service_interval_days OR lifetime_expected_days when only one is defined
 
 **Edge Cases:**
-- What if user sets threshold_km to 10,000km on a 3,000km component? Component shows "Due" immediately when created (remaining 3,000 < 10,000)
-- What if user sets threshold_km to 100km on a 10,000km component? Component stays "OK" until very close to end
-- What if component has no lifetime_expected (NULL)? No status calculation, display "-"
-
-**Out of Scope (Future Enhancements):**
-- Different thresholds for service vs. lifetime (currently uses same threshold for both)
-- Dynamic thresholds based on component health or service history
-- Threshold recommendations based on component type
+- What if component has service_interval = 250km and lifetime_expected = 3,000km? threshold_km must be <= 250km (the smaller value). This prevents threshold from being larger than the shortest interval, ensuring warnings trigger appropriately for both service and lifetime.
+- What if user attempts to set threshold_km to 10,000km on a 3,000km component (only lifetime defined)? Input validation prevents threshold from exceeding 3,000km (applies to both component type form and component details form)
+- What if user sets threshold_km to 100km on a 10,000km component? Valid. Component stays "OK" until very close to end (within 100km).
+- What if component has no lifetime_expected (NULL)? No lifetime status calculation, display "-"
 
 ---
 
@@ -735,22 +758,19 @@ Component with 365 day lifetime:
 **So that** I know exactly when to service or replace components
 
 **Acceptance Criteria:**
-- [ ] Component status can ONLY be: "OK", "Due for service", "Service exceeded", "Due for replacement", "Lifetime exceeded", or NULL
+- [ ] Component status can ONLY be: "OK", "Due for service", "Service exceeded", "Due for replacement", "Lifetime exceeded", or "Not defined"
 - [ ] "Service approaching" status is removed from system
 - [ ] "End of life approaching" status is removed from system
-- [ ] Component overview statistics display 3 color categories (🟢 green / 🟡 yellow / 🔴 red) instead of 4 (previously 🟢🟡🔴🟣)
-- [ ] Status indicators use: 🟢 for "OK", 🟡 for "Due", 🔴 for "Exceeded"
-- [ ] Bike status aggregation logic updated to reflect 3 levels (OK / Warning / Critical)
+- [ ] Component overview statistics display 4 color categories (🟢 green / 🟡 yellow / 🔴 red / ⚪ white) instead of 4 (previously 🟢🟡🔴🟣)
+- [ ] Status indicators use: 🟢 for "OK", 🟡 for "Due", 🔴 for "Exceeded", ⚪ for "Not defined"
+- [ ] Components with no intervals configured show "Not defined ⚪" status
+- [ ] Bike status aggregation logic should be the same as it currently is, but must handle the new status level system
 - [ ] Existing components with "approaching" status migrated to "OK" or "Due" based on new thresholds
-- [ ] UI legend/documentation updated to reflect 3-level system with emoji indicators
+- [ ] UI legend/documentation updated to reflect status system with emoji indicators
 
 **Edge Cases:**
 - What if component has exactly threshold_km remaining (e.g., 300km remaining, threshold_km = 300km)? Use < operator, so this would be "OK" (300 < 300 is false)
 - What if component has threshold_km - 1 remaining (e.g., 299km remaining, threshold_km = 300km)? "Due for service" (299 < 300 is true)
-
-**Out of Scope (Future Enhancements):**
-- User-configurable status level names (e.g., "Needs attention" instead of "Due for service")
-- More granular status levels (5+ levels)
 
 ---
 
@@ -771,14 +791,10 @@ Component with 365 day lifetime:
 - [ ] Application-level validation enforces: threshold_km required when distance intervals exist, threshold_days required when time intervals exist
 
 **Edge Cases:**
-- What if component type has NULL for time intervals? Component inherits NULL (time-based tracking disabled)
-- What if user creates component type with no threshold defaults? New components inherit NULL, user must configure before thresholds take effect
-- What if user changes component type of existing component? Threshold and time interval values are NOT automatically updated (preserve user customizations)
+- What if component type has NULL for time intervals? Component inherits NULL (time-based tracking disabled), but can be overridden by user by entering values directly in the component form
+- What if user creates component type with no threshold defaults? New components inherit NULL, user must configure before thresholds take effect. Thresholds are mandatory if corresponding values have been set for either distance or time
+- What if user changes a component's assigned type (e.g., reassigns component #123 from "Chain" type to "Cassette" type)? **Component inherits all field values from the newly assigned ComponentType** (service_interval, lifetime_expected, service_interval_days, lifetime_expected_days, threshold_km, threshold_days). This is DIFFERENT from changing ComponentType defaults, which does NOT update existing components.
 
-**Out of Scope (Future Enhancements):**
-- Bulk update all components to match type defaults
-- Templates for common component configurations
-- Import/export component configurations
 
 **Note:** Per-component distance interval customization already exists (service_interval and lifetime_expected fields). This user story focuses on adding time intervals and threshold configurability.
 
@@ -803,13 +819,9 @@ Component with 365 day lifetime:
 - [ ] Component detail page shows both "Days since last service: X" and "Component age: X days"
 
 **Edge Cases:**
-- What if component is serviced multiple times? Each service resets service_next_days
+- What if component is serviced multiple times? Each service resets service_next_days, the most recent service date is used
 - What if component has service record but no service_interval_days configured? No service timer displayed
 - What if component has lifetime_expected_days but no service_interval_days? Only lifetime timer displayed
-
-**Out of Scope (Future Enhancements):**
-- Resetting lifetime timer (components are never "reborn")
-- Manual adjustment of component age
 
 ---
 
@@ -820,7 +832,7 @@ Component with 365 day lifetime:
 **So that** I don't need to learn different workflows for time-based vs. distance-based components
 
 **Acceptance Criteria:**
-- [ ] Component creation form ALWAYS shows all 6 fields (service_interval, service_interval_days, lifetime_expected, lifetime_expected_days, threshold_%, threshold_km)
+- [ ] Component creation form ALWAYS shows all 6 fields (service_interval, service_interval_days, lifetime_expected, lifetime_expected_days, threshold_days, threshold_km)
 - [ ] Component edit form ALWAYS shows all 6 fields regardless of which are configured
 - [ ] Empty/blank fields are stored as NULL in database
 - [ ] Component detail page always displays both time and distance sections
@@ -831,36 +843,6 @@ Component with 365 day lifetime:
 **Edge Cases:**
 - What if component has NO intervals configured (all NULL)? Show "No maintenance intervals configured"
 - What if user configures ONLY thresholds but no intervals? Thresholds have no effect, status = NULL
-
-**Out of Scope (Future Enhancements):**
-- Adaptive UI that hides irrelevant fields
-- Component type templates (e.g., "Sealant Template" pre-populates time fields only)
-
----
-
-### User Story 8: Migration of Existing Components
-
-**As a** existing Velo Supervisor user
-**I want to** preserve my current component data during migration
-**So that** I don't lose tracking history
-
-**Acceptance Criteria:**
-- [ ] Database migration adds 4 new fields to ComponentTypes table (service_interval_days, lifetime_expected_days, threshold_km, threshold_days - all nullable)
-- [ ] Database migration adds 4 new user-editable fields + 3 calculated fields to Components table
-- [ ] Existing ComponentTypes: all new fields set to NULL (users configure as needed)
-- [ ] Existing Components: time intervals set to NULL, threshold_km = 200, threshold_days = NULL
-- [ ] Existing components continue using distance-only status calculations (unchanged behavior)
-- [ ] User can gradually add time intervals to component types as needed
-- [ ] Existing status badges remain accurate (no regression)
-
-**Edge Cases:**
-- What if user has 500+ components? Migration must complete in reasonable time (<5 minutes)
-- What if migration fails midway? Rollback mechanism (architect responsibility)
-- What if user manually edited database before migration? Validate data integrity before/after
-
-**Out of Scope (Future Enhancements):**
-- Automatic population of time intervals based on component type guessing (e.g., "Sealant" → 180 days)
-- Migration wizard to guide user through configuring time intervals
 
 ---
 
@@ -895,34 +877,7 @@ Component with 365 day lifetime:
 
 ---
 
-### Test Case 2: Tubeless Tape (Time-Only, Long Lifetime)
-
-**Configuration:**
-- Component Type: "Tubeless Tape"
-- service_interval_days = NULL
-- lifetime_expected_days = 1095 (3 years)
-- service_interval (km) = NULL
-- lifetime_expected (km) = NULL
-- threshold_km = NULL (no distance intervals)
-- threshold_days = 60
-
-**State:**
-- Component installed: 912 days ago
-- Distance accumulated: 8,000 km
-
-**Expected Calculations:**
-- `component_age_days` = 912
-- `lifetime_remaining_days` = 1095 - 912 = 183 days
-- Lifetime status (time): 183 days < 60 days threshold? NO → **"OK"**
-- Service status: NULL (no interval configured)
-- Final status: **"OK"**
-- Trigger indicator: None (no warning)
-
-**VALIDATED: ✓**
-
----
-
-### Test Case 3: Chain (Distance-Only with Simplified Threshold)
+### Test Case 2: Chain (Distance-Only with Simplified Threshold)
 
 **Configuration:**
 - Component Type: "Chain"
@@ -949,7 +904,7 @@ Component with 365 day lifetime:
 
 ---
 
-### Test Case 4: Tire (Hybrid Time + Distance)
+### Test Case 3: Tire (Hybrid Time + Distance)
 
 **Configuration:**
 - Component Type: "Tire"
@@ -983,58 +938,6 @@ Component with 365 day lifetime:
 
 ---
 
-### Test Case 5: Brake Pads at Exactly End of Life
-
-**Configuration:**
-- Component Type: "Brake Pads"
-- lifetime_expected = 2,500 km
-- threshold_km = 250
-
-**State:**
-- Component distance: 2,500 km (exactly at lifetime)
-- Lifetime remaining: 0 km
-
-**Expected Calculations:**
-- Remaining: 0 km
-- Exceeded logic: 0 km <= 0 → **"Lifetime exceeded"**
-
-**EDGE CASE:** At exactly 0km remaining, component should show "Lifetime exceeded" (action is overdue).
-
-**Logic:**
-```python
-if remaining_km <= 0:
-    status = "Lifetime exceeded"
-```
-
-**VALIDATED: ✓** (Simplified - at 0 remaining shows "Exceeded" status)
-
----
-
-### Test Case 6: Component with Custom Thresholds
-
-**Configuration:**
-- Component Type: "Premium Chain"
-- lifetime_expected = 8,000 km
-- threshold_km = 1,000 (custom, higher than typical 300km for chains)
-
-**State:**
-- Component distance: 7,200 km
-- Lifetime remaining: 800 km
-
-**Expected Calculations:**
-- Remaining: 800 km
-- 800 km < 1,000 km threshold → **"Due for replacement"**
-
-**Compare to smaller threshold (e.g., 300km):**
-- With threshold_km = 300: 800 km < 300 km? NO → **"OK"**
-- With threshold_km = 1,000: 800 km < 1,000 km? YES → **"Due for replacement"**
-
-**Validation:** Custom thresholds allow earlier warnings for long-lifetime components. Long-lifetime components benefit from higher thresholds.
-
-**VALIDATED: ✓** (Simplified - absolute threshold provides flexibility per component type)
-
----
-
 ## Edge Cases & Error Handling
 
 ### Edge Case 1: Component Never Installed
@@ -1045,10 +948,10 @@ if remaining_km <= 0:
 - `component_age_days` = NULL (no installation date exists)
 - `lifetime_remaining_days` = NULL
 - `service_next_days` = NULL
-- No time-based status calculations
+- No time-based status calculations possible
 - Distance-based calculations also impossible (no distance accumulation)
 - Component detail page shows "Not yet installed" message
-- Status = NULL or "Not configured"
+- Status = "Not defined" ⚪ (no data available for status calculation)
 
 ---
 
@@ -1065,102 +968,22 @@ if remaining_km <= 0:
 
 ---
 
-### Edge Case 3: Service Registered Before Component First Installed
+### Edge Case 3: Component Has No Expected Lifetime or Service Interval
 
-**Scenario:** Data integrity issue - service record exists with date before first installation
-
-**Handling:**
-- Backend validation prevents this during service creation
-- If exists in database (legacy data), skip service-based calculations
-- Display warning: "Service record date invalid (before installation)"
-- Suggest user corrects data
-
----
-
-### Edge Case 4: Component Has No Expected Lifetime or Service Interval
-
-**Scenario:** Component created with ALL interval fields NULL
+**Scenario:** Component created with ALL interval fields NULL (no service_interval, no lifetime_expected, no service_interval_days, no lifetime_expected_days)
 
 **Handling:**
 - No status calculations possible
+- Status = "Not defined" ⚪ (white circle emoji)
 - Component detail page shows: "No maintenance intervals configured"
-- Component overview table shows "-" for status
+- Component overview table shows: "Not defined ⚪"
 - No progress bars displayed
-- Distance and age still tracked and displayed (for reference)
+- No trigger indicator (📍/📅) shown
+- Distance and age still tracked and displayed (for reference only)
 
 ---
 
-### Edge Case 5: Separate Threshold Fields for Time vs. Distance
-
-**Design Decision:** Use separate `threshold_km` and `threshold_days` fields (not shared).
-
-**Rationale:**
-- Distance thresholds measured in km (e.g., 300km)
-- Time thresholds measured in days (e.g., 30 days)
-- Different scales require separate configuration
-- Simpler logic: remaining < threshold (no percentage calculation needed)
-
-**Example:**
-- Component with lifetime_expected_days = 365, threshold_days = 30
-- At 340 days (25 days remaining): 25 < 30 → "Due for replacement"
-- At 320 days (45 days remaining): 45 >= 30 → "OK"
-
-**Schema:**
-- ComponentTypes: `threshold_km`, `threshold_days` (both nullable)
-- Components: `threshold_km`, `threshold_days` (both nullable, inherited from type)
-
----
-
-### Edge Case 6: Negative Remaining Days
-
-**Scenario:** Component installed 400 days ago, lifetime_expected_days = 365
-
-**Handling:**
-- `lifetime_remaining_days` = 365 - 400 = -35
-- Exceeded logic: -35 <= 0 → **"Lifetime exceeded"**
-- Display: "Lifetime exceeded by 35 days"
-- No threshold check needed (exceeded is binary)
-
----
-
-### Edge Case 7: User Changes Component Type After Creation
-
-**Scenario:** User creates component as "Chain", later changes to "Cassette"
-
-**Handling:**
-- Component's interval fields are NOT automatically updated
-- User must manually update intervals if desired
-- Rationale: Preserve user customizations, avoid data loss
-- UI may show notification: "Component type changed. Review intervals."
-
----
-
-### Edge Case 8: Component Type Defaults Changed
-
-**Scenario:** User updates ComponentType "Chain" from 3,000km lifetime to 4,000km
-
-**Handling:**
-- Existing components with type "Chain" are NOT automatically updated
-- Only newly created "Chain" components inherit 4,000km
-- Rationale: Existing components may have custom overrides or different characteristics
-- Optional feature for future: "Apply type defaults to all components of this type" button
-
----
-
-### Edge Case 9: Database Migration Failure Midway
-
-**Scenario:** Migration adds 4 new fields, succeeds for 200 components, fails at component 201
-
-**Handling:**
-- Use database transaction for migration (all-or-nothing)
-- If any operation fails, ROLLBACK entire migration
-- User sees error message with details
-- Database remains in pre-migration state
-- User can retry migration after investigating
-
----
-
-### Edge Case 10: Component Has Service Interval But Never Serviced
+### Edge Case 4: Component Has Service Interval But Never Serviced
 
 **Scenario:** New component installed with service_interval_days = 180, no service records yet
 
@@ -1168,162 +991,6 @@ if remaining_km <= 0:
 - Service timer counts from installation date (not service date)
 - `service_next_days` = 180 - days_since_installation
 - When service record is registered, timer resets to count from service date
-
----
-
-## Questions for UX Designer
-
-The following open-ended questions should guide the UI/UX design for the Component Status Refinement feature:
-
-### General Interface Design
-
-1. **How should the refined 3-level status system (OK / Due / Exceeded) be visually distinguished from the current 4-level system?** The color scheme is defined: 🟢 green for "OK", 🟡 yellow for "Due", 🔴 red for "Exceeded" (replacing the previous 4-color system 🟢🟡🔴🟣). What badge styles and visual treatment will make the simplified system immediately understandable and consistent with existing UI patterns?
-
-2. **How should users configure the 6 new fields (2 time intervals, 2 distance intervals, 2 thresholds) without overwhelming them?** Should fields be grouped, collapsed, or presented with progressive disclosure?
-
-3. **How should the system communicate to users which components use time-based, distance-based, or hybrid tracking?** Should there be visual indicators (icons, badges) in component lists?
-
-### Status Display
-
-4. **How should the status trigger indicator (📍 / 📅 / 📍📅) be presented in component tables?** Should it be inline with status badge, separate column, tooltip, or another pattern?
-
-5. **How should "worst case wins" logic be explained to users?** If distance says "OK" but time says "Due", how do we clarify why the component shows "Due"?
-
-6. **How should components with NULL intervals (no maintenance configured) be displayed?** Should they show "-", "Not configured", greyed out status, or another pattern?
-
-### Progress Bars and Visual Feedback
-
-7. **How should dual progress bars (time + distance) be laid out on component detail pages?** Vertical stack, horizontal side-by-side, tabbed interface, or another pattern?
-
-8. **How should single-interval components (time-only or distance-only) be displayed?** Should empty/unused progress bars be hidden, greyed out, or shown with "Not configured" message?
-
-9. **How should negative remaining values be displayed visually?** When a component shows "Exceeded by 35 days" or "Exceeded by 200km", what color, iconography, or visual treatment emphasizes urgency?
-
-### Component Creation and Editing
-
-10. **How should the component creation form present 6 interval/threshold fields without overwhelming new users?** Should defaults be pre-filled, should fields be collapsible, or should there be a "simple" vs. "advanced" mode?
-
-11. **How should inherited vs. overridden values be visually distinguished in component edit forms?** Should inherited values have a different background color, icon, or label?
-
-12. **How should users reset component-level values back to type defaults?** Button, link, dropdown action, or another pattern?
-
-13. **How should form validation errors for thresholds (e.g., threshold_km must be >0) be displayed?** Inline, at top of form, tooltip, or another pattern?
-
-### Component Type Management
-
-14. **How should ComponentType edit forms communicate that changing defaults won't affect existing components?** Should there be an informational banner, tooltip, or warning message?
-
-15. **How should users apply updated type defaults to existing components (future enhancement)?** What UI pattern would make this safe and clear (e.g., "Apply to 23 existing components" with preview)?
-
-### Component Overview Tables
-
-16. **How should component overview tables accommodate the status trigger indicator column?** Should it be a new column, merged with status column, or shown on hover/tooltip?
-
-17. **How should users filter component tables by status trigger (time-triggered, distance-triggered, both)?** Should there be filter buttons, dropdown, or another pattern?
-
-18. **How should the overview page statistics (count by status) adapt to the 3-level system?** Should there be separate counts for time-triggered vs. distance-triggered warnings?
-
-### Time Display Conventions
-
-19. **How should days remaining be formatted and displayed?** Examples: "45 days", "45d", "1.5 months", "6 weeks" - which convention is most scannable?
-
-20. **How should "days since installation" be distinguished from "days until service"?** Should there be different icons, labels, or positioning?
-
-21. **How should time-based and distance-based remaining values be displayed side-by-side?** Should they use the same format (e.g., "200km remaining" and "30 days remaining"), or different visual treatments?
-
-### Mobile and Responsive Design
-
-22. **How should dual progress bars be adapted for mobile screens?** Should they stack vertically, collapse into summary view, or use another pattern?
-
-23. **How should the 6-field configuration form be optimized for mobile?** Should fields collapse into accordion, use wizard steps, or adapt in another way?
-
-### Warnings and Edge Cases
-
-24. **How should the system communicate when a component's first installation date cannot be determined (no history)?** Warning banner, greyed out time fields, or another pattern?
-
-25. **How should users be notified that time-based fields might be stale (if using lazy calculation)?** "Last updated X hours ago" indicator, refresh button, or another pattern?
-
-### Consistency and Patterns
-
-26. **What visual treatment should clearly communicate the simplified threshold logic (remaining < threshold)?** Should there be tooltips or help text explaining how thresholds work?
-
-27. **How should the "component age continues during uninstall" behavior be communicated?** Should there be tooltips, help text, or visual indicators?
-
----
-
-## Questions for Architect
-
-The following open-ended questions should guide the technical architecture for the Component Status Refinement feature:
-
-### Database and Schema Design
-
-1. **Should time-based calculated fields (`component_age_days`, `lifetime_remaining_days`, `service_next_days`) be stored in the database or calculated on-the-fly?** What are the performance implications of each approach for 100+ components?
-
-2. **Should we store `threshold_km` and `threshold_days` as separate database fields, or use a single polymorphic threshold field?** Recommendation: separate fields for clarity and type safety.
-
-3. **What database indexes are needed to optimize queries filtering by installation_status, time intervals, and date calculations?** Are composite indexes needed?
-
-4. **How should we handle database migration rollback if the migration fails midway through updating hundreds of components?** Should we use transactions, backup tables, or another safety mechanism?
-
-### Time-Based Update Strategy (CRITICAL)
-
-5. **What is the most efficient approach for updating time-based fields that change daily?**
-   - Lazy calculation on query (no storage, always accurate)
-   - Scheduled batch update (nightly cron, pre-computed)
-   - Hybrid lazy + cached (calculate once per day per component)
-   - User-triggered refresh (updates when user views page)
-
-6. **If using scheduled batch updates, what infrastructure is available (cron, celery, background workers)?** How should errors be handled if batch update fails?
-
-7. **If using lazy calculation, what is the performance impact of calculating age/remaining for 50+ components on component overview page?** Are there caching strategies to mitigate this?
-
-8. **How should staleness be handled for time-based data?** Should users see "Last calculated: 2 hours ago" indicators, or should calculations always be real-time?
-
-### Status Calculation Logic
-
-9. **What is the best approach for implementing the hybrid "worst case wins" logic when comparing time-based and distance-based statuses?** Should this be a single function, separate functions, or a pluggable strategy pattern?
-
-10. **How should we refactor the existing `compute_component_status()` function to use simplified threshold logic (remaining < threshold)?** Should we maintain backward compatibility or introduce breaking changes?
-
-11. **Should status calculation logic be extracted into a separate service/module, or remain in `business_logic.py`?** What separation of concerns makes sense?
-
-12. **How should we handle edge cases where time intervals are NULL for some components and configured for others in the same query?** Conditional logic, separate query paths, or another approach?
-
-### API and Backend Endpoints
-
-13. **Do we need new API endpoints for updating time/threshold configurations, or can existing endpoints be extended?** What request/response schemas are needed?
-
-14. **How should the backend validate that `threshold_km` and `threshold_days` are >0 when configured?** Client-side only, server-side only, or both? Should validation enforce that thresholds are required when corresponding intervals exist?
-
-15. **Should time-based field updates trigger re-calculation of bike-level status aggregations?** How do we avoid cascading performance issues?
-
-### Integration with Existing Features
-
-16. **How does the quick swap feature interact with time-based component tracking?** Does swapping reset age timer or preserve it?
-
-17. **How should service registration interact with time-based service intervals?** Does registering service reset `service_next_days` to `service_interval_days`?
-
-18. **How should component retirement affect time-based tracking?** Should age timer stop, or continue counting?
-
-### Testing and Validation
-
-19. **What test cases are critical for validating simplified threshold logic (remaining < threshold)?** How do we ensure edge cases like exactly 0km remaining are handled correctly (should use <= for exceeded check)?
-
-20. **How should we test time-based calculations that depend on current date?** Should we use fixed test dates, mocking, or another approach?
-
-### Performance and Scalability
-
-21. **What is the expected performance impact of adding 7 new fields per component (4 user-configured, 3 calculated)?** How does this scale to 1,000+ components?
-
-22. **Should we implement pagination or lazy loading for component overview pages if calculations become expensive?** What threshold determines when optimization is needed?
-
-### Migration and Backward Compatibility
-
-23. **How should we handle existing components during migration?** Should time fields default to NULL, or should we attempt to populate them based on component type heuristics?
-
-24. **What rollback strategy should be in place if the migration causes unexpected issues in production?** Backup database, reversible migration scripts, or another approach?
-
-25. **How should we maintain backward compatibility with existing API consumers (if any)?** Should old endpoints continue to work, or require updates?
 
 ---
 
@@ -1349,104 +1016,17 @@ All features described in this document are considered MVP:
 
 ### Future Enhancements (Nice to Have, Post-MVP)
 
-**Phase 2 Enhancements:**
-- Separate `status_threshold_days` field (if architect determines it's necessary)
-- "Apply type defaults to all components" bulk update feature
-- Configurable status level names (e.g., "Needs attention" instead of "Due")
-- Component age pause/resume for storage periods
-- Notification system for time-based threshold crossings
-
-**Phase 3 Enhancements:**
-- Different deterioration rates for different storage conditions (humidity, temperature)
-- Predictive analytics: "Based on your riding patterns, this component will need service in X weeks"
-- Component health scoring (0-100) combining time, distance, service history
-- Advanced filtering: "Show all components reaching end of life in next 30 days"
-
-**Long-Term Considerations:**
-- Machine learning for component lifetime predictions based on actual usage
-- Integration with external component databases (expected lifetimes by brand/model)
-- Component warranty tracking (time-based expiration)
-- Seasonal component swap reminders (e.g., "Time to switch to winter tires")
-
 ---
 
 ## Integration Points
 
-### Existing Features Impacted
-
-**1. Component Status Calculations**
-- Current `compute_component_status()` function must be refactored
-- Current `update_component_lifetime_status()` and `update_component_service_status()` must be enhanced
-- Hybrid logic requires checking both time and distance factors
-
-**2. Component Creation and Editing**
-- Create component modal must add 6 new fields
-- Edit component modal must add 6 new fields
-- Validation logic must handle NULL values for time intervals
-
-**3. Component Type Management**
-- Component types form must add 4 new fields
-- Type defaults must be applied to new components (inheritance logic)
-
-**4. Component Overview Page**
-- Table must add status trigger indicator column (or merge into existing status column)
-- Statistics (count by status) must reflect 3-level system
-
-**5. Bike Details Page**
-- Component table must add status trigger indicator
-- Bike-level status aggregation must use 3-level system
-
-**6. Component Detail Page**
-- Must display component age, lifetime remaining (days), service next (days)
-- Must display dual progress bars (time + distance)
-- Must show which factor triggered current status
-
-**7. Service Registration**
-- Registering service must reset `service_next_days` to `service_interval_days`
-- Must NOT reset `component_age_days` or `lifetime_remaining_days`
-
-**8. Component History**
-- First installation date derived from ComponentHistory table
-- Age calculation depends on accurate history records
-
-### Database Tables Affected
-
-**1. `component_types` table**
-- 4 new fields added: `service_interval_days`, `lifetime_expected_days`, `threshold_km`, `threshold_days`
-- Migration adds fields with defaults (all NULL)
-
-**2. `components` table**
-- 7 new fields added: 4 user-configured (inherited from type), 3 calculated (age, remaining days)
-- Migration adds fields with defaults
-
-**3. `component_history` table**
-- NOT modified, but heavily queried (first installation date lookup)
-
-**4. `services` table**
-- NOT modified, but queried for "last service date" in time-based service calculations
-
-### API Endpoints Needed
-
-**Modified Endpoints:**
-- `POST /api/component` (create component) - accept 6 new fields
-- `PUT /api/component/{id}` (update component) - accept 6 new fields
-- `POST /api/component_type` (create type) - accept 4 new fields
-- `PUT /api/component_type/{id}` (update type) - accept 4 new fields
-
-**Query Endpoints:**
-- `GET /api/components` - return time-based fields in response
-- `GET /api/component/{id}` - return calculated age and remaining days
-
-**No new endpoints required** - existing CRUD operations extended to handle new fields.
-
-### Strava Integration Considerations
-
-**No direct Strava integration changes needed.**
-
-However, note:
-- Distance-based updates triggered by Strava ride sync (existing behavior)
-- Time-based updates NOT triggered by Strava (continuous/scheduled, see FR-6)
-- Ride sync may trigger re-calculation of worst-case status (time vs. distance)
+**Key Areas Impacted:**
+- **Backend**: `compute_component_status()`, `update_component_lifetime_status()`, `update_component_service_status()` - refactored for hybrid time/distance logic
+- **Database**: `component_types` table (+4 fields), `components` table (+7 fields); `component_history` and `services` tables queried but not modified
+- **API Endpoints**: Extend existing CRUD endpoints to accept/return new time-based fields (no new endpoints needed)
+- **UI Pages**: Component overview, bike details, component detail, component/type forms - all updated for dual progress bars, status trigger indicators, and new field inputs
+- **Service Registration**: Resets `service_next_days` but NOT `component_age_days` or `lifetime_remaining_days`
+- **Strava Integration**: No changes needed; ride sync triggers distance updates, time updates are independent
 
 ---
 
@@ -1480,143 +1060,13 @@ However, note:
 ### Success Criteria (MVP)
 
 The feature is considered successful if:
-1. All 8 user stories are implemented with acceptance criteria met
+1. All user stories are implemented with acceptance criteria met
 2. All 6 validation examples pass automated and manual testing
 3. No data loss or corruption during migration
 4. Time-based status calculations accurate within 1 day
 5. Hybrid threshold logic eliminates premature warnings for long-lifetime components
 6. Performance impact <500ms for component overview page (50+ components)
 7. Zero critical bugs in first month post-launch
-
----
-
-## Technical Considerations for Architect
-
-### 1. Time-Based Field Update Strategy (Detailed Analysis)
-
-**Problem:** Time-based fields (`component_age_days`, etc.) change every day for ALL components, unlike distance-based fields which only update when rides are synced.
-
-**Approach Comparison:**
-
-| Approach | Pros | Cons | Recommendation |
-|----------|------|------|----------------|
-| **Lazy Calculation** | Always accurate, no stale data, no scheduled tasks | Calculation overhead on EVERY query, N+1 query problem | ✓ RECOMMENDED for MVP (simplest) |
-| **Scheduled Batch** | Pre-computed (fast queries), controlled resource usage | Stale data (up to 24h), requires cron/scheduler infrastructure | Consider for Phase 2 if performance issues |
-| **Hybrid Cached** | Balance accuracy/performance, updates once per day | Complex cache invalidation logic | Consider for Phase 2 |
-| **User-Triggered** | User controls freshness, no background tasks | May feel stale, requires manual action | Not recommended |
-
-**Lazy Calculation Implementation:**
-
-```python
-@property
-def component_age_days(self):
-    """Calculate age dynamically from first installation date"""
-    first_install = ComponentHistory.select().where(
-        ComponentHistory.component_id == self.component_id,
-        ComponentHistory.update_reason == "Installed"
-    ).order_by(ComponentHistory.updated_date.asc()).first()
-
-    if not first_install:
-        return None
-
-    first_install_date = datetime.strptime(first_install.updated_date, "%Y-%m-%d %H:%M")
-    return (datetime.now() - first_install_date).days
-```
-
-**Optimization:**
-- Cache first installation date in component record (avoid repeated history queries)
-- Bulk load first installation dates for component overview pages
-
-### 2. Database Transaction Strategy
-
-**Critical Requirements:**
-- Migration must be atomic (all-or-nothing)
-- No partial state if migration fails
-
-**Peewee Transaction Pattern:**
-```python
-with database.atomic():
-    # Add columns to ComponentTypes
-    migrator.add_column('component_types', 'service_interval_days', IntegerField(null=True))
-    # ... add other fields
-
-    # Update all existing records with defaults
-    ComponentTypes.update(
-        status_threshold_percentage=90,
-        status_threshold_km=500
-    ).execute()
-
-    # If any operation fails, entire transaction rolls back
-```
-
-### 3. Simplified Threshold Logic Implementation
-
-**Proposed Function Signature:**
-```python
-def compute_component_status(
-    mode: str,  # "service" or "lifetime"
-    remaining_value: int,  # km or days remaining
-    threshold_value: int  # user-configured threshold
-) -> str:
-    """
-    Compute component status using simplified threshold logic.
-
-    Returns:
-        "OK" | "Due for service" | "Service exceeded" |
-        "Due for replacement" | "Lifetime exceeded"
-    """
-    # Exceeded logic
-    if remaining_value <= 0:
-        return "Service exceeded" if mode == "service" else "Lifetime exceeded"
-
-    # Due logic - simple comparison
-    if remaining_value < threshold_value:
-        return "Due for service" if mode == "service" else "Due for replacement"
-
-    # Otherwise OK
-    return "OK"
-```
-
-### 4. Worst-Case Status Determination
-
-**Helper Function:**
-```python
-def determine_worst_status(status1: str, status2: str) -> str:
-    """
-    Determine worst-case status from two status values.
-
-    Status severity ranking (worst to best):
-    1. "Exceeded" (worst)
-    2. "Due"
-    3. "OK"
-    4. None (not configured)
-    """
-    severity_map = {
-        "Service exceeded": 3,
-        "Lifetime exceeded": 3,
-        "Due for service": 2,
-        "Due for replacement": 2,
-        "OK": 1,
-        None: 0
-    }
-
-    severity1 = severity_map.get(status1, 0)
-    severity2 = severity_map.get(status2, 0)
-
-    return status1 if severity1 >= severity2 else status2
-```
-
-### 5. Query Optimization Strategies
-
-**Index Recommendations:**
-- Index on `components.installation_status` (existing, used frequently)
-- Index on `component_history.component_id` and `component_history.updated_date` (for first installation lookup)
-- Composite index on `(component_id, update_reason, updated_date)` for optimized history queries
-
-**Caching First Installation Date:**
-- Option A: Add `first_installation_date` field to Components table (denormalized, updated on install/uninstall)
-- Option B: Application-level cache (LRU cache for recent lookups)
-- **Recommendation: Option A** (avoids repeated history queries)
 
 ---
 
@@ -1634,8 +1084,8 @@ def determine_worst_status(status1: str, status2: str) -> str:
 - Update existing write functions to handle new fields
 
 **3. Database Model (`database_model.py`):**
-- Add 4 fields to `ComponentTypes` model
-- Add 7 fields to `Components` model (4 stored, 3 calculated/properties)
+- Add fields to `ComponentTypes` model
+- Add fields to `Components` model 
 
 **4. Frontend Templates:**
 - Update component creation modal (`modal_create_component.html`)
@@ -1671,7 +1121,7 @@ This requirements document is now **COMPLETE** and ready for handover to **@ux-d
 
 **Handover Summary:**
 - **Feature:** Component Status Refinement with Hybrid Time + Distance Tracking
-- **Scope:** Fully defined MVP with 8 user stories, comprehensive acceptance criteria, 6 validated test cases
+- **Scope:** Fully defined MVP with user stories, comprehensive acceptance criteria, validated test cases
 - **Key Decisions:**
   - Hybrid time + distance calculations with worst-case status determination
   - Simplified 3-level status system (removing intermediate "approaching" levels)
