@@ -37,7 +37,7 @@ This architecture handover provides the technical design for transforming Velo S
 
 This handover includes:
 
-1. **Database Schema Design** - 8 new fields for Components + 4 for ComponentTypes (includes stored time-based values)
+1. **Database Schema Design** - 6 new fields for Components + 4 for ComponentTypes (includes stored time-based values)
 2. **Status Calculation Architecture** - Refactored logic for hybrid time + distance with simplified thresholds
 3. **Scheduler Architecture** - APScheduler integration for nightly time-based field updates
 4. **API Contract Specifications** - Payload structures, validation rules, error handling
@@ -85,8 +85,8 @@ This handover includes:
 │  - update_bike_status(bike_id)                                  │
 │                                                                 │
 │  NEW METHODS:                                                   │
-│  - determine_trigger(distance_status, time_status)              │
-│  - determine_worst_status(distance_status, time_status)         │
+│  - determine_trigger(distance_status, days_status)              │
+│  - determine_worst_status(distance_status, days_status)         │
 │  - update_all_time_based_fields()  # Called by scheduler        │
 │                                                                 │
 │  REUSED UTILITY FUNCTION:                                       │
@@ -177,7 +177,7 @@ Time-based remaining fields are **stored in DB** and **updated nightly by schedu
 
 **Update triggers:**
 - Nightly at 3:00 AM via scheduler
-- Immediately when component edited, installed, or serviced
+- Immediately when component edited, installed, uninstalled or retired, or serviced
 
 ### Existing Fields - Modified Behavior
 
@@ -244,7 +244,7 @@ if oldest_record:
 ### New Method: determine_trigger()
 
 ```python
-def determine_trigger(self, distance_status, time_status):
+def determine_trigger(self, distance_status, days_status):
     """
     Determine which factor(s) triggered a warning status.
 
@@ -253,7 +253,7 @@ def determine_trigger(self, distance_status, time_status):
     Logic:
         - If BOTH are warning statuses → 'both'
         - If ONLY distance is warning → 'distance'
-        - If ONLY time is warning → 'time'
+        - If ONLY days is warning → 'time'
         - Otherwise → None
     """
 ```
@@ -261,9 +261,9 @@ def determine_trigger(self, distance_status, time_status):
 ### New Method: determine_worst_status()
 
 ```python
-def determine_worst_status(self, distance_status, time_status):
+def determine_worst_status(self, distance_status, days_status):
     """
-    Determine worst-case status between distance and time calculations.
+    Determine worst-case status between distance and days-based calculations.
 
     Severity ranking (worst to best):
         1. "Exceeded" statuses
@@ -340,6 +340,8 @@ Nightly scheduler using **APScheduler** updates all active components' time-base
 - `update_time_based_fields_job()` - Async job function called at 3:00 AM
 - CronTrigger configuration for daily execution
 
+**Design note:** The scheduler is designed as a generic system maintenance framework that can run multiple scheduled jobs. For this feature, we're adding the first job (updating time-based fields), but the architecture supports adding other maintenance tasks in the future (e.g., cleanup, backups, notifications).
+
 ### Business Logic Method: update_all_time_based_fields()
 
 **Add to:** `/home/xivind/code/velo-supervisor-2000/backend/business_logic.py`
@@ -380,7 +382,7 @@ atexit.register(lambda: stop_scheduler() if stop_scheduler else None)
 ### Docker Considerations
 
 - No DOCKERFILE changes needed (APScheduler runs in-process)
-- Add `APScheduler==3.10.4` to `requirements.txt`
+- Add `APScheduler` to `requirements.txt`
 - Scheduler uses system timezone (UTC in Docker by default)
 - Set `TZ` environment variable for different timezone if needed
 
@@ -420,12 +422,11 @@ See **Appendix - Diagrams** for:
 - `threshold_days` must be <= MIN(service_interval_days, lifetime_expected_days) if both configured
 - All integer fields must be > 0 if provided
 
-**Validation error response (400):**
-```json
-{
-  "error": "Threshold (300 km) must be less than or equal to the shortest interval (250 km)."
-}
-```
+**Validation implementation:**
+- Frontend JS validates and prevents form submission if validation fails
+- Backend validation in `business_logic.create_component()` / `update_component_details()` as failsafe
+- Returns existing tuple pattern: `(success: bool, message: str, component_id: str)`
+- Errors displayed via existing toast pattern (redirect with `?success=false&message=...`)
 
 ### POST /edit_component (Enhanced)
 
@@ -438,9 +439,9 @@ Same signature and validation as `/create_component`.
 - `lifetime_remaining_days` - Read from DB (int or None)
 - `service_next_days` - Read from DB (int or None)
 - `lifetime_status_distance` - Distance-based status only
-- `lifetime_status_time` - Time-based status only
+- `lifetime_status_days` - Time-based status only (days)
 - `service_status_distance` - Distance-based status only
-- `service_status_time` - Time-based status only
+- `service_status_days` - Time-based status only (days)
 - `lifetime_trigger` - 'distance', 'time', 'both', or None (calculated on-demand)
 - `service_trigger` - 'distance', 'time', 'both', or None (calculated on-demand)
 - `lifetime_percentage_km` - For progress bar
@@ -453,6 +454,19 @@ Same signature and validation as `/create_component`.
 Each component now includes:
 - `lifetime_trigger` - Calculated on-demand for table display
 - `service_trigger` - Calculated on-demand for table display
+
+### POST /quick_swap (Enhanced)
+
+**NEW Form parameters (when creating new component during swap):**
+- `new_service_interval_days` (Optional[str]) - Service interval in days
+- `new_lifetime_expected_days` (Optional[str]) - Expected lifetime in days
+- `new_threshold_km` (Optional[str]) - Distance threshold
+- `new_threshold_days` (Optional[str]) - Time threshold
+
+**Validation:**
+- Same validation rules as `/create_component` apply when creating new component
+- new_component_data dictionary extended with 4 new fields
+- Validation performed in business logic before component creation
 
 ---
 
@@ -476,20 +490,11 @@ function validateComponentThresholds() {
 
 ### Server-Side Validation (Python)
 
-**Add to business_logic.py:**
+**Add validation to existing `create_component()` and `update_component_details()` methods in business_logic.py:**
 
-```python
-def validate_component_form(self, expected_lifetime, service_interval,
-                           lifetime_expected_days, service_interval_days,
-                           threshold_km, threshold_days):
-    """
-    Validate component form submission for threshold rules.
-    Returns: {"valid": bool, "message": str or None}
-    """
-```
-
-**Implements same 4 validation rules as client-side, plus:**
-- Rule 5: All values must be > 0
+- Implements same validation rules as client-side (failsafe)
+- Returns existing tuple pattern: `(success: bool, message: str, component_id: str)`
+- Validation runs before database writes
 
 ---
 
@@ -527,12 +532,17 @@ def validate_component_form(self, expected_lifetime, service_interval,
 ```python
 # In update_component_lifetime_status():
 if component.installation_status == "Retired":
-    end_date = component.updated_date  # Use retirement date
+    end_date = component.updated_date  # Use retirement date - FROZEN
 else:
-    end_date = datetime.now().strftime("%Y-%m-%d %H:%M")  # Use current date
+    end_date = datetime.now().strftime("%Y-%m-%d %H:%M")  # Use current date - CONTINUES
 ```
 
-**Rationale:** Retired components no longer deteriorating - frozen status provides accurate historical snapshot.
+**Time calculation behavior by status:**
+- **"Retired"**: Time calculations FROZEN at retirement date (component no longer aging)
+- **"Installed"**: Time calculations CONTINUE using current date (component continues aging)
+- **"Not installed"**: Time calculations CONTINUE using current date (component continues aging even when not installed)
+
+**Rationale:** Only retired components stop deteriorating - all other statuses continue aging from first installation date.
 
 **UI Indicator (for UX designer):**
 ```html
@@ -559,24 +569,34 @@ else:
 ### Backend Layer Tasks (for @fullstack-developer)
 
 1. **Create scheduler.py** - NEW FILE with APScheduler integration
-2. **Refactor status calculation** - `compute_component_status()`, add `determine_trigger()`, `determine_worst_status()`, `validate_component_form()`
+2. **Refactor status calculation** - `compute_component_status()`, add `determine_trigger()`, `determine_worst_status()`
 3. **Add scheduler job method** - `update_all_time_based_fields()` in business_logic.py
 4. **Refactor status update methods** - `update_component_lifetime_status()`, `update_component_service_status()`, `update_bike_status()`
-5. **Extend component creation/edit** - Handle 6 new fields, field inheritance
+5. **Extend component creation/edit** - Handle 6 new fields, field inheritance, add validation logic to existing methods
 6. **Update database write methods** - Extend to write `lifetime_remaining_days`, `service_next_days`
 7. **Update API endpoints** - Scheduler initialization, new Form parameters, validation, read stored values
+   - `/create_component` - Add 4 new Form parameters (time-based intervals and thresholds)
+   - `/update_component_details` - Add same 4 Form parameters
+   - `/quick_swap` - Add 4 new Form parameters for creating new component during swap
 8. **Update template context methods** - Read stored values from DB, calculate triggers
-9. **Update dependencies** - Add `APScheduler==3.10.4` to requirements.txt
+9. **Update dependencies** - Add `APScheduler` to requirements.txt
 
 ### Frontend Layer Tasks (for @fullstack-developer)
 
-1. **Update component creation modal** - Add 6 new fields with tooltips and validation
-2. **Update component edit forms** - Same fields, add "Inherited" badge logic
-3. **Update component detail page** - Dual progress bars, age display, trigger indicators
-4. **Update component overview table** - Emoji + trigger indicators, updated statistics
-5. **Update bike details page** - Updated component tables
-6. **Update ComponentType forms** - Add 4 default fields
-7. **Add client-side validation JavaScript** - `validateComponentThresholds()` function
+**Pages:**
+1. **component_details.html** - Dual progress bars (km + days), component age display, trigger indicators
+2. **component_overview.html** - Add trigger indicators to component table, update statistics
+3. **bike_details.html** - Update component tables with new trigger indicators
+4. **component_types.html** - ComponentType management page (if changes needed for display)
+
+**Modals (containing forms):**
+5. **modal_create_component.html** - Add 6 new form fields with tooltips, client-side validation
+6. **modal_update_component_details.html** - Add same 6 fields with "Inherited" badge logic
+7. **modal_component_type.html** - Add 4 new default fields (days intervals and thresholds)
+8. **modal_quick_swap.html** - Add 4 new fields to "Create new component" section (service_interval_days, lifetime_expected_days, threshold_km, threshold_days)
+
+**JavaScript:**
+9. **main.js** - Add `validateComponentThresholds()` function for client-side validation (apply to all component forms including quick swap)
 
 ### Testing Tasks (for @code-reviewer)
 
@@ -612,15 +632,15 @@ else:
 
 ### 4. Validation Error Display
 
-**Constraint:** Server-side validation returns 400 JSON response.
+**Constraint:** Server-side validation uses existing toast pattern (redirect with query parameters).
 
-**Impact on UX:** ⚠️ DECISION NEEDED - How to display server-side validation errors in modal? Recommend Option A (intercept 400 in JavaScript, display in modal).
+**Impact on UX:** ✅ DECISION MADE - Use existing pattern: backend returns `(success, message, component_id)` tuple, API redirects with `?success=false&message=...`, frontend displays toast notification via existing DOMContentLoaded handler.
 
 ### 5. Progress Bar Capping
 
 **Constraint:** Backend can return negative remaining values when exceeded.
 
-**Impact on UX:** ⚠️ DECISION NEEDED - Recommend backend returns uncapped percentage, template caps at 100%.
+**Impact on UX:** ✅ DECISION MADE - Backend returns uncapped percentage (can exceed 100% or go negative). Template caps display at 100% for progress bars. This keeps raw data accurate while preventing broken UI display.
 
 ### 6. Scheduler Performance Characteristics
 
@@ -632,7 +652,7 @@ else:
 
 **Constraint:** Time calculations freeze at retirement `updated_date`.
 
-**Impact on UX:** ⚠️ DECISION NEEDED - Specify visual indicator for retired components.
+**Impact on UX:** ✅ DECISION MADE - Display alert box on component_details page for retired components: "⛔ This component was retired on [date]. Time-based values are frozen as of retirement date." (Bootstrap alert-secondary class, consistent emoji usage)
 
 ### 8. Null Handling in Templates
 
@@ -689,16 +709,17 @@ else:
 
 **Alternative Rejected:** Keep percentage logic - doesn't address requirements pain points.
 
-### 5. Freeze Time Calculations for Retired Components
+### 5. Freeze Time Calculations for Retired Components Only
 
-**Decision:** Use retirement date as end date, not current date.
+**Decision:** ONLY "Retired" components use retirement date. "Installed" and "Not installed" components use current date.
 
 **Rationale:**
-- Retired components no longer deteriorating
-- Prevents false "exceeded" warnings
-- Accurate historical snapshot
+- Retired components no longer deteriorating - frozen at retirement
+- Installed and Not installed components continue aging
+- Components age from first installation regardless of current installation status
+- Prevents false "exceeded" warnings for retired components
 
-**Alternative Rejected:** Continue calculations - misleading for retired components.
+**Alternative Rejected:** Freeze all non-installed components - incorrect, as stored components still age.
 
 ### 6. Client-Side + Server-Side Validation
 
@@ -764,7 +785,7 @@ else:
 
 **Mitigation:**
 - Server-side validation prevents invalid data
-- Return 400 with clear error message
+- Return error message according to established patterns
 - Log validation failures
 
 ### Risk 3: Retired Component Logic Issues
@@ -815,7 +836,7 @@ else:
 
 4. **`/home/xivind/code/velo-supervisor-2000/backend/business_logic.py`**
    - Refactor `compute_component_status()` (lines 2058-2080)
-   - Add new methods: `determine_trigger()`, `determine_worst_status()`, `validate_component_form()`, `update_all_time_based_fields()`
+   - Add new methods: `determine_trigger()`, `determine_worst_status()`, `update_all_time_based_fields()`
    - Import: `from utils import calculate_elapsed_days`
    - Refactor: `update_component_lifetime_status()` (lines 777-804), `update_component_service_status()` (lines 806-942), `update_bike_status()` (lines 988-1044)
    - Extend: `create_component()` (lines 1046-1076), `get_component_details()`, `get_component_overview()`
@@ -823,16 +844,19 @@ else:
 5. **`/home/xivind/code/velo-supervisor-2000/backend/main.py`**
    - Import scheduler functions
    - Add startup/shutdown event handlers
-   - Extend POST endpoints for new fields
+   - Extend POST endpoints for new fields: `/create_component`, `/update_component_details`, `/quick_swap`
    - Update GET endpoints to read stored values
 
 6. **`/home/xivind/code/velo-supervisor-2000/backend/db_migration.py`**
    - Add migration for 10 new fields
 
-7. **`/home/xivind/code/velo-supervisor-2000/backend/requirements.txt`**
-   - Add `APScheduler==3.10.4`
+7. **`/home/xivind/code/velo-supervisor-2000/requirements.txt`**
+   - Add `APScheduler`
 
-8. **Frontend templates:** `modal_create_component.html`, `component_details.html`, `component_overview.html`, `bike_details.html`, `modal_component_type.html`
+8. **Frontend:**
+   - Pages: `component_details.html`, `component_overview.html`, `bike_details.html`, `component_types.html`
+   - Modals: `modal_create_component.html`, `modal_update_component_details.html`, `modal_component_type.html`, `modal_quick_swap.html`
+   - JavaScript: `frontend/static/js/main.js`
 
 ### External Dependencies
 
@@ -959,12 +983,12 @@ note right
   first_install_date = oldest_record.updated_date
   age_days = calculate_elapsed_days(first_install_date, current_date)
   remaining_days = lifetime_expected_days - age_days
-  time_status = compute_component_status("lifetime", remaining_days, threshold_days)
+  days_status = compute_component_status("lifetime", remaining_days, threshold_days)
 end note
 
 ' Worst-case determination
-BL -> BL: determine_worst_status(distance_status, time_status)
-BL -> BL: determine_trigger(distance_status, time_status)
+BL -> BL: determine_worst_status(distance_status, days_status)
+BL -> BL: determine_trigger(distance_status, days_status)
 
 ' Similar flow for service status
 BL -> DB: read_latest_service_record(component_id)
