@@ -1,16 +1,33 @@
-# UX Designer Handover (v1 - Initial Design)
+# UX Designer Handover (v2.1 - Quick Swap Addition)
 
 **Feature:** Component Status Refinement with Hybrid Time + Distance Tracking
-**Date:** 2025-10-25
-**Status:** Initial Design - Pending Architecture Review
+**Date:** 2025-10-25 (Updated: 2025-10-30 - v2.1 quick swap modal addition)
+**Status:** Complete - Aligned with Architecture (v2.1)
 **Prepared by:** @ux-designer
-**Ready for:** @architect (will use this as input for architecture design)
+**Ready for:** @database-expert and @fullstack-developer
 
 ---
 
 ## Context
 
-This is the **initial UX design (v1)** for the Component Status Refinement feature. This design is based on the comprehensive requirements document and existing Velo Supervisor 2000 UI patterns. The @architect will read this handover along with the requirements to create the architecture plan, then I will create a **v2 (updated)** design to align with any architectural constraints.
+This is the **final UX design (v2)** for the Component Status Refinement feature, aligned with architectural constraints. This design incorporates:
+
+1. **Requirements document:** `.handovers/requirements/component-status-refinement-requirements.md`
+2. **Initial UX design (v1):** Created 2025-10-25 with comprehensive UI specifications
+3. **Architecture handover:** `.handovers/architecture/component-status-refinement-architect-handover.md` - reviewed 2025-10-29
+4. **Architectural constraints:** 8 constraints addressed (see "Architectural Alignment" section below)
+
+### Changes from v1 to v2 to v2.1
+
+**v1 to v2 (2025-10-29):**
+- **Added retired component indicator** to component detail page (constraint #7)
+- **Confirmed validation error display pattern** uses existing toast notifications (constraint #4)
+- **Confirmed progress bar capping behavior** at 100% maximum (constraint #5)
+- **No other UX changes required** - v1 design already aligned with architecture
+
+**v2 to v2.1 (2025-10-30):**
+- **Added Section 8: Quick Swap Modal** - Missing specifications for 4 new fields in quick swap modal
+- **Completed UX specifications** - All architect-required frontend elements now documented
 
 ### Design Approach
 
@@ -29,12 +46,14 @@ This design transforms the existing distance-only component tracking into a hybr
 This handover includes UX specifications for:
 
 1. **Component Creation/Edit Forms** - 6-field layout design
-2. **Component Detail Page** - Dual progress bars and status display
+2. **Component Detail Page** - Dual progress bars, status display, and retired component alert (NEW in v2)
 3. **Component Overview Table** - Single status column with triggers
 4. **Bike Details Component Table** - Status display pattern
 5. **ComponentType Management Forms** - Default configuration
 6. **Status Indicator System** - Visual design for color + trigger indicators
 7. **Mobile Responsive Designs** - Breakpoint specifications
+8. **Quick Swap Modal** - 4 new fields for "Create new component" section (NEW in v2.1)
+9. **Architectural Alignment Documentation** (NEW in v2) - How UX addresses 8 architectural constraints
 
 ---
 
@@ -231,7 +250,22 @@ When a value is inherited from ComponentType (not manually overridden):
 - `text-bg-success` → Used for "OK" statuses (unchanged)
 - `text-bg-secondary` → Used for "Not defined" status (unchanged)
 
-#### 2.2 Component Age & Mileage Display (Enhanced)
+#### 2.2 Retired Component Alert (NEW - v2)
+
+**When component installation_status == "Retired"**, display alert at top of card body:
+
+```html
+<div class="alert alert-secondary mb-3" role="alert">
+    <strong>⛔ This component was retired on {{ component.updated_date|format_date }}.</strong>
+    <p class="mb-0 small">Time-based values are frozen as of retirement date.</p>
+</div>
+```
+
+**Placement:** Immediately after card body opening tag, before mileage display.
+
+**Rationale:** Clear indicator that time-based calculations are frozen (architectural constraint #7).
+
+#### 2.3 Component Age & Mileage Display (Enhanced)
 
 **Current display:**
 ```
@@ -271,7 +305,7 @@ When a value is inherited from ComponentType (not manually overridden):
 
 **Layout note:** Component age is DIFFERENT from days since install (age continues even when uninstalled, install date resets on each installation)
 
-#### 2.3 Lifetime Status Section (Enhanced with Time + Distance)
+#### 2.4 Lifetime Status Section (Enhanced with Time + Distance)
 
 **Wireframe:**
 ```
@@ -386,7 +420,7 @@ When a value is inherited from ComponentType (not manually overridden):
 </div>
 ```
 
-#### 2.4 Service Status Section (Enhanced with Time + Distance)
+#### 2.5 Service Status Section (Enhanced with Time + Distance)
 
 **Same pattern as lifetime section above**, but for service intervals:
 
@@ -481,7 +515,7 @@ When a value is inherited from ComponentType (not manually overridden):
 </div>
 ```
 
-#### 2.5 Mobile Responsiveness
+#### 2.6 Mobile Responsiveness
 
 **Breakpoints:**
 - **md and up (≥768px):** Side-by-side layout (component info card | details card)
@@ -996,6 +1030,145 @@ Add a collapsible help section to Component Overview page:
 
 ---
 
+### 8. Quick Swap Modal
+
+**Context:** Quick swap allows users to quickly swap out an installed component with either an existing component OR a newly created component. When creating a new component during quick swap, the modal needs to collect the same time/distance interval configuration fields as the standard component creation form.
+
+**Architectural reference:** Architecture handover lines 457-470 and 596-599.
+
+#### 8.1 Modal Structure and Context
+
+**File:** `/home/xivind/code/velo-supervisor-2000/frontend/templates/modal_quick_swap.html`
+
+**Current behavior:**
+- User selects bike and component position to swap
+- Modal presents two radio options:
+  1. "Swap with existing component" (select from dropdown)
+  2. "Create new component" (inline creation form)
+
+**Enhancement needed:** Add 4 new fields to "Create new component" form section.
+
+#### 8.2 "Create New Component" Form Fields
+
+**NEW fields to add when "Create new component" radio is selected:**
+
+The quick swap modal's "Create new component" section should include the SAME 6 new fields as the standard component creation form:
+
+**Distance-based intervals (existing row enhanced):**
+- Lifetime expected (km)
+- Service interval (km)
+- **Threshold (km)** - NEW
+
+**Time-based intervals (new row):**
+- **Lifetime expected (days)** - NEW
+- **Service interval (days)** - NEW
+- **Threshold (days)** - NEW
+
+#### 8.3 Field Specifications
+
+**Important differences from Component Creation Modal:**
+- **NO "Inherited" badge** - Component is being created fresh, no type inheritance UI needed
+- **NO "Reset to type default" button** - Not applicable during creation
+- **Fields start EMPTY** - No pre-populated values to show inheritance
+
+**Otherwise, specifications are IDENTICAL to Section 1.2 (Component Creation/Edit Forms).**
+
+**Distance threshold field (add to existing row):**
+```html
+<div class="col-md-4 mb-3">
+    <label for="new_threshold_km" class="form-label fw-bold">
+        Threshold (km)
+        <span class="text-muted small" data-bs-toggle="tooltip"
+              title="Warning triggers when remaining km drops below this value">ⓘ</span>
+    </label>
+    <input type="number" min="0" step="1" class="form-control"
+           id="new_threshold_km" name="new_threshold_km"
+           placeholder="e.g., 300" value="">
+    <div class="form-text small text-muted">Required if km intervals set</div>
+</div>
+```
+
+**Time-based interval fields (new row):**
+```html
+<!-- Row: Time-based intervals -->
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label for="new_lifetime_expected_days" class="form-label fw-bold">
+            Lifetime expected (days)
+            <span class="text-muted small" data-bs-toggle="tooltip"
+                  title="Total time this component is expected to last from first installation">ⓘ</span>
+        </label>
+        <input type="number" min="0" step="1" class="form-control"
+               id="new_lifetime_expected_days" name="new_lifetime_expected_days"
+               placeholder="e.g., 730" value="">
+        <div class="form-text small text-muted">Leave blank if distance-based only</div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label for="new_service_interval_days" class="form-label fw-bold">
+            Service interval (days)
+            <span class="text-muted small" data-bs-toggle="tooltip"
+                  title="Time between maintenance services (resets on service)">ⓘ</span>
+        </label>
+        <input type="number" min="0" step="1" class="form-control"
+               id="new_service_interval_days" name="new_service_interval_days"
+               placeholder="e.g., 180" value="">
+        <div class="form-text small text-muted">Leave blank if distance-based only</div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label for="new_threshold_days" class="form-label fw-bold">
+            Threshold (days)
+            <span class="text-muted small" data-bs-toggle="tooltip"
+                  title="Warning triggers when remaining days drops below this value">ⓘ</span>
+        </label>
+        <input type="number" min="0" step="1" class="form-control"
+               id="new_threshold_days" name="new_threshold_days"
+               placeholder="e.g., 30" value="">
+        <div class="form-text small text-muted">Required if day intervals set</div>
+    </div>
+</div>
+```
+
+**Field name prefix:** All new fields use `new_` prefix (e.g., `new_threshold_km`, `new_service_interval_days`) to distinguish them from the component being swapped out.
+
+#### 8.4 Validation Behavior
+
+**Client-side validation:** Apply the SAME `validateComponentThresholds()` JavaScript function to the quick swap form (Architecture handover line 599).
+
+**Validation rules (identical to component creation):**
+- If `new_expected_lifetime` OR `new_service_interval` is filled → `new_threshold_km` becomes REQUIRED
+- If `new_lifetime_expected_days` OR `new_service_interval_days` is filled → `new_threshold_days` becomes REQUIRED
+- Threshold must be > 0 when required
+- `new_threshold_km` must be <= MIN(new_service_interval, new_expected_lifetime) when both defined
+- `new_threshold_days` must be <= MIN(new_service_interval_days, new_lifetime_expected_days) when both defined
+
+**Server-side validation:** Same validation logic in business_logic.py applies when processing quick swap (Architecture handover lines 467-469).
+
+**Error display:** Same pattern as component creation - inline validation errors below threshold fields, server-side errors use toast pattern.
+
+#### 8.5 Differences from Component Creation Modal
+
+**Key differences to note:**
+
+| Aspect | Component Creation Modal | Quick Swap Modal |
+|--------|-------------------------|------------------|
+| **Field inheritance** | Shows "Inherited" badge for type defaults | NO inheritance UI - fresh component |
+| **Field pre-population** | May show inherited values from ComponentType | Always starts empty |
+| **Reset button** | "Reset to type default" button shown | NO reset button |
+| **Field name prefix** | Standard names (e.g., `threshold_km`) | `new_` prefix (e.g., `new_threshold_km`) |
+| **Context** | Standalone component creation | Creating while swapping existing component |
+| **Validation** | Identical rules | Identical rules |
+| **Layout** | Same grid structure | Same grid structure |
+
+**Modal size:** Keep existing quick swap modal size (likely `modal-lg` or `modal-xl`).
+
+**Responsive behavior:** Same as component creation form - fields stack on smaller screens (see Section 7 for breakpoint specs).
+
+**Form submission:** POST to `/quick_swap` endpoint with all `new_` prefixed fields included in payload (Architecture handover lines 460-465).
+
+---
+
 ## Decisions Made
 
 ### 1. Always Show Both Time and Distance Fields
@@ -1035,37 +1208,178 @@ Add a collapsible help section to Component Overview page:
 
 ---
 
-## Next Steps for @architect
+## Architectural Alignment (v2)
 
-### Architecture Design Tasks
+This section documents how the v2 UX design addresses the 8 architectural constraints from @architect's handover (`.handovers/architecture/component-status-refinement-architect-handover.md`, lines 611-663).
 
-1. **Review this UX design** along with the requirements document
-2. **Design backend data flow** for:
-   - Calculating `component_age_days`, `lifetime_remaining_days`, `service_next_days`
-   - Determining `lifetime_trigger` and `service_trigger` (distance/time/both)
-   - Computing worst-case `lifetime_status` and `service_status`
-3. **Decide on time-based field update strategy** (lazy calculation vs. scheduled batch)
-4. **Design API contracts** for form submissions and page rendering
-5. **Identify backend functions** that need refactoring (status calculation, bike aggregation)
-6. **Create architecture handover** in `.handovers/architecture/component-status-refinement-architect-handover.md`
+### Constraint #1: Time-Based Fields Stored in Database, Updated by Scheduler
 
-### Key Architectural Questions Flagged
+**Architecture constraint:** `lifetime_remaining_days` and `service_next_days` stored in DB, updated nightly at 3:00 AM via APScheduler.
 
-**Backend Data Requirements:**
-- How to efficiently calculate `component_age_days` from ComponentHistory table?
-- What's the update strategy for time-based calculated fields? (Lazy vs. scheduled)
-- Should trigger indicators (`lifetime_trigger`, `service_trigger`) be stored in DB or calculated on-the-fly?
-- How to handle retired components? (Freeze time-based calculations after retirement?)
+**UX impact:** ✅ **NO IMPACT** - Values available in template context as designed. May be up to 24 hours stale, which is acceptable for day-granularity tracking.
 
-**Performance Considerations:**
-- Impact on page load time when calculating time-based fields for 50+ components?
-- Should we cache calculated values or compute on every request?
-- Index strategy for ComponentHistory queries (first installation date lookups)?
+**UX confirmation:** No changes needed to v1 design. Template displays values from database as specified.
 
-**API Endpoints:**
-- Do existing endpoints need modification or create new ones?
-- What's the payload structure for forms with 6 new fields?
-- How should validation errors be returned to frontend?
+### Constraint #2: Trigger Indicators NOT Stored in Database
+
+**Architecture constraint:** `lifetime_trigger` and `service_trigger` calculated on-demand when rendering pages, not stored in DB.
+
+**UX impact:** ✅ **NO IMPACT** - Values still available in template context.
+
+**UX confirmation:** No changes needed to v1 design. Template displays calculated values as specified.
+
+### Constraint #3: Field Inheritance Implementation
+
+**Architecture constraint:** Implemented via value comparison in Jinja2 template, not database flag. ComponentType data included in modal context.
+
+**UX impact:** ✅ **NO CHANGES NEEDED** - "Inherited" badge logic as designed in v1 will work correctly.
+
+**UX confirmation:** Section 1.3 "Inherited values indicator" already specifies template-based comparison. No changes required.
+
+### Constraint #4: Validation Error Display
+
+**Architecture constraint:** Server-side validation uses existing toast pattern (redirect with query parameters `?success=false&message=...`).
+
+**UX impact:** ✅ **CONFIRMED PATTERN** - Existing validation display mechanism confirmed for use.
+
+**UX alignment decision:**
+- Client-side validation shows inline errors below threshold fields (as designed in v1, section 1.3)
+- Server-side validation returns `(success, message, component_id)` tuple
+- API redirects with query parameters if validation fails
+- Frontend displays toast notification via existing DOMContentLoaded handler
+
+**UX confirmation:** Section 1.3 "Validation error display" already shows inline errors. Add note that server-side errors use existing toast pattern.
+
+### Constraint #5: Progress Bar Capping
+
+**Architecture constraint:** Backend can return negative remaining values when exceeded. Backend returns uncapped percentage.
+
+**UX impact:** ✅ **CONFIRMED CAPPING BEHAVIOR** - Template caps display at 100% maximum.
+
+**UX alignment decision:**
+- Backend returns raw percentage values (may exceed 100% or go negative)
+- Template caps `style="width: ..."` at 100% maximum for visual consistency
+- Label text shows "exceeded by X km/days" when negative
+
+**Template implementation note:**
+```jinja
+{% set progress_width = [lifetime_percentage_km, 100]|min %}
+<div class="progress-bar" style="width: {{ progress_width }}%"></div>
+```
+
+**UX confirmation:** Section 2.4 and 2.5 already specify "Lifetime exceeded by X km" label text. Add template-level capping logic.
+
+### Constraint #6: Scheduler Performance Characteristics
+
+**Architecture constraint:** Scheduler runs at 3:00 AM system time (UTC in Docker). Non-blocking async execution.
+
+**UX impact:** ✅ **NO IMPACT** - Job runs during low-activity window. Users won't notice scheduled updates.
+
+**UX confirmation:** No changes needed. Time-based values may be up to 24 hours stale, which is acceptable for day-granularity.
+
+### Constraint #7: Retired Component Time Freeze
+
+**Architecture constraint:** Time calculations freeze at retirement `updated_date`. Only retired components have frozen time-based values.
+
+**UX impact:** ✅ **NEW UI ELEMENT ADDED** - Retired component alert box added to component detail page.
+
+**UX alignment changes (v2):**
+- **Added section 2.2 "Retired Component Alert"** with Bootstrap `alert-secondary` box
+- Alert displays: "⛔ This component was retired on [date]. Time-based values are frozen as of retirement date."
+- Placement: Top of card body, before mileage display
+- Visible only when `component.installation_status == "Retired"`
+
+**Rationale:** Users need clear indication that time-based values are frozen and why. Prevents confusion about why component age isn't advancing.
+
+### Constraint #8: Null Handling in Templates
+
+**Architecture constraint:** All new fields nullable (threshold_km, threshold_days, lifetime_expected_days, service_interval_days, lifetime_remaining_days, service_next_days).
+
+**UX impact:** ✅ **CONFIRMED DESIGN** - v1 design already handles NULL values appropriately.
+
+**UX confirmation:** Existing NULL handling patterns:
+- Form fields show empty/placeholder when NULL (section 1.2)
+- Status displays show "Not defined" when intervals are NULL (sections 2.4, 2.5)
+- Help text says "Leave blank if time-based only" or "Leave blank if distance-based only"
+- Progress bars don't render when interval field is NULL
+
+No changes needed to v1 design.
+
+---
+
+### Summary: v1 to v2 to v2.1 Changes
+
+**v1 to v2 (2025-10-29):**
+
+**Added:**
+1. Section 2.2 - Retired component alert box for component detail page
+
+**Confirmed/Clarified:**
+1. Validation error display uses existing toast pattern (constraint #4)
+2. Progress bar capping at 100% in template (constraint #5)
+3. Time-based values updated nightly, acceptable staleness (constraint #1)
+4. All other v1 specifications remain unchanged and aligned with architecture
+
+**v2 to v2.1 (2025-10-30):**
+
+**Added:**
+1. Section 8 - Quick Swap Modal specifications (4 new fields: service_interval_days, lifetime_expected_days, threshold_km, threshold_days)
+2. Complete field specifications with HTML examples matching component creation form pattern
+3. Validation rules and error handling for quick swap
+4. Comparison table highlighting differences from component creation modal
+
+**Rationale:** Quick swap modal was missing from v2 handover but required by architect (lines 457-470, 596-599 of architecture handover). This addition completes the UX specifications for all frontend elements.
+
+---
+
+## Next Steps for @database-expert and @fullstack-developer (v2.1)
+
+### For @database-expert
+
+**Now that UX v2.1 is complete (including quick swap modal) and aligned with architecture**, you should:
+
+1. **Read all handovers:**
+   - Requirements: `.handovers/requirements/component-status-refinement-requirements.md`
+   - UX v2.1 (this document): `.handovers/ux/component-status-refinement-ux-designer-handover.md`
+   - Architecture: `.handovers/architecture/component-status-refinement-architect-handover.md`
+
+2. **Design database migration** for:
+   - 4 new fields in ComponentTypes table
+   - 6 new fields in Components table (4 config + 2 stored calculated fields)
+   - Migration script with NULL defaults
+   - Populate `threshold_km` = 200 for existing components with distance intervals
+
+3. **Create database handover** in `.handovers/database/component-status-refinement-database-handover.md`
+
+4. **Handoff to @fullstack-developer** after migration plan complete
+
+### For @fullstack-developer (after database handover)
+
+1. **Implement backend changes:**
+   - Create scheduler.py with APScheduler integration
+   - Refactor status calculation methods in business_logic.py
+   - Extend API endpoints for new fields
+   - Add validation logic to component creation/editing
+   - Implement nightly scheduler job for time-based field updates
+
+2. **Implement frontend changes:**
+   - Update component detail page with dual progress bars and retired alert
+   - Update component overview table with trigger indicators
+   - Add 6 new form fields to component modals with validation
+   - Add client-side validation JavaScript
+   - Update bike details page component tables
+
+3. **Reference UX specifications:**
+   - Section 1: Form layouts and fields
+   - Section 2: Component detail page with retired alert (NEW in v2)
+   - Section 3: Component overview table
+   - Section 4: Bike details page
+   - Section 5: ComponentType management
+   - Section 6: Status indicator system
+   - Section 7: Mobile responsiveness
+   - Section 8: Quick swap modal (NEW in v2.1)
+
+4. **Create fullstack handover** when implementation complete
 
 ---
 
@@ -1261,8 +1575,9 @@ None identified at this stage. This is an initial UX design (v1). Architecture d
 
 ## References
 
-**Requirements document:**
+**Handover documents:**
 - `.handovers/requirements/component-status-refinement-requirements.md` - Comprehensive requirements with user stories
+- `.handovers/architecture/component-status-refinement-architect-handover.md` - Architecture design with 8 UX constraints (v2 input)
 
 **Existing UI templates reviewed:**
 - `/home/xivind/code/velo-supervisor-2000/frontend/templates/component_details.html` - Current component detail page layout
@@ -1283,22 +1598,33 @@ None identified at this stage. This is an initial UX design (v1). Architecture d
 **For all agents:**
 - [x] All sections of template filled with specific information
 - [x] File paths include line numbers where relevant (referenced templates)
-- [x] Status field accurately reflects work state (Initial Design - Pending Architecture Review)
-- [x] Next agent identified and tagged (@architect)
-- [x] All ambiguities resolved with [DECISION] tags (5 decisions made, implementation details left to @architect)
+- [x] Status field accurately reflects work state (v2 - Complete, Aligned with Architecture)
+- [x] Next agents identified and tagged (@database-expert and @fullstack-developer)
+- [x] All ambiguities resolved with [DECISION] tags (5 decisions in v1, architectural alignment in v2)
 - [x] All blockers flagged with [BLOCKED BY] (none at this stage)
-- [x] References include specific file paths or URLs
+- [x] References include specific file paths and architecture handover
 
 **@ux-designer:**
 - [x] Wireframes or mockups referenced (ASCII wireframes and detailed HTML examples included)
 - [x] Mobile responsiveness addressed (Section 7 with breakpoint specifications)
 - [x] Bootstrap components specified (Progress bars, cards, forms, badges, alerts, tooltips, modals)
 - [x] User interactions documented (Form validation, tooltips, collapsible legend, inherited value indicators)
+- [x] Architectural constraints reviewed and addressed (8 constraints documented in "Architectural Alignment" section)
+- [x] v2 updates clearly marked (retired component alert, validation/progress bar confirmations)
 
 ---
 
-**Handover Created:** `.handovers/ux/component-status-refinement-ux-designer-handover.md`
-**Next Agent:** @architect
-**Action Required:** Design architecture for hybrid time + distance tracking system, then I will update this UX design (v2) to align with architectural constraints
+**Handover Created:** `.handovers/ux/component-status-refinement-ux-designer-handover.md` (v2.1 - complete)
 
-**Workflow Note:** This is v1 (initial design). After @architect completes their handover, I will create v2 (updated design) to ensure UX and architecture are aligned.
+**Next Agents:**
+- **@database-expert** - Design migration for 10 new database fields (4 ComponentTypes, 6 Components)
+- **@fullstack-developer** - Implement backend + frontend after database migration complete
+
+**Action Required:**
+- @database-expert: Create migration plan based on architecture and UX specifications
+- @fullstack-developer: Implement feature using architecture plan, database schema, and this UX design (including quick swap modal)
+
+**Workflow Note:** Version history:
+- v1 created 2025-10-25 (initial UX design)
+- v2 created 2025-10-29 (aligned with architecture, added retired component alert)
+- v2.1 created 2025-10-30 (added missing quick swap modal specifications)
