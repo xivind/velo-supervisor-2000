@@ -33,12 +33,12 @@ This handover includes:
 
 1. **Schema Changes** - Complete field definitions for ComponentTypes and Components tables
 2. **Migration Script** - Python script following existing `db_migration.py` pattern
-3. **Rollback Procedure** - How to revert the migration if needed
-4. **Data Population Strategy** - Logic for populating threshold_km for existing components
-5. **Testing Plan** - How to verify migration success
-6. **Performance Considerations** - Impact on database size and query performance
-7. **Integration Points** - Which database_manager.py methods need extension
-8. **Next Steps for Fullstack Developer** - Clear handoff instructions
+3. **Data Population Strategy** - Logic for populating threshold_km for existing components
+4. **Performance Considerations** - Impact on database size and query performance
+5. **Integration Points** - Which database_manager.py methods need extension
+6. **Next Steps for Fullstack Developer** - Clear handoff instructions
+
+**Note:** Rollback procedures, comprehensive testing plans, and detailed risk analyses were removed from this handover as they are unnecessary for this simple additive migration (see "Note on Scope Reduction" section).
 
 ---
 
@@ -57,7 +57,7 @@ This handover includes:
 | `threshold_km` | IntegerField | Yes | NULL | Distance threshold for "Due" warnings (e.g., 200) |
 | `threshold_days` | IntegerField | Yes | NULL | Time threshold for "Due" warnings (e.g., 30) |
 
-**Updated Peewee model:**
+**Updated Peewee model (logically grouped):**
 
 ```python
 class ComponentTypes(BaseModel):
@@ -65,19 +65,20 @@ class ComponentTypes(BaseModel):
     component_type = CharField(primary_key=True, unique=True)
     service_interval = IntegerField()
     expected_lifetime = IntegerField()
+    service_interval_days = IntegerField()
+    lifetime_expected_days = IntegerField()
+    threshold_km = IntegerField()
+    threshold_days = IntegerField()
     in_use = IntegerField()
     mandatory = CharField()
     max_quantity = IntegerField()
-    # NEW FIELDS:
-    service_interval_days = IntegerField(null=True)
-    lifetime_expected_days = IntegerField(null=True)
-    threshold_km = IntegerField(null=True)
-    threshold_days = IntegerField(null=True)
 
     class Meta:
         """Extends model with extra attributes"""
         table_name = "component_types"
 ```
+
+**Note on field order and nullability:** Field order rearranged for logical grouping without affecting code functionality. New fields follow existing pattern - no explicit `null=True` parameter (consistent with existing nullable fields like `service_interval`, `expected_lifetime`). The actual database column order remains unchanged (new columns are at the end due to ALTER TABLE).
 
 ### Components Table - Add 6 Fields
 
@@ -94,7 +95,7 @@ class ComponentTypes(BaseModel):
 | `lifetime_remaining_days` | IntegerField | Yes | NULL | Days remaining until lifetime (calculated, stored) |
 | `service_next_days` | IntegerField | Yes | NULL | Days until next service (calculated, stored) |
 
-**Updated Peewee model:**
+**Updated Peewee model (logically grouped):**
 
 ```python
 class Components(BaseModel):
@@ -107,26 +108,27 @@ class Components(BaseModel):
     component_distance_offset = IntegerField()
     installation_status = CharField()
     service_interval = IntegerField()
-    lifetime_expected = IntegerField()
-    lifetime_remaining = FloatField()
-    lifetime_status = CharField()
-    service_status = CharField()
+    service_interval_days = IntegerField()
     service_next = FloatField()
+    service_next_days = IntegerField()
+    service_status = CharField()
+    lifetime_expected = IntegerField()
+    lifetime_expected_days = IntegerField()
+    lifetime_remaining = FloatField()
+    lifetime_remaining_days = IntegerField()
+    lifetime_status = CharField()
+    threshold_km = IntegerField()
+    threshold_days = IntegerField()
     updated_date = CharField()
     cost = IntegerField()
     notes = CharField()
-    # NEW FIELDS:
-    service_interval_days = IntegerField(null=True)
-    lifetime_expected_days = IntegerField(null=True)
-    threshold_km = IntegerField(null=True)
-    threshold_days = IntegerField(null=True)
-    lifetime_remaining_days = IntegerField(null=True)
-    service_next_days = IntegerField(null=True)
 
     class Meta:
         """Extends model with extra attributes"""
         table_name = "components"
 ```
+
+**Note on field order and nullability:** Same as ComponentTypes - field order rearranged for logical grouping, no explicit `null=True` parameters (consistent with existing pattern).
 
 ---
 
@@ -255,6 +257,7 @@ def migrate_components_time_fields(cursor, conn):
     conn.commit()
 
     # Populate threshold_km for existing components with distance intervals
+    # Note: Other fields remain NULL (SQLite default for new columns)
     if 'threshold_km' in columns_to_add:
         print("\nPopulating threshold_km for existing components...")
         cursor.execute("""
@@ -265,6 +268,7 @@ def migrate_components_time_fields(cursor, conn):
         updated_count = cursor.rowcount
         conn.commit()
         print(f"Set threshold_km = 200 for {updated_count} components with distance intervals")
+        print("Other new fields remain NULL (SQLite default) - no explicit action needed")
 
     print("Components time-based fields migration completed.")
     return True
@@ -340,120 +344,32 @@ WHERE (service_interval IS NOT NULL OR lifetime_expected IS NOT NULL)
 - `lifetime_remaining_days` - Will be calculated by scheduler after migration
 - `service_next_days` - Will be calculated by scheduler after migration
 
-**Post-migration:** Users configure time intervals as needed. Scheduler populates calculated fields on next run (3:00 AM or triggered manually).
+**NULL handling:** SQLite automatically defaults new columns to NULL when using `ALTER TABLE ADD COLUMN` (no explicit DEFAULT NULL needed). No update statement required - new columns are NULL by default.
+
+**Post-migration:** Users configure time intervals as needed. Scheduler populates calculated fields on next run (3:00 AM or triggered manually). Business logic passes `None` to database_manager when values should be NULL, and Peewee writes NULL to database (consistent with existing pattern at business_logic.py:791-797).
 
 ---
 
-## Rollback Procedure
+## Note on Scope Reduction
 
-### Manual Rollback (SQLite Limitation)
+**Original sections removed:** Rollback Procedure, Testing Plan, Risks and Mitigations
 
-SQLite does NOT support `DROP COLUMN` in ALTER TABLE statements. Therefore, rollback requires:
+**Rationale:** Given the minimal nature of these database changes, these comprehensive procedures are unnecessary:
 
-1. **Restore from backup** (recommended approach)
-2. **Create new table without new columns** (complex, requires data copying)
+- **Simple additive migration:** Only adding nullable columns with NULL defaults - no data modification, no complex transformations
+- **Low risk:** Cannot break existing functionality since:
+  - All new fields are nullable
+  - Existing code ignores new columns
+  - No schema restructuring or data deletion
+- **Standard workflow coverage:** Existing `db_migration.py` already has idempotent checks, backup prompts, and error handling
+- **Fast verification:** App startup immediately reveals any model/schema mismatches
 
-### Recommended Rollback: Restore Backup
+**Testing approach:** The @fullstack-developer will verify migration success by simply:
+1. Running migration script on template database
+2. Starting the application (Peewee will validate schema automatically)
+3. Opening component overview page (confirms database queries work)
 
-```bash
-# From Docker container:
-./restore_db.sh /path/to/backup/prod_db_YYYY-MM-DD.sqlite
-
-# From local machine:
-cp /path/to/backup/prod_db_YYYY-MM-DD.sqlite /path/to/prod_db.sqlite
-```
-
-### Alternative: Leave Columns with NULL Values
-
-Since all new fields are nullable with NULL defaults:
-- Old application code will ignore new columns
-- Database remains functional with old codebase
-- Migration is effectively "soft rollback compatible"
-
-**Important:** This only works if you do NOT deploy backend code that assumes new fields exist. If backend is deployed, full rollback requires restoring backup.
-
----
-
-## Testing Plan
-
-### Pre-Migration Testing
-
-**Test on copy of production database:**
-
-```bash
-# Copy production database
-cp /path/to/prod_db.sqlite /path/to/test_db.sqlite
-
-# Run migration on test database
-python3 backend/db_migration.py
-# When prompted, enter path to test_db.sqlite
-```
-
-**Verify test migration:**
-
-1. Check ComponentTypes schema:
-   ```sql
-   PRAGMA table_info(component_types);
-   ```
-   Expected: 9 columns (5 existing + 4 new)
-
-2. Check Components schema:
-   ```sql
-   PRAGMA table_info(components);
-   ```
-   Expected: 21 columns (15 existing + 6 new)
-
-3. Check threshold_km population:
-   ```sql
-   SELECT component_name, service_interval, lifetime_expected, threshold_km
-   FROM components
-   WHERE service_interval IS NOT NULL OR lifetime_expected IS NOT NULL;
-   ```
-   Expected: All rows have `threshold_km = 200`
-
-4. Check NULL values for other fields:
-   ```sql
-   SELECT component_name, service_interval_days, lifetime_expected_days,
-          threshold_days, lifetime_remaining_days, service_next_days
-   FROM components LIMIT 5;
-   ```
-   Expected: All new time-based fields are NULL
-
-### Post-Migration Testing
-
-**After production migration:**
-
-1. **Application startup test:**
-   - Start FastAPI app: `uvicorn main:app`
-   - Check for Peewee model errors in logs
-   - Expected: No errors, app starts successfully
-
-2. **Component overview page test:**
-   - Visit `/component_overview`
-   - Expected: Page loads, no database errors
-
-3. **Component creation test:**
-   - Create new component with distance intervals
-   - Expected: `threshold_km` inherits default (200) or accepts user input
-
-4. **Component edit test:**
-   - Edit existing component
-   - Expected: New fields visible, editable, save successfully
-
-5. **Scheduler test (after fullstack implementation):**
-   - Wait for scheduler run or trigger manually
-   - Check `lifetime_remaining_days` and `service_next_days` populated
-   - Expected: Calculated values in database
-
-### Migration Success Criteria
-
-- ✅ All new fields added to both tables
-- ✅ Existing data preserved (no data loss)
-- ✅ threshold_km = 200 for components with distance intervals
-- ✅ Other new fields NULL as expected
-- ✅ Application starts without errors
-- ✅ Component pages load successfully
-- ✅ Component CRUD operations work
+The comprehensive testing, rollback, and risk procedures documented in the original version are available in git history (commit b2aee5c) if ever needed for reference.
 
 ---
 
@@ -504,6 +420,12 @@ python3 backend/db_migration.py
 
 **File:** `/home/xivind/code/velo-supervisor-2000/backend/database_manager.py`
 
+**IMPORTANT - Pattern Consistency:**
+- **NO default values** in method signatures (all parameters required)
+- Business logic explicitly passes `None` when values should be NULL
+- Peewee automatically writes NULL to database when field value is `None`
+- See existing pattern at business_logic.py:791-797 and database_manager.py:382-406
+
 #### Extend write_component_lifetime_status() (Lines 382-393)
 
 **Current signature:**
@@ -513,21 +435,18 @@ def write_component_lifetime_status(self, component, lifetime_remaining, lifetim
 
 **NEW signature:**
 ```python
-def write_component_lifetime_status(self, component, lifetime_remaining, lifetime_status,
-                                     lifetime_remaining_days=None):
+def write_component_lifetime_status(self, component, lifetime_remaining, lifetime_status, lifetime_remaining_days):
 ```
 
 **NEW implementation:**
 ```python
-def write_component_lifetime_status(self, component, lifetime_remaining, lifetime_status,
-                                     lifetime_remaining_days=None):
+def write_component_lifetime_status(self, component, lifetime_remaining, lifetime_status, lifetime_remaining_days):
     """Method to update component lifetime status in database"""
     try:
         with database.atomic():
             component.lifetime_remaining = lifetime_remaining
             component.lifetime_status = lifetime_status
-            if lifetime_remaining_days is not None:  # NEW
-                component.lifetime_remaining_days = lifetime_remaining_days  # NEW
+            component.lifetime_remaining_days = lifetime_remaining_days  # NEW - can be None
             component.save()
 
         return True, f"{component.component_name}."
@@ -536,7 +455,7 @@ def write_component_lifetime_status(self, component, lifetime_remaining, lifetim
         return False, f"{component.component_name}: {str(error)}."
 ```
 
-**Rationale:** Backward compatible (optional parameter). Existing calls work unchanged. New calls can write days value.
+**Pattern consistency:** Following existing pattern - NO default values, business_logic explicitly passes `None` when appropriate (see lines 791-797 for current pattern). Peewee automatically writes NULL to database when field value is `None`.
 
 #### Extend write_component_service_status() (Lines 395-406)
 
@@ -547,21 +466,18 @@ def write_component_service_status(self, component, service_next, service_status
 
 **NEW signature:**
 ```python
-def write_component_service_status(self, component, service_next, service_status,
-                                    service_next_days=None):
+def write_component_service_status(self, component, service_next, service_status, service_next_days):
 ```
 
 **NEW implementation:**
 ```python
-def write_component_service_status(self, component, service_next, service_status,
-                                    service_next_days=None):
+def write_component_service_status(self, component, service_next, service_status, service_next_days):
     """Method to update component service status in database"""
     try:
         with database.atomic():
             component.service_next = service_next
             component.service_status = service_status
-            if service_next_days is not None:  # NEW
-                component.service_next_days = service_next_days  # NEW
+            component.service_next_days = service_next_days  # NEW - can be None
             component.save()
 
         return True, f"{component.component_name}."
@@ -570,74 +486,41 @@ def write_component_service_status(self, component, service_next, service_status
         return False, f"{component.component_name}: {str(error)}."
 ```
 
-**Rationale:** Same as above - backward compatible extension.
+**Pattern consistency:** Same as above - NO default values, business_logic explicitly passes `None` when appropriate.
 
-### No New Query Methods Needed
+### Verification: Existing Methods Robustness
 
-**Reuse existing methods:**
+**Methods that DO NOT need modification (automatically handle new fields):**
 
-- **For first installation date:** `read_oldest_history_record(component_id)` - Already returns oldest ComponentHistory record (lines 207-212)
-- **For last service date:** `read_latest_service_record(component_id)` - Already returns most recent service record (lines 231-237)
+✅ **All read methods** (lines 183-237):
+- `read_component(component_id)` - Uses Peewee `.select()` which automatically includes ALL model fields
+- `read_oldest_history_record(component_id)` - Returns complete ComponentHistory record
+- `read_latest_service_record(component_id)` - Returns complete Services record
+- `read_all_components()` - Selects all component records with all fields
 
-**Why no new methods needed:**
-- Architecture decision (lines 306-316): Reuse existing code following DRY principle
-- Oldest history record IS first installation (ComponentHistory only created on install)
-- Latest service record IS most recent service (ordered by service_date DESC)
+✅ **write_component_details(component_id, new_component_data)** (lines 362-380):
+- Uses `Components.update(**new_component_data)` - accepts dictionary, will update any fields included
+- Uses `Components.create(**new_component_data)` - creates with any fields in dictionary
+- **NO modification needed** - as long as business_logic includes new fields in the dictionary, they will be written
 
----
+**Methods that REQUIRE modification (explicit field assignment):**
 
-## Risks and Mitigations
+❌ **write_component_lifetime_status()** (lines 382-393):
+- Currently: `component.lifetime_remaining = lifetime_remaining`
+- Uses explicit field assignment, not dictionary unpacking
+- **Must add:** `component.lifetime_remaining_days = lifetime_remaining_days` assignment
 
-### Risk 1: Migration Fails Mid-Execution
+❌ **write_component_service_status()** (lines 395-406):
+- Currently: `component.service_next = service_next`
+- Uses explicit field assignment, not dictionary unpacking
+- **Must add:** `component.service_next_days = service_next_days` assignment
 
-**Likelihood:** Low | **Impact:** High
+**Why the difference?**
+- `write_component_details()` uses `**new_component_data` dictionary unpacking → flexible, handles any fields
+- Status write methods use direct field assignment → explicit, must be updated for each new field
 
-**Mitigation:**
-- Migration uses SQLite transactions (atomic operations)
-- If migration fails, changes are rolled back automatically
-- User MUST backup database before running (script enforces confirmation)
-- Test on copy of production database first
+**Architecture decision verified:** Only 2 methods need extension (status write methods). All other database operations will automatically handle new fields through Peewee's ORM and dictionary unpacking patterns.
 
-### Risk 2: Data Loss During Migration
-
-**Likelihood:** Very Low | **Impact:** Critical
-
-**Mitigation:**
-- Script only adds columns (no data deletion)
-- Existing columns and data unchanged
-- NULL defaults prevent constraint violations
-- Backup requirement enforced by script
-
-### Risk 3: Application Breaks After Migration
-
-**Likelihood:** Low | **Impact:** Medium
-
-**Mitigation:**
-- All new fields nullable (old code can ignore them)
-- Peewee models updated before migration deployed
-- Backward compatible write methods (optional parameters)
-- Rollback available via backup restore
-
-### Risk 4: Threshold Population Incorrect
-
-**Likelihood:** Low | **Impact:** Low
-
-**Mitigation:**
-- Simple SQL query with clear logic
-- Test on copy of production database
-- Users can adjust threshold_km per component after migration
-- Validation in application prevents invalid values
-
-### Risk 5: SQLite Version Incompatibility
-
-**Likelihood:** Very Low | **Impact:** Low
-
-**Mitigation:**
-- ALTER TABLE ADD COLUMN supported since SQLite 3.1.3 (2005)
-- Velo Supervisor 2000 uses modern SQLite version
-- Test migration verifies compatibility
-
----
 
 ## Next Steps for @fullstack-developer
 
@@ -661,9 +544,10 @@ def write_component_service_status(self, component, service_next, service_status
 
 **File:** `/home/xivind/code/velo-supervisor-2000/backend/database_manager.py`
 
-- Extend `write_component_lifetime_status()` (lines 382-393) with optional `lifetime_remaining_days` parameter
-- Extend `write_component_service_status()` (lines 395-406) with optional `service_next_days` parameter
-- Refer to "Integration Points" section for implementation
+- Extend `write_component_lifetime_status()` (lines 382-393) with new `lifetime_remaining_days` parameter (required, no default)
+- Extend `write_component_service_status()` (lines 395-406) with new `service_next_days` parameter (required, no default)
+- Refer to "Integration Points" and "Verification: Existing Methods Robustness" sections for details
+- **Note:** All other database_manager methods require NO modification (verified in "Verification" section)
 
 ### 4. Run Migration on Template Database
 
@@ -703,16 +587,13 @@ python3 backend/db_migration.py
 - Implement validation logic
 - Test thoroughly before deployment
 
-### 7. Testing Checklist
+### 7. Verification Checklist
 
-- [ ] Template database migration succeeds
-- [ ] Production database backup taken
-- [ ] Production database migration succeeds
-- [ ] Application starts without errors
-- [ ] Component overview page loads
-- [ ] Component creation works with new fields
-- [ ] Component editing works with new fields
-- [ ] Scheduler populates calculated fields (after implementation)
+Simple verification steps (detailed procedures removed per scope reduction):
+
+- [ ] Migration runs successfully on template database
+- [ ] Application starts without Peewee model errors
+- [ ] Component overview page loads without database errors
 
 ---
 
@@ -767,15 +648,13 @@ python3 backend/db_migration.py
 
 **@database-expert:**
 - [x] Schema changes fully specified
-- [x] Migration script complete and tested
-- [x] Rollback procedure documented
+- [x] Migration script complete
 - [x] Data population strategy defined
-- [x] Testing plan comprehensive
 - [x] Performance impact analyzed
 - [x] Integration points clearly identified
-- [x] Risks documented with mitigations
 - [x] SQL examples provided where relevant
 - [x] Peewee ORM usage correct
+- [x] Rollback/testing/risks sections appropriately scoped for simple additive migration
 
 ---
 
@@ -829,26 +708,36 @@ python3 backend/db_migration.py
 
 ### Integration Points
 
-- **database_model.py:** Add field definitions to Peewee models
-- **database_manager.py:** Extend 2 write methods with optional parameters
+- **database_model.py:** Add field definitions to Peewee models (10 fields total)
+- **database_manager.py:** Extend ONLY 2 write methods with new required parameters (NO defaults - see pattern note)
+  - All other methods (read, write_component_details) automatically handle new fields - NO modification needed
+  - See "Verification: Existing Methods Robustness" section for details
 - **db_migration.py:** Add 4 new functions, integrate into main migration
 
-### Risks Identified
+### Pattern Consistency Note
 
-All risks LOW likelihood with mitigations in place:
-- Migration failure → Automatic rollback via transaction
-- Data loss → NULL defaults, backup enforcement
-- Application breaks → Nullable fields, backward compatible methods
-- Incorrect population → Simple SQL, tested on copy first
+**Critical for implementation:**
+- Database manager methods follow existing pattern - NO default values in signatures
+- Business logic explicitly passes `None` for NULL values
+- SQLite automatically defaults new columns to NULL during migration
+- Peewee ORM automatically includes new fields in read operations
+- Dictionary unpacking methods (`write_component_details`) automatically handle new fields
 
 ### Performance Impact
 
 **Negligible:** < 3 KB total size increase for typical database, no index changes, no query performance degradation.
 
+### Risk Assessment
+
+**Very Low:** Simple additive migration with nullable fields. Standard `db_migration.py` workflow provides adequate safety (idempotency, backup prompts, atomic transactions).
+
 ### Handover Complete
 
-Database migration design complete. Ready for @fullstack-developer to:
-1. Update models
-2. Test migration on template database
-3. Run migration on production database
-4. Implement backend logic per architecture handover
+Database migration design complete and verified. Ready for @fullstack-developer to:
+1. Update models (10 new fields, logically grouped)
+2. Extend ONLY 2 database_manager methods (all others verified to work automatically)
+3. Test migration on template database
+4. Run migration on production database
+5. Implement backend logic per architecture handover
+
+**Method robustness verified:** Read methods and `write_component_details()` require NO modification - they automatically handle new fields through Peewee ORM and dictionary unpacking.
