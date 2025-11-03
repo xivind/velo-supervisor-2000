@@ -100,8 +100,22 @@ find .handovers -name "*tire-pressure*"
 @database-expert (if schema changes needed)
   ↓ creates database/[feature]-database-handover.md
 
-@fullstack-developer (reads architect + ux-designer handovers)
-  ↓ creates fullstack/[feature]-fullstack-to-reviewer.md
+DECISION POINT: Implementation Approach
+  ↓
+  Option A: @fullstack-developer agent (autonomous)
+    - Reads architect + ux-designer + database handovers
+    - Follows fullstack-developer directive
+    - Implements feature autonomously
+    - Creates fullstack/[feature]-fullstack-to-reviewer.md
+
+  Option B: Claude Code guided execution (collaborative)
+    - Reads fullstack-developer directive
+    - Reads architect + ux-designer + database handovers
+    - Works collaboratively with human
+    - Creates fullstack/[feature]-implementation-checklist.md
+    - Creates handover when complete
+
+  ↓ (Both paths converge here)
 
 @code-reviewer (reads fullstack's handover)
   ↓ creates review/[feature]-reviewer-to-fullstack.md (if revisions)
@@ -117,12 +131,23 @@ find .handovers -name "*tire-pressure*"
 - @architect uses UX handover as input when designing architecture
 - @ux-designer then updates their handover (v2) to align with architectural constraints
 - This sequential approach ensures proper coordination between UX and architecture
+- **Implementation Decision**: Claude Code asks human to choose between autonomous agent execution (Option A) or guided collaborative execution (Option B). Both follow the same directive and read the same handovers.
 
 ### Bug Fix Flow
 
 ```
-@fullstack-developer
-  ↓ creates fullstack/[bug]-fullstack-to-reviewer.md
+DECISION POINT: Implementation Approach
+  ↓
+  Option A: @fullstack-developer agent (autonomous)
+    - Analyzes and fixes bug autonomously
+    - Creates fullstack/[bug]-fullstack-to-reviewer.md
+
+  Option B: Claude Code guided execution (collaborative)
+    - Reads fullstack-developer directive
+    - Works collaboratively to analyze and fix
+    - Creates handover when complete
+
+  ↓ (Both paths converge here)
 
 @code-reviewer
   ↓ creates review/[bug]-reviewer-approved.md
