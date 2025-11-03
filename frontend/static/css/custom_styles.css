@@ -60,6 +60,27 @@ th[data-sort].sorted-desc .sort-indicator::after {
     box-shadow: 0 10px 20px rgba(0,0,0,0.2)
 }
 
+/* Component details page - gradient header for better readability */
+.card-header.text-bg-success {
+    background: linear-gradient(to left, #198754, #ffffff) !important;
+    color: #000000 !important;
+}
+
+.card-header.text-bg-warning {
+    background: linear-gradient(to left, #ffc107, #ffffff) !important;
+    color: #000000 !important;
+}
+
+.card-header.text-bg-danger {
+    background: linear-gradient(to left, #dc3545, #ffffff) !important;
+    color: #000000 !important;
+}
+
+.card-header.text-bg-secondary {
+    background: linear-gradient(to left, #6c757d, #ffffff) !important;
+    color: #000000 !important;
+}
+
 /* Styling of input modals */
 .input-modal-header {
     padding-left: 15px;
