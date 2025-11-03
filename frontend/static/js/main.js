@@ -852,11 +852,23 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('confirmAction').addEventListener('click', function handleConfirm() {
                 // Remove the event listener after use
                 this.removeEventListener('click', handleConfirm);
-                
+
+                // Detect source page from URL
+                const path = window.location.pathname;
+                let sourcePage = 'unknown';
+                if (path.includes('/component_overview')) {
+                    sourcePage = 'component_overview';
+                } else if (path.includes('/bike_details')) {
+                    sourcePage = 'bike_details';
+                } else if (path.includes('/component_details')) {
+                    sourcePage = 'component_details';
+                }
+
                 // Create and submit the form
                 const formData = new FormData();
                 formData.append('record_id', recordId);
                 formData.append('table_selector', tableSelector);
+                formData.append('source_page', sourcePage);
 
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -2628,21 +2640,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                 case 5: // Lifetime column
                 case 6: // Service column
-                    // Sort by color indicator severity (already center-aligned in cells)
-                    const severityOrder = {
-                        "🟢": 1, // OK
-                        "🟡": 2, // Approaching
-                        "🔴": 3, // Due
-                        "🟣": 4, // Exceeded
-                        "⚪": 5  // Not defined
-                    };
-                    
-                    // Find emoji in the cell
-                    const emojiA = cellA.trim().match(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟢🟡🔴🟣⚪]/u);
-                    const emojiB = cellB.trim().match(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟢🟡🔴🟣⚪]/u);
-                    
-                    cellA = emojiA ? severityOrder[emojiA[0]] || 999 : 999;
-                    cellB = emojiB ? severityOrder[emojiB[0]] || 999 : 999;
+                    // Sort by emoji priority (critical components first when ascending)
+                    const emojiPriority = { '🔴': 1, '🟡': 2, '🟢': 3, '⚪': 4, '❓': 5 };
+                    // Use alternation to match specific status emojis (not trigger emojis like 📍📅)
+                    const emojiA = cellA.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                    const emojiB = cellB.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                    cellA = emojiPriority[emojiA] || 5;
+                    cellB = emojiPriority[emojiB] || 5;
                     break;
                     
                 case 7: // Bike column
@@ -3127,9 +3131,32 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (index === 3) { // Distance column
                 cellA = parseFloat(cellA.replace(' km', '')) || 0;
                 cellB = parseFloat(cellB.replace(' km', '')) || 0;
-            } 
-            // Special handling for next service column (numeric values)
-            else if (index === 5) { // Next service column
+            }
+            // Special handling for lifetime column (emoji-based priority)
+            else if (index === 4) { // Lifetime column
+                const emojiPriority = { '🔴': 1, '🟡': 2, '🟢': 3, '⚪': 4, '❓': 5 };
+                // Use alternation to match specific status emojis (not trigger emojis)
+                const emojiA = cellA.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                const emojiB = cellB.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                cellA = emojiPriority[emojiA] || 5;
+                cellB = emojiPriority[emojiB] || 5;
+            }
+            // Special handling for service column (emoji-based priority)
+            else if (index === 5) { // Service column
+                const emojiPriority = { '🔴': 1, '🟡': 2, '🟢': 3, '⚪': 4, '❓': 5 };
+                // Use alternation to match specific status emojis (not trigger emojis)
+                const emojiA = cellA.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                const emojiB = cellB.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                cellA = emojiPriority[emojiA] || 5;
+                cellB = emojiPriority[emojiB] || 5;
+            }
+            // Special handling for km to srv column (numeric values)
+            else if (index === 6) { // Km to srv column
+                cellA = cellA === '-' ? Infinity : parseFloat(cellA) || 0;
+                cellB = cellB === '-' ? Infinity : parseFloat(cellB) || 0;
+            }
+            // Special handling for days to srv column (numeric values)
+            else if (index === 7) { // Days to srv column
                 cellA = cellA === '-' ? Infinity : parseFloat(cellA) || 0;
                 cellB = cellB === '-' ? Infinity : parseFloat(cellB) || 0;
             }
@@ -3147,44 +3174,37 @@ document.addEventListener('DOMContentLoaded', function() {
         nodeList.forEach(node => tableBody.appendChild(node));
     };
 
-    // Add data-sort attribute and sort indicators to headers (except Life / srv column and action column)
+    // Add click events to sortable headers (skip action column at index 8)
     headers.forEach((header, index) => {
-        // Skip the "Life / srv" column (index 4) and action column (index 6)
-        if (index === 4 || index === 6) return;
-        
-        // Add data-sort attribute to make headers sortable
-        header.setAttribute('data-sort', '');
-        
-        // Add sort indicator span if it doesn't exist
-        if (!header.querySelector('.sort-indicator')) {
-            const indicator = document.createElement('span');
-            indicator.className = 'sort-indicator';
-            header.appendChild(indicator);
-        }
+        // Skip the action column (index 8)
+        if (index === 8) return;
+
+        // Only add click handler if header already has data-sort attribute (from HTML)
+        if (!header.hasAttribute('data-sort')) return;
 
         // Add click event to headers
         header.addEventListener('click', () => {
             const columnIndex = header.cellIndex;
             const isAscending = !header.classList.contains('sorted-asc');
-            
+
             // Remove sorted classes from all headers
             headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
-            
+
             // Add appropriate class to clicked header
             header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
-            
+
             // Sort the column
             sortColumn(columnIndex, isAscending);
         });
     });
 
-    // Initial sort by Next service column (index 5) in ascending order
+    // Initial sort by Km to srv column (index 6) in ascending order
     if (headers.length > 0 && rows.length > 1) {
-        // Add sorted-asc class to the Next service column header
-        headers[5].classList.add('sorted-asc');
-        
-        // Sort by Next service column (index 5) in ascending order
-        sortColumn(5, true);
+        // Add sorted-asc class to the Km to srv column header
+        headers[6].classList.add('sorted-asc');
+
+        // Sort by Km to srv column (index 6) in ascending order
+        sortColumn(6, true);
     }
 });
 
@@ -3344,54 +3364,56 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeComponentForm(createComponentForm);
     }
 
-    // Handle edit status modal
-    const componentStatusForm = document.getElementById('component_status_form');
-    if (componentStatusForm) {
-        initializeComponentForm(componentStatusForm);
-    }
-
-    // Also initialize when modals are shown (in case of dynamic content)
-    const createComponentModal = document.getElementById('createComponentModal');
-    if (createComponentModal) {
-        createComponentModal.addEventListener('shown.bs.modal', function() {
-            initializeComponentForm(createComponentForm);
-        });
-    }
-
+    // Handle edit status modal - target the form INSIDE the modal explicitly
     const editComponentStatusModal = document.getElementById('editComponentStatusModal');
     if (editComponentStatusModal) {
-        editComponentStatusModal.addEventListener('shown.bs.modal', function() {
-            initializeComponentForm(componentStatusForm);
-        });
-        
-        // Enhanced version that stores original values and sets current date
-        editComponentStatusModal.addEventListener('show.bs.modal', function() {
-            // Set current date/time
-            const now = new Date();
-            const formattedDate = now.getFullYear() + '-' + 
-                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                String(now.getDate()).padStart(2, '0') + ' ' + 
-                String(now.getHours()).padStart(2, '0') + ':' + 
-                String(now.getMinutes()).padStart(2, '0');
-            
-            // Find the form elements
-            const dateInput = document.querySelector('#editComponentStatusModal #component_updated_date');
-            const statusSelect = document.querySelector('#editComponentStatusModal #component_installation_status');
-            const bikeSelect = document.querySelector('#editComponentStatusModal #component_bike_id');
-            
-            // Store original values before changing anything
-            if (dateInput) {
-                dateInput.dataset.originalValue = dateInput.value;
-                dateInput.value = formattedDate;
-            }
-            
-            if (statusSelect) {
-                statusSelect.dataset.originalValue = statusSelect.value;
-            }
-            
-            if (bikeSelect) {
-                bikeSelect.dataset.originalValue = bikeSelect.value;
-            }
+        const componentStatusForm = editComponentStatusModal.querySelector('#component_status_form');
+
+        if (componentStatusForm) {
+            // Initialize on modal shown
+            editComponentStatusModal.addEventListener('shown.bs.modal', function() {
+                initializeComponentForm(componentStatusForm);
+            });
+
+            // Enhanced version that stores original values and sets current date
+            editComponentStatusModal.addEventListener('show.bs.modal', function() {
+                // Set current date/time
+                const now = new Date();
+                const formattedDate = now.getFullYear() + '-' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(now.getDate()).padStart(2, '0') + ' ' +
+                    String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0');
+
+                // Find the form elements within the modal
+                const dateInput = componentStatusForm.querySelector('#component_updated_date');
+                const statusSelect = componentStatusForm.querySelector('#component_installation_status');
+                const bikeSelect = componentStatusForm.querySelector('#component_bike_id');
+
+                // Store original values before changing anything
+                if (dateInput) {
+                    dateInput.dataset.originalValue = dateInput.value;
+                    dateInput.value = formattedDate;
+                }
+
+                if (statusSelect) {
+                    statusSelect.dataset.originalValue = statusSelect.value;
+                }
+
+                if (bikeSelect) {
+                    bikeSelect.dataset.originalValue = bikeSelect.value;
+                }
+            });
+        } else {
+            console.error('component_status_form not found inside editComponentStatusModal!');
+        }
+    }
+
+    // Also initialize when create component modal is shown
+    const createComponentModal = document.getElementById('createComponentModal');
+    if (createComponentModal && createComponentForm) {
+        createComponentModal.addEventListener('shown.bs.modal', function() {
+            initializeComponentForm(createComponentForm);
         });
     }
 });
@@ -3465,35 +3487,38 @@ function addFormValidation(form) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Add validation to both forms
-    const componentStatusForm = document.getElementById('component_status_form');
+    // Add validation to forms - target modal forms explicitly
+    const editComponentStatusModal = document.getElementById('editComponentStatusModal');
+    const componentStatusForm = editComponentStatusModal ? editComponentStatusModal.querySelector('#component_status_form') : null;
     const componentOverviewForm = document.getElementById('component_overview_form');
-    
+
     addFormValidation(componentStatusForm);
     addFormValidation(componentOverviewForm);
 
     // Keep the existing retirement confirmation code for the status form
     if (componentStatusForm) {
         const installationSelect = componentStatusForm.querySelector('#component_installation_status');
-        let previousValue = installationSelect.value;
+        if (installationSelect) {
+            let previousValue = installationSelect.value;
 
-        installationSelect.addEventListener('change', function() {
-            if (this.value === 'Retired') {
-                const modalBody = document.getElementById('confirmModalBody');
-                modalBody.innerHTML = "You are about to retire this component. This will lock the component and prevent further editing. Delete the most recent installation record if you wish to unlock the component. Do you want to proceed? You still need to save";
-                confirmModal.show();
-                
-                document.getElementById('cancelAction').addEventListener('click', function() {
-                    installationSelect.value = previousValue;
-                }, { once: true });
-                
-                document.getElementById('confirmAction').addEventListener('click', function() {
-                    previousValue = 'Retired';
-                }, { once: true });
-            } else {
-                previousValue = this.value;
-            }
-        });
+            installationSelect.addEventListener('change', function() {
+                if (this.value === 'Retired') {
+                    const modalBody = document.getElementById('confirmModalBody');
+                    modalBody.innerHTML = "You are about to retire this component. This will lock the component and prevent further editing. Delete the most recent installation record if you wish to unlock the component. Do you want to proceed? You still need to save";
+                    confirmModal.show();
+
+                    document.getElementById('cancelAction').addEventListener('click', function() {
+                        installationSelect.value = previousValue;
+                    }, { once: true });
+
+                    document.getElementById('confirmAction').addEventListener('click', function() {
+                        previousValue = 'Retired';
+                    }, { once: true });
+                } else {
+                    previousValue = this.value;
+                }
+            });
+        }
     }
 });
 
@@ -5131,8 +5156,7 @@ document.addEventListener('DOMContentLoaded', function() {
     modifyRecordButtons.forEach(button => {
         button.addEventListener('click', () => {
             const rowId = button.dataset.rowId;
-            const componentType = button.getAttribute('component_type');
-            modifyRecord(rowId, componentType);
+            modifyRecord(rowId);
             
             // Update modal title to indicate editing
             document.getElementById('componentTypeModalLabel').textContent = 'Edit component type';
@@ -5151,33 +5175,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Define the modifyRecord function
-    function modifyRecord(rowId, componentType) {
+    function modifyRecord(rowId) {
         const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
         if (row) {
-            // Set component type (from column 1)
-            document.getElementById('component_type').value = componentType;
-            
-            // Set max quantity (from column 2)
-            const maxQuantityCell = row.cells[2].textContent.trim();
-            document.getElementById('max_quantity').value = maxQuantityCell !== 'Not defined' ? 
-                maxQuantityCell : '';
-            
-            // Set mandatory radio buttons (from column 0)
-            const hasStar = row.cells[0].textContent.includes('⭐');
-            document.getElementById('mandatory_yes').checked = hasStar;
-            document.getElementById('mandatory_no').checked = !hasStar;
-            
-            // Set expected lifetime (from column 4)
-            const expectedLifetimeCell = row.cells[4].textContent.trim();
-            document.getElementById('expected_lifetime').value = expectedLifetimeCell !== 'Not defined' ? 
-                expectedLifetimeCell : '';
-            
-            // Set service interval (from column 5)
-            const serviceIntervalCell = row.cells[5].textContent.trim();
-            document.getElementById('service_interval').value = serviceIntervalCell !== 'Not defined' ? 
-                serviceIntervalCell : '';
-            
-            // No need to set service_interval_days since it's currently only a a placeholder
+            // Read all data from data attributes (consistent with rest of codebase)
+            document.getElementById('component_type').value = row.dataset.componentType || '';
+            document.getElementById('max_quantity').value = row.dataset.maxQuantity || '';
+            document.getElementById('expected_lifetime').value = row.dataset.expectedLifetime || '';
+            document.getElementById('lifetime_expected_days').value = row.dataset.lifetimeExpectedDays || '';
+            document.getElementById('service_interval').value = row.dataset.serviceInterval || '';
+            document.getElementById('service_interval_days').value = row.dataset.serviceIntervalDays || '';
+            document.getElementById('threshold_km').value = row.dataset.thresholdKm || '';
+            document.getElementById('threshold_days').value = row.dataset.thresholdDays || '';
+
+            // Set mandatory radio buttons
+            const mandatory = row.dataset.mandatory;
+            document.getElementById('mandatory_yes').checked = (mandatory === 'Yes');
+            document.getElementById('mandatory_no').checked = (mandatory !== 'Yes');
         } else {
             console.error(`Row with ID ${rowId} not found.`);
         }
