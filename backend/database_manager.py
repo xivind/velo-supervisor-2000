@@ -112,7 +112,11 @@ class DatabaseManager:
 
         component_types_data = [(component_type.component_type,
                                  component_type.expected_lifetime,
+                                 component_type.lifetime_expected_days,
                                  component_type.service_interval,
+                                 component_type.service_interval_days,
+                                 component_type.threshold_km,
+                                 component_type.threshold_days,
                                  component_type.in_use,
                                  component_type.mandatory,
                                  component_type.max_quantity) for component_type in component_types]
@@ -152,7 +156,7 @@ class DatabaseManager:
                 .count())
 
     def read_all_components(self):
-        """Method to read content of components table"""
+        """Method to read content of components table as formatted tuples"""
         all_components = Components.select()
 
         all_components_data = [(component.component_id,
@@ -163,9 +167,19 @@ class DatabaseManager:
                                 format_component_status(component.lifetime_status),
                                 format_component_status(component.service_status),
                                 self.read_bike_name(component.bike_id),
-                                format_cost(component.cost)) for component in all_components]
+                                format_cost(component.cost),
+                                component.lifetime_remaining,
+                                component.lifetime_remaining_days,
+                                component.service_next,
+                                component.service_next_days,
+                                component.threshold_km,
+                                component.threshold_days) for component in all_components]
 
         return all_components_data
+
+    def read_all_components_objects(self):
+        """Method to read all component objects (not tuples)"""
+        return Components.select()
 
     def read_subset_components(self, bike_id):
         """Method to read components for a specific bike"""
@@ -256,15 +270,15 @@ class DatabaseManager:
     def read_collection_by_component(self, component_id):
         """Method to find collection containing a specific component"""
         all_collections = Collections.select()
-        
+
         for collection in all_collections:
             if collection.components:
                 component_ids = json.loads(collection.components)
                 if component_id in component_ids:
                     return collection
-        
+
         return None
-    
+
     def read_single_incident_report(self, incident_id):
         """Method to retrieve record for a specific incident report"""
         return (Incidents
@@ -379,25 +393,27 @@ class DatabaseManager:
         except peewee.OperationalError as error:
             return False, f"Component modification failed: {str(error)}"
     
-    def write_component_lifetime_status(self, component, lifetime_remaining, lifetime_status):
+    def write_component_lifetime_status(self, component, lifetime_remaining, lifetime_status, lifetime_remaining_days):
         """Method to update component lifetime status in database"""
         try:
             with database.atomic():
                 component.lifetime_remaining = lifetime_remaining
                 component.lifetime_status = lifetime_status
+                component.lifetime_remaining_days = lifetime_remaining_days
                 component.save()
 
             return True, f"{component.component_name}."
-        
+
         except peewee.OperationalError as error:
             return False, f"{component.component_name}: {str(error)}."
 
-    def write_component_service_status(self, component, service_next, service_status):
+    def write_component_service_status(self, component, service_next, service_status, service_next_days):
         """Method to update component service status in database"""
         try:
             with database.atomic():
                 component.service_next = service_next
                 component.service_status = service_status
+                component.service_next_days = service_next_days
                 component.save()
 
             return True, f"{component.component_name}."

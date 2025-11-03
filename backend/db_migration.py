@@ -259,6 +259,129 @@ def migrate_component_types(cursor, conn):
     print("Component counts have been populated in the 'in_use' column.")
     return True
 
+def check_component_types_time_columns(cursor):
+    """Check if ComponentTypes table needs time-based fields migration"""
+    cursor.execute("PRAGMA table_info(component_types)")
+    columns = [column[1] for column in cursor.fetchall()]
+
+    columns_to_add = []
+    if 'service_interval_days' not in columns:
+        columns_to_add.append('service_interval_days')
+    if 'lifetime_expected_days' not in columns:
+        columns_to_add.append('lifetime_expected_days')
+    if 'threshold_km' not in columns:
+        columns_to_add.append('threshold_km')
+    if 'threshold_days' not in columns:
+        columns_to_add.append('threshold_days')
+
+    return columns_to_add
+
+def migrate_component_types_time_fields(cursor, conn):
+    """Add time-based fields to ComponentTypes table"""
+    columns_to_add = check_component_types_time_columns(cursor)
+
+    if not columns_to_add:
+        print("ComponentTypes table already has all time-based fields.")
+        return False
+
+    print("\nMigrating ComponentTypes table with time-based fields...")
+
+    # Add new columns with NULL defaults
+    if 'service_interval_days' in columns_to_add:
+        print("Adding 'service_interval_days' column...")
+        cursor.execute("ALTER TABLE component_types ADD COLUMN service_interval_days INTEGER")
+
+    if 'lifetime_expected_days' in columns_to_add:
+        print("Adding 'lifetime_expected_days' column...")
+        cursor.execute("ALTER TABLE component_types ADD COLUMN lifetime_expected_days INTEGER")
+
+    if 'threshold_km' in columns_to_add:
+        print("Adding 'threshold_km' column...")
+        cursor.execute("ALTER TABLE component_types ADD COLUMN threshold_km INTEGER")
+
+    if 'threshold_days' in columns_to_add:
+        print("Adding 'threshold_days' column...")
+        cursor.execute("ALTER TABLE component_types ADD COLUMN threshold_days INTEGER")
+
+    conn.commit()
+    print("ComponentTypes time-based fields migration completed.")
+    return True
+
+def check_components_time_columns(cursor):
+    """Check if Components table needs time-based fields migration"""
+    cursor.execute("PRAGMA table_info(components)")
+    columns = [column[1] for column in cursor.fetchall()]
+
+    columns_to_add = []
+    if 'service_interval_days' not in columns:
+        columns_to_add.append('service_interval_days')
+    if 'lifetime_expected_days' not in columns:
+        columns_to_add.append('lifetime_expected_days')
+    if 'threshold_km' not in columns:
+        columns_to_add.append('threshold_km')
+    if 'threshold_days' not in columns:
+        columns_to_add.append('threshold_days')
+    if 'lifetime_remaining_days' not in columns:
+        columns_to_add.append('lifetime_remaining_days')
+    if 'service_next_days' not in columns:
+        columns_to_add.append('service_next_days')
+
+    return columns_to_add
+
+def migrate_components_time_fields(cursor, conn):
+    """Add time-based fields to Components table and populate threshold_km"""
+    columns_to_add = check_components_time_columns(cursor)
+
+    if not columns_to_add:
+        print("Components table already has all time-based fields.")
+        return False
+
+    print("\nMigrating Components table with time-based fields...")
+
+    # Add new columns with NULL defaults
+    if 'service_interval_days' in columns_to_add:
+        print("Adding 'service_interval_days' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN service_interval_days INTEGER")
+
+    if 'lifetime_expected_days' in columns_to_add:
+        print("Adding 'lifetime_expected_days' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN lifetime_expected_days INTEGER")
+
+    if 'threshold_km' in columns_to_add:
+        print("Adding 'threshold_km' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN threshold_km INTEGER")
+
+    if 'threshold_days' in columns_to_add:
+        print("Adding 'threshold_days' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN threshold_days INTEGER")
+
+    if 'lifetime_remaining_days' in columns_to_add:
+        print("Adding 'lifetime_remaining_days' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN lifetime_remaining_days INTEGER")
+
+    if 'service_next_days' in columns_to_add:
+        print("Adding 'service_next_days' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN service_next_days INTEGER")
+
+    conn.commit()
+
+    # Populate threshold_km for existing components with distance intervals
+    # Note: Other fields remain NULL (SQLite default for new columns)
+    if 'threshold_km' in columns_to_add:
+        print("\nPopulating threshold_km for existing components...")
+        cursor.execute("""
+            UPDATE components
+            SET threshold_km = 200
+            WHERE (service_interval IS NOT NULL OR lifetime_expected IS NOT NULL)
+        """)
+        updated_count = cursor.rowcount
+        conn.commit()
+        print(f"Set threshold_km = 200 for {updated_count} components with distance intervals")
+        print("Other new fields remain NULL (SQLite default) - no explicit action needed")
+
+    print("Components time-based fields migration completed.")
+    return True
+
 def migrate_database():
     """Main function to handle the database migration."""
     print("=== Velo Supervisor 2000 Database Migration Tool ===\n")
@@ -301,7 +424,17 @@ def migrate_database():
         component_types_updated = migrate_component_types(cursor, conn)
         if component_types_updated:
             migrations_performed += 1
-        
+
+        # NEW: Migrate ComponentTypes with time-based fields
+        component_types_time_updated = migrate_component_types_time_fields(cursor, conn)
+        if component_types_time_updated:
+            migrations_performed += 1
+
+        # NEW: Migrate Components with time-based fields
+        components_time_updated = migrate_components_time_fields(cursor, conn)
+        if components_time_updated:
+            migrations_performed += 1
+
         if migrations_performed == 0:
             print("\nNo migrations were needed - your database is already up to date!")
         else:
