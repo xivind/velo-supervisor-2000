@@ -1,15 +1,15 @@
 <div class="modal fade" id="editComponentStatusModal" tabindex="-1" aria-labelledby="editComponentStatusModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header input-modal-header">
                 <h5 class="modal-title input-modal-title" id="editComponentStatusModalLabel">Update component status</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="component_status_form" class="row" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded" data-initial-bike-id="{{ initial_bike_id or '' }}">
+                <form id="component_status_form" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded" data-initial-bike-id="{{ initial_bike_id or '' }}">
                     <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
 
-                    <div class="col-md-4 mb-3">
+                    <div class="mb-3">
                         <label for="component_installation_status" class="form-label fw-bold">Status</label>
                         <select class="form-select" id="component_installation_status" name="component_installation_status">
                             <option value="Installed" {% if payload.bike_component_data['installation_status'] == "Installed" %}selected{% endif %}>Installed</option>
@@ -18,7 +18,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="mb-3">
                         <label for="component_bike_id" class="form-label fw-bold">Bike</label>
                         <select class="form-select" id="component_bike_id" name="component_bike_id">
                             <option value="">Not assigned</option>
@@ -30,7 +30,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="mb-3">
                         <label for="component_updated_date" class="form-label fw-bold">Updated date</label>
                         <div class="input-group date-input-group">
                             <input type="text" class="form-control datepicker-input" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}" required>

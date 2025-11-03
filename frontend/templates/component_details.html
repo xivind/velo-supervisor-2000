@@ -39,20 +39,27 @@
 {% include "modal_quick_swap.html" %}
 
 <h1 id="component-details" class="display-5 mt-5 mb-4 text-center">Component details</h1>
+<div class="d-flex flex-wrap gap-2 mb-3">
 {% if payload.bike_component_data['bike_id'] %}
-    <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary me-2">
+    <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary">
         <span>🚴 View bike</span>
     </a>
 {% elif payload.component_history_data|length > 1 and payload.bike_component_data['installation_status'] != 'Installed'  %}
-    <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="btn btn-outline-primary me-2">
+    <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="btn btn-outline-primary">
         <span>🚴 View previous bike</span>
-    </a>    
+    </a>
 {% else %}
-    <button type="button" class="btn btn-outline-primary me-2" disabled>
+    <button type="button" class="btn btn-outline-primary" disabled>
         <span>🚴 View bike</span>
     </button>
 {% endif %}
-<button type="button" class="btn btn-outline-primary me-2 edit-collection-btn" 
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentStatusModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>🔄 Change status</span>
+</button>
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentDetailsModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>✍ Update details</span>
+</button>
+<button type="button" class="btn btn-outline-primary edit-collection-btn"
         {% if payload.bike_component_data['component_id'] in payload.component_collection_names %}
         data-collection-id="{{ payload.component_collection_data[payload.bike_component_data['component_id']][0] }}"
         data-collection-name="{{ payload.component_collection_data[payload.bike_component_data['component_id']][1] }}"
@@ -64,108 +71,28 @@
         {% if payload.bike_component_data['installation_status'] == "Retired" or payload.bike_component_data['component_id'] not in payload.component_collection_names %}disabled{% endif %}>
     <span>📦 Edit collection</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2 quick-swap-btn" data-component-id="{{ payload.bike_component_data['component_id'] }}" {% if payload.bike_component_data['installation_status'] != "Installed" %}disabled{% endif %}>
+<button type="button" class="btn btn-outline-primary quick-swap-btn" data-component-id="{{ payload.bike_component_data['component_id'] }}" {% if payload.bike_component_data['installation_status'] != "Installed" %}disabled{% endif %}>
     <span>♻ Quick swap</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createComponentModal">
     <span>⛓ Duplicate</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>🧑‍🔧 New service</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#workplanRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#workplanRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>📝 New workplan</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>🚨 New incident</span>
 </button>
+<button type="button" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">
+    <span>🗑 Delete</span>
+</button>
+</div>
 <hr/>
 <div class="row">
-    <div class="col-md-4">
-        <div class="card shadow mb-4">
-            <div class="card-header h5 fw-bold text-bg-
-                {%- if payload.bike_component_data['lifetime_status'] == 'Not defined' and payload.bike_component_data['service_status'] == 'Not defined' -%}
-                    secondary
-                {%- elif payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded' or payload.bike_component_data['service_status'] == 'Service interval exceeded' -%}
-                    purple
-                {%- elif payload.bike_component_data['lifetime_status'] == 'Due for replacement' or payload.bike_component_data['service_status'] == 'Due for service' -%}
-                    danger
-                {%- elif payload.bike_component_data['lifetime_status'] == 'End of life approaching' or payload.bike_component_data['service_status'] == 'Service approaching' -%}
-                    warning
-                {%- else -%}
-                    success
-                {%- endif -%}">
-                {{ payload.bike_component_data['component_name'] }}
-            </div>
-            <div class="card-body">
-                <h6 class="card-title fw-bold">
-                    {% if payload.bike_component_data['installation_status'] == 'Installed' %}⚡ {{ payload.bike_component_data['installation_status'] }} at <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="text-decoration-none text-reset">{{ payload['bike_name'] }}</a>{% elif payload.bike_component_data['installation_status'] == 'Not installed' %}💤 {{ payload.bike_component_data['installation_status'] }}{% elif payload.bike_component_data['installation_status'] == 'Retired' %}⛔ {{ payload.bike_component_data['installation_status'] }}{% endif %}
-                </h6>
-                <h6 class="card-title mt-1">
-                    🕰 {% if payload.component_history_data|length <= 1 %}Not previously installed{% else %}Previously installed at <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="text-decoration-none text-reset">{{ payload.component_history_data[1][4] }}</a>{% endif %}
-                </h6>
-                <h6 class="card-title mt-1">
-                    📦 {% if payload.bike_component_data['component_id'] in payload.component_collection_names %}Part of collection <span class="collection-name-link" role="button" 
-                          data-collection-id="{{ payload.component_collection_data[payload.bike_component_data['component_id']][0] }}"
-                          data-collection-name="{{ payload.component_collection_data[payload.bike_component_data['component_id']][1] }}"
-                          data-components="{{ payload.component_collection_data[payload.bike_component_data['component_id']][2] }}"
-                          data-bike-id="{{ payload.component_collection_data[payload.bike_component_data['component_id']][3] }}"
-                          data-comment="{{ payload.component_collection_data[payload.bike_component_data['component_id']][4] }}"
-                          data-updated-date="{{ payload.component_collection_data[payload.bike_component_data['component_id']][5] }}"
-                          style="cursor: pointer;">{{ payload.component_collection_names[payload.bike_component_data['component_id']] }}</span>{% else %}Not part of any collection{% endif %}
-                </h6>
-                <hr/>
-                <span class="fw-bold">📍 Mileage {{ payload.bike_component_data['component_distance'] }} km</span>
-                <h6 class="card-title mt-2">
-                    📅 {{ payload.elapsed_days.days_since_install }}
-                </h6>
-                <h6 class="card-title mt-2">
-                    🔧 {{ payload.elapsed_days.days_since_service }}
-                </h6>
-                <hr/>
-                <span class="fw-bold">🚳 {% if payload.bike_component_data['lifetime_status'] == 'Not defined' %}Expected lifetime not defined{% elif payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded' %}Lifetime exceeded with {{ payload.bike_component_data['lifetime_remaining'] * -1}} km{% else %}Lifetime reached in {{ payload.bike_component_data['lifetime_remaining'] }} km{% endif %}</span>
-                <div class="progress mt-2" role="progressbar" aria-label="Lifetime bar" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progress-bar progress-bar-striped 
-                    {% if payload.bike_component_data['lifetime_status'] == 'Not defined' %}
-                        bg-secondary-subtle
-                    {% elif payload.bike_component_data['lifetime_status'] == 'OK' %}
-                        bg-success
-                    {% elif payload.bike_component_data['lifetime_status'] == 'End of life approaching' %}
-                        bg-warning
-                    {% elif payload.bike_component_data['lifetime_status'] == 'Due for replacement' %}
-                        bg-danger
-                    {% else %}
-                        bg-purple
-                    {% endif %}" 
-                    style="width: {{ payload.bike_component_data['lifetime_percentage'] }}%">
-                </div>
-            </div>
-            <hr/>
-            <span class="fw-bold">🧑‍🔧 {% if payload.bike_component_data['service_status'] == 'Not defined' %}Service interval not defined{% elif payload.bike_component_data['service_status'] == 'Service interval exceeded' %}Service interval exceeded with {{ payload.bike_component_data['service_next'] * -1}} km{% else %}Next service in {{ payload.bike_component_data['service_next'] }} km{% endif %}</span>
-            <div class="progress mt-2" role="progressbar" aria-label="Service bar" aria-valuemin="0" aria-valuemax="100">
-                <div class="progress-bar progress-bar-striped
-                    {% if payload.bike_component_data['service_status'] == 'Not defined' %}
-                        bg-secondary-subtle
-                    {% elif payload.bike_component_data['service_status'] == 'OK' %}
-                        bg-success
-                    {% elif payload.bike_component_data['service_status'] == 'Service approaching' %}
-                        bg-warning
-                    {% elif payload.bike_component_data['service_status'] == 'Due for service' %}
-                        bg-danger
-                    {% else %}
-                        bg-purple
-                    {% endif %}" 
-                    style="width: {{ payload.bike_component_data['service_percentage'] }}%">
-                </div>
-            </div>
-            <hr/>
-            <p class="card-text d-flex justify-content-between align-items-center">
-                <span class="fw-bold">🔑 Component id: {{ payload.bike_component_data['component_id'] }}</span>
-            </p>  
-        </div>
-    </div>
-</div>
-    <div class="col-md-8">
+    <div class="col-12">
         {% set component_id = payload.bike_component_data['component_id'] %}
         {% if component_id in payload.open_incidents["component_incidents"] %}
             {% set incident_count = payload.open_incidents["component_incidents"][component_id]["incident_count"] %}
@@ -199,111 +126,142 @@
                 </div>
             </div>
         {% endif %}
+    </div>
+    <div class="col-12">
         <div class="card shadow mb-4">
-            <div class="card-header fw-bold">Component status</div>
+            <div class="card-header text-bg-
+                {%- if payload.bike_component_data['lifetime_status'] == 'Not defined' and payload.bike_component_data['service_status'] == 'Not defined' -%}
+                    secondary
+                {%- elif payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded' or payload.bike_component_data['service_status'] == 'Service interval exceeded' -%}
+                    danger
+                {%- elif payload.bike_component_data['lifetime_status'] == 'Due for replacement' or payload.bike_component_data['service_status'] == 'Due for service' -%}
+                    warning
+                {%- else -%}
+                    success
+                {%- endif -%}">
+                <div class="fs-5 fw-bold">{{ payload.bike_component_data['component_name'] }}</div>
+                <div class="d-flex flex-wrap gap-3 fs-6">
+                    <span>{% if payload.bike_component_data['installation_status'] == 'Installed' %}⚡ Installed at <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="text-decoration-none text-reset">{{ payload['bike_name'] }}</a>{% elif payload.bike_component_data['installation_status'] == 'Not installed' %}💤 {{ payload.bike_component_data['installation_status'] }}{% elif payload.bike_component_data['installation_status'] == 'Retired' %}⛔ {{ payload.bike_component_data['installation_status'] }}{% endif %}</span>
+                    <span>🕰 {% if payload.component_history_data|length <= 1 %}Not previously installed{% else %}Previously installed at <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="text-decoration-none text-reset">{{ payload.component_history_data[1][4] }}</a>{% endif %}</span>
+                    <span>📦 {% if payload.bike_component_data['component_id'] in payload.component_collection_names %}<span class="collection-name-link" role="button"
+                          data-collection-id="{{ payload.component_collection_data[payload.bike_component_data['component_id']][0] }}"
+                          data-collection-name="{{ payload.component_collection_data[payload.bike_component_data['component_id']][1] }}"
+                          data-components="{{ payload.component_collection_data[payload.bike_component_data['component_id']][2] }}"
+                          data-bike-id="{{ payload.component_collection_data[payload.bike_component_data['component_id']][3] }}"
+                          data-comment="{{ payload.component_collection_data[payload.bike_component_data['component_id']][4] }}"
+                          data-updated-date="{{ payload.component_collection_data[payload.bike_component_data['component_id']][5] }}"
+                          style="cursor: pointer;">Part of collection {{ payload.component_collection_names[payload.bike_component_data['component_id']] }}</span>{% else %}Not part of any collection{% endif %}</span>
+                </div>
+            </div>
             <div class="card-body">
-                <fieldset disabled>
-                <form id="component_status_form" class="row" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded">
-                    <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
-                    <div class="col-md-4 mb-3">
-                        <label for="component_installation_status" class="form-label fw-bold">Status</label>
-                        <select class="form-select" id="component_installation_status" name="component_installation_status">
-                            <option value="Installed" {% if payload.bike_component_data['installation_status'] == "Installed" %}selected{% endif %}>Installed</option>
-                            <option value="Not installed" {% if payload.bike_component_data['installation_status'] == "Not installed" %}selected{% endif %}>Not installed</option>
-                            <option value="Retired" {% if payload.bike_component_data['installation_status'] == "Retired" %}selected{% endif %}>Retired</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="component_bike_id" class="form-label fw-bold">Bike</label>
-                        <select class="form-select" id="component_bike_id" name="component_bike_id">
-                            <option value="">Not assigned</option>
-                            {% for bike_name, bike_id in payload.bikes_data %}
-                                <option value="{{ bike_id }}"
-                                {% if bike_id == payload.bike_component_data['bike_id'] %}selected{% endif %}>
-                                {{ bike_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="component_updated_date" class="form-label fw-bold">Updated date</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}" required>
-                            <span class="input-group-text" id="update-date-picker-toggle">🗓</span>
+                {% if payload.bike_component_data['installation_status'] == 'Retired' %}
+                <div class="alert bg-info-subtle mb-3" role="alert">
+                    <strong>⛔ This component was retired on {{ payload.bike_component_data['updated_date'].split(' ')[0] }}.</strong>
+                    <p class="mb-0 small">Km and time based values are frozen as of retirement date.</p>
+                </div>
+                {% endif %}
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-light text-dark border fs-6 fw-normal">🏷️ <strong>Type:</strong> {{ payload.bike_component_data['component_type'] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 fw-normal">📍 <strong>Total mileage:</strong> {{ payload.bike_component_data['component_distance'] }} km</span>
+                    <span class="badge bg-light text-dark border fs-6 fw-normal">📅 {% if payload.bike_component_data['component_age_days'] %}<strong>Component age:</strong> {{ payload.bike_component_data['component_age_days'] }} days{% else %}Component has never been installed{% endif %}</span>
+                    <span class="badge bg-light text-dark border fs-6 fw-normal">🔧 <strong>Last service:</strong> {{ payload.days_since_service }}</span>
+                    <span class="badge bg-light text-dark border fs-6 fw-normal">🔄 <strong>Last status change:</strong> {{ payload.bike_component_data['updated_date'].split(' ')[0] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 fw-normal">💰 <strong>Cost:</strong> {{ payload.bike_component_data['cost'] }}</span>
+                    {% if payload.bike_component_data['component_notes'] %}
+                    <span class="badge bg-light text-dark border fs-6 fw-normal">📝 <strong>Notes:</strong> {{ payload.bike_component_data['component_notes'] }}</span>
+                    {% endif %}
+                </div>
+                <hr/>
+
+                {# Two-column layout for Lifetime and Service sections #}
+                <div class="row">
+                    {# LEFT COLUMN: Lifetime Section #}
+                    <div class="col-md-6">
+                        {# Distance-based lifetime #}
+                        <span class="fw-bold">{% if payload.bike_component_data['lifetime_expected'] and (payload.bike_component_data['lifetime_status'] == 'Due for replacement' or payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['lifetime_expected'] %}{% if payload.bike_component_data['lifetime_remaining'] <= 0 %}Lifetime exceeded by {{ payload.bike_component_data['lifetime_remaining'] * -1 }} km{% else %}Lifetime reached in {{ payload.bike_component_data['lifetime_remaining'] }} km{% endif %}{% else %}Expected lifetime in km not defined{% endif %}</span>
+                        <div class="progress mt-2" role="progressbar" aria-label="Lifetime distance bar">
+                            <div class="progress-bar progress-bar-striped
+                            {% if payload.bike_component_data['lifetime_expected'] %}
+                                {% if payload.bike_component_data['lifetime_status'] == 'OK' %}bg-success
+                                {% elif payload.bike_component_data['lifetime_status'] == 'Due for replacement' %}bg-warning
+                                {% elif payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded' %}bg-danger
+                                {% else %}bg-secondary-subtle{% endif %}
+                            {% else %}bg-secondary-subtle{% endif %}"
+                            style="width: {% if payload.bike_component_data['lifetime_expected'] %}{{ [payload.bike_component_data['lifetime_percentage'], 100]|min }}%{% else %}100%{% endif %}">
+                            </div>
                         </div>
+                        <p class="small text-muted text-end mb-4">
+                            {% if payload.bike_component_data['lifetime_expected'] %}<strong>Max:</strong> {{ payload.bike_component_data['lifetime_expected'] }} km / <strong>Threshold:</strong> {{ payload.bike_component_data['threshold_km'] }} km{% else %}<strong>Max:</strong> - / <strong>Threshold:</strong> -{% endif %}
+                        </p>
+
+                        {# Time-based lifetime #}
+                        <span class="fw-bold">{% if payload.bike_component_data['lifetime_expected_days'] and (payload.bike_component_data['lifetime_status'] == 'Due for replacement' or payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['lifetime_expected_days'] %}{% if payload.bike_component_data['lifetime_remaining_days'] <= 0 %}Lifetime exceeded by {{ payload.bike_component_data['lifetime_remaining_days'] * -1 }} days{% else %}Lifetime reached in {{ payload.bike_component_data['lifetime_remaining_days'] }} days{% endif %}{% else %}Expected lifetime in days not defined{% endif %}</span>
+                        <div class="progress mt-2" role="progressbar" aria-label="Lifetime time bar">
+                            <div class="progress-bar progress-bar-striped
+                            {% if payload.bike_component_data['lifetime_expected_days'] %}
+                                {% if payload.bike_component_data['lifetime_status'] == 'OK' %}bg-success
+                                {% elif payload.bike_component_data['lifetime_status'] == 'Due for replacement' %}bg-warning
+                                {% elif payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded' %}bg-danger
+                                {% else %}bg-secondary-subtle{% endif %}
+                            {% else %}bg-secondary-subtle{% endif %}"
+                            style="width: {% if payload.bike_component_data['lifetime_expected_days'] %}{{ [payload.bike_component_data['lifetime_percentage_days'], 100]|min }}%{% else %}100%{% endif %}">
+                            </div>
+                        </div>
+                        <p class="small text-muted text-end mb-0">
+                            {% if payload.bike_component_data['lifetime_expected_days'] %}<strong>Max:</strong> {{ payload.bike_component_data['lifetime_expected_days'] }} days / <strong>Threshold:</strong> {{ payload.bike_component_data['threshold_days'] }} days{% else %}<strong>Max:</strong> - / <strong>Threshold:</strong> -{% endif %}
+                        </p>
                     </div>
-                </form>
-            </fieldset>
-            <hr/>
-            <div class="col-12 d-flex justify-content-end">
-                <button type="button" class="btn btn-outline-primary mb-2 me-2" data-bs-toggle="modal" data-bs-target="#editComponentStatusModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-                    Update status
-                </button>
-                <button type="button" class="btn btn-outline-danger mb-2 delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">Delete component</button>
-            </div>
-            </div>
-        </div>
-        <div class="card shadow mb-4">
-            <div class="card-header fw-bold">Component details</div>
-            <div class="card-body">
-                <fieldset disabled>
-                <form id="component_details_form" class="row align-items-center" action="/update_component_details" method="post" enctype="application/x-www-form-urlencoded">
-                    <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
-                    <input type="hidden" id="component_bike_id" name="component_bike_id" value="{{ payload.bike_component_data['bike_id'] }}">
-                    <input type="hidden" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}">
-                    <input type="hidden" id="component_installation_status" name="component_installation_status" value="{{ payload.bike_component_data['installation_status'] }}">
-                    
-                    <div class="col-md-4 mb-3">
-                        <label for="component_name" class="form-label fw-bold">Name</label>
-                        <input type="text" class="form-control" id="component_name" name="component_name" value="{{ payload.bike_component_data['component_name'] }}" required>
+
+                    {# RIGHT COLUMN: Service Section #}
+                    <div class="col-md-6">
+                        {# Distance-based service #}
+                        <span class="fw-bold">{% if payload.bike_component_data['service_interval'] and (payload.bike_component_data['service_status'] == 'Due for service' or payload.bike_component_data['service_status'] == 'Service interval exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['service_interval'] %}{% if payload.bike_component_data['service_next'] <= 0 %}Service interval exceeded by {{ payload.bike_component_data['service_next'] * -1 }} km{% else %}Next service in {{ payload.bike_component_data['service_next'] }} km{% endif %}{% else %}Service interval in km not defined{% endif %}</span>
+                        <div class="progress mt-2" role="progressbar" aria-label="Service distance bar">
+                            <div class="progress-bar progress-bar-striped
+                            {% if payload.bike_component_data['service_interval'] %}
+                                {% if payload.bike_component_data['service_status'] == 'OK' %}bg-success
+                                {% elif payload.bike_component_data['service_status'] == 'Due for service' %}bg-warning
+                                {% elif payload.bike_component_data['service_status'] == 'Service interval exceeded' %}bg-danger
+                                {% else %}bg-secondary-subtle{% endif %}
+                            {% else %}bg-secondary-subtle{% endif %}"
+                            style="width: {% if payload.bike_component_data['service_interval'] %}{{ [payload.bike_component_data['service_percentage'], 100]|min }}%{% else %}100%{% endif %}">
+                            </div>
+                        </div>
+                        <p class="small text-muted text-end mb-4">
+                            {% if payload.bike_component_data['service_interval'] %}<strong>Max:</strong> {{ payload.bike_component_data['service_interval'] }} km / <strong>Threshold:</strong> {{ payload.bike_component_data['threshold_km'] }} km{% else %}<strong>Max:</strong> - / <strong>Threshold:</strong> -{% endif %}
+                        </p>
+
+                        {# Time-based service #}
+                        <span class="fw-bold">{% if payload.bike_component_data['service_interval_days'] and (payload.bike_component_data['service_status'] == 'Due for service' or payload.bike_component_data['service_status'] == 'Service interval exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['service_interval_days'] %}{% if payload.bike_component_data['service_next_days'] <= 0 %}Service interval exceeded by {{ payload.bike_component_data['service_next_days'] * -1 }} days{% else %}Next service in {{ payload.bike_component_data['service_next_days'] }} days{% endif %}{% else %}Service interval in days not defined{% endif %}</span>
+                        <div class="progress mt-2" role="progressbar" aria-label="Service time bar">
+                            <div class="progress-bar progress-bar-striped
+                            {% if payload.bike_component_data['service_interval_days'] %}
+                                {% if payload.bike_component_data['service_status'] == 'OK' %}bg-success
+                                {% elif payload.bike_component_data['service_status'] == 'Due for service' %}bg-warning
+                                {% elif payload.bike_component_data['service_status'] == 'Service interval exceeded' %}bg-danger
+                                {% else %}bg-secondary-subtle{% endif %}
+                            {% else %}bg-secondary-subtle{% endif %}"
+                            style="width: {% if payload.bike_component_data['service_interval_days'] %}{{ [payload.bike_component_data['service_percentage_days'], 100]|min }}%{% else %}100%{% endif %}">
+                            </div>
+                        </div>
+                        <p class="small text-muted text-end mb-0">
+                            {% if payload.bike_component_data['service_interval_days'] %}<strong>Max:</strong> {{ payload.bike_component_data['service_interval_days'] }} days / <strong>Threshold:</strong> {{ payload.bike_component_data['threshold_days'] }} days{% else %}<strong>Max:</strong> - / <strong>Threshold:</strong> -{% endif %}
+                        </p>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="component_type" class="form-label fw-bold">Type</label>
-                        <select class="form-select" id="component_type" name="component_type" required>
-                            {% for component_type, suggested_lifetime_expected, suggested_service_interval, in_use, mandatory, max_quantity in payload.component_types_data %}
-                                <option value="{{ component_type }}"
-                                    expected_lifetime="{{ suggested_lifetime_expected }}"
-                                    service_interval="{{ suggested_service_interval }}"
-                                    {% if component_type == payload.bike_component_data['component_type'] %}selected{% endif %}>
-                                    {{ component_type }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="cost" class="form-label fw-bold">Cost (kr)</label>
-                        <input type="number" min="0" step="1" class="form-control" id="cost" name="cost" value="{{ payload.bike_component_data['cost'] }}">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
-                        <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime" value="{{ payload.bike_component_data['lifetime_expected'] }}">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="service_interval" class="form-label fw-bold">Service interval (km)</label>
-                        <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="{{ payload.bike_component_data['service_interval'] }}">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="offset" class="form-label fw-bold">Offset (km)</label>
-                        <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="{{ payload.bike_component_data['offset'] }}">
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label for="component_notes" class="form-label fw-bold">Notes</label>
-                        <textarea class="form-control" id="component_notes" name="component_notes" rows="3">{% if payload.bike_component_data['component_notes'] %}{{ payload.bike_component_data['component_notes'] }}{% else %}{% endif %}</textarea>
-                    </div>
-                </form>
-            </fieldset>
-            <hr/>
-            <div class="col-12 d-flex justify-content-end">
-                <button type="button" class="btn btn-outline-primary mb-2" data-bs-toggle="modal" data-bs-target="#editComponentDetailsModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-                    Update details
-                </button>
-            </div>
+                </div>
+
+                <hr/>
+                <div class="text-end">
+                    <small class="text-muted">
+                        🔑 <strong>Component id:</strong> {{ payload.bike_component_data['component_id'] }}
+                    </small>
+                </div>
             </div>
         </div>
     </div>
     </div>
     {% if payload.incident_reports_data and payload.bike_component_data['component_id'] in payload.open_incidents["component_incidents"] %}
-    <div class="card shadow mb-4 mt-2">
+    <div class="card shadow mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span class="fw-bold">Open incidents</span>
         </div>
@@ -363,7 +321,7 @@
     </div>
     {% endif %}
     {% if payload.workplans_data and payload.bike_component_data['component_id'] in payload.planned_workplans["component_workplans"] %}
-    <div class="card shadow mb-4 mt-2">
+    <div class="card shadow mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span class="fw-bold">Unfinished workplans</span>
         </div>
@@ -439,7 +397,7 @@
         </div>
     </div>
     {% endif %}
-    <div class="card shadow mb-4 mt-2">
+    <div class="card shadow mb-4">
         <div class="card-header fw-bold">Service history</div>
         <div class="card-body">
             <table class="table table-hover">
@@ -485,7 +443,7 @@
             </table>
         </div>
     </div>
-    <div class="card shadow">
+    <div class="card shadow mt-2">
         <div class="card-header fw-bold">Installation history</div>
         <div class="card-body">
             <table class="table table-hover">

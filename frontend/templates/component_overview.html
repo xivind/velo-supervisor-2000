@@ -4,19 +4,21 @@
 
 {% block content %}
 <h1 id="component-overview" class="display-5 mt-5 text-center mb-4">Component overview</h1>
-  
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#collectionModal">
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#collectionModal">
     <span>📦 New collection</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createComponentModal">
     <span>⚙ New component</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
     <span>📝 New workplan</span>
 </button>
-<button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
     <span>🚨 New incident</span>
 </button>
+</div>
 
 {% include "modal_create_component.html" %}
 {% include "modal_incident_record.html" %}
@@ -94,10 +96,18 @@
     </div>
 </div>
 <hr/>
-<div class="mb-3 ms-2">
-    <div class="small text-secondary d-flex align-items-center">
-      <span style="width: 180px;">📝 Unfinished workplans</span>
-      <span style="width: 180px;">🚨 Open incidents</span>
+<div class="mb-2 d-flex justify-content-between align-items-center">
+    <div class="ms-2 small text-secondary d-flex align-items-center gap-3">
+      <span>📝 Unfinished workplans</span>
+      <span>🚨 Open incidents</span>
+      <span>📍 Distance triggered</span>
+      <span>📅 Time triggered</span>
+      <span>❓ Unknown status (re-save component)</span>
+    </div>
+    <div class="me-2 small text-secondary d-flex align-items-center gap-3">
+      <span>⚡ Installed: {{ payload.count_installed }}</span>
+      <span>💤 Not installed: {{ payload.count_not_installed }}</span>
+      <span>⛔ Retired: {{ payload.count_retired }}</span>
     </div>
 </div>
 <div class="card shadow mb-3">
@@ -131,15 +141,15 @@
                     <th data-sort="type">Type <span class="sort-indicator"></span></th>
                     <th data-sort="distance">Distance <span class="sort-indicator"></span></th>
                     <th data-sort="status">Status <span class="sort-indicator"></span></th>
-                    <th data-sort="lifetime">Lifetime <span class="sort-indicator"></span></th>
-                    <th data-sort="service">Service <span class="sort-indicator"></span></th>
+                    <th class="text-center" data-sort="lifetime">Lifetime <span class="sort-indicator"></span></th>
+                    <th class="text-center" data-sort="service">Service <span class="sort-indicator"></span></th>
                     <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
                     <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
-                {% if payload.all_components_data %}
-                    {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost in payload.all_components_data %}
+                {% if payload.all_components_display_data %}
+                    {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost, lifetime_trigger, service_trigger in payload.all_components_display_data %}
                         <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
                             <td>{{ name }}{% if component_id in payload.planned_workplans["component_workplans"] %} 📝{% endif %}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}</td>
                             <td>
@@ -173,29 +183,31 @@
                                 {{ installation_status }}
                             </td>
                             <td class="text-center">
-                                {% if lifetime_status == "OK" %}
-                                🟢
-                                {% elif lifetime_status == "End of life approaching" %}
-                                🟡
-                                {% elif lifetime_status == "Due for replacement" %}
-                                🔴
-                                {% elif lifetime_status == "Lifetime exceeded" %}
-                                🟣
-                                {% elif lifetime_status == "Not defined" %}
-                                ⚪
+                                {% if lifetime_status == "OK" %}🟢
+                                {% elif lifetime_status == "Due for replacement" %}🟡
+                                {% elif lifetime_status == "Lifetime exceeded" %}🔴
+                                {% elif lifetime_status == "Not defined" %}⚪
+                                {% else %}❓
+                                {% endif %}
+                                {% if lifetime_status != 'OK' and lifetime_status != 'Not defined' %}
+                                    {% if lifetime_trigger == 'distance' %}📍
+                                    {% elif lifetime_trigger == 'time' %}📅
+                                    {% elif lifetime_trigger == 'both' %}📍📅
+                                    {% endif %}
                                 {% endif %}
                             </td>
                             <td class="text-center">
-                                {% if service_status == "OK" %}
-                                🟢
-                                {% elif service_status == "Service approaching" %}
-                                🟡
-                                {% elif service_status == "Due for service" %}
-                                🔴
-                                {% elif service_status == "Service interval exceeded" %}
-                                🟣
-                                {% elif service_status == "Not defined" %}
-                                ⚪
+                                {% if service_status == "OK" %}🟢
+                                {% elif service_status == "Due for service" %}🟡
+                                {% elif service_status == "Service interval exceeded" %}🔴
+                                {% elif service_status == "Not defined" %}⚪
+                                {% else %}❓
+                                {% endif %}
+                                {% if service_status != 'OK' and service_status != 'Not defined' %}
+                                    {% if service_trigger == 'distance' %}📍
+                                    {% elif service_trigger == 'time' %}📅
+                                    {% elif service_trigger == 'both' %}📍📅
+                                    {% endif %}
                                 {% endif %}
                             </td>
                             <td>
@@ -224,40 +236,6 @@
                 {% endif %}
             </tbody>
         </table>
-    </div>
-</div>
-<hr/>
-<div class="card shadow mb-4">
-    <div class="card-header fw-bold">Component statistics</div>
-    <div class="card-body">
-        <p class="card-text d-flex justify-content-between align-items-center">
-            <span>⚡ <strong>Installed:</strong> {{ payload.count_installed }}</span>
-            <span>💤 <strong>Not installed:</strong> {{ payload.count_not_installed }}</span>
-            <span>⛔ <strong>Retired:</strong> {{ payload.count_retired }}</span>
-            <span>💰 <strong>Expected cost:</strong> {% if payload.sum_cost == "No estimate" %} {{ payload.sum_cost }} {% else %} {{ payload.sum_cost }} kr{% endif %}</span>
-        </p>
-        <hr/>
-        <div class="row">
-            <p class="card-text text-center">
-                <span class="fw-bold text-secondary">Lifetime statistics installed components</span>
-            </p>
-            <div class="col"><span>🟢 Lifetime OK: {{ payload.count_lifetime_status_green }}</span></div>
-            <div class="col"><span>🟡 End of life approaching: {{ payload.count_lifetime_status_yellow }}</span></div>
-            <div class="col"><span>🔴 Due for replacement: {{ payload.count_lifetime_status_red }}</span></div>
-            <div class="col"><span>🟣 Lifetime exceeded: {{ payload.count_lifetime_status_purple }}</span></div>
-            <div class="col"><span>⚪ Lifetime not defined: {{ payload.count_lifetime_status_grey }}</span></div>
-        </div>
-        <hr/>
-        <div class="row">
-            <p class="card-text text-center">
-                <span class="fw-bold text-secondary">Service statistics installed components</span>
-            </p>
-            <div class="col"><span>🟢 Service OK: {{ payload.count_service_status_green }}</span></div>
-            <div class="col"><span>🟡 Service approaching: {{ payload.count_service_status_yellow }}</span></div>
-            <div class="col"><span>🔴 Due for service: {{ payload.count_service_status_red }}</span></div>
-            <div class="col"><span>🟣 Service int. exceeded: {{ payload.count_service_status_purple }}</span></div>
-            <div class="col"><span>⚪ Service int. not defined: {{ payload.count_service_status_grey }}</span></div>
-        </div>
     </div>
 </div>
 {% endblock %}

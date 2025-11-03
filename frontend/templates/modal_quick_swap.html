@@ -15,15 +15,13 @@
                         <label for="old_component_id" class="form-label fw-bold">Component to swap out</label>
                         <select class="form-select" id="old_component_id" name="old_component_id" required placeholder="Select component to swap out...">
                             <option value=""></option>
-                            {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
+                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days in payload.all_components_data %}
                                 {% if status == "Installed" %}
                                 <option value="{{ component_id }}"
                                         data-name="{{ name }}"
                                         data-type="{{ type }}"
                                         data-status="{{ status }}"
                                         data-bike="{{ bike }}"
-                                        data-lifetime-remaining="{{ lifetime }}"
-                                        data-service-next="{{ service }}"
                                         data-cost="{{ cost }}">
                                     {{ name }} ({{ type }}) - {{ bike }}
                                 </option>
@@ -57,13 +55,11 @@
                         </div>
                         <select class="form-select" id="new_component_id" name="new_component_id" placeholder="Select component...">
                             <option value=""></option>
-                            {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
+                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days in payload.all_components_data %}
                                 {% if status == "Not installed" %}
                                 <option value="{{ component_id }}"
                                         data-type="{{ type }}"
                                         data-status="{{ status }}"
-                                        data-lifetime-remaining="{{ lifetime }}"
-                                        data-service-next="{{ service }}"
                                         data-cost="{{ cost }}">
                                     {{ name }} ({{ type }})
                                 </option>
