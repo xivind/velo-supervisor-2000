@@ -26,7 +26,7 @@ def start_scheduler():
 
         SCHEDULER.start()
         logging.info("APScheduler started successfully. Jobs registered:")
-        logging.info(" - update_time_based_fields: Daily at 3:00 AM")
+        logging.info(" * update_time_based_fields: Daily at 3:00 AM")
 
     except Exception as exception:
         logging.error(f"Failed to start scheduler: {exception}")
