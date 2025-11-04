@@ -1015,38 +1015,76 @@ class BusinessLogic():
             if mode == "create":
                 total_distance = distance_offset
                 database_manager.write_component_distance(component, total_distance)
-         
+
             component = database_manager.read_component(component_id)
 
             if lifetime_expected:
                 lifetime_remaining = lifetime_expected - component.component_distance
-                lifetime_status = self.compute_component_status("lifetime",
-                                                                lifetime_remaining,
-                                                                component.threshold_km)
-                database_manager.write_component_lifetime_status(component,
-                                                                lifetime_remaining,
-                                                                lifetime_status,
-                                                                None)
+                lifetime_status_distance = self.compute_component_status("lifetime",
+                                                                         lifetime_remaining,
+                                                                         component.threshold_km)
             else:
-                database_manager.write_component_lifetime_status(component,
-                                                                None,
-                                                                None,
-                                                                None)
+                lifetime_remaining = None
+                lifetime_status_distance = "Not defined"
+
+            if component.lifetime_expected_days:
+                oldest_history = database_manager.read_oldest_history_record(component_id)
+                if oldest_history:
+                    success, elapsed_days = calculate_elapsed_days(oldest_history.updated_date, get_formatted_datetime_now())
+                    if success:
+                        lifetime_remaining_days = component.lifetime_expected_days - elapsed_days
+                    else:
+                        logging.error(f"Failed to calculate elapsed days for component {component.component_name}")
+                        lifetime_remaining_days = None
+                else:
+                    success, elapsed_days = calculate_elapsed_days(component.updated_date, get_formatted_datetime_now())
+                    if success:
+                        lifetime_remaining_days = component.lifetime_expected_days - elapsed_days
+                    else:
+                        logging.error(f"Failed to calculate elapsed days for component {component.component_name}")
+                        lifetime_remaining_days = None
+
+                if lifetime_remaining_days is not None:
+                    lifetime_status_days = self.compute_component_status("lifetime",
+                                                                         lifetime_remaining_days,
+                                                                         component.threshold_days)
+                else:
+                    lifetime_status_days = "Not defined"
+            else:
+                lifetime_remaining_days = None
+                lifetime_status_days = "Not defined"
+
+            lifetime_status = self.determine_worst_status(lifetime_status_distance, lifetime_status_days)
+
+            database_manager.write_component_lifetime_status(component,
+                                                            lifetime_remaining,
+                                                            lifetime_status,
+                                                            lifetime_remaining_days)
+
             if service_interval:
                 service_next = service_interval
-                service_status = self.compute_component_status("service",
-                                                                service_next,
-                                                                component.threshold_km)
-
-                database_manager.write_component_service_status(component,
-                                                                service_next,
-                                                                service_status,
-                                                                None)
+                service_status_distance = self.compute_component_status("service",
+                                                                        service_next,
+                                                                        component.threshold_km)
             else:
-                database_manager.write_component_service_status(component,
-                                                                None,
-                                                                None,
-                                                                None)
+                service_next = None
+                service_status_distance = "Not defined"
+
+            if component.service_interval_days:
+                service_next_days = component.service_interval_days
+                service_status_days = self.compute_component_status("service",
+                                                                    service_next_days,
+                                                                    component.threshold_days)
+            else:
+                service_next_days = None
+                service_status_days = "Not defined"
+
+            service_status = self.determine_worst_status(service_status_distance, service_status_days)
+
+            database_manager.write_component_service_status(component,
+                                                            service_next,
+                                                            service_status,
+                                                            service_next_days)
 
             return True, f"Component {component.component_name} updated with lifetime and service status (no installation records)"
 

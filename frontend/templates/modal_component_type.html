@@ -8,8 +8,9 @@
             <form id="component_type_form" action="/component_types_modify" method="post" enctype="application/x-www-form-urlencoded">
                 <div class="modal-body">
                     <input type="hidden" id="mode" name="mode" value="create">
+
                     <div class="row">
-                        <!-- First row -->
+                        <!-- First row: Basic settings -->
                         <div class="col-md-4 mb-3">
                             <label for="component_type" class="form-label fw-bold">Type name</label>
                             <input type="text" class="form-control" id="component_type" name="component_type" required>
@@ -29,18 +30,39 @@
                                 <label class="form-check-label" for="mandatory_no">No</label>
                             </div>
                         </div>
-                        <!-- Second row -->
+
+                        <!-- Second row: Distance-based defaults -->
                         <div class="col-md-4 mb-3">
-                            <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
-                            <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime">
+                            <label for="expected_lifetime" class="form-label fw-bold">Default lifetime (km)</label>
+                            <input type="number" min="0" step="1" class="form-control"
+                                   id="expected_lifetime" name="expected_lifetime">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="service_interval" class="form-label fw-bold">Service interval (km)</label>
-                            <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval">
+                            <label for="service_interval" class="form-label fw-bold">Default service int. (km)</label>
+                            <input type="number" min="0" step="1" class="form-control"
+                                   id="service_interval" name="service_interval">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="service_interval_days" class="form-label fw-bold">Service interval (days)</label>
-                            <input type="text" min="0" step="1" class="form-control" id="service_interval_days" name="service_interval_days" value="N/A" disabled>
+                            <label for="threshold_km" class="form-label fw-bold">Default threshold (km)</label>
+                            <input type="number" min="0" step="1" class="form-control"
+                                   id="threshold_km" name="threshold_km">
+                        </div>
+
+                        <!-- Third row: Time-based defaults -->
+                        <div class="col-md-4 mb-3">
+                            <label for="lifetime_expected_days" class="form-label fw-bold">Default lifetime (days)</label>
+                            <input type="number" min="0" step="1" class="form-control"
+                                   id="lifetime_expected_days" name="lifetime_expected_days">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="service_interval_days" class="form-label fw-bold">Default service int. (days)</label>
+                            <input type="number" min="0" step="1" class="form-control"
+                                   id="service_interval_days" name="service_interval_days">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="threshold_days" class="form-label fw-bold">Default threshold (days)</label>
+                            <input type="number" min="0" step="1" class="form-control"
+                                   id="threshold_days" name="threshold_days">
                         </div>
                     </div>
                 </div>

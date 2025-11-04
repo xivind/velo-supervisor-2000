@@ -341,22 +341,40 @@ document.addEventListener('DOMContentLoaded', function() {
         // Find the closest form to locate related inputs
         const form = typeSelect.closest('form');
         if (!form) return;
-        
-        // Find the related inputs within the same form
-        const serviceIntervalInput = form.querySelector('input[id^="service_interval"]');
-        const expectedLifetimeInput = form.querySelector('input[id^="expected_lifetime"]');
-        
+
+        // Find the related inputs within the same form (distance-based)
+        const serviceIntervalInput = form.querySelector('input[id^="service_interval"]:not([id*="days"])');
+        const expectedLifetimeInput = form.querySelector('input[id^="expected_lifetime"]:not([id*="days"])');
+        const thresholdKmInput = form.querySelector('input[name="threshold_km"], input[name="new_threshold_km"]');
+
+        // Find time-based inputs
+        const serviceIntervalDaysInput = form.querySelector('input[name="service_interval_days"], input[name="new_service_interval_days"]');
+        const lifetimeExpectedDaysInput = form.querySelector('input[name="lifetime_expected_days"], input[name="new_lifetime_expected_days"]');
+        const thresholdDaysInput = form.querySelector('input[name="threshold_days"], input[name="new_threshold_days"]');
+
         if (!serviceIntervalInput || !expectedLifetimeInput) return;
-        
+
         // Add change event listener
         typeSelect.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
+
+            // Get all values from data attributes
             const serviceInterval = selectedOption.getAttribute('service_interval');
             const expectedLifetime = selectedOption.getAttribute('expected_lifetime');
+            const thresholdKm = selectedOption.getAttribute('threshold_km');
+            const serviceIntervalDays = selectedOption.getAttribute('service_interval_days');
+            const lifetimeExpectedDays = selectedOption.getAttribute('lifetime_expected_days');
+            const thresholdDays = selectedOption.getAttribute('threshold_days');
 
-            // Update the input fields with the selected option's data attributes
+            // Update distance-based fields
             serviceIntervalInput.value = serviceInterval;
             expectedLifetimeInput.value = expectedLifetime;
+            if (thresholdKmInput) thresholdKmInput.value = thresholdKm;
+
+            // Update time-based fields
+            if (serviceIntervalDaysInput) serviceIntervalDaysInput.value = serviceIntervalDays;
+            if (lifetimeExpectedDaysInput) lifetimeExpectedDaysInput.value = lifetimeExpectedDays;
+            if (thresholdDaysInput) thresholdDaysInput.value = thresholdDays;
         });
     });
 });
@@ -2539,6 +2557,146 @@ function editCollection(element, options = {}) {
 
 })();
 
+// ----- Component threshold validation -----
+// Shared validation function used by: component type modal, create component modal,
+// edit component modal, and quick swap modal
+
+/**
+ * Validates threshold configuration for component forms
+ *
+ * Validation rules:
+ * 1. If expected_lifetime OR service_interval → threshold_km REQUIRED
+ * 2. If lifetime_expected_days OR service_interval_days → threshold_days REQUIRED
+ * 3. threshold_km must be <= MIN(service_interval, expected_lifetime) when both defined
+ * 4. threshold_days must be <= MIN(service_interval_days, lifetime_expected_days) when both defined
+ * 5. Thresholds must be > 0 if provided
+ *
+ * @param {string} formId - The ID of the form to validate
+ * @returns {boolean} - True if validation passes, false otherwise
+ */
+function validateComponentThresholds(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return true;
+
+    // Clear previous validation errors
+    clearValidationErrors(form);
+
+    let isValid = true;
+
+    // Get field values (handling both standard and "new_" prefixed fields for quick swap)
+    const getFieldValue = (fieldName) => {
+        let field = form.querySelector(`[name="${fieldName}"]`);
+        if (!field) field = form.querySelector(`[name="new_${fieldName}"]`);
+        return field ? parseFloat(field.value) || null : null;
+    };
+
+    const getField = (fieldName) => {
+        let field = form.querySelector(`[name="${fieldName}"]`);
+        if (!field) field = form.querySelector(`[name="new_${fieldName}"]`);
+        return field;
+    };
+
+    // Read values
+    const expectedLifetime = getFieldValue('expected_lifetime');
+    const serviceInterval = getFieldValue('service_interval');
+    const thresholdKm = getFieldValue('threshold_km');
+    const lifetimeExpectedDays = getFieldValue('lifetime_expected_days');
+    const serviceIntervalDays = getFieldValue('service_interval_days');
+    const thresholdDays = getFieldValue('threshold_days');
+
+    // Rule 1: threshold_km required if distance intervals exist
+    if ((expectedLifetime || serviceInterval) && !thresholdKm) {
+        showFieldError(getField('threshold_km'),
+            'Threshold (km) is required when distance intervals are configured');
+        isValid = false;
+    }
+
+    // Rule 2: threshold_days required if time intervals exist
+    if ((lifetimeExpectedDays || serviceIntervalDays) && !thresholdDays) {
+        showFieldError(getField('threshold_days'),
+            'Threshold (days) is required when time intervals are configured');
+        isValid = false;
+    }
+
+    // Rule 3: threshold_km must be <= smallest distance interval
+    if (thresholdKm) {
+        const intervals = [serviceInterval, expectedLifetime].filter(v => v !== null);
+        if (intervals.length > 0) {
+            const minInterval = Math.min(...intervals);
+            if (thresholdKm > minInterval) {
+                showFieldError(getField('threshold_km'),
+                    `Threshold (${thresholdKm} km) must be ≤ smallest interval (${minInterval} km)`);
+                isValid = false;
+            }
+        }
+
+        // Rule 5: threshold must be > 0
+        if (thresholdKm <= 0) {
+            showFieldError(getField('threshold_km'), 'Threshold must be greater than 0');
+            isValid = false;
+        }
+    }
+
+    // Rule 4: threshold_days must be <= smallest time interval
+    if (thresholdDays) {
+        const intervals = [serviceIntervalDays, lifetimeExpectedDays].filter(v => v !== null);
+        if (intervals.length > 0) {
+            const minInterval = Math.min(...intervals);
+            if (thresholdDays > minInterval) {
+                showFieldError(getField('threshold_days'),
+                    `Threshold (${thresholdDays} days) must be ≤ smallest interval (${minInterval} days)`);
+                isValid = false;
+            }
+        }
+
+        // Rule 5: threshold must be > 0
+        if (thresholdDays <= 0) {
+            showFieldError(getField('threshold_days'), 'Threshold must be greater than 0');
+            isValid = false;
+        }
+    }
+
+    return isValid;
+}
+
+/**
+ * Shows an inline validation error message for a form field
+ * @param {HTMLElement} field - The input field to show error for
+ * @param {string} message - The error message to display
+ */
+function showFieldError(field, message) {
+    if (!field) return;
+
+    field.classList.add('is-invalid');
+
+    // Create or update error message div
+    let errorDiv = field.parentElement.querySelector('.invalid-feedback');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        field.parentElement.appendChild(errorDiv);
+    }
+    errorDiv.textContent = message;
+}
+
+/**
+ * Clears all validation errors from a form
+ * @param {HTMLElement} form - The form to clear validation errors from
+ */
+function clearValidationErrors(form) {
+    if (!form) return;
+
+    // Remove is-invalid class from all fields
+    form.querySelectorAll('.is-invalid').forEach(field => {
+        field.classList.remove('is-invalid');
+    });
+
+    // Remove all error message divs
+    form.querySelectorAll('.invalid-feedback').forEach(div => {
+        div.remove();
+    });
+}
+
 // ====================================================================================
 // Bike overview page functions
 // ====================================================================================
@@ -3415,6 +3573,11 @@ document.addEventListener('DOMContentLoaded', function() {
         createComponentModal.addEventListener('shown.bs.modal', function() {
             initializeComponentForm(createComponentForm);
         });
+
+        // Clear validation errors when modal opens
+        createComponentModal.addEventListener('show.bs.modal', function() {
+            clearValidationErrors(createComponentForm);
+        });
     }
 });
 
@@ -3480,7 +3643,23 @@ function addFormValidation(form) {
             validationModal.show();
             return false;
         }
-        
+
+        // Threshold validation for create component form
+        if (form.id === 'component_overview_form') {
+            if (!validateComponentThresholds('component_overview_form')) {
+                // Validation failed - errors are already displayed inline
+                return false;
+            }
+        }
+
+        // Threshold validation for edit component details form
+        if (form.id === 'component_details_form') {
+            if (!validateComponentThresholds('component_details_form')) {
+                // Validation failed - errors are already displayed inline
+                return false;
+            }
+        }
+
         // If we got here, validation passed - manually submit the form
         this.submit();
     };
@@ -3491,9 +3670,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const editComponentStatusModal = document.getElementById('editComponentStatusModal');
     const componentStatusForm = editComponentStatusModal ? editComponentStatusModal.querySelector('#component_status_form') : null;
     const componentOverviewForm = document.getElementById('component_overview_form');
+    const componentDetailsForm = document.getElementById('component_details_form');
 
     addFormValidation(componentStatusForm);
     addFormValidation(componentOverviewForm);
+    addFormValidation(componentDetailsForm);
+
+    // Clear validation errors when edit component details modal opens
+    const editComponentDetailsModal = document.getElementById('editComponentDetailsModal');
+    if (editComponentDetailsModal && componentDetailsForm) {
+        editComponentDetailsModal.addEventListener('show.bs.modal', function() {
+            clearValidationErrors(componentDetailsForm);
+        });
+    }
 
     // Keep the existing retirement confirmation code for the status form
     if (componentStatusForm) {
@@ -5157,7 +5346,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', () => {
             const rowId = button.dataset.rowId;
             modifyRecord(rowId);
-            
+
             // Update modal title to indicate editing
             document.getElementById('componentTypeModalLabel').textContent = 'Edit component type';
 
@@ -5168,7 +5357,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const componentTypeInput = document.getElementById('component_type');
             componentTypeInput.readOnly = true;
             componentTypeInput.classList.add('bg-light');
-            
+
+            // Clear any validation errors
+            const form = document.getElementById('component_type_form');
+            if (form) clearValidationErrors(form);
+
             // Show the modal after data is populated
             componentTypeModal.show();
         });
@@ -5201,7 +5394,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('[data-bs-toggle="modal"][data-bs-target="#componentTypeModal"]')?.addEventListener('click', function() {
         // Reset the form
         document.getElementById('component_type_form').reset();
-        
+
         // Reset modal title to indicate creating new type
         document.getElementById('componentTypeModalLabel').textContent = 'New component type';
 
@@ -5209,6 +5402,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const componentTypeInput = document.getElementById('component_type');
         componentTypeInput.readOnly = false;
         componentTypeInput.classList.remove('bg-light');
+
+        // Clear any validation errors
+        const form = document.getElementById('component_type_form');
+        if (form) clearValidationErrors(form);
+    });
+
+    // Add form validation on submit
+    document.getElementById('component_type_form').addEventListener('submit', function(e) {
+        if (!validateComponentThresholds('component_type_form')) {
+            e.preventDefault();
+        }
     });
 });
 

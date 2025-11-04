@@ -48,13 +48,12 @@
                                 {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-1 mb-3">
-                        <label for="cost" class="form-label fw-bold">Cost</label>
-                        <input type="number" min="0" step="1" class="form-control" id="cost" name="cost" value="{{ duplicate_data.cost if duplicate_data else '' }}">
-                    </div>
-                    <div class="col-md-1 mb-3">
-                        <label for="offset" class="form-label fw-bold">Offset</label>
-                        <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="">
+                    <div class="col-md-2 mb-3">
+                        <label for="component_installation_status" class="form-label fw-bold">Status</label>
+                        <select class="form-select" id="component_installation_status" name="component_installation_status" required>
+                            <option value="Installed" {% if duplicate_data and duplicate_data.bike_id %}selected{% endif %}>Installed</option>
+                            <option value="Not installed" {% if not duplicate_data or (duplicate_data and not duplicate_data.bike_id) %}selected{% endif %}>Not installed</option>
+                        </select>
                     </div>
                     <div class="col-md-2 mb-3">
                         <label for="expected_lifetime" class="form-label fw-bold">Lifetime exp. (km)</label>
@@ -65,13 +64,30 @@
                         <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="{{ duplicate_data.service_interval if duplicate_data else '' }}">
                     </div>
                     <div class="col-md-2 mb-3">
-                        <label for="component_installation_status" class="form-label fw-bold">Status</label>
-                        <select class="form-select" id="component_installation_status" name="component_installation_status" required>
-                            <option value="Installed" {% if duplicate_data and duplicate_data.bike_id %}selected{% endif %}>Installed</option>
-                            <option value="Not installed" {% if not duplicate_data or (duplicate_data and not duplicate_data.bike_id) %}selected{% endif %}>Not installed</option>
-                        </select>
+                        <label for="threshold_km" class="form-label fw-bold">Threshold (km)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="threshold_km" name="threshold_km" value="{{ duplicate_data.threshold_km if duplicate_data else '' }}">
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-2 mb-3">
+                        <label for="lifetime_expected_days" class="form-label fw-bold">Lifetime exp. (days)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="lifetime_expected_days" name="lifetime_expected_days" value="{{ duplicate_data.lifetime_expected_days if duplicate_data else '' }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="service_interval_days" class="form-label fw-bold">Service int. (days)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="service_interval_days" name="service_interval_days" value="{{ duplicate_data.service_interval_days if duplicate_data else '' }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="threshold_days" class="form-label fw-bold">Threshold (days)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="threshold_days" name="threshold_days" value="{{ duplicate_data.threshold_days if duplicate_data else '' }}">
+                    </div>
+                    <div class="col-md-1 mb-3">
+                        <label for="offset" class="form-label fw-bold">Offset</label>
+                        <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="">
+                    </div>
+                    <div class="col-md-1 mb-3">
+                        <label for="cost" class="form-label fw-bold">Cost</label>
+                        <input type="number" min="0" step="1" class="form-control" id="cost" name="cost" value="{{ duplicate_data.cost if duplicate_data else '' }}">
+                    </div>
+                    <div class="col-md-10 mb-3">
                         <label for="component_notes" class="form-label fw-bold">Notes</label>
                         <textarea class="form-control" id="component_notes" name="component_notes" rows="1">{{ duplicate_data.component_notes if duplicate_data else '' }}</textarea>
                     </div>

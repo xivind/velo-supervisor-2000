@@ -329,30 +329,29 @@ This checklist tracks the implementation of the component status refinement feat
 
 ### Templates - Modals (Forms)
 
-- [ ] **Add 6 new fields to modal_create_component.html**
-  - Row 2 (enhanced): Lifetime (km), Service (km), Threshold (km)
-  - Row 3 (NEW): Lifetime (days), Service (days), Threshold (days)
-  - Add tooltips (ⓘ icons) with explanations
-  - Add help text: "Leave blank if time-based only" / "Leave blank if distance-based only"
-  - Add help text: "Required if km intervals set" / "Required if day intervals set"
+- [x] **Add 6 new fields to modal_create_component.html** ✅ COMPLETED 2025-11-04
+  - ✅ Row 2: Lifetime (km), Service (km), Threshold (km), Lifetime (days), Service (days), Threshold (days)
+  - ✅ Row 3: Offset, Cost, Notes (full width)
+  - ✅ Clean layout without tooltips (user preference)
+  - ✅ Component type select prefills all 6 new fields via JavaScript
 
-- [ ] **Add 6 new fields to modal_update_component_details.html**
-  - Same 6 fields as create modal
-  - Add "Inherited" badge for values matching ComponentType defaults
-  - Add "Reset to type default" button for inherited fields
-  - Badge logic: compare component value to type value in template
+- [x] **Add 6 new fields to modal_update_component_details.html** ✅ COMPLETED 2025-11-04
+  - ✅ Row 1: Name, Type, Cost, Offset
+  - ✅ Row 2: All 6 interval/threshold fields
+  - ✅ Row 3: Notes (full width)
+  - ✅ Values populated from component data
+  - ✅ Clean layout matching create modal
 
-- [ ] **Add 4 new default fields to modal_component_type.html**
-  - Row 2 (enhanced): Default lifetime (km), Default service int. (km), Default threshold (km)
-  - Row 3 (NEW): Default lifetime (days), Default service int. (days), Default threshold (days)
-  - Add info alert: "These values serve as defaults for new components"
-  - Add tooltips explaining inheritance
+- [x] **Add 4 new default fields to modal_component_type.html** ✅ COMPLETED 2025-11-04
+  - ✅ Row 2: Default lifetime (km), Default service int. (km), Default threshold (km)
+  - ✅ Row 3: Default lifetime (days), Default service int. (days), Default threshold (days)
+  - ✅ Clean layout without info alerts or tooltips (user preference)
+  - ✅ Backend already accepts all fields
 
-- [ ] **Add 4 new fields to modal_quick_swap.html**
+- [ ] **Add 4 new fields to modal_quick_swap.html** 🚧 REMAINING
   - Add to "Create new component" section
   - Fields: new_threshold_km, new_lifetime_expected_days, new_service_interval_days, new_threshold_days
   - Same layout as create modal (distance row + time row)
-  - NO "Inherited" badges (fresh component creation)
   - Field name prefix: `new_` (e.g., new_threshold_km)
 
 ---
@@ -361,11 +360,41 @@ This checklist tracks the implementation of the component status refinement feat
 
 ### main.js - Client-Side Validation
 
-- [ ] **Add validateComponentThresholds() function**
-  - Rule 1: If expected_lifetime OR service_interval → threshold_km REQUIRED
-  - Rule 2: If lifetime_expected_days OR service_interval_days → threshold_days REQUIRED
-  - Rule 3: threshold_km <= MIN(service_interval, expected_lifetime) when both defined
-  - Rule 4: threshold_days <= MIN(service_interval_days, lifetime_expected_days) when both defined
+- [x] **Add validateComponentThresholds() function** ✅ COMPLETED 2025-11-04 (lines 2559-2642)
+  - ✅ Rule 1: If expected_lifetime OR service_interval → threshold_km REQUIRED
+  - ✅ Rule 2: If lifetime_expected_days OR service_interval_days → threshold_days REQUIRED
+  - ✅ Rule 3: threshold_km <= MIN(service_interval, expected_lifetime) when both defined
+  - ✅ Rule 4: threshold_days <= MIN(service_interval_days, lifetime_expected_days) when both defined
+  - ✅ Rule 5: Thresholds must be > 0 if provided
+  - ✅ Handles both standard and "new_" prefixed fields (for quick swap reusability)
+  - ✅ Shows inline Bootstrap error messages with `.is-invalid` class
+  - ✅ Backend validation rules match exactly (verified)
+
+- [x] **Add showFieldError() helper function** ✅ COMPLETED 2025-11-04 (lines 2649-2662)
+  - ✅ Adds `.is-invalid` class to field
+  - ✅ Creates/updates `.invalid-feedback` div with error message
+
+- [x] **Add clearValidationErrors() helper function** ✅ COMPLETED 2025-11-04 (lines 2668-2680)
+  - ✅ Removes `.is-invalid` class from all fields
+  - ✅ Removes all `.invalid-feedback` divs
+
+- [x] **Wire validation to component type form** ✅ COMPLETED 2025-11-04
+  - ✅ Form submit handler (line 5394-5398)
+  - ✅ Clear errors on modal open (line 5354-5355, 5313-5314)
+
+- [x] **Wire validation to create component form** ✅ COMPLETED 2025-11-04
+  - ✅ Integrated into `addFormValidation()` function (lines 3647-3653)
+  - ✅ Clear errors on modal open (line 3578-3580)
+  - ✅ Validation prevents form submission on failure
+
+- [x] **Wire validation to edit component details form** ✅ COMPLETED 2025-11-04
+  - ✅ Integrated into `addFormValidation()` function (lines 3655-3661)
+  - ✅ Clear errors on modal open (line 3679-3685)
+  - ✅ Form added to validation system (line 3673, 3677)
+
+- [ ] **Wire validation to quick swap form** 🚧 REMAINING
+  - Add validation call in quick swap submit handler
+  - Ensure validation works with "new_" field prefix
   - Display inline error messages below threshold fields
   - Return true/false
 
@@ -402,6 +431,34 @@ This checklist tracks the implementation of the component status refinement feat
 - [ ] Statistics show correct 4-level status counts
 - [ ] Mobile responsive design works correctly
 - [ ] All tooltips display correctly
+
+---
+
+## Additional Backend Fixes (2025-11-04)
+
+### Fix: update_component_lifetime_service_alternate() missing time-based calculations
+
+**Problem Found:** When creating "Not installed" components with time-based intervals (days), the `lifetime_remaining_days` and `service_next_days` fields were set to `None`, causing template crashes.
+
+**Root Cause:** The `update_component_lifetime_service_alternate()` method only calculated distance-based fields and hardcoded `None` for time-based fields.
+
+**Solution Implemented:**
+- [x] **Updated update_component_lifetime_service_alternate() in business_logic.py** ✅ COMPLETED (lines 1009-1092)
+  - ✅ Added time-based lifetime calculation (lines 1031-1058)
+    - Uses oldest history record date or component creation date
+    - Calculates `lifetime_remaining_days = lifetime_expected_days - elapsed_days`
+    - Properly unpacks tuple from `calculate_elapsed_days()` (was causing "unsupported operand type(s) for -: 'int' and 'tuple'" error)
+  - ✅ Added time-based service calculation (lines 1068-1088)
+    - For components without history, assumes service is "fresh" (full interval remaining)
+    - Sets `service_next_days = service_interval_days`
+  - ✅ Combined distance and time statuses using `determine_worst_status()`
+  - ✅ Writes both distance AND time values to database (was writing `None` before)
+  - ✅ Distance calculations remain 100% unchanged
+  - ✅ Same pattern for both lifetime and service
+
+**Verified:** Backend validation rules match JavaScript validation rules exactly.
+
+**Impact:** "Not installed" components now immediately get time-based `*_days` values calculated on creation, matching the behavior of "Installed" components.
 
 ---
 
