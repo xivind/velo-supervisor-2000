@@ -2,7 +2,8 @@
 
 **Feature:** Hybrid Time + Distance Tracking with Simplified Status Thresholds
 **Date Started:** 2025-11-01
-**Status:** In Progress
+**Date Completed:** 2025-11-06
+**Status:** ✅ COMPLETE
 **Developer:** xivind + Claude Code
 
 ---
@@ -20,9 +21,9 @@ This checklist tracks the implementation of the component status refinement feat
 ## Progress Summary
 
 - **Total Tasks (Original Plan):** 41
-- **Completed (Original Plan):** 40
+- **Completed (Original Plan):** 41 ✅
 - **In Progress:** 0
-- **Remaining (Original Plan):** 1 (templates/modals + JavaScript validation)
+- **Remaining (Original Plan):** 0
 
 **Additional UX Improvements (Not in Original Plan):** 7 completed
 - Single-column layout redesign
@@ -348,11 +349,12 @@ This checklist tracks the implementation of the component status refinement feat
   - ✅ Clean layout without info alerts or tooltips (user preference)
   - ✅ Backend already accepts all fields
 
-- [ ] **Add 4 new fields to modal_quick_swap.html** 🚧 REMAINING
-  - Add to "Create new component" section
-  - Fields: new_threshold_km, new_lifetime_expected_days, new_service_interval_days, new_threshold_days
-  - Same layout as create modal (distance row + time row)
-  - Field name prefix: `new_` (e.g., new_threshold_km)
+- [x] **Add 4 new fields to modal_quick_swap.html** ✅ COMPLETED 2025-11-06
+  - ✅ Added to "Create new component" section (lines 99-122)
+  - ✅ Fields: new_threshold_km, new_lifetime_expected_days, new_service_interval_days, new_threshold_days
+  - ✅ Fixed field name: new_expected_lifetime (not new_lifetime_expected) to match validation function
+  - ✅ Layout: cost/offset col-md-2 (was col-md-1), notes col-md-8 (was col-md-10)
+  - ✅ Auto-populated from component type defaults via JavaScript
 
 ---
 
