@@ -96,23 +96,39 @@
                                         <input type="text" class="form-control" id="new_component_type" name="new_component_type" disabled>
                                         <small class="form-text text-muted">Type must match component being replaced</small>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="new_service_interval" class="form-label fw-bold">Service interval (km)</label>
-                                        <input type="number" min="0" class="form-control" id="new_service_interval" name="new_service_interval">
+                                    <div class="col-md-2 mb-3">
+                                        <label for="new_expected_lifetime" class="form-label fw-bold">Lifetime exp. (km)</label>
+                                        <input type="number" min="0" step="1" class="form-control" id="new_expected_lifetime" name="new_expected_lifetime">
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="new_lifetime_expected" class="form-label fw-bold">Expected lifetime (km)</label>
-                                        <input type="number" min="0" class="form-control" id="new_lifetime_expected" name="new_lifetime_expected">
+                                    <div class="col-md-2 mb-3">
+                                        <label for="new_service_interval" class="form-label fw-bold">Service int. (km)</label>
+                                        <input type="number" min="0" step="1" class="form-control" id="new_service_interval" name="new_service_interval">
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-2 mb-3">
+                                        <label for="new_threshold_km" class="form-label fw-bold">Threshold (km)</label>
+                                        <input type="number" min="0" step="1" class="form-control" id="new_threshold_km" name="new_threshold_km">
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label for="new_lifetime_expected_days" class="form-label fw-bold">Lifetime exp. (days)</label>
+                                        <input type="number" min="0" step="1" class="form-control" id="new_lifetime_expected_days" name="new_lifetime_expected_days">
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label for="new_service_interval_days" class="form-label fw-bold">Service int. (days)</label>
+                                        <input type="number" min="0" step="1" class="form-control" id="new_service_interval_days" name="new_service_interval_days">
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label for="new_threshold_days" class="form-label fw-bold">Threshold (days)</label>
+                                        <input type="number" min="0" step="1" class="form-control" id="new_threshold_days" name="new_threshold_days">
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label for="new_offset" class="form-label fw-bold">Offset</label>
+                                        <input type="number" min="0" step="1" class="form-control" id="new_offset" name="new_offset">
+                                    </div>
+                                    <div class="col-md-2 mb-3">
                                         <label for="new_cost" class="form-label fw-bold">Cost</label>
-                                        <input type="number" min="0" class="form-control" id="new_cost" name="new_cost">
+                                        <input type="number" min="0" step="1" class="form-control" id="new_cost" name="new_cost">
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="new_offset" class="form-label fw-bold">Offset (km)</label>
-                                        <input type="number" min="0" class="form-control" id="new_offset" name="new_offset">
-                                    </div>
-                                    <div class="col-md-12 mb-3">
+                                    <div class="col-md-8 mb-3">
                                         <label for="new_notes" class="form-label fw-bold">Notes</label>
                                         <textarea class="form-control" id="new_notes" name="new_notes" rows="1"></textarea>
                                     </div>

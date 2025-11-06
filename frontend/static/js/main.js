@@ -2299,8 +2299,12 @@ function editCollection(element, options = {}) {
                             const typeOption = componentTypeSelect.querySelector(`option[value="${componentType}"]`);
                             if (typeOption) {
                                 // Pre-fill with component type defaults
+                                document.getElementById('new_expected_lifetime').value = typeOption.getAttribute('expected_lifetime') || '';
                                 document.getElementById('new_service_interval').value = typeOption.getAttribute('service_interval') || '';
-                                document.getElementById('new_lifetime_expected').value = typeOption.getAttribute('expected_lifetime') || '';
+                                document.getElementById('new_threshold_km').value = typeOption.getAttribute('threshold_km') || '';
+                                document.getElementById('new_lifetime_expected_days').value = typeOption.getAttribute('lifetime_expected_days') || '';
+                                document.getElementById('new_service_interval_days').value = typeOption.getAttribute('service_interval_days') || '';
+                                document.getElementById('new_threshold_days').value = typeOption.getAttribute('threshold_days') || '';
                             }
                         }
                     }
@@ -2473,6 +2477,11 @@ function editCollection(element, options = {}) {
                 showValidationModal('Validation Error', 'Component type is required for the new component.');
                 return false;
             }
+
+            // Validate threshold configuration for new component
+            if (!validateComponentThresholds('quick_swap_form')) {
+                return false;
+            }
         } else {
             const newComponentId = document.getElementById('new_component_id').value;
             if (!newComponentId) {
@@ -2515,7 +2524,11 @@ function editCollection(element, options = {}) {
                 formData.append('new_component_name', document.getElementById('new_component_name').value);
                 formData.append('new_component_type', document.getElementById('new_component_type').value);
                 formData.append('new_service_interval', document.getElementById('new_service_interval').value);
-                formData.append('new_lifetime_expected', document.getElementById('new_lifetime_expected').value);
+                formData.append('new_expected_lifetime', document.getElementById('new_expected_lifetime').value);
+                formData.append('new_threshold_km', document.getElementById('new_threshold_km').value);
+                formData.append('new_service_interval_days', document.getElementById('new_service_interval_days').value);
+                formData.append('new_lifetime_expected_days', document.getElementById('new_lifetime_expected_days').value);
+                formData.append('new_threshold_days', document.getElementById('new_threshold_days').value);
                 formData.append('new_cost', document.getElementById('new_cost').value);
                 formData.append('new_offset', document.getElementById('new_offset').value);
                 formData.append('new_notes', document.getElementById('new_notes').value);

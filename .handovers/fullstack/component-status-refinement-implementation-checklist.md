@@ -392,26 +392,26 @@ This checklist tracks the implementation of the component status refinement feat
   - ✅ Clear errors on modal open (line 3679-3685)
   - ✅ Form added to validation system (line 3673, 3677)
 
-- [ ] **Wire validation to quick swap form** 🚧 REMAINING
-  - Add validation call in quick swap submit handler
-  - Ensure validation works with "new_" field prefix
-  - Display inline error messages below threshold fields
-  - Return true/false
+- [x] **Wire validation to quick swap form** ✅ COMPLETED 2025-11-06
+  - ✅ Added 4 new fields to modal_quick_swap.html (service_interval_days, lifetime_expected_days, threshold_km, threshold_days)
+  - ✅ Fixed field name from new_lifetime_expected to new_expected_lifetime (matches validation function expectations)
+  - ✅ Wired validateComponentThresholds('quick_swap_form') to submit handler (main.js:2477-2480)
+  - ✅ Updated formData collection to include all 4 new fields (main.js:2524-2527)
+  - ✅ Updated auto-population code to pre-fill new fields from component type defaults (main.js:2302-2307)
+  - ✅ Inline validation displays using Bootstrap .invalid-feedback class (handled by existing showFieldError function)
+  - ✅ Adjusted layout: cost and offset fields now col-md-2 (was col-md-1), notes field now col-md-8 (was col-md-10)
 
-- [ ] **Wire up validation to component creation form**
+- [x] **Wire up validation to component creation form** ✅ COMPLETED (previous session)
   - Call validateComponentThresholds() on form submit
   - Prevent submission if validation fails
   - Show inline error messages
 
-- [ ] **Wire up validation to component edit form**
+- [x] **Wire up validation to component edit form** ✅ COMPLETED (previous session)
   - Same validation as creation form
 
-- [ ] **Wire up validation to quick swap form**
-  - Apply to "Create new component" section
-  - Use `new_` prefixed field names
-
-- [ ] **Add validation error display CSS (if needed)**
-  - Ensure inline errors are visible and styled consistently
+- [x] **Add validation error display CSS** ✅ COMPLETED (previous session)
+  - Inline errors use Bootstrap .invalid-feedback class with d-block
+  - Styling consistent across all forms
   - Use Bootstrap's `.invalid-feedback` class
 
 ---
