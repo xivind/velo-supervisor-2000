@@ -178,13 +178,13 @@
                     {# LEFT COLUMN: Lifetime Section #}
                     <div class="col-md-6">
                         {# Distance-based lifetime #}
-                        <span class="fw-bold">{% if payload.bike_component_data['lifetime_expected'] and (payload.bike_component_data['lifetime_status'] == 'Due for replacement' or payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['lifetime_expected'] %}{% if payload.bike_component_data['lifetime_remaining'] <= 0 %}Lifetime exceeded by {{ payload.bike_component_data['lifetime_remaining'] * -1 }} km{% else %}Lifetime reached in {{ payload.bike_component_data['lifetime_remaining'] }} km{% endif %}{% else %}Expected lifetime in km not defined{% endif %}</span>
+                        <span class="fw-bold">{% if payload.bike_component_data['lifetime_expected'] and (payload.bike_component_data['lifetime_status_distance'] == 'Due for replacement' or payload.bike_component_data['lifetime_status_distance'] == 'Lifetime exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['lifetime_expected'] %}{% if payload.bike_component_data['lifetime_remaining'] <= 0 %}Lifetime exceeded by {{ payload.bike_component_data['lifetime_remaining'] * -1 }} km{% else %}Lifetime reached in {{ payload.bike_component_data['lifetime_remaining'] }} km{% endif %}{% else %}Expected lifetime in km not defined{% endif %}</span>
                         <div class="progress mt-2" role="progressbar" aria-label="Lifetime distance bar">
                             <div class="progress-bar progress-bar-striped
                             {% if payload.bike_component_data['lifetime_expected'] %}
-                                {% if payload.bike_component_data['lifetime_status'] == 'OK' %}bg-success
-                                {% elif payload.bike_component_data['lifetime_status'] == 'Due for replacement' %}bg-warning
-                                {% elif payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded' %}bg-danger
+                                {% if payload.bike_component_data['lifetime_status_distance'] == 'OK' %}bg-success
+                                {% elif payload.bike_component_data['lifetime_status_distance'] == 'Due for replacement' %}bg-warning
+                                {% elif payload.bike_component_data['lifetime_status_distance'] == 'Lifetime exceeded' %}bg-danger
                                 {% else %}bg-secondary-subtle{% endif %}
                             {% else %}bg-secondary-subtle{% endif %}"
                             style="width: {% if payload.bike_component_data['lifetime_expected'] %}{{ [payload.bike_component_data['lifetime_percentage'], 100]|min }}%{% else %}100%{% endif %}">
@@ -195,13 +195,13 @@
                         </p>
 
                         {# Time-based lifetime #}
-                        <span class="fw-bold">{% if payload.bike_component_data['lifetime_expected_days'] and (payload.bike_component_data['lifetime_status'] == 'Due for replacement' or payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['lifetime_expected_days'] %}{% if payload.bike_component_data['lifetime_remaining_days'] <= 0 %}Lifetime exceeded by {{ payload.bike_component_data['lifetime_remaining_days'] * -1 }} days{% else %}Lifetime reached in {{ payload.bike_component_data['lifetime_remaining_days'] }} days{% endif %}{% else %}Expected lifetime in days not defined{% endif %}</span>
+                        <span class="fw-bold">{% if payload.bike_component_data['lifetime_expected_days'] and (payload.bike_component_data['lifetime_status_days'] == 'Due for replacement' or payload.bike_component_data['lifetime_status_days'] == 'Lifetime exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['lifetime_expected_days'] %}{% if payload.bike_component_data['lifetime_remaining_days'] <= 0 %}Lifetime exceeded by {{ payload.bike_component_data['lifetime_remaining_days'] * -1 }} days{% else %}Lifetime reached in {{ payload.bike_component_data['lifetime_remaining_days'] }} days{% endif %}{% else %}Expected lifetime in days not defined{% endif %}</span>
                         <div class="progress mt-2" role="progressbar" aria-label="Lifetime time bar">
                             <div class="progress-bar progress-bar-striped
                             {% if payload.bike_component_data['lifetime_expected_days'] %}
-                                {% if payload.bike_component_data['lifetime_status'] == 'OK' %}bg-success
-                                {% elif payload.bike_component_data['lifetime_status'] == 'Due for replacement' %}bg-warning
-                                {% elif payload.bike_component_data['lifetime_status'] == 'Lifetime exceeded' %}bg-danger
+                                {% if payload.bike_component_data['lifetime_status_days'] == 'OK' %}bg-success
+                                {% elif payload.bike_component_data['lifetime_status_days'] == 'Due for replacement' %}bg-warning
+                                {% elif payload.bike_component_data['lifetime_status_days'] == 'Lifetime exceeded' %}bg-danger
                                 {% else %}bg-secondary-subtle{% endif %}
                             {% else %}bg-secondary-subtle{% endif %}"
                             style="width: {% if payload.bike_component_data['lifetime_expected_days'] %}{{ [payload.bike_component_data['lifetime_percentage_days'], 100]|min }}%{% else %}100%{% endif %}">
@@ -215,13 +215,13 @@
                     {# RIGHT COLUMN: Service Section #}
                     <div class="col-md-6">
                         {# Distance-based service #}
-                        <span class="fw-bold">{% if payload.bike_component_data['service_interval'] and (payload.bike_component_data['service_status'] == 'Due for service' or payload.bike_component_data['service_status'] == 'Service interval exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['service_interval'] %}{% if payload.bike_component_data['service_next'] <= 0 %}Service interval exceeded by {{ payload.bike_component_data['service_next'] * -1 }} km{% else %}Next service in {{ payload.bike_component_data['service_next'] }} km{% endif %}{% else %}Service interval in km not defined{% endif %}</span>
+                        <span class="fw-bold">{% if payload.bike_component_data['service_interval'] and (payload.bike_component_data['service_status_distance'] == 'Due for service' or payload.bike_component_data['service_status_distance'] == 'Service interval exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['service_interval'] %}{% if payload.bike_component_data['service_next'] <= 0 %}Service interval exceeded by {{ payload.bike_component_data['service_next'] * -1 }} km{% else %}Next service in {{ payload.bike_component_data['service_next'] }} km{% endif %}{% else %}Service interval in km not defined{% endif %}</span>
                         <div class="progress mt-2" role="progressbar" aria-label="Service distance bar">
                             <div class="progress-bar progress-bar-striped
                             {% if payload.bike_component_data['service_interval'] %}
-                                {% if payload.bike_component_data['service_status'] == 'OK' %}bg-success
-                                {% elif payload.bike_component_data['service_status'] == 'Due for service' %}bg-warning
-                                {% elif payload.bike_component_data['service_status'] == 'Service interval exceeded' %}bg-danger
+                                {% if payload.bike_component_data['service_status_distance'] == 'OK' %}bg-success
+                                {% elif payload.bike_component_data['service_status_distance'] == 'Due for service' %}bg-warning
+                                {% elif payload.bike_component_data['service_status_distance'] == 'Service interval exceeded' %}bg-danger
                                 {% else %}bg-secondary-subtle{% endif %}
                             {% else %}bg-secondary-subtle{% endif %}"
                             style="width: {% if payload.bike_component_data['service_interval'] %}{{ [payload.bike_component_data['service_percentage'], 100]|min }}%{% else %}100%{% endif %}">
@@ -232,13 +232,13 @@
                         </p>
 
                         {# Time-based service #}
-                        <span class="fw-bold">{% if payload.bike_component_data['service_interval_days'] and (payload.bike_component_data['service_status'] == 'Due for service' or payload.bike_component_data['service_status'] == 'Service interval exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['service_interval_days'] %}{% if payload.bike_component_data['service_next_days'] <= 0 %}Service interval exceeded by {{ payload.bike_component_data['service_next_days'] * -1 }} days{% else %}Next service in {{ payload.bike_component_data['service_next_days'] }} days{% endif %}{% else %}Service interval in days not defined{% endif %}</span>
+                        <span class="fw-bold">{% if payload.bike_component_data['service_interval_days'] and (payload.bike_component_data['service_status_days'] == 'Due for service' or payload.bike_component_data['service_status_days'] == 'Service interval exceeded') %}⚠ {% endif %}{% if payload.bike_component_data['service_interval_days'] %}{% if payload.bike_component_data['service_next_days'] <= 0 %}Service interval exceeded by {{ payload.bike_component_data['service_next_days'] * -1 }} days{% else %}Next service in {{ payload.bike_component_data['service_next_days'] }} days{% endif %}{% else %}Service interval in days not defined{% endif %}</span>
                         <div class="progress mt-2" role="progressbar" aria-label="Service time bar">
                             <div class="progress-bar progress-bar-striped
                             {% if payload.bike_component_data['service_interval_days'] %}
-                                {% if payload.bike_component_data['service_status'] == 'OK' %}bg-success
-                                {% elif payload.bike_component_data['service_status'] == 'Due for service' %}bg-warning
-                                {% elif payload.bike_component_data['service_status'] == 'Service interval exceeded' %}bg-danger
+                                {% if payload.bike_component_data['service_status_days'] == 'OK' %}bg-success
+                                {% elif payload.bike_component_data['service_status_days'] == 'Due for service' %}bg-warning
+                                {% elif payload.bike_component_data['service_status_days'] == 'Service interval exceeded' %}bg-danger
                                 {% else %}bg-secondary-subtle{% endif %}
                             {% else %}bg-secondary-subtle{% endif %}"
                             style="width: {% if payload.bike_component_data['service_interval_days'] %}{{ [payload.bike_component_data['service_percentage_days'], 100]|min }}%{% else %}100%{% endif %}">

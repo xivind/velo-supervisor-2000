@@ -314,6 +314,8 @@ class BusinessLogic():
                                                        if bike_component.lifetime_remaining is not None else None),
                                 "lifetime_remaining_days": bike_component.lifetime_remaining_days,
                                 "lifetime_status": format_component_status(bike_component.lifetime_status),
+                                "lifetime_status_distance": format_component_status(triggers["lifetime_status_distance"]),
+                                "lifetime_status_days": format_component_status(triggers["lifetime_status_days"]),
                                 "lifetime_trigger": triggers["lifetime_trigger"],
                                 "lifetime_percentage": lifetime_percentage,
                                 "lifetime_percentage_days": lifetime_percentage_days,
@@ -323,6 +325,8 @@ class BusinessLogic():
                                                  if bike_component.service_next is not None else None),
                                 "service_next_days": bike_component.service_next_days,
                                 "service_status": format_component_status(bike_component.service_status),
+                                "service_status_distance": format_component_status(triggers["service_status_distance"]),
+                                "service_status_days": format_component_status(triggers["service_status_days"]),
                                 "service_trigger": triggers["service_trigger"],
                                 "service_percentage": service_percentage,
                                 "service_percentage_days": service_percentage_days,
@@ -1148,21 +1152,21 @@ class BusinessLogic():
         return success, message
 
     def create_component(self,
-                     component_id,
-                     component_installation_status,
-                     component_updated_date,
-                     component_name,
-                     component_type,
-                     component_bike_id,
-                     expected_lifetime,
-                     service_interval,
-                     threshold_km,
-                     lifetime_expected_days,
-                     service_interval_days,
-                     threshold_days,
-                     cost,
-                     offset,
-                     component_notes):
+                         component_id,
+                         component_installation_status,
+                         component_updated_date,
+                         component_name,
+                         component_type,
+                         component_bike_id,
+                         expected_lifetime,
+                         service_interval,
+                         threshold_km,
+                         lifetime_expected_days,
+                         service_interval_days,
+                         threshold_days,
+                         cost,
+                         offset,
+                         component_notes):
         """Method to create component"""
         try:
             component_bike_id = None if component_bike_id == 'None' or component_bike_id == '' else component_bike_id
@@ -1185,22 +1189,20 @@ class BusinessLogic():
                 logging.warning(f"Component creation validation failed: {validation_message}")
                 return False, validation_message, None
 
-            new_component_data = {
-                "installation_status": component_installation_status,
-                "updated_date": component_updated_date,
-                "component_name": component_name,
-                "component_type": component_type,
-                "bike_id": component_bike_id,
-                "lifetime_expected": expected_lifetime,
-                "service_interval": service_interval,
-                "threshold_km": threshold_km,
-                "lifetime_expected_days": lifetime_expected_days,
-                "service_interval_days": service_interval_days,
-                "threshold_days": threshold_days,
-                "cost": cost,
-                "component_distance_offset": offset,
-                "notes": component_notes
-            }
+            new_component_data = {"installation_status": component_installation_status,
+                                  "updated_date": component_updated_date,
+                                  "component_name": component_name,
+                                  "component_type": component_type,
+                                  "bike_id": component_bike_id,
+                                  "lifetime_expected": expected_lifetime,
+                                  "service_interval": service_interval,
+                                  "threshold_km": threshold_km,
+                                  "lifetime_expected_days": lifetime_expected_days,
+                                  "service_interval_days": service_interval_days,
+                                  "threshold_days": threshold_days,
+                                  "cost": cost,
+                                  "component_distance_offset": offset,
+                                  "notes": component_notes}
 
             component_id = generate_unique_id()
             success, message = database_manager.write_component_details(component_id, new_component_data)
@@ -1283,21 +1285,20 @@ class BusinessLogic():
                 logging.warning(f"Component modification validation failed for {component_id}: {validation_message}")
                 return False, validation_message, component_id
 
-            new_component_data = {
-                "installation_status": component_installation_status,
-                "updated_date": component_updated_date,
-                "component_name": component_name,
-                "component_type": component_type,
-                "bike_id": component_bike_id,
-                "lifetime_expected": expected_lifetime,
-                "service_interval": service_interval,
-                "threshold_km": threshold_km,
-                "lifetime_expected_days": lifetime_expected_days,
-                "service_interval_days": service_interval_days,
-                "threshold_days": threshold_days,
-                "cost": cost,
-                "component_distance_offset": offset,
-                "notes": component_notes}
+            new_component_data = {"installation_status": component_installation_status,
+                                  "updated_date": component_updated_date,
+                                  "component_name": component_name,
+                                  "component_type": component_type,
+                                  "bike_id": component_bike_id,
+                                  "lifetime_expected": expected_lifetime,
+                                  "service_interval": service_interval,
+                                  "threshold_km": threshold_km,
+                                  "lifetime_expected_days": lifetime_expected_days,
+                                  "service_interval_days": service_interval_days,
+                                  "threshold_days": threshold_days,
+                                  "cost": cost,
+                                  "component_distance_offset": offset,
+                                  "notes": component_notes}
 
             component = database_manager.read_component(component_id)
             if not component:
@@ -2267,7 +2268,11 @@ class BusinessLogic():
                                                             component.threshold_days)
 
         return {"lifetime_trigger": self.determine_trigger(lifetime_status_distance, lifetime_status_days),
-                "service_trigger": self.determine_trigger(service_status_distance, service_status_days)}
+                "service_trigger": self.determine_trigger(service_status_distance, service_status_days),
+                "lifetime_status_distance": lifetime_status_distance,
+                "lifetime_status_days": lifetime_status_days,
+                "service_status_distance": service_status_distance,
+                "service_status_days": service_status_days}
 
     def determine_worst_status(self, distance_status, days_status):
         """Method to determine worst-case status between distance and days-based calculations"""
