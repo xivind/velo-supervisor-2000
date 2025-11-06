@@ -66,13 +66,13 @@
             </div>
             <div class="card-body">
                 <div class="d-flex flex-wrap gap-2">
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">✨ <strong>First ride:</strong> {{ payload.bike_data['oldest_ride'] }}</span>
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">{% if payload.bike_data['bike_retired'] == 'False' %}🟩 <strong>Bike active</strong>{% elif payload.bike_data['bike_retired'] == 'True' %}🟥 <strong>Retired</strong>{% endif %}</span>
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">📍 <strong>Total distance:</strong> {{ payload.bike_data['bike_total_distance'] }} km</span>
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">⚡ <strong>Installed components:</strong> {{ payload.count_installed }}</span>
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">⛔ <strong>Retired components:</strong> {{ payload.count_retired }}</span>
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">💰 <strong>Expected cost next service:</strong> {% if payload.sum_cost == "No estimate" %}{{ payload.sum_cost }}{% else %}{{ payload.sum_cost }}{% endif %}</span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal">📝 <strong>Notes:</strong> {% if payload.bike_data.bike_notes %}{{ payload.bike_data.bike_notes }}{% else %}No bike notes available{% endif %}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">✨ <strong>First ride:</strong> {{ payload.bike_data['oldest_ride'] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">{% if payload.bike_data['bike_retired'] == 'False' %}🟩 <strong>Bike active</strong>{% elif payload.bike_data['bike_retired'] == 'True' %}🟥 <strong>Retired</strong>{% endif %}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📍 <strong>Total distance:</strong> {{ payload.bike_data['bike_total_distance'] }} km</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">⚡ <strong>Installed components:</strong> {{ payload.count_installed }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">⛔ <strong>Retired components:</strong> {{ payload.count_retired }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">💰 <strong>Expected cost next service:</strong> {% if payload.sum_cost == "No estimate" %}{{ payload.sum_cost }}{% else %}{{ payload.sum_cost }}{% endif %}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📝 <strong>Notes:</strong> {% if payload.bike_data.bike_notes %}{{ payload.bike_data.bike_notes }}{% else %}No bike notes available{% endif %}</span>
                 </div>
             </div>
         </div>

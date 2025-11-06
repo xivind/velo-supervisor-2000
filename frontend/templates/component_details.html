@@ -156,19 +156,19 @@
             <div class="card-body">
                 {% if payload.bike_component_data['installation_status'] == 'Retired' %}
                 <div class="alert bg-info-subtle mb-3" role="alert">
-                    <strong>⛔ This component was retired on {{ payload.bike_component_data['updated_date'].split(' ')[0] }}.</strong>
+                    <strong>This component was retired on {{ payload.bike_component_data['updated_date'].split(' ')[0] }}</strong>
                     <p class="mb-0 small">Km and time based values are frozen as of retirement date.</p>
                 </div>
                 {% endif %}
                 <div class="d-flex flex-wrap gap-2">
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">🏷️ <strong>Type:</strong> {{ payload.bike_component_data['component_type'] }}</span>
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">📍 <strong>Total mileage:</strong> {{ payload.bike_component_data['component_distance'] }} km</span>
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">📅 {% if payload.bike_component_data['component_age_days'] %}<strong>Component age:</strong> {{ payload.bike_component_data['component_age_days'] }} days{% else %}Component has never been installed{% endif %}</span>
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">🔧 <strong>Last service:</strong> {{ payload.days_since_service }}</span>
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">🔄 <strong>Last status change:</strong> {{ payload.bike_component_data['updated_date'].split(' ')[0] }}</span>
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">💰 <strong>Cost:</strong> {{ payload.bike_component_data['cost'] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">🏷️ <strong>Type:</strong> {{ payload.bike_component_data['component_type'] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📍 <strong>Total mileage:</strong> {{ payload.bike_component_data['component_distance'] }} km</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📅 {% if payload.bike_component_data['component_age_days'] %}<strong>Component age:</strong> {{ payload.bike_component_data['component_age_days'] }} days{% else %}Component has never been installed{% endif %}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">🔧 <strong>Last service:</strong> {{ payload.days_since_service }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">🔄 <strong>Last status change:</strong> {{ payload.bike_component_data['updated_date'].split(' ')[0] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">💰 <strong>Cost:</strong> {{ payload.bike_component_data['cost'] }}</span>
                     {% if payload.bike_component_data['component_notes'] %}
-                    <span class="badge bg-light text-dark border fs-6 fw-normal">📝 <strong>Notes:</strong> {{ payload.bike_component_data['component_notes'] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📝 <strong>Notes:</strong> {{ payload.bike_component_data['component_notes'] }}</span>
                     {% endif %}
                 </div>
                 <hr/>
