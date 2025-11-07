@@ -49,17 +49,17 @@ class BusinessLogic():
 
             components = database_manager.read_subset_components(bike_id)
             count_installed = sum(1 for component in components
-                                if component.installation_status == "Installed")
+                                  if component.installation_status == "Installed")
 
-            critical_count = sum(1 for component in components 
-                            if component.installation_status == "Installed" and
-                            (component.lifetime_status == "Lifetime exceeded" or
-                            component.service_status == "Service interval exceeded"))
+            exceeded_max_count = sum(1 for component in components
+                                     if component.installation_status == "Installed" and
+                                     (component.lifetime_status == "Lifetime exceeded" or
+                                      component.service_status == "Service interval exceeded"))
 
-            warning_count = sum(1 for component in components
-                            if component.installation_status == "Installed" and
-                            (component.lifetime_status == "Due for replacement" or
-                            component.service_status == "Due for service"))
+            due_past_threshold_count = sum(1 for component in components
+                                           if component.installation_status == "Installed" and
+                                           (component.lifetime_status == "Due for replacement" or
+                                            component.service_status == "Due for service"))
 
             compliance_report = self.process_bike_compliance_report(bike_id)
 
@@ -69,8 +69,8 @@ class BusinessLogic():
                                service_status,
                                total_distance,
                                count_installed,
-                               critical_count,
-                               warning_count,
+                               exceeded_max_count,
+                               due_past_threshold_count,
                                compliance_report))
 
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
@@ -1107,8 +1107,8 @@ class BusinessLogic():
         
         logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}.")
         
-        component_status = {"breakdown_imminent": 0,
-                            "maintenance_required": 0,
+        component_status = {"exceeded_max": 0,
+                            "due_past_threshold": 0,
                             "ok": 0}
 
         count_installed = 0
@@ -1119,16 +1119,16 @@ class BusinessLogic():
                 if component.installation_status == "Installed":
                     count_installed += 1
                     if component.lifetime_status == "Lifetime exceeded" or component.service_status == "Service interval exceeded":
-                        component_status["breakdown_imminent"] += 1
+                        component_status["exceeded_max"] += 1
                     elif component.lifetime_status == "Due for replacement" or component.service_status == "Due for service":
-                        component_status["maintenance_required"] += 1
+                        component_status["due_past_threshold"] += 1
                     elif component.lifetime_status == "OK" or component.service_status == "OK":
                         component_status["ok"] += 1
 
                 if component.installation_status == "Retired":
                     count_retired += 1
 
-            if component_status["breakdown_imminent"] > 0 or component_status["maintenance_required"] > 0:
+            if component_status["exceeded_max"] > 0 or component_status["due_past_threshold"] > 0:
                 service_status = "Components need attention"
             elif component_status["ok"] > 0:
                 service_status = "All components healthy"

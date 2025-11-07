@@ -10,18 +10,18 @@
     color: white !important;
 }
 
-.bike_no_components {
+.bike-no-components {
     background-color: #979e9e !important; /* Enhance the secondary color for "no components" status */
     color: white !important;
 }
 
-.bike_healthy {
+.bike-healthy {
     background-color: #2967b9 !important; /* Enhance the info color for healthy components */
     color: white !important;
 }
 
-.bike-critical {
-    background-color: #b98356 !important; /* Custom styling for the critical status bikes */
+.bike-needs-attention {
+    background-color: #b98356 !important; /* Custom styling for the bike needs attention status */
     color: white !important;
 }    
 
