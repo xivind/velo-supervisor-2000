@@ -1128,7 +1128,7 @@ class BusinessLogic():
                 if component.installation_status == "Retired":
                     count_retired += 1
 
-            if component_status["exceeded_max"] > 0 or component_status["due_past_threshold"] > 0:
+            if component_status["exceeded_max"] > 0:
                 service_status = "Components need attention"
             elif component_status["ok"] > 0:
                 service_status = "All components healthy"
