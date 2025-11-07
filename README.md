@@ -4,7 +4,7 @@ Velo Supervisor 2000 is a program to keep track of lifetime and service interval
 ---
 **📡 IMPORTANT INFORMATION TO USERS PARTICIPARTING IN PILOTING Q1 2025**
 
-🔴 This software is currently under active development. Use it at your own risk, as there may be issues with data integrity. We do our best to solve bugs and make improvements, but cant promise you any support. The GUI does currently not work with mobile devices. Please take this into consideration if you are piloting. We are working on fixing this. See the [project board](https://github.com/users/xivind/projects/2/views/1) for a complete list of issues
+🔴 This software is currently under active development. Use it at your own risk, as there may be issues with data integrity. We do our best to solve bugs and make improvements, but cant promise you any support. The GUI is being optimized for mobile devices (first iteration completed in v0.4.7). See the [project board](https://github.com/users/xivind/projects/2/views/1) for a complete list of issues
 
 The onboarding procedure is not ready yet, but you can start piloting already now by setting up Velo Supervisor 2000 manually. Complete the following steps:
 - **Step 1:** Copy the file `backend/template_db.sqlite` and place it somewhere outside the repo
@@ -35,15 +35,27 @@ As a principle, development is to be done in the dev-branch. When changes are re
 *To see whats coming in the next release, check out the [project board](https://github.com/users/xivind/projects/2/views/1). All items marked as P0 are planned for the next release.*
 
 **Future releases**
-- GUI optimized for mobile devices
+- Further GUI optimization for mobile devices (first iteration completed in v0.4.7)
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.4.7**  
+**Planned for v0.4.8**  
 
 - See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
-**v0.4.6 (CURRENT)**  
+**v0.4.7 (CURRENT)**
+*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.6 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
+
+There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the velo supervisor 2000 database. Remember to backup the database first.
+
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+
+- New feature: Hybrid time + distance tracking for component lifetime and service intervals with automated nightly updates
+- First iteration of mobile-first GUI improvements with single-column layouts and flexible badge design
+- Enhanced component status visualization with trigger indicators (distance, time, or both)
+- Improved threshold validation on both client and server side
+
+**v0.4.6**  
 *THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
 
 - New feature: Quick swap - makes it possible to swap two components with one click

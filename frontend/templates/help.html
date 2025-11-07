@@ -41,11 +41,13 @@
                 <h6 class="mt-3">1. Define Component Types</h6>
                 <p>Start by setting up the component types you'll use (wheels, tires, chain, cassette, brakes, etc.). Go to <strong>🏷 COMPONENT TYPES</strong> and define:</p>
                 <ul>
-                    <li><strong>Expected lifetime</strong>: How many km before replacement (e.g., chain: 3000 km)</li>
-                    <li><strong>Service interval</strong>: How often to service in km (e.g., drivetrain: 500 km)</li>
+                    <li><strong>Expected lifetime (km/days)</strong>: How many km or days before replacement (e.g., chain: 3000 km or 180 days)</li>
+                    <li><strong>Service interval (km/days)</strong>: How often to service in km or days (e.g., drivetrain: 500 km or 30 days)</li>
+                    <li><strong>Thresholds</strong>: Warning buffer before limits are reached (e.g., 200 km or 7 days)</li>
                     <li><strong>Mandatory</strong>: Whether all bikes must have this component (⭐)</li>
                     <li><strong>Max quantity</strong>: How many of this type per bike (e.g., wheels: 2)</li>
                 </ul>
+                <p><em>Note: You can track components by distance (km), time (days), or both. The system will warn you when either limit is approaching.</em></p>
 
                 <h6 class="mt-3">2. Sync Strava Data</h6>
                 <p>Go to <strong>🎛 CONFIG</strong> and click <strong>"Get new rides"</strong> or <strong>"Get all rides"</strong> to sync your Strava activities. This populates your bikes and mileage data automatically.</p>
@@ -74,10 +76,15 @@
                     <li><strong>⭐</strong> Mandatory component type (required on all bikes)</li>
                     <li><strong>📦</strong> Bike has collections assigned</li>
                     <li><strong>♻</strong> Quick swap - replace component in one operation</li>
-                    <li><strong>🟩</strong> Component type in use / Healthy status</li>
-                    <li><strong>🟥</strong> Component type not used / Attention needed</li>
-                    <li><strong>⚠</strong> Warning or requires attention</li>
-                    <li><strong>✓</strong> Completed or confirmed</li>
+                    <li><strong>🟢</strong> OK - Component healthy</li>
+                    <li><strong>🟡</strong> Due - Service or replacement approaching</li>
+                    <li><strong>🔴</strong> Exceeded - Service or replacement overdue</li>
+                    <li><strong>⚪</strong> Not defined - No tracking limits set</li>
+                    <li><strong>📍</strong> Distance trigger - Limit reached based on km</li>
+                    <li><strong>📅</strong> Time trigger - Limit reached based on days</li>
+                    <li><strong>📍📅</strong> Both triggers - Both distance and time limits reached</li>
+                    <li><strong>⚡</strong> Component installed / active</li>
+                    <li><strong>⛔</strong> Component retired</li>
                 </ul>
 
                 <h6 class="mt-3">6. Optional: Create Collections</h6>
@@ -152,14 +159,19 @@
                     <li><strong>Offset</strong>: Add pre-existing mileage when installing used components</li>
                 </ul>
 
-                <h6 class="mt-3">Service Intervals</h6>
-                <p>Components track both expected lifetime and service intervals:</p>
+                <h6 class="mt-3">Hybrid Time + Distance Tracking</h6>
+                <p>Components can be tracked by distance (km), time (days), or both:</p>
                 <ul>
-                    <li><strong>Expected lifetime</strong>: Total km before replacement recommended</li>
-                    <li><strong>Service interval</strong>: How often routine maintenance is needed</li>
-                    <li>Warnings appear when approaching limits</li>
-                    <li>Use Service records to track maintenance performed</li>
+                    <li><strong>Distance-based</strong>: Traditional km tracking from Strava activities (e.g., chain wears with distance)</li>
+                    <li><strong>Time-based</strong>: Calendar-based tracking (e.g., brake fluid degrades over time regardless of use)</li>
+                    <li><strong>Hybrid</strong>: Track both simultaneously - component triggers when <em>either</em> limit is reached</li>
+                    <li><strong>Expected lifetime</strong>: Total km/days before replacement recommended</li>
+                    <li><strong>Service interval</strong>: How often routine maintenance is needed (km/days)</li>
+                    <li><strong>Thresholds</strong>: Warning buffer before limits (e.g., warn 200 km or 7 days before service due)</li>
+                    <li><strong>Status indicators</strong>: 🟢 OK, 🟡 Due for service, 🔴 Exceeded</li>
+                    <li><strong>Trigger indicators</strong>: 📍 (distance), 📅 (time), or 📍📅 (both)</li>
                 </ul>
+                <p><em>Time-based values update automatically nightly at 3:00 AM. Retired components freeze time calculations at retirement date.</em></p>
             </div>
         </div>
     </div>
@@ -179,9 +191,11 @@
                     <li>Click <strong>"⚙ New component"</strong></li>
                     <li>Fill in component name, type, and bike</li>
                     <li>Set installation status and date</li>
-                    <li>Optionally override lifetime/service intervals</li>
+                    <li>Optionally override lifetime/service intervals (km and/or days)</li>
+                    <li>Set thresholds for warning buffer before limits</li>
                     <li>Add offset mileage if component has previous use</li>
                 </ol>
+                <p><em>Note: Component type defaults will auto-populate the interval and threshold fields. You can override these per component.</em></p>
 
                 <h6 class="mt-3">Changing Component Status</h6>
                 <ol>
@@ -291,6 +305,9 @@
                 <h6 class="mt-3">Maintenance Planning</h6>
                 <ul>
                     <li>Set realistic service intervals based on your riding conditions</li>
+                    <li>Use time-based tracking for components that degrade with age (brake fluid, suspension seals)</li>
+                    <li>Use distance-based tracking for wear-based components (chains, tires, brake pads)</li>
+                    <li>Combine both for critical components (hydraulic brakes: 1000km OR 180 days)</li>
                     <li>Use workplans for complex multi-component maintenance</li>
                     <li>Log service records to track what was done and when</li>
                     <li>Review component health regularly on bike detail pages</li>
