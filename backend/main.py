@@ -3,7 +3,9 @@
 
 from typing import Optional, List
 import asyncio
+import atexit
 from middleware import Middleware
+from scheduler import start_scheduler, stop_scheduler
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -49,7 +51,16 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.on_event("startup")
 async def startup_event():
     """Function to register background tasks"""
-    asyncio.create_task(business_logic.pull_strava_background("recent"))
+    start_scheduler()
+    #asyncio.create_task(business_logic.pull_strava_background("recent"))
+
+# Shutdown event
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Function to gracefully shutdown scheduler"""
+    stop_scheduler()
+
+atexit.register(lambda: stop_scheduler() if stop_scheduler else None)
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
@@ -173,6 +184,10 @@ async def create_component(component_id: Optional[str] = Form(None),
                            component_bike_id: str = Form(...),
                            expected_lifetime: Optional[str] = Form(None),
                            service_interval: Optional[str] = Form(None),
+                           threshold_km: Optional[str] = Form(None),
+                           lifetime_expected_days: Optional[str] = Form(None),
+                           service_interval_days: Optional[str] = Form(None),
+                           threshold_days: Optional[str] = Form(None),
                            cost: Optional[str] = Form(None),
                            offset: Optional[int] = Form(0),
                            component_notes: Optional[str] = Form(None)):
@@ -187,6 +202,10 @@ async def create_component(component_id: Optional[str] = Form(None),
                                        component_bike_id,
                                        expected_lifetime,
                                        service_interval,
+                                       threshold_km,
+                                       lifetime_expected_days,
+                                       service_interval_days,
+                                       threshold_days,
                                        cost,
                                        offset,
                                        component_notes))
@@ -206,6 +225,10 @@ async def component_modify(component_id: Optional[str] = Form(None),
                            component_bike_id: str = Form(...),
                            expected_lifetime: Optional[str] = Form(None),
                            service_interval: Optional[str] = Form(None),
+                           threshold_km: Optional[str] = Form(None),
+                           lifetime_expected_days: Optional[str] = Form(None),
+                           service_interval_days: Optional[str] = Form(None),
+                           threshold_days: Optional[str] = Form(None),
                            cost: Optional[str] = Form(None),
                            offset: Optional[int] = Form(0),
                            component_notes: Optional[str] = Form(None)):
@@ -220,6 +243,10 @@ async def component_modify(component_id: Optional[str] = Form(None),
                                        component_bike_id,
                                        expected_lifetime,
                                        service_interval,
+                                       threshold_km,
+                                       lifetime_expected_days,
+                                       service_interval_days,
+                                       threshold_days,
                                        cost,
                                        offset,
                                        component_notes))
@@ -272,6 +299,10 @@ async def quick_swap(old_component_id: str = Form(...),
                      new_component_type: Optional[str] = Form(None),
                      new_service_interval: Optional[str] = Form(None),
                      new_lifetime_expected: Optional[str] = Form(None),
+                     new_threshold_km: Optional[str] = Form(None),
+                     new_lifetime_expected_days: Optional[str] = Form(None),
+                     new_service_interval_days: Optional[str] = Form(None),
+                     new_threshold_days: Optional[str] = Form(None),
                      new_cost: Optional[str] = Form(None),
                      new_offset: Optional[int] = Form(0),
                      new_notes: Optional[str] = Form(None)):
@@ -282,6 +313,10 @@ async def quick_swap(old_component_id: str = Form(...),
                               "component_type": new_component_type,
                               "service_interval": new_service_interval,
                               "lifetime_expected": new_lifetime_expected,
+                              "threshold_km": new_threshold_km,
+                              "lifetime_expected_days": new_lifetime_expected_days,
+                              "service_interval_days": new_service_interval_days,
+                              "threshold_days": new_threshold_days,
                               "cost": new_cost,
                               "offset": new_offset,
                               "notes": new_notes}
@@ -332,7 +367,7 @@ async def update_collection(collection_id: str = Form(...),
                                                         components,
                                                         bike_id,
                                                         comment)
-    
+
     response = RedirectResponse(
         url=f"/component_overview?success={success}&message={message}",
         status_code=303)
@@ -406,7 +441,7 @@ async def add_incident_record(incident_date: str = Form(...),
                                                              incident_description,
                                                              resolution_date,
                                                              resolution_notes)
-    
+
     response = RedirectResponse(
         url=f"/incident_reports?success={success}&message={message}",
         status_code=303)
@@ -434,7 +469,7 @@ async def update_incident_record(incident_id: str = Form(...),
                                                              incident_description,
                                                              resolution_date,
                                                              resolution_notes)
-    
+
     response = RedirectResponse(
         url=f"/incident_reports?success={success}&message={message}",
         status_code=303)
@@ -460,7 +495,7 @@ async def add_workplan(due_date: str = Form(...),
                                                       workplan_description,
                                                       completion_date,
                                                       completion_notes)
-    
+
     response = RedirectResponse(
         url=f"/workplans?success={success}&message={message}",
         status_code=303)
@@ -488,7 +523,7 @@ async def update_workplan(workplan_id: str = Form(...),
                                                       workplan_description,
                                                       completion_date,
                                                       completion_notes)
-    
+
     response = RedirectResponse(
         url=f"/workplans?success={success}&message={message}",
         status_code=303)
@@ -507,7 +542,11 @@ async def refresh_all_bikes(request: Request):
 @app.post("/component_types_modify", response_class=HTMLResponse)
 async def component_types_modify(component_type: str = Form(...),
                                  expected_lifetime: Optional[str] = Form(None),
+                                 lifetime_expected_days: Optional[str] = Form(None),
                                  service_interval: Optional[str] = Form(None),
+                                 service_interval_days: Optional[str] = Form(None),
+                                 threshold_km: Optional[str] = Form(None),
+                                 threshold_days: Optional[str] = Form(None),
                                  mandatory: Optional[str] = Form(None),
                                  max_quantity: Optional[str] = Form(None),
                                  mode: str = Form("create")):
@@ -515,7 +554,11 @@ async def component_types_modify(component_type: str = Form(...),
 
     success, message = business_logic.modify_component_type(component_type,
                                                             expected_lifetime,
+                                                            lifetime_expected_days,
                                                             service_interval,
+                                                            service_interval_days,
+                                                            threshold_km,
+                                                            threshold_days,
                                                             mandatory,
                                                             max_quantity,
                                                             mode)
@@ -538,22 +581,35 @@ async def refresh_rides(request: Request, mode: str):
 
 @app.post("/delete_record", response_class=HTMLResponse)
 async def delete_record(record_id: str = Form(...),
-                        table_selector: str = Form(...)):
+                        table_selector: str = Form(...),
+                        source_page: str = Form(None)):
     """Endpoint to delete records"""
 
-    success, message, component_id = business_logic.delete_record(table_selector, record_id)
+    success, message, component_id, bike_id = business_logic.delete_record(table_selector, record_id)
 
     redirect_url = "/"
 
     if table_selector == "ComponentTypes":
         redirect_url = "/component_types_overview"
-    if table_selector == "Components" or table_selector == "Collections":
+    elif table_selector == "Components":
+        if source_page == "component_overview":
+            redirect_url = "/component_overview"
+        elif source_page == "bike_details" and bike_id:
+            redirect_url = f"/bike_details/{bike_id}"
+        elif source_page == "component_details":
+            if bike_id:
+                redirect_url = f"/bike_details/{bike_id}"
+            else:
+                redirect_url = "/component_overview"
+        else:
+            redirect_url = "/component_overview"
+    elif table_selector == "Collections":
         redirect_url = "/component_overview"
-    if table_selector == "Services" or table_selector == "ComponentHistory":
+    elif table_selector == "Services" or table_selector == "ComponentHistory":
         redirect_url = f"/component_details/{component_id}"
-    if table_selector == "Incidents":
+    elif table_selector == "Incidents":
         redirect_url = "/incident_reports"
-    if table_selector == "Workplans":
+    elif table_selector == "Workplans":
         redirect_url = "/workplans"
 
     response = RedirectResponse(

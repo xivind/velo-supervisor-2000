@@ -108,19 +108,34 @@ Agents will follow their defined roles and responsibilities as documented in the
 5. @database-expert (if schema changes needed)
    ↓ produces migration plan + scripts
 
-6. @fullstack-developer
+6. DECISION POINT - Implementation Approach:
+
+   **Option A: Autonomous Agent**
+   - Invoke @fullstack-developer agent
+   - Agent reads handovers and implements autonomously
+   - Suitable for well-defined tasks with clear requirements
+
+   **Option B: Guided Execution**
+   - Claude Code (main instance) reads fullstack-developer directive
+   - Claude Code reads the same handover documents
+   - Works collaboratively with human for implementation
+   - Suitable for complex tasks requiring frequent iteration
+
+   → HUMAN chooses approach at this point
+
+7. @fullstack-developer (or Claude Code following fullstack directive)
    ↓ implements complete feature (backend + frontend)
 
-7. @code-reviewer
+8. @code-reviewer
    ↓ reviews implementation
 
-8. @fullstack-developer (if revisions needed)
+9. @fullstack-developer (if revisions needed)
    ↓ addresses review findings
 
-9. @docs-maintainer
+10. @docs-maintainer
    ↓ updates documentation + creates commit messages
 
-10. HUMAN: Review, commit, and push
+11. HUMAN: Review, commit, and push
 ```
 
 **Note**:
@@ -128,20 +143,32 @@ Agents will follow their defined roles and responsibilities as documented in the
 - @ux-designer creates initial UX design first, then @architect uses it as input
 - @ux-designer then aligns their design with architectural constraints
 - This sequential approach ensures UX and architecture are properly coordinated
+- **Implementation Decision Point**: At step 6, Claude Code will ask whether to invoke the @fullstack-developer agent (autonomous) or execute guided implementation (collaborative). Both approaches follow the same fullstack-developer directive and read the same handover documents.
 
 ### For Bug Fixes
 
 ```
-1. @fullstack-developer
+1. DECISION POINT - Implementation Approach:
+
+   **Option A: Autonomous Agent**
+   - Invoke @fullstack-developer agent to analyze and fix
+
+   **Option B: Guided Execution**
+   - Claude Code reads fullstack-developer directive
+   - Works collaboratively with human to analyze and fix
+
+   → HUMAN chooses approach at this point
+
+2. @fullstack-developer (or Claude Code following fullstack directive)
    ↓ analyzes and fixes bug
-   
-2. @code-reviewer
+
+3. @code-reviewer
    ↓ validates fix
-   
-3. @docs-maintainer
+
+4. @docs-maintainer
    ↓ creates commit message
-   
-4. HUMAN: Review, commit, and push
+
+5. HUMAN: Review, commit, and push
 ```
 
 ### For Documentation Updates
