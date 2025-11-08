@@ -853,8 +853,9 @@ class BusinessLogic():
 
     def update_component_service_status(self, component):
         """Method to update component table with service status"""
+        logging.info(f"Updating service status for component {component.component_name}.")
+        
         if component.service_interval:
-            logging.info(f"Updating service status for component {component.component_name}.")
             latest_service_record = database_manager.read_latest_service_record(component.component_id)
             latest_history_record = database_manager.read_latest_history_record(component.component_id)
 
@@ -2293,15 +2294,18 @@ class BusinessLogic():
 
     def update_time_based_fields(self):
         """Method to update time-based status fields for all non-retired components"""
-        components = database_manager.read_all_components()
+        components = database_manager.read_all_components_objects()
         active_components = [component for component in components if component.installation_status != "Retired"]
 
+        component_count = len(active_components)
         updated_count = 0
         error_count = 0
 
+        logging.info(f'Starting time-based fields update for {component_count} components that are installed or not assigned.')
         for component in active_components:
             try:
                 if component.lifetime_expected_days or component.service_interval_days:
+                    logging.info(f'{component.component_name} tracks days for lifetime or service intervals. Updating time-based fields.')
                     self.update_component_lifetime_status(component)
                     self.update_component_service_status(component)
 
@@ -2315,9 +2319,11 @@ class BusinessLogic():
                 logging.error(f"Error updating time fields for component {component.component_id}: {exception}")
 
         if error_count > 0:
-            return False, f"Updated {updated_count} components with {error_count} errors"
+            return False, f"{updated_count} components successfully updated. {error_count} components failed to update."
+        elif updated_count > 0:
+            return True, f"{updated_count} components successfully updated"
         else:
-            return True, f"Updated {updated_count} components successfully"
+            return True, "No components have been configured to track days for lifetime or service intervals"
 
     def validate_threshold_configuration(self,
                                          expected_lifetime,
