@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
     reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
 
+    // Initialize Bootstrap tooltips for both desktop and mobile
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
     // Function to remove backdrop on some modals
     const removeBackdropModals = [
         'workplanRecordModal',
@@ -2524,7 +2528,7 @@ function editCollection(element, options = {}) {
                 formData.append('new_component_name', document.getElementById('new_component_name').value);
                 formData.append('new_component_type', document.getElementById('new_component_type').value);
                 formData.append('new_service_interval', document.getElementById('new_service_interval').value);
-                formData.append('new_expected_lifetime', document.getElementById('new_expected_lifetime').value);
+                formData.append('new_lifetime_expected', document.getElementById('new_expected_lifetime').value);
                 formData.append('new_threshold_km', document.getElementById('new_threshold_km').value);
                 formData.append('new_service_interval_days', document.getElementById('new_service_interval_days').value);
                 formData.append('new_lifetime_expected_days', document.getElementById('new_lifetime_expected_days').value);

@@ -52,7 +52,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 async def startup_event():
     """Function to register background tasks"""
     start_scheduler()
-    #asyncio.create_task(business_logic.pull_strava_background("recent"))
+    asyncio.create_task(business_logic.pull_strava_background("recent"))
 
 # Shutdown event
 @app.on_event("shutdown")

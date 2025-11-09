@@ -19,9 +19,9 @@
         <label class="form-check-label fw-bold" for="showRetiredBikes">Show retired bikes</label>
     </div>
 </div>
-<div class="row">
+<div class="row g-4">
     {% for name, bike_id, bike_status, service_status, distance, count_installed, exceeded_max_count, due_past_threshold_count, compliance_report in payload.bikes_data %}
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4">
             <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">
                 <div class="card shadow hover-effect" data-bike-status="{{ bike_status }}">
                     <div class="card-header h5 fw-bold d-flex justify-content-between align-items-center

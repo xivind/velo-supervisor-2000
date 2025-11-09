@@ -50,7 +50,13 @@
                         <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="{{ payload.bike_component_data['service_interval'] }}">
                     </div>
                     <div class="col-md-2 mb-3">
-                        <label for="threshold_km" class="form-label fw-bold">Threshold (km)</label>
+                        <label for="threshold_km" class="form-label fw-bold">
+                            Threshold (km)
+                            <i class="bi bi-info-circle text-muted"
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Warnings trigger when remaining distance drops below this value"></i>
+                        </label>
                         <input type="number" min="0" step="1" class="form-control" id="threshold_km" name="threshold_km" value="{{ payload.bike_component_data['threshold_km'] }}">
                     </div>
                     <div class="col-md-2 mb-3">
@@ -62,7 +68,13 @@
                         <input type="number" min="0" step="1" class="form-control" id="service_interval_days" name="service_interval_days" value="{{ payload.bike_component_data['service_interval_days'] }}">
                     </div>
                     <div class="col-md-2 mb-3">
-                        <label for="threshold_days" class="form-label fw-bold">Threshold (days)</label>
+                        <label for="threshold_days" class="form-label fw-bold">
+                            Threshold (days)
+                            <i class="bi bi-info-circle text-muted"
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Warnings trigger when remaining days drop below this value"></i>
+                        </label>
                         <input type="number" min="0" step="1" class="form-control" id="threshold_days" name="threshold_days" value="{{ payload.bike_component_data['threshold_days'] }}">
                     </div>
                     <div class="col-md-12 mb-3">
