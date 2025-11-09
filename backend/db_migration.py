@@ -193,27 +193,28 @@ def migrate_component_types(cursor, conn):
     """Migrate the component_types table to add new columns"""
     # Check if the table needs migration
     columns_to_add = check_component_types_columns(cursor)
-    
+
     if not columns_to_add:
-        print("The component_types table already has all required columns.")
-        print("No migration needed for component_types.")
+        print("Table is compliant - all required columns present.")
         return False
-    
+
     # Check if the component_types table exists
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='component_types'")
     if not cursor.fetchone():
         print("Error: component_types table not found in the database.")
         print("Make sure you're using the correct database file.")
         sys.exit(1)
-    
+
     # Check if components table exists (needed for counting)
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='components'")
     if not cursor.fetchone():
         print("Error: components table not found in the database.")
         print("Make sure you're using the correct database file.")
         sys.exit(1)
-        
-    print("\nMigrating component_types table...")
+
+    # Show what's missing before migrating
+    print(f"Table is missing {len(columns_to_add)} column(s): {', '.join(columns_to_add)}")
+    print("Migrating component_types table...")
     column_updates = []
     
     # Add new columns with specific default values
@@ -281,10 +282,11 @@ def migrate_component_types_time_fields(cursor, conn):
     columns_to_add = check_component_types_time_columns(cursor)
 
     if not columns_to_add:
-        print("ComponentTypes table already has all time-based fields.")
+        print("Table is compliant - all time-based fields present.")
         return False
 
-    print("\nMigrating ComponentTypes table with time-based fields...")
+    print(f"Table is missing {len(columns_to_add)} time-based column(s): {', '.join(columns_to_add)}")
+    print("Migrating ComponentTypes table with time-based fields...")
 
     # Add new columns with NULL defaults
     if 'service_interval_days' in columns_to_add:
@@ -356,10 +358,11 @@ def migrate_components_time_fields(cursor, conn):
     columns_to_add = check_components_time_columns(cursor)
 
     if not columns_to_add:
-        print("Components table already has all time-based fields.")
+        print("Table is compliant - all time-based fields present.")
         return False
 
-    print("\nMigrating Components table with time-based fields...")
+    print(f"Table is missing {len(columns_to_add)} time-based column(s): {', '.join(columns_to_add)}")
+    print("Migrating Components table with time-based fields...")
 
     # Add new columns with NULL defaults
     if 'service_interval_days' in columns_to_add:
@@ -538,16 +541,12 @@ def migrate_database():
         component_types_updated = migrate_component_types(cursor, conn)
         if component_types_updated:
             migrations_performed.append("✓ Updated component_types table (mandatory/max_quantity)")
-        else:
-            print("      → Already up to date, skipping")
 
         # NEW: Migrate ComponentTypes with time-based fields
-        print("\n[5/9] Migrating component_types table (time-based fields)...")
+        print("\n[5/9] Checking component_types table (time-based fields)...")
         component_types_time_updated = migrate_component_types_time_fields(cursor, conn)
         if component_types_time_updated:
             migrations_performed.append("✓ Added time-based fields to component_types")
-        else:
-            print("      → Already up to date, skipping")
 
         # NEW: Populate threshold_km for ComponentTypes
         print("\n[6/9] Populating threshold_km for component types...")
@@ -558,12 +557,10 @@ def migrate_database():
             print("      → Already populated or no data to update")
 
         # NEW: Migrate Components with time-based fields
-        print("\n[7/9] Migrating components table (time-based fields)...")
+        print("\n[7/9] Checking components table (time-based fields)...")
         components_time_updated = migrate_components_time_fields(cursor, conn)
         if components_time_updated:
             migrations_performed.append("✓ Added time-based fields to components")
-        else:
-            print("      → Already up to date, skipping")
 
         # NEW: Populate threshold_km for Components
         print("\n[8/9] Populating threshold_km for components...")
