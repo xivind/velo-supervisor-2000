@@ -3325,13 +3325,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 cellA = emojiPriority[emojiA] || 5;
                 cellB = emojiPriority[emojiB] || 5;
             }
-            // Special handling for km to srv column (numeric values)
-            else if (index === 6) { // Km to srv column
+            // Special handling for km to go column (numeric values)
+            else if (index === 6) { // Km to go column
                 cellA = cellA === '-' ? Infinity : parseFloat(cellA) || 0;
                 cellB = cellB === '-' ? Infinity : parseFloat(cellB) || 0;
             }
-            // Special handling for days to srv column (numeric values)
-            else if (index === 7) { // Days to srv column
+            // Special handling for days to go column (numeric values)
+            else if (index === 7) { // Days to go column
                 cellA = cellA === '-' ? Infinity : parseFloat(cellA) || 0;
                 cellB = cellB === '-' ? Infinity : parseFloat(cellB) || 0;
             }
@@ -3373,12 +3373,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initial sort by Km to srv column (index 6) in ascending order
+    // Initial sort by Km to go column (index 6) in ascending order
     if (headers.length > 0 && rows.length > 1) {
-        // Add sorted-asc class to the Km to srv column header
+        // Add sorted-asc class to the Km to go column header
         headers[6].classList.add('sorted-asc');
 
-        // Sort by Km to srv column (index 6) in ascending order
+        // Sort by Km to go column (index 6) in ascending order
         sortColumn(6, true);
     }
 });
@@ -5504,12 +5504,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     cellB = numB ? parseInt(numB[1], 10) : 0;
                     break;
                     
-                case 4: // Expected life column
-                case 5: // Service interval (km) column
-                case 6: // Service interval (days) column
-                    // Extract numeric value or set to Infinity if "Not defined"
-                    cellA = cellA === 'Not defined' || cellA === 'N/A' ? Infinity : parseInt(cellA, 10) || 0;
-                    cellB = cellB === 'Not defined' || cellB === 'N/A' ? Infinity : parseInt(cellB, 10) || 0;
+                case 4: // Life (km) column
+                case 5: // Service (km) column
+                case 6: // Thresh (km) column
+                case 7: // Life (days) column
+                case 8: // Service (days) column
+                case 9: // Thresh (days) column
+                    // Extract numeric value or set to Infinity if "-"
+                    cellA = cellA === '-' ? Infinity : parseInt(cellA, 10) || 0;
+                    cellB = cellB === '-' ? Infinity : parseInt(cellB, 10) || 0;
                     break;
             }
             
@@ -5571,7 +5574,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const tbody = table.querySelector('tbody');
                 const newRow = document.createElement('tr');
                 newRow.className = 'no-results-row';
-                newRow.innerHTML = '<td colspan="8" class="text-center">No component types match your search</td>';
+                newRow.innerHTML = '<td colspan="11" class="text-center">No component types match your search</td>';
                 tbody.appendChild(newRow);
             } else {
                 noResultsRow.style.display = '';
