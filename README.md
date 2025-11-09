@@ -51,7 +51,7 @@ There are new features in this version that require a database migration. Use [p
 *THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
 
 - New feature: Hybrid time + distance tracking for component lifetime and service intervals with automated nightly updates for tracking days
-- New feature: To avoid unnecessary noise, tresholds for when due status should be set are now user configurable. Default treshold for distance is set to 200 km. This may be changed by the user, pr component type and component. The Lifetime / service status "approaching" has proved to be of little value and is now removed. 
+- New feature: To avoid unnecessary noise, thresholds for when due status should be set are now user configurable. Default threshold for distance is set to 200 km. This may be changed by the user, pr component type and component. The Lifetime / service status "approaching" has proved to be of little value and is now removed. 
 - First iteration of mobile-first GUI improvements with single-column layouts and flexible badge design
 - Enhanced component status visualization with trigger indicators (distance, time, or both)
 
