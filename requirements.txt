@@ -6,3 +6,4 @@ uvicorn
 requests_oauthlib
 peewee
 python-multipart
+APScheduler

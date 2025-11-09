@@ -77,60 +77,6 @@ def format_cost(cost):
 
     return "No estimate"
 
-def get_component_statistics(component_list):
-    """Function to summarise key data for a set of components"""
-    component_statistics = {"count_installed": 0,
-                            "count_not_installed": 0,
-                            "count_retired": 0,
-                            "count_lifetime_status_green": 0,
-                            "count_lifetime_status_yellow": 0,
-                            "count_lifetime_status_red": 0,
-                            "count_lifetime_status_purple": 0,
-                            "count_lifetime_status_grey": 0,
-                            "count_service_status_green": 0,
-                            "count_service_status_yellow": 0,
-                            "count_service_status_red": 0,
-                            "count_service_status_purple": 0,
-                            "count_service_status_grey": 0,
-                            "sum_cost": 0,
-                            }
-        
-    for component in component_list:
-        if component[0] == "Installed":
-            component_statistics["count_installed"] += 1
-        if component[0] == "Not installed":
-            component_statistics["count_not_installed"] += 1
-        if component[0] == "Retired":
-            component_statistics["count_retired"] += 1
-        if component[4] == "OK" and component[0] == "Installed":
-            component_statistics["count_lifetime_status_green"] += 1
-        if component[4] == "End of life approaching" and component[0] == "Installed":
-            component_statistics["count_lifetime_status_yellow"] += 1
-        if component[4] == "Due for replacement" and component[0] == "Installed":
-            component_statistics["count_lifetime_status_red"] += 1
-        if component[4] == "Lifetime exceeded" and component[0] == "Installed":
-            component_statistics["count_lifetime_status_purple"] += 1
-        if component[4] == "Not defined" and component[0] == "Installed":
-            component_statistics["count_lifetime_status_grey"] += 1                
-        if component[5] == "OK" and component[0] == "Installed":
-            component_statistics["count_service_status_green"] += 1
-        if component[5] == "Service approaching" and component[0] == "Installed":
-            component_statistics["count_service_status_yellow"] += 1
-        if component[5] == "Due for service" and component[0] == "Installed":
-            component_statistics["count_service_status_red"] += 1
-        if component[5] == "Service interval exceeded" and component[0] == "Installed":
-            component_statistics["count_service_status_purple"] += 1
-        if component[5] == "Not defined" and component[0] == "Installed":
-            component_statistics["count_service_status_grey"] += 1
-        if component[6] is not None and isinstance(component[6], int) and component[0] == "Installed":
-            if (component[4] == "Due for replacement" or component[4] == "Lifetime exceeded"):
-                component_statistics["sum_cost"] += component[6]
-
-    if component_statistics["sum_cost"] == 0:
-        component_statistics["sum_cost"] = "No estimate"
-
-    return component_statistics
-
 def get_formatted_bikes_list(bikes):
     """Function to get list of all bikes, with prefix for retired bikes"""
     bikes_data = [(bike.bike_name + (" (Retired)" if bike.bike_retired == "True" else ""),
@@ -160,7 +106,7 @@ def validate_date_format(date_string):
     if len(date_string) != 16:
         return False, f"Invalid date format: '{date_string}'. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
 
-    if (date_string[4] != '-' or date_string[7] != '-' or 
+    if (date_string[4] != '-' or date_string[7] != '-' or
         date_string[10] != ' ' or date_string[13] != ':'):
         return False, f"Invalid date format: '{date_string}'. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
 
@@ -253,7 +199,7 @@ def parse_checkbox_progress(description):
 
     total_checkboxes = len(re.findall(r'- \[[x ]\]', description))
     checked_checkboxes = len(re.findall(r'- \[x\]', description))
-    
+
     if total_checkboxes > 0:
         return {'total': total_checkboxes,
                 'checked': checked_checkboxes,

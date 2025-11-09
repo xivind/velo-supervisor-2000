@@ -12,17 +12,21 @@
                     <input type="hidden" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}">
                     <input type="hidden" id="component_installation_status" name="component_installation_status" value="{{ payload.bike_component_data['installation_status'] }}">
                     
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label for="component_name" class="form-label fw-bold">Name</label>
                         <input type="text" class="form-control" id="component_name" name="component_name" value="{{ payload.bike_component_data['component_name'] }}" required>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label for="component_type" class="form-label fw-bold">Type</label>
                         <select class="form-select" id="component_type" name="component_type" required>
-                            {% for component_type, suggested_lifetime_expected, suggested_service_interval, in_use, mandatory, max_quantity in payload.component_types_data %}
+                            {% for component_type, suggested_lifetime_expected, lifetime_expected_days, suggested_service_interval, service_interval_days, threshold_km, threshold_days, in_use, mandatory, max_quantity in payload.component_types_data %}
                                 <option value="{{ component_type }}"
                                     expected_lifetime="{{ suggested_lifetime_expected }}"
+                                    lifetime_expected_days="{{ lifetime_expected_days }}"
                                     service_interval="{{ suggested_service_interval }}"
+                                    service_interval_days="{{ service_interval_days }}"
+                                    threshold_km="{{ threshold_km }}"
+                                    threshold_days="{{ threshold_days }}"
                                     {% if component_type == payload.bike_component_data['component_type'] %}selected{% endif %}>
                                     {{ component_type }}
                                 </option>
@@ -30,20 +34,48 @@
                         </select>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label for="cost" class="form-label fw-bold">Cost (kr)</label>
+                        <label for="cost" class="form-label fw-bold">Cost</label>
                         <input type="number" min="0" step="1" class="form-control" id="cost" name="cost" value="{{ payload.bike_component_data['cost'] }}">
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label for="expected_lifetime" class="form-label fw-bold">Expected lifetime (km)</label>
+                        <label for="offset" class="form-label fw-bold">Offset</label>
+                        <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="{{ payload.bike_component_data['offset'] }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="expected_lifetime" class="form-label fw-bold">Lifetime exp. (km)</label>
                         <input type="number" min="0" step="1" class="form-control" id="expected_lifetime" name="expected_lifetime" value="{{ payload.bike_component_data['lifetime_expected'] }}">
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="service_interval" class="form-label fw-bold">Service interval (km)</label>
+                    <div class="col-md-2 mb-3">
+                        <label for="service_interval" class="form-label fw-bold">Service int. (km)</label>
                         <input type="number" min="0" step="1" class="form-control" id="service_interval" name="service_interval" value="{{ payload.bike_component_data['service_interval'] }}">
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="offset" class="form-label fw-bold">Offset (km)</label>
-                        <input type="number" min="0" step="1" class="form-control" id="offset" name="offset" value="{{ payload.bike_component_data['offset'] }}">
+                    <div class="col-md-2 mb-3">
+                        <label for="threshold_km" class="form-label fw-bold">
+                            Threshold (km)
+                            <i class="bi bi-info-circle text-muted"
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Warnings trigger when remaining distance drops below this value"></i>
+                        </label>
+                        <input type="number" min="0" step="1" class="form-control" id="threshold_km" name="threshold_km" value="{{ payload.bike_component_data['threshold_km'] }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="lifetime_expected_days" class="form-label fw-bold">Lifetime exp. (days)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="lifetime_expected_days" name="lifetime_expected_days" value="{{ payload.bike_component_data['lifetime_expected_days'] }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="service_interval_days" class="form-label fw-bold">Service int. (days)</label>
+                        <input type="number" min="0" step="1" class="form-control" id="service_interval_days" name="service_interval_days" value="{{ payload.bike_component_data['service_interval_days'] }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="threshold_days" class="form-label fw-bold">
+                            Threshold (days)
+                            <i class="bi bi-info-circle text-muted"
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Warnings trigger when remaining days drop below this value"></i>
+                        </label>
+                        <input type="number" min="0" step="1" class="form-control" id="threshold_days" name="threshold_days" value="{{ payload.bike_component_data['threshold_days'] }}">
                     </div>
                     <div class="col-md-12 mb-3">
                         <label for="component_notes" class="form-label fw-bold">Notes</label>

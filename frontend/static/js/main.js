@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
     reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
 
+    // Initialize Bootstrap tooltips for both desktop and mobile
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
     // Function to remove backdrop on some modals
     const removeBackdropModals = [
         'workplanRecordModal',
@@ -341,22 +345,40 @@ document.addEventListener('DOMContentLoaded', function() {
         // Find the closest form to locate related inputs
         const form = typeSelect.closest('form');
         if (!form) return;
-        
-        // Find the related inputs within the same form
-        const serviceIntervalInput = form.querySelector('input[id^="service_interval"]');
-        const expectedLifetimeInput = form.querySelector('input[id^="expected_lifetime"]');
-        
+
+        // Find the related inputs within the same form (distance-based)
+        const serviceIntervalInput = form.querySelector('input[id^="service_interval"]:not([id*="days"])');
+        const expectedLifetimeInput = form.querySelector('input[id^="expected_lifetime"]:not([id*="days"])');
+        const thresholdKmInput = form.querySelector('input[name="threshold_km"], input[name="new_threshold_km"]');
+
+        // Find time-based inputs
+        const serviceIntervalDaysInput = form.querySelector('input[name="service_interval_days"], input[name="new_service_interval_days"]');
+        const lifetimeExpectedDaysInput = form.querySelector('input[name="lifetime_expected_days"], input[name="new_lifetime_expected_days"]');
+        const thresholdDaysInput = form.querySelector('input[name="threshold_days"], input[name="new_threshold_days"]');
+
         if (!serviceIntervalInput || !expectedLifetimeInput) return;
-        
+
         // Add change event listener
         typeSelect.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
+
+            // Get all values from data attributes
             const serviceInterval = selectedOption.getAttribute('service_interval');
             const expectedLifetime = selectedOption.getAttribute('expected_lifetime');
+            const thresholdKm = selectedOption.getAttribute('threshold_km');
+            const serviceIntervalDays = selectedOption.getAttribute('service_interval_days');
+            const lifetimeExpectedDays = selectedOption.getAttribute('lifetime_expected_days');
+            const thresholdDays = selectedOption.getAttribute('threshold_days');
 
-            // Update the input fields with the selected option's data attributes
+            // Update distance-based fields
             serviceIntervalInput.value = serviceInterval;
             expectedLifetimeInput.value = expectedLifetime;
+            if (thresholdKmInput) thresholdKmInput.value = thresholdKm;
+
+            // Update time-based fields
+            if (serviceIntervalDaysInput) serviceIntervalDaysInput.value = serviceIntervalDays;
+            if (lifetimeExpectedDaysInput) lifetimeExpectedDaysInput.value = lifetimeExpectedDays;
+            if (thresholdDaysInput) thresholdDaysInput.value = thresholdDays;
         });
     });
 });
@@ -852,11 +874,23 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('confirmAction').addEventListener('click', function handleConfirm() {
                 // Remove the event listener after use
                 this.removeEventListener('click', handleConfirm);
-                
+
+                // Detect source page from URL
+                const path = window.location.pathname;
+                let sourcePage = 'unknown';
+                if (path.includes('/component_overview')) {
+                    sourcePage = 'component_overview';
+                } else if (path.includes('/bike_details')) {
+                    sourcePage = 'bike_details';
+                } else if (path.includes('/component_details')) {
+                    sourcePage = 'component_details';
+                }
+
                 // Create and submit the form
                 const formData = new FormData();
                 formData.append('record_id', recordId);
                 formData.append('table_selector', tableSelector);
+                formData.append('source_page', sourcePage);
 
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -2269,8 +2303,12 @@ function editCollection(element, options = {}) {
                             const typeOption = componentTypeSelect.querySelector(`option[value="${componentType}"]`);
                             if (typeOption) {
                                 // Pre-fill with component type defaults
+                                document.getElementById('new_expected_lifetime').value = typeOption.getAttribute('expected_lifetime') || '';
                                 document.getElementById('new_service_interval').value = typeOption.getAttribute('service_interval') || '';
-                                document.getElementById('new_lifetime_expected').value = typeOption.getAttribute('expected_lifetime') || '';
+                                document.getElementById('new_threshold_km').value = typeOption.getAttribute('threshold_km') || '';
+                                document.getElementById('new_lifetime_expected_days').value = typeOption.getAttribute('lifetime_expected_days') || '';
+                                document.getElementById('new_service_interval_days').value = typeOption.getAttribute('service_interval_days') || '';
+                                document.getElementById('new_threshold_days').value = typeOption.getAttribute('threshold_days') || '';
                             }
                         }
                     }
@@ -2443,6 +2481,11 @@ function editCollection(element, options = {}) {
                 showValidationModal('Validation Error', 'Component type is required for the new component.');
                 return false;
             }
+
+            // Validate threshold configuration for new component
+            if (!validateComponentThresholds('quick_swap_form')) {
+                return false;
+            }
         } else {
             const newComponentId = document.getElementById('new_component_id').value;
             if (!newComponentId) {
@@ -2485,7 +2528,11 @@ function editCollection(element, options = {}) {
                 formData.append('new_component_name', document.getElementById('new_component_name').value);
                 formData.append('new_component_type', document.getElementById('new_component_type').value);
                 formData.append('new_service_interval', document.getElementById('new_service_interval').value);
-                formData.append('new_lifetime_expected', document.getElementById('new_lifetime_expected').value);
+                formData.append('new_lifetime_expected', document.getElementById('new_expected_lifetime').value);
+                formData.append('new_threshold_km', document.getElementById('new_threshold_km').value);
+                formData.append('new_service_interval_days', document.getElementById('new_service_interval_days').value);
+                formData.append('new_lifetime_expected_days', document.getElementById('new_lifetime_expected_days').value);
+                formData.append('new_threshold_days', document.getElementById('new_threshold_days').value);
                 formData.append('new_cost', document.getElementById('new_cost').value);
                 formData.append('new_offset', document.getElementById('new_offset').value);
                 formData.append('new_notes', document.getElementById('new_notes').value);
@@ -2526,6 +2573,146 @@ function editCollection(element, options = {}) {
     }
 
 })();
+
+// ----- Component threshold validation -----
+// Shared validation function used by: component type modal, create component modal,
+// edit component modal, and quick swap modal
+
+/**
+ * Validates threshold configuration for component forms
+ *
+ * Validation rules:
+ * 1. If expected_lifetime OR service_interval → threshold_km REQUIRED
+ * 2. If lifetime_expected_days OR service_interval_days → threshold_days REQUIRED
+ * 3. threshold_km must be <= MIN(service_interval, expected_lifetime) when both defined
+ * 4. threshold_days must be <= MIN(service_interval_days, lifetime_expected_days) when both defined
+ * 5. Thresholds must be > 0 if provided
+ *
+ * @param {string} formId - The ID of the form to validate
+ * @returns {boolean} - True if validation passes, false otherwise
+ */
+function validateComponentThresholds(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return true;
+
+    // Clear previous validation errors
+    clearValidationErrors(form);
+
+    let isValid = true;
+
+    // Get field values (handling both standard and "new_" prefixed fields for quick swap)
+    const getFieldValue = (fieldName) => {
+        let field = form.querySelector(`[name="${fieldName}"]`);
+        if (!field) field = form.querySelector(`[name="new_${fieldName}"]`);
+        return field ? parseFloat(field.value) || null : null;
+    };
+
+    const getField = (fieldName) => {
+        let field = form.querySelector(`[name="${fieldName}"]`);
+        if (!field) field = form.querySelector(`[name="new_${fieldName}"]`);
+        return field;
+    };
+
+    // Read values
+    const expectedLifetime = getFieldValue('expected_lifetime');
+    const serviceInterval = getFieldValue('service_interval');
+    const thresholdKm = getFieldValue('threshold_km');
+    const lifetimeExpectedDays = getFieldValue('lifetime_expected_days');
+    const serviceIntervalDays = getFieldValue('service_interval_days');
+    const thresholdDays = getFieldValue('threshold_days');
+
+    // Rule 1: threshold_km required if distance intervals exist
+    if ((expectedLifetime || serviceInterval) && !thresholdKm) {
+        showFieldError(getField('threshold_km'),
+            'Threshold (km) is required when distance intervals are configured');
+        isValid = false;
+    }
+
+    // Rule 2: threshold_days required if time intervals exist
+    if ((lifetimeExpectedDays || serviceIntervalDays) && !thresholdDays) {
+        showFieldError(getField('threshold_days'),
+            'Threshold (days) is required when time intervals are configured');
+        isValid = false;
+    }
+
+    // Rule 3: threshold_km must be <= smallest distance interval
+    if (thresholdKm) {
+        const intervals = [serviceInterval, expectedLifetime].filter(v => v !== null);
+        if (intervals.length > 0) {
+            const minInterval = Math.min(...intervals);
+            if (thresholdKm > minInterval) {
+                showFieldError(getField('threshold_km'),
+                    `Threshold (${thresholdKm} km) must be ≤ smallest interval (${minInterval} km)`);
+                isValid = false;
+            }
+        }
+
+        // Rule 5: threshold must be > 0
+        if (thresholdKm <= 0) {
+            showFieldError(getField('threshold_km'), 'Threshold must be greater than 0');
+            isValid = false;
+        }
+    }
+
+    // Rule 4: threshold_days must be <= smallest time interval
+    if (thresholdDays) {
+        const intervals = [serviceIntervalDays, lifetimeExpectedDays].filter(v => v !== null);
+        if (intervals.length > 0) {
+            const minInterval = Math.min(...intervals);
+            if (thresholdDays > minInterval) {
+                showFieldError(getField('threshold_days'),
+                    `Threshold (${thresholdDays} days) must be ≤ smallest interval (${minInterval} days)`);
+                isValid = false;
+            }
+        }
+
+        // Rule 5: threshold must be > 0
+        if (thresholdDays <= 0) {
+            showFieldError(getField('threshold_days'), 'Threshold must be greater than 0');
+            isValid = false;
+        }
+    }
+
+    return isValid;
+}
+
+/**
+ * Shows an inline validation error message for a form field
+ * @param {HTMLElement} field - The input field to show error for
+ * @param {string} message - The error message to display
+ */
+function showFieldError(field, message) {
+    if (!field) return;
+
+    field.classList.add('is-invalid');
+
+    // Create or update error message div
+    let errorDiv = field.parentElement.querySelector('.invalid-feedback');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        field.parentElement.appendChild(errorDiv);
+    }
+    errorDiv.textContent = message;
+}
+
+/**
+ * Clears all validation errors from a form
+ * @param {HTMLElement} form - The form to clear validation errors from
+ */
+function clearValidationErrors(form) {
+    if (!form) return;
+
+    // Remove is-invalid class from all fields
+    form.querySelectorAll('.is-invalid').forEach(field => {
+        field.classList.remove('is-invalid');
+    });
+
+    // Remove all error message divs
+    form.querySelectorAll('.invalid-feedback').forEach(div => {
+        div.remove();
+    });
+}
 
 // ====================================================================================
 // Bike overview page functions
@@ -2628,21 +2815,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                 case 5: // Lifetime column
                 case 6: // Service column
-                    // Sort by color indicator severity (already center-aligned in cells)
-                    const severityOrder = {
-                        "🟢": 1, // OK
-                        "🟡": 2, // Approaching
-                        "🔴": 3, // Due
-                        "🟣": 4, // Exceeded
-                        "⚪": 5  // Not defined
-                    };
-                    
-                    // Find emoji in the cell
-                    const emojiA = cellA.trim().match(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟢🟡🔴🟣⚪]/u);
-                    const emojiB = cellB.trim().match(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟢🟡🔴🟣⚪]/u);
-                    
-                    cellA = emojiA ? severityOrder[emojiA[0]] || 999 : 999;
-                    cellB = emojiB ? severityOrder[emojiB[0]] || 999 : 999;
+                    // Sort by emoji priority (critical components first when ascending)
+                    const emojiPriority = { '🔴': 1, '🟡': 2, '🟢': 3, '⚪': 4, '❓': 5 };
+                    // Use alternation to match specific status emojis (not trigger emojis like 📍📅)
+                    const emojiA = cellA.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                    const emojiB = cellB.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                    cellA = emojiPriority[emojiA] || 5;
+                    cellB = emojiPriority[emojiB] || 5;
                     break;
                     
                 case 7: // Bike column
@@ -3127,9 +3306,32 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (index === 3) { // Distance column
                 cellA = parseFloat(cellA.replace(' km', '')) || 0;
                 cellB = parseFloat(cellB.replace(' km', '')) || 0;
-            } 
-            // Special handling for next service column (numeric values)
-            else if (index === 5) { // Next service column
+            }
+            // Special handling for lifetime column (emoji-based priority)
+            else if (index === 4) { // Lifetime column
+                const emojiPriority = { '🔴': 1, '🟡': 2, '🟢': 3, '⚪': 4, '❓': 5 };
+                // Use alternation to match specific status emojis (not trigger emojis)
+                const emojiA = cellA.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                const emojiB = cellB.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                cellA = emojiPriority[emojiA] || 5;
+                cellB = emojiPriority[emojiB] || 5;
+            }
+            // Special handling for service column (emoji-based priority)
+            else if (index === 5) { // Service column
+                const emojiPriority = { '🔴': 1, '🟡': 2, '🟢': 3, '⚪': 4, '❓': 5 };
+                // Use alternation to match specific status emojis (not trigger emojis)
+                const emojiA = cellA.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                const emojiB = cellB.match(/🔴|🟡|🟢|⚪|❓/)?.[0] || '❓';
+                cellA = emojiPriority[emojiA] || 5;
+                cellB = emojiPriority[emojiB] || 5;
+            }
+            // Special handling for km to srv column (numeric values)
+            else if (index === 6) { // Km to srv column
+                cellA = cellA === '-' ? Infinity : parseFloat(cellA) || 0;
+                cellB = cellB === '-' ? Infinity : parseFloat(cellB) || 0;
+            }
+            // Special handling for days to srv column (numeric values)
+            else if (index === 7) { // Days to srv column
                 cellA = cellA === '-' ? Infinity : parseFloat(cellA) || 0;
                 cellB = cellB === '-' ? Infinity : parseFloat(cellB) || 0;
             }
@@ -3147,44 +3349,37 @@ document.addEventListener('DOMContentLoaded', function() {
         nodeList.forEach(node => tableBody.appendChild(node));
     };
 
-    // Add data-sort attribute and sort indicators to headers (except Life / srv column and action column)
+    // Add click events to sortable headers (skip action column at index 8)
     headers.forEach((header, index) => {
-        // Skip the "Life / srv" column (index 4) and action column (index 6)
-        if (index === 4 || index === 6) return;
-        
-        // Add data-sort attribute to make headers sortable
-        header.setAttribute('data-sort', '');
-        
-        // Add sort indicator span if it doesn't exist
-        if (!header.querySelector('.sort-indicator')) {
-            const indicator = document.createElement('span');
-            indicator.className = 'sort-indicator';
-            header.appendChild(indicator);
-        }
+        // Skip the action column (index 8)
+        if (index === 8) return;
+
+        // Only add click handler if header already has data-sort attribute (from HTML)
+        if (!header.hasAttribute('data-sort')) return;
 
         // Add click event to headers
         header.addEventListener('click', () => {
             const columnIndex = header.cellIndex;
             const isAscending = !header.classList.contains('sorted-asc');
-            
+
             // Remove sorted classes from all headers
             headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
-            
+
             // Add appropriate class to clicked header
             header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
-            
+
             // Sort the column
             sortColumn(columnIndex, isAscending);
         });
     });
 
-    // Initial sort by Next service column (index 5) in ascending order
+    // Initial sort by Km to srv column (index 6) in ascending order
     if (headers.length > 0 && rows.length > 1) {
-        // Add sorted-asc class to the Next service column header
-        headers[5].classList.add('sorted-asc');
-        
-        // Sort by Next service column (index 5) in ascending order
-        sortColumn(5, true);
+        // Add sorted-asc class to the Km to srv column header
+        headers[6].classList.add('sorted-asc');
+
+        // Sort by Km to srv column (index 6) in ascending order
+        sortColumn(6, true);
     }
 });
 
@@ -3344,54 +3539,61 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeComponentForm(createComponentForm);
     }
 
-    // Handle edit status modal
-    const componentStatusForm = document.getElementById('component_status_form');
-    if (componentStatusForm) {
-        initializeComponentForm(componentStatusForm);
+    // Handle edit status modal - target the form INSIDE the modal explicitly
+    const editComponentStatusModal = document.getElementById('editComponentStatusModal');
+    if (editComponentStatusModal) {
+        const componentStatusForm = editComponentStatusModal.querySelector('#component_status_form');
+
+        if (componentStatusForm) {
+            // Initialize on modal shown
+            editComponentStatusModal.addEventListener('shown.bs.modal', function() {
+                initializeComponentForm(componentStatusForm);
+            });
+
+            // Enhanced version that stores original values and sets current date
+            editComponentStatusModal.addEventListener('show.bs.modal', function() {
+                // Set current date/time
+                const now = new Date();
+                const formattedDate = now.getFullYear() + '-' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(now.getDate()).padStart(2, '0') + ' ' +
+                    String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0');
+
+                // Find the form elements within the modal
+                const dateInput = componentStatusForm.querySelector('#component_updated_date');
+                const statusSelect = componentStatusForm.querySelector('#component_installation_status');
+                const bikeSelect = componentStatusForm.querySelector('#component_bike_id');
+
+                // Store original values before changing anything
+                if (dateInput) {
+                    dateInput.dataset.originalValue = dateInput.value;
+                    dateInput.value = formattedDate;
+                }
+
+                if (statusSelect) {
+                    statusSelect.dataset.originalValue = statusSelect.value;
+                }
+
+                if (bikeSelect) {
+                    bikeSelect.dataset.originalValue = bikeSelect.value;
+                }
+            });
+        } else {
+            console.error('component_status_form not found inside editComponentStatusModal!');
+        }
     }
 
-    // Also initialize when modals are shown (in case of dynamic content)
+    // Also initialize when create component modal is shown
     const createComponentModal = document.getElementById('createComponentModal');
-    if (createComponentModal) {
+    if (createComponentModal && createComponentForm) {
         createComponentModal.addEventListener('shown.bs.modal', function() {
             initializeComponentForm(createComponentForm);
         });
-    }
 
-    const editComponentStatusModal = document.getElementById('editComponentStatusModal');
-    if (editComponentStatusModal) {
-        editComponentStatusModal.addEventListener('shown.bs.modal', function() {
-            initializeComponentForm(componentStatusForm);
-        });
-        
-        // Enhanced version that stores original values and sets current date
-        editComponentStatusModal.addEventListener('show.bs.modal', function() {
-            // Set current date/time
-            const now = new Date();
-            const formattedDate = now.getFullYear() + '-' + 
-                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                String(now.getDate()).padStart(2, '0') + ' ' + 
-                String(now.getHours()).padStart(2, '0') + ':' + 
-                String(now.getMinutes()).padStart(2, '0');
-            
-            // Find the form elements
-            const dateInput = document.querySelector('#editComponentStatusModal #component_updated_date');
-            const statusSelect = document.querySelector('#editComponentStatusModal #component_installation_status');
-            const bikeSelect = document.querySelector('#editComponentStatusModal #component_bike_id');
-            
-            // Store original values before changing anything
-            if (dateInput) {
-                dateInput.dataset.originalValue = dateInput.value;
-                dateInput.value = formattedDate;
-            }
-            
-            if (statusSelect) {
-                statusSelect.dataset.originalValue = statusSelect.value;
-            }
-            
-            if (bikeSelect) {
-                bikeSelect.dataset.originalValue = bikeSelect.value;
-            }
+        // Clear validation errors when modal opens
+        createComponentModal.addEventListener('show.bs.modal', function() {
+            clearValidationErrors(createComponentForm);
         });
     }
 });
@@ -3458,42 +3660,71 @@ function addFormValidation(form) {
             validationModal.show();
             return false;
         }
-        
+
+        // Threshold validation for create component form
+        if (form.id === 'component_overview_form') {
+            if (!validateComponentThresholds('component_overview_form')) {
+                // Validation failed - errors are already displayed inline
+                return false;
+            }
+        }
+
+        // Threshold validation for edit component details form
+        if (form.id === 'component_details_form') {
+            if (!validateComponentThresholds('component_details_form')) {
+                // Validation failed - errors are already displayed inline
+                return false;
+            }
+        }
+
         // If we got here, validation passed - manually submit the form
         this.submit();
     };
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Add validation to both forms
-    const componentStatusForm = document.getElementById('component_status_form');
+    // Add validation to forms - target modal forms explicitly
+    const editComponentStatusModal = document.getElementById('editComponentStatusModal');
+    const componentStatusForm = editComponentStatusModal ? editComponentStatusModal.querySelector('#component_status_form') : null;
     const componentOverviewForm = document.getElementById('component_overview_form');
-    
+    const componentDetailsForm = document.getElementById('component_details_form');
+
     addFormValidation(componentStatusForm);
     addFormValidation(componentOverviewForm);
+    addFormValidation(componentDetailsForm);
+
+    // Clear validation errors when edit component details modal opens
+    const editComponentDetailsModal = document.getElementById('editComponentDetailsModal');
+    if (editComponentDetailsModal && componentDetailsForm) {
+        editComponentDetailsModal.addEventListener('show.bs.modal', function() {
+            clearValidationErrors(componentDetailsForm);
+        });
+    }
 
     // Keep the existing retirement confirmation code for the status form
     if (componentStatusForm) {
         const installationSelect = componentStatusForm.querySelector('#component_installation_status');
-        let previousValue = installationSelect.value;
+        if (installationSelect) {
+            let previousValue = installationSelect.value;
 
-        installationSelect.addEventListener('change', function() {
-            if (this.value === 'Retired') {
-                const modalBody = document.getElementById('confirmModalBody');
-                modalBody.innerHTML = "You are about to retire this component. This will lock the component and prevent further editing. Delete the most recent installation record if you wish to unlock the component. Do you want to proceed? You still need to save";
-                confirmModal.show();
-                
-                document.getElementById('cancelAction').addEventListener('click', function() {
-                    installationSelect.value = previousValue;
-                }, { once: true });
-                
-                document.getElementById('confirmAction').addEventListener('click', function() {
-                    previousValue = 'Retired';
-                }, { once: true });
-            } else {
-                previousValue = this.value;
-            }
-        });
+            installationSelect.addEventListener('change', function() {
+                if (this.value === 'Retired') {
+                    const modalBody = document.getElementById('confirmModalBody');
+                    modalBody.innerHTML = "You are about to retire this component. This will lock the component and prevent further editing. Delete the most recent installation record if you wish to unlock the component. Do you want to proceed? You still need to save";
+                    confirmModal.show();
+
+                    document.getElementById('cancelAction').addEventListener('click', function() {
+                        installationSelect.value = previousValue;
+                    }, { once: true });
+
+                    document.getElementById('confirmAction').addEventListener('click', function() {
+                        previousValue = 'Retired';
+                    }, { once: true });
+                } else {
+                    previousValue = this.value;
+                }
+            });
+        }
     }
 });
 
@@ -5131,9 +5362,8 @@ document.addEventListener('DOMContentLoaded', function() {
     modifyRecordButtons.forEach(button => {
         button.addEventListener('click', () => {
             const rowId = button.dataset.rowId;
-            const componentType = button.getAttribute('component_type');
-            modifyRecord(rowId, componentType);
-            
+            modifyRecord(rowId);
+
             // Update modal title to indicate editing
             document.getElementById('componentTypeModalLabel').textContent = 'Edit component type';
 
@@ -5144,40 +5374,34 @@ document.addEventListener('DOMContentLoaded', function() {
             const componentTypeInput = document.getElementById('component_type');
             componentTypeInput.readOnly = true;
             componentTypeInput.classList.add('bg-light');
-            
+
+            // Clear any validation errors
+            const form = document.getElementById('component_type_form');
+            if (form) clearValidationErrors(form);
+
             // Show the modal after data is populated
             componentTypeModal.show();
         });
     });
 
     // Define the modifyRecord function
-    function modifyRecord(rowId, componentType) {
+    function modifyRecord(rowId) {
         const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
         if (row) {
-            // Set component type (from column 1)
-            document.getElementById('component_type').value = componentType;
-            
-            // Set max quantity (from column 2)
-            const maxQuantityCell = row.cells[2].textContent.trim();
-            document.getElementById('max_quantity').value = maxQuantityCell !== 'Not defined' ? 
-                maxQuantityCell : '';
-            
-            // Set mandatory radio buttons (from column 0)
-            const hasStar = row.cells[0].textContent.includes('⭐');
-            document.getElementById('mandatory_yes').checked = hasStar;
-            document.getElementById('mandatory_no').checked = !hasStar;
-            
-            // Set expected lifetime (from column 4)
-            const expectedLifetimeCell = row.cells[4].textContent.trim();
-            document.getElementById('expected_lifetime').value = expectedLifetimeCell !== 'Not defined' ? 
-                expectedLifetimeCell : '';
-            
-            // Set service interval (from column 5)
-            const serviceIntervalCell = row.cells[5].textContent.trim();
-            document.getElementById('service_interval').value = serviceIntervalCell !== 'Not defined' ? 
-                serviceIntervalCell : '';
-            
-            // No need to set service_interval_days since it's currently only a a placeholder
+            // Read all data from data attributes (consistent with rest of codebase)
+            document.getElementById('component_type').value = row.dataset.componentType || '';
+            document.getElementById('max_quantity').value = row.dataset.maxQuantity || '';
+            document.getElementById('expected_lifetime').value = row.dataset.expectedLifetime || '';
+            document.getElementById('lifetime_expected_days').value = row.dataset.lifetimeExpectedDays || '';
+            document.getElementById('service_interval').value = row.dataset.serviceInterval || '';
+            document.getElementById('service_interval_days').value = row.dataset.serviceIntervalDays || '';
+            document.getElementById('threshold_km').value = row.dataset.thresholdKm || '';
+            document.getElementById('threshold_days').value = row.dataset.thresholdDays || '';
+
+            // Set mandatory radio buttons
+            const mandatory = row.dataset.mandatory;
+            document.getElementById('mandatory_yes').checked = (mandatory === 'Yes');
+            document.getElementById('mandatory_no').checked = (mandatory !== 'Yes');
         } else {
             console.error(`Row with ID ${rowId} not found.`);
         }
@@ -5187,7 +5411,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('[data-bs-toggle="modal"][data-bs-target="#componentTypeModal"]')?.addEventListener('click', function() {
         // Reset the form
         document.getElementById('component_type_form').reset();
-        
+
         // Reset modal title to indicate creating new type
         document.getElementById('componentTypeModalLabel').textContent = 'New component type';
 
@@ -5195,6 +5419,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const componentTypeInput = document.getElementById('component_type');
         componentTypeInput.readOnly = false;
         componentTypeInput.classList.remove('bg-light');
+
+        // Clear any validation errors
+        const form = document.getElementById('component_type_form');
+        if (form) clearValidationErrors(form);
+    });
+
+    // Add form validation on submit
+    document.getElementById('component_type_form').addEventListener('submit', function(e) {
+        if (!validateComponentThresholds('component_type_form')) {
+            e.preventDefault();
+        }
     });
 });
 

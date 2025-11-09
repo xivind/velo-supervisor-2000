@@ -7,9 +7,9 @@
 
 <div class="d-flex justify-content-between align-items-center mt-4 mb-2 ms-2 toggle-container-right">
     <div class="small text-secondary">
-        <span class="me-3"><span class="badge bike_healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> All parts healthy</span>
-        <span class="me-3"><span class="badge bike-critical" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Parts need attention</span>
-        <span class="me-3"><span class="badge bike_no_components" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> No parts registered / no active parts</span>
+        <span class="me-3"><span class="badge bike-healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> All parts healthy</span>
+        <span class="me-3"><span class="badge bike-needs-attention" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Parts need attention</span>
+        <span class="me-3"><span class="badge bike-no-components" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> No parts registered / no active parts</span>
         <span class="me-3">📝 Unfinished workplans</span>
         <span class="me-3">🚨 Open incidents</span>
         <span class="me-3">📦 Assigned collections</span>
@@ -19,18 +19,18 @@
         <label class="form-check-label fw-bold" for="showRetiredBikes">Show retired bikes</label>
     </div>
 </div>
-<div class="row">
-    {% for name, bike_id, bike_status, service_status, distance, count_installed, critical_count, warning_count, compliance_report in payload.bikes_data %}
-        <div class="col-md-4 mb-4">
+<div class="row g-4">
+    {% for name, bike_id, bike_status, service_status, distance, count_installed, exceeded_max_count, due_past_threshold_count, compliance_report in payload.bikes_data %}
+        <div class="col-md-4">
             <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">
                 <div class="card shadow hover-effect" data-bike-status="{{ bike_status }}">
                     <div class="card-header h5 fw-bold d-flex justify-content-between align-items-center
                         {%- if service_status == 'No components registered' or service_status == 'No active components' -%}
-                            text-bg-dark bike_no_components
+                            text-bg-dark bike-no-components
                         {%- elif service_status == 'Components need attention' -%}
-                            text-bg-dark bike-critical
+                            text-bg-dark bike-needs-attention
                         {%- else -%}
-                            text-bg-dark bike_healthy
+                            text-bg-dark bike-healthy
                         {%- endif -%}">
                         <span>{{ name }}</span>
                         <span>
@@ -58,12 +58,12 @@
                         </p>
                         <hr class="my-2">
                         <div class="d-flex justify-content-between small">
-                            <span>🔴 Lifetime / service due:</span>
-                            <span class="fw-bold">{{ warning_count|default(0) }}</span>
+                            <span>🟡 Lifetime / service due:</span>
+                            <span class="fw-bold">{{ due_past_threshold_count|default(0) }}</span>
                         </div>
                         <div class="d-flex justify-content-between small">
-                            <span>🟣 Lifetime / service exceeded:</span>
-                            <span class="fw-bold">{{ critical_count|default(0) }}</span>
+                            <span>🔴 Lifetime / service exceeded:</span>
+                            <span class="fw-bold">{{ exceeded_max_count|default(0) }}</span>
                         </div>
                         <hr class="my-2">
                         <span class="small">

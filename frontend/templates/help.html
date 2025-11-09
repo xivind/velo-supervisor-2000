@@ -15,7 +15,7 @@
     </div>
 </div>
 
-<div class="card shadow mb-3">
+<div class="card shadow mb-4">
     <div class="card-body">
         <div class="input-group">
             <span class="input-group-text">🔍</span>
@@ -24,419 +24,546 @@
     </div>
 </div>
 
-<div class="accordion" id="helpAccordion">
-
+<!-- Help Topics Tiles -->
+<div class="row g-4" id="helpTopicsContainer">
     <!-- Getting Started -->
-    <div class="accordion-item" data-section="getting-started">
-        <h2 class="accordion-header">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGettingStarted" aria-expanded="true" aria-controls="collapseGettingStarted">
+    <div class="col-md-6 col-lg-4 help-tile" data-topic="getting-started">
+        <div class="card shadow hover-effect h-100" role="button" onclick="showHelpTopic('getting-started')">
+            <div class="card-header text-bg-light h5 fw-bold">
                 🚀 Getting Started
-            </button>
-        </h2>
-        <div id="collapseGettingStarted" class="accordion-collapse collapse show" data-bs-parent="#helpAccordion">
-            <div class="accordion-body">
-                <h5>First Steps</h5>
-                <p>Now that your application is set up, here's how to get started:</p>
-
-                <h6 class="mt-3">1. Define Component Types</h6>
-                <p>Start by setting up the component types you'll use (wheels, tires, chain, cassette, brakes, etc.). Go to <strong>🏷 COMPONENT TYPES</strong> and define:</p>
-                <ul>
-                    <li><strong>Expected lifetime</strong>: How many km before replacement (e.g., chain: 3000 km)</li>
-                    <li><strong>Service interval</strong>: How often to service in km (e.g., drivetrain: 500 km)</li>
-                    <li><strong>Mandatory</strong>: Whether all bikes must have this component (⭐)</li>
-                    <li><strong>Max quantity</strong>: How many of this type per bike (e.g., wheels: 2)</li>
-                </ul>
-
-                <h6 class="mt-3">2. Sync Strava Data</h6>
-                <p>Go to <strong>🎛 CONFIG</strong> and click <strong>"Get new rides"</strong> or <strong>"Get all rides"</strong> to sync your Strava activities. This populates your bikes and mileage data automatically.</p>
-
-                <h6 class="mt-3">3. Add Components to Your Bikes</h6>
-                <p>Navigate to <strong>⚙ COMPONENTS</strong> and click <strong>"⚙ New component"</strong>. For each component:</p>
-                <ul>
-                    <li>Select the <strong>component type</strong> you defined earlier</li>
-                    <li>Choose the <strong>bike</strong> (or leave unassigned if in storage)</li>
-                    <li>Set the <strong>installation status</strong> and <strong>date</strong></li>
-                    <li>Optionally override expected lifetime and service intervals</li>
-                </ul>
-
-                <h6 class="mt-3">4. Understanding Component Lifecycle</h6>
-                <p>Components move through these states:</p>
-                <ul>
-                    <li><strong>Storage</strong>: Not installed on any bike</li>
-                    <li><strong>Active</strong>: Installed and accumulating mileage</li>
-                    <li><strong>Service</strong>: Temporarily removed for maintenance</li>
-                    <li><strong>Retired</strong>: End of life, no longer in use</li>
-                </ul>
-
-                <h6 class="mt-3">5. Understanding Emojis</h6>
-                <p>Throughout the app, emojis provide quick visual indicators:</p>
-                <ul>
-                    <li><strong>⭐</strong> Mandatory component type (required on all bikes)</li>
-                    <li><strong>📦</strong> Bike has collections assigned</li>
-                    <li><strong>♻</strong> Quick swap - replace component in one operation</li>
-                    <li><strong>🟩</strong> Component type in use / Healthy status</li>
-                    <li><strong>🟥</strong> Component type not used / Attention needed</li>
-                    <li><strong>⚠</strong> Warning or requires attention</li>
-                    <li><strong>✓</strong> Completed or confirmed</li>
-                </ul>
-
-                <h6 class="mt-3">6. Optional: Create Collections</h6>
-                <p>Collections let you group components for bulk operations (e.g., summer wheelset, winter setup). Go to <strong>⚙ COMPONENTS</strong> and click <strong>"📦 New collection"</strong> to group related components together.</p>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    New to Velo Supervisor 2000? Learn how to set up component types, sync Strava data,
+                    add components, and understand the component lifecycle. Your first steps to tracking success.
+                </p>
             </div>
         </div>
     </div>
 
     <!-- Pages Overview -->
-    <div class="accordion-item" data-section="pages-overview">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
+    <div class="col-md-6 col-lg-4 help-tile" data-topic="pages-overview">
+        <div class="card shadow hover-effect h-100" role="button" onclick="showHelpTopic('pages-overview')">
+            <div class="card-header text-bg-light h5 fw-bold">
                 📄 Pages Overview
-            </button>
-        </h2>
-        <div id="collapsePages" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
-            <div class="accordion-body">
-                <h6>🚴 BIKES</h6>
-                <p>Overview of all your bikes with current mileage, component status, and health indicators. Click any bike to view detailed component breakdown and history.</p>
-
-                <h6 class="mt-3">⚙ COMPONENTS</h6>
-                <p>Manage all components across all bikes. View by individual components or collections. Filter by status, search by name, and perform bulk operations. Click any component to see detailed history, service records, and mileage tracking.</p>
-
-                <h6 class="mt-3">📝 WORKPLANS</h6>
-                <p>Schedule and track maintenance tasks. Create workplans with due dates, affected components/bikes, and track completion. Useful for planning seasonal maintenance or complex multi-component work.</p>
-
-                <h6 class="mt-3">🚨 INCIDENTS</h6>
-                <p>Log and track mechanical issues, crashes, or other incidents. Record severity, affected components/bikes, and resolution details. Helps track patterns and warranty claims.</p>
-
-                <h6 class="mt-3">🏷 COMPONENT TYPES</h6>
-                <p>Define and manage component type templates. Set default expected lifetimes, service intervals, and constraints. These serve as templates when creating new component instances.</p>
-
-                <h6 class="mt-3">🎛 CONFIG</h6>
-                <p>Sync Strava data, manage application settings, and view system logs. Use "Get new rides" regularly to keep mileage data current. "Refresh all bikes" recalculates all component mileage.</p>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    Explore all pages in the application. From bike overviews and component management
+                    to workplans, incidents, and configuration - understand what each page offers.
+                </p>
             </div>
         </div>
     </div>
 
     <!-- Core Concepts -->
-    <div class="accordion-item" data-section="core-concepts">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConcepts" aria-expanded="false" aria-controls="collapseConcepts">
+    <div class="col-md-6 col-lg-4 help-tile" data-topic="core-concepts">
+        <div class="card shadow hover-effect h-100" role="button" onclick="showHelpTopic('core-concepts')">
+            <div class="card-header text-bg-light h5 fw-bold">
                 💡 Core Concepts
-            </button>
-        </h2>
-        <div id="collapseConcepts" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
-            <div class="accordion-body">
-                <h6>Component Types vs Components</h6>
-                <p><strong>Component Types</strong> are templates (e.g., "Chain", "Rear Tire"). <strong>Components</strong> are actual instances (e.g., "KMC X11 Chain on Road Bike"). Types define defaults; components track actual usage and history.</p>
-
-                <h6 class="mt-3">Collections</h6>
-                <p>Collections group multiple components for bulk operations. Perfect for:</p>
-                <ul>
-                    <li>Seasonal swaps (summer/winter wheelsets)</li>
-                    <li>Component sets (full drivetrain, brake system)</li>
-                    <li>Bulk status changes (install entire wheelset at once)</li>
-                </ul>
-                <p><strong>Rules:</strong></p>
-                <ul>
-                    <li>Each component can belong to only one collection</li>
-                    <li>Collections can exist without bike assignment (templates/storage)</li>
-                    <li>All components must have same status for bulk operations</li>
-                    <li>Deleting a collection doesn't affect the components</li>
-                </ul>
-
-                <h6 class="mt-3">Mileage Tracking</h6>
-                <p>Mileage is automatically calculated from Strava activities based on:</p>
-                <ul>
-                    <li><strong>Component status</strong>: Only "Active" components accumulate mileage</li>
-                    <li><strong>Installation dates</strong>: Mileage counted from installation date forward</li>
-                    <li><strong>Bike assignment</strong>: Activities matched to bike, then distributed to active components</li>
-                    <li><strong>Offset</strong>: Add pre-existing mileage when installing used components</li>
-                </ul>
-
-                <h6 class="mt-3">Service Intervals</h6>
-                <p>Components track both expected lifetime and service intervals:</p>
-                <ul>
-                    <li><strong>Expected lifetime</strong>: Total km before replacement recommended</li>
-                    <li><strong>Service interval</strong>: How often routine maintenance is needed</li>
-                    <li>Warnings appear when approaching limits</li>
-                    <li>Use Service records to track maintenance performed</li>
-                </ul>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    Deep dive into component types vs components, collections, mileage tracking,
+                    hybrid time + distance tracking, and understanding thresholds. Master the fundamentals.
+                </p>
             </div>
         </div>
     </div>
 
     <!-- Common Tasks -->
-    <div class="accordion-item" data-section="common-tasks">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTasks" aria-expanded="false" aria-controls="collapseTasks">
+    <div class="col-md-6 col-lg-4 help-tile" data-topic="common-tasks">
+        <div class="card shadow hover-effect h-100" role="button" onclick="showHelpTopic('common-tasks')">
+            <div class="card-header text-bg-light h5 fw-bold">
                 ✅ Common Tasks
-            </button>
-        </h2>
-        <div id="collapseTasks" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
-            <div class="accordion-body">
-                <h6>Adding a New Component</h6>
-                <ol>
-                    <li>Go to <strong>⚙ COMPONENTS</strong></li>
-                    <li>Click <strong>"⚙ New component"</strong></li>
-                    <li>Fill in component name, type, and bike</li>
-                    <li>Set installation status and date</li>
-                    <li>Optionally override lifetime/service intervals</li>
-                    <li>Add offset mileage if component has previous use</li>
-                </ol>
-
-                <h6 class="mt-3">Changing Component Status</h6>
-                <ol>
-                    <li>Navigate to component details page</li>
-                    <li>Click <strong>"Change status"</strong> button</li>
-                    <li>Select new status and date</li>
-                    <li>Choose bike assignment if changing to "Active"</li>
-                    <li>Confirm - a new history record is created</li>
-                </ol>
-
-                <h6 class="mt-3">Quick Swap Components (♻)</h6>
-                <p>Quickly replace an installed component with another in a single operation. This streamlines what was previously a 4-6 step process.</p>
-                <ol>
-                    <li>Find an installed component (on Component Overview, Bike Details, or Component Details pages)</li>
-                    <li>Click the <strong>♻ Quick swap</strong> button</li>
-                    <li>Choose what happens to the old component: "Not installed" or "Retired"</li>
-                    <li>Select a replacement:
-                        <ul>
-                            <li><strong>Swap to existing component:</strong> Choose from available components of matching type</li>
-                            <li><strong>Create new component:</strong> Check the box to create a new component with settings copied from current</li>
-                        </ul>
-                    </li>
-                    <li>Set the swap date (defaults to current date/time)</li>
-                    <li>Click <strong>"Swap components"</strong> - both components update simultaneously</li>
-                </ol>
-                <p><strong>Features:</strong></p>
-                <ul>
-                    <li>Component type matching enforced automatically (can't swap brake pads with saddle)</li>
-                    <li>Health warnings appear if selecting worn components</li>
-                    <li>Two history records created with synchronized timestamps</li>
-                    <li>Fast workflow - perfect for routine component replacements</li>
-                </ul>
-
-                <h6 class="mt-3">Creating and Using Collections</h6>
-                <ol>
-                    <li>Go to <strong>⚙ COMPONENTS</strong>, Collections tab</li>
-                    <li>Click <strong>"📦 New collection"</strong></li>
-                    <li>Name your collection (e.g., "Summer Wheelset")</li>
-                    <li>Select components to include</li>
-                    <li>Optionally assign to a bike</li>
-                    <li>Use <strong>"Set new status"</strong> to change all components at once</li>
-                </ol>
-
-                <h6 class="mt-3">Swapping Wheelsets (Example Workflow)</h6>
-                <ol>
-                    <li>Create two collections: "Summer Wheels" and "Winter Wheels"</li>
-                    <li>When changing seasons, open "Summer Wheels" collection</li>
-                    <li>Click <strong>"Set new status"</strong> → "Storage"</li>
-                    <li>Open "Winter Wheels" collection</li>
-                    <li>Click <strong>"Set new status"</strong> → "Active", select bike and date</li>
-                    <li>All components update simultaneously with proper history tracking</li>
-                </ol>
-
-                <h6 class="mt-3">Tracking Service/Maintenance</h6>
-                <ol>
-                    <li>Open component details page</li>
-                    <li>Scroll to "Service history" section</li>
-                    <li>Click <strong>"Add service record"</strong></li>
-                    <li>Enter date and description (e.g., "Chain cleaned and lubed")</li>
-                    <li>Service records appear in history timeline</li>
-                </ol>
-
-                <h6 class="mt-3">Syncing New Strava Activities</h6>
-                <ol>
-                    <li>Go to <strong>🎛 CONFIG</strong></li>
-                    <li>Click <strong>"Get new rides"</strong> (recent activities only)</li>
-                    <li>Or click <strong>"Get all rides"</strong> (full sync - slower)</li>
-                    <li>Wait for confirmation message</li>
-                    <li>Click <strong>"Refresh all bikes"</strong> to recalculate mileage</li>
-                </ol>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    Step-by-step guides for everyday operations: adding components, quick swaps,
+                    using collections, tracking service, and syncing Strava activities.
+                </p>
             </div>
         </div>
     </div>
 
     <!-- Tips & Best Practices -->
-    <div class="accordion-item" data-section="tips-best-practices">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTips" aria-expanded="false" aria-controls="collapseTips">
+    <div class="col-md-6 col-lg-4 help-tile" data-topic="tips-best-practices">
+        <div class="card shadow hover-effect h-100" role="button" onclick="showHelpTopic('tips-best-practices')">
+            <div class="card-header text-bg-light h5 fw-bold">
                 💎 Tips &amp; Best Practices
-            </button>
-        </h2>
-        <div id="collapseTips" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
-            <div class="accordion-body">
-                <h6>Component Naming</h6>
-                <ul>
-                    <li>Use descriptive names: "Mavic Ksyrium Elite Front" instead of just "Wheel"</li>
-                    <li>Include model/brand for expensive components</li>
-                    <li>For consumables (chains, tires), date works: "Chain Aug 2024"</li>
-                </ul>
-
-                <h6 class="mt-3">Using Collections Effectively</h6>
-                <ul>
-                    <li>Create collections for components you swap frequently</li>
-                    <li>Use collections as templates - keep a "Standard Build" collection</li>
-                    <li>Collections in storage = ready-to-install component sets</li>
-                    <li>One component can only be in one collection at a time</li>
-                </ul>
-
-                <h6 class="mt-3">Mileage Tracking Accuracy</h6>
-                <ul>
-                    <li>Sync Strava regularly (at least weekly) for accurate mileage</li>
-                    <li>Use installation dates carefully - affects all mileage calculations</li>
-                    <li>Add offset mileage for used/transferred components</li>
-                    <li>Remember: only "Active" components accumulate mileage</li>
-                </ul>
-
-                <h6 class="mt-3">Maintenance Planning</h6>
-                <ul>
-                    <li>Set realistic service intervals based on your riding conditions</li>
-                    <li>Use workplans for complex multi-component maintenance</li>
-                    <li>Log service records to track what was done and when</li>
-                    <li>Review component health regularly on bike detail pages</li>
-                </ul>
-
-                <h6 class="mt-3">Search Functionality</h6>
-                <ul>
-                    <li>All tables have search boxes - use them to find components quickly</li>
-                    <li>Search includes component names, types, bikes, and collection names</li>
-                    <li>Search is real-time and case-insensitive</li>
-                </ul>
-
-                <h6 class="mt-3">Data Management</h6>
-                <ul>
-                    <li>Don't delete retired components - keep them for history</li>
-                    <li>Use "Retired" status instead of deleting</li>
-                    <li>Regular database backups recommended (see CLAUDE.md for backup script)</li>
-                    <li>Export dataset feature available in CONFIG page</li>
-                </ul>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    Optimize your workflow with expert tips on component naming, collections,
+                    maintenance planning, search functionality, and data management.
+                </p>
             </div>
         </div>
     </div>
 
     <!-- Troubleshooting -->
-    <div class="accordion-item" data-section="troubleshooting">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTroubleshooting" aria-expanded="false" aria-controls="collapseTroubleshooting">
+    <div class="col-md-6 col-lg-4 help-tile" data-topic="troubleshooting">
+        <div class="card shadow hover-effect h-100" role="button" onclick="showHelpTopic('troubleshooting')">
+            <div class="card-header text-bg-light h5 fw-bold">
                 🔧 Troubleshooting
-            </button>
-        </h2>
-        <div id="collapseTroubleshooting" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
-            <div class="accordion-body">
-                <h6>Strava Data Not Updating</h6>
-                <p><strong>Symptoms:</strong> Warning banner "Data from Strava has not been updated recently"</p>
-                <p><strong>Solutions:</strong></p>
-                <ul>
-                    <li>Go to <strong>🎛 CONFIG</strong> and click "Get new rides"</li>
-                    <li>Check Strava token is valid in config settings</li>
-                    <li>Verify internet connection is active</li>
-                    <li>Check application logs at bottom of CONFIG page</li>
-                </ul>
-
-                <h6 class="mt-3">Component Mileage Not Increasing</h6>
-                <p><strong>Possible causes:</strong></p>
-                <ul>
-                    <li>Component status is not "Active" - only active components track mileage</li>
-                    <li>Installation date is in the future - check component details</li>
-                    <li>Activities not synced from Strava yet - run "Get new rides"</li>
-                    <li>Activities belong to different bike - verify bike assignment</li>
-                    <li>Need to run "Refresh all bikes" to recalculate</li>
-                </ul>
-
-                <h6 class="mt-3">Cannot Change Collection Status</h6>
-                <p><strong>Error:</strong> "Cannot change status - components have different statuses"</p>
-                <p><strong>Solution:</strong> All components in a collection must have the same status for bulk operations. Either:</p>
-                <ul>
-                    <li>Change individual component statuses first to match</li>
-                    <li>Remove components with different statuses from collection</li>
-                    <li>Change components individually instead of using collection</li>
-                </ul>
-
-                <h6 class="mt-3">Collection Locked (Retired Components)</h6>
-                <p><strong>Symptoms:</strong> Warning "Collection contains retired components - locked"</p>
-                <p><strong>Solution:</strong> Collections with retired components cannot have status changes. You can:</p>
-                <ul>
-                    <li>Edit the collection to remove retired components</li>
-                    <li>Keep collection as-is for historical record</li>
-                    <li>Delete the collection (components remain unchanged)</li>
-                </ul>
-
-                <h6 class="mt-3">Date Format Errors</h6>
-                <p><strong>Error:</strong> Validation fails when entering dates</p>
-                <p><strong>Solution:</strong> Dates must be in YYYY-MM-DD format (e.g., 2024-12-25). Use the date picker widget to ensure correct format.</p>
-
-                <h6 class="mt-3">Cannot Delete Component Type</h6>
-                <p><strong>Error:</strong> Deletion blocked</p>
-                <p><strong>Cause:</strong> Component type is being used by existing components</p>
-                <p><strong>Solution:</strong> First delete or reassign all components using this type, then delete the type</p>
-
-                <h6 class="mt-3">Performance Issues</h6>
-                <p><strong>Symptoms:</strong> Slow page loads, timeouts</p>
-                <p><strong>Solutions:</strong></p>
-                <ul>
-                    <li>Large database - consider archiving very old data</li>
-                    <li>Running "Get all rides" - this can take time, be patient</li>
-                    <li>Check system resources if running in Docker</li>
-                    <li>Review application logs for errors</li>
-                </ul>
-
-                <h6 class="mt-3">Need More Help?</h6>
-                <p>For technical issues, database migrations, or Docker deployment:</p>
-                <ul>
-                    <li>Check <code>CLAUDE.md</code> in the repository for technical documentation</li>
-                    <li>Review handover documents in <code>.handovers/</code> for recent work and architectural decisions</li>
-                    <li>Check application logs in CONFIG page</li>
-                </ul>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    Solve common issues: Strava sync problems, mileage not updating, collection errors,
+                    date format issues, and performance optimization.
+                </p>
             </div>
         </div>
     </div>
-
 </div>
 
+<!-- Include the documentation modal -->
+{% include 'modal_docs.html' %}
+
 <style>
-/* Highlight matching accordion items during search */
-.accordion-item.search-match {
-    border-left: 4px solid #0d6efd;
+/* Highlight matching tiles during search */
+.help-tile.search-match .card {
+    border: 3px solid #0d6efd;
 }
 
-.accordion-item.search-hidden {
+.help-tile.search-hidden {
     display: none;
+}
+
+.hover-effect {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2) !important;
+    cursor: pointer;
 }
 </style>
 
 <script>
+// Help topics content
+const helpTopics = {
+    'getting-started': {
+        emoji: '🚀',
+        title: 'Getting Started',
+        content: `
+            <h5>First Steps</h5>
+            <p>Now that your application is set up, here's how to get started:</p>
+
+            <h6 class="mt-3">1. Define Component Types</h6>
+            <p>Start by setting up the component types you'll use (wheels, tires, chain, cassette, brakes, etc.). Go to <strong>🏷 COMPONENT TYPES</strong> and define:</p>
+            <ul>
+                <li><strong>Expected lifetime (km/days)</strong>: How many km or days before replacement (e.g., chain: 3000 km or 180 days)</li>
+                <li><strong>Service interval (km/days)</strong>: How often to service in km or days (e.g., drivetrain: 500 km or 30 days)</li>
+                <li><strong>Thresholds (km/days)</strong>: Warnings trigger when remaining distance/time drops below this value (e.g., 50 km or 7 days means "warn me when less than 50 km or 7 days remain")</li>
+                <li><strong>Mandatory</strong>: Whether all bikes must have this component (⭐)</li>
+                <li><strong>Max quantity</strong>: How many of this type per bike (e.g., wheels: 2)</li>
+            </ul>
+            <p><em>Note: You can track components by distance (km), time (days), or both. The system will warn you when either limit is approaching.</em></p>
+
+            <h6 class="mt-3">2. Sync Strava Data</h6>
+            <p>Go to <strong>🎛 CONFIG</strong> and click <strong>"Get new rides"</strong> or <strong>"Get all rides"</strong> to sync your Strava activities. This populates your bikes and mileage data automatically.</p>
+
+            <h6 class="mt-3">3. Add Components to Your Bikes</h6>
+            <p>Navigate to <strong>⚙ COMPONENTS</strong> and click <strong>"⚙ New component"</strong>. For each component:</p>
+            <ul>
+                <li>Select the <strong>component type</strong> you defined earlier</li>
+                <li>Choose the <strong>bike</strong> (or leave unassigned if in storage)</li>
+                <li>Set the <strong>installation status</strong> and <strong>date</strong></li>
+                <li>Optionally override expected lifetime and service intervals</li>
+            </ul>
+
+            <h6 class="mt-3">4. Understanding Component Lifecycle</h6>
+            <p>Components move through these states:</p>
+            <ul>
+                <li><strong>Storage</strong>: Not installed on any bike</li>
+                <li><strong>Active</strong>: Installed and accumulating mileage</li>
+                <li><strong>Service</strong>: Temporarily removed for maintenance</li>
+                <li><strong>Retired</strong>: End of life, no longer in use</li>
+            </ul>
+
+            <h6 class="mt-3">5. Understanding Emojis</h6>
+            <p>Throughout the app, emojis provide quick visual indicators:</p>
+            <ul>
+                <li><strong>⭐</strong> Mandatory component type (required on all bikes)</li>
+                <li><strong>📦</strong> Bike has collections assigned</li>
+                <li><strong>♻</strong> Quick swap - replace component in one operation</li>
+                <li><strong>🟢</strong> OK - Component healthy</li>
+                <li><strong>🟡</strong> Due - Service or replacement approaching</li>
+                <li><strong>🔴</strong> Exceeded - Service or replacement overdue</li>
+                <li><strong>⚪</strong> Not defined - No tracking limits set</li>
+                <li><strong>📍</strong> Distance trigger - Limit reached based on km</li>
+                <li><strong>📅</strong> Time trigger - Limit reached based on days</li>
+                <li><strong>📍📅</strong> Both triggers - Both distance and time limits reached</li>
+                <li><strong>⚡</strong> Component installed / active</li>
+                <li><strong>⛔</strong> Component retired</li>
+            </ul>
+
+            <h6 class="mt-3">6. Optional: Create Collections</h6>
+            <p>Collections let you group components for bulk operations (e.g., summer wheelset, winter setup). Go to <strong>⚙ COMPONENTS</strong> and click <strong>"📦 New collection"</strong> to group related components together.</p>
+        `
+    },
+    'pages-overview': {
+        emoji: '📄',
+        title: 'Pages Overview',
+        content: `
+            <h6>🚴 BIKES</h6>
+            <p>Overview of all your bikes with current mileage, component status, and health indicators. Click any bike to view detailed component breakdown and history.</p>
+
+            <h6 class="mt-3">⚙ COMPONENTS</h6>
+            <p>Manage all components across all bikes. View by individual components or collections. Filter by status, search by name, and perform bulk operations. Click any component to see detailed history, service records, and mileage tracking.</p>
+
+            <h6 class="mt-3">📝 WORKPLANS</h6>
+            <p>Schedule and track maintenance tasks. Create workplans with due dates, affected components/bikes, and track completion. Useful for planning seasonal maintenance or complex multi-component work.</p>
+
+            <h6 class="mt-3">🚨 INCIDENTS</h6>
+            <p>Log and track mechanical issues, crashes, or other incidents. Record severity, affected components/bikes, and resolution details. Helps track patterns and warranty claims.</p>
+
+            <h6 class="mt-3">🏷 COMPONENT TYPES</h6>
+            <p>Define and manage component type templates. Set default expected lifetimes, service intervals, and constraints. These serve as templates when creating new component instances.</p>
+
+            <h6 class="mt-3">🎛 CONFIG</h6>
+            <p>Sync Strava data, manage application settings, and view system logs. Use "Get new rides" regularly to keep mileage data current. "Refresh all bikes" recalculates all component mileage.</p>
+        `
+    },
+    'core-concepts': {
+        emoji: '💡',
+        title: 'Core Concepts',
+        content: `
+            <h6>Component Types vs Components</h6>
+            <p><strong>Component Types</strong> are templates (e.g., "Chain", "Rear Tire"). <strong>Components</strong> are actual instances (e.g., "KMC X11 Chain on Road Bike"). Types define defaults; components track actual usage and history.</p>
+
+            <h6 class="mt-3">Collections</h6>
+            <p>Collections group multiple components for bulk operations. Perfect for:</p>
+            <ul>
+                <li>Seasonal swaps (summer/winter wheelsets)</li>
+                <li>Component sets (full drivetrain, brake system)</li>
+                <li>Bulk status changes (install entire wheelset at once)</li>
+            </ul>
+            <p><strong>Rules:</strong></p>
+            <ul>
+                <li>Each component can belong to only one collection</li>
+                <li>Collections can exist without bike assignment (templates/storage)</li>
+                <li>All components must have same status for bulk operations</li>
+                <li>Deleting a collection doesn't affect the components</li>
+            </ul>
+
+            <h6 class="mt-3">Mileage Tracking</h6>
+            <p>Mileage is automatically calculated from Strava activities based on:</p>
+            <ul>
+                <li><strong>Component status</strong>: Only "Active" components accumulate mileage</li>
+                <li><strong>Installation dates</strong>: Mileage counted from installation date forward</li>
+                <li><strong>Bike assignment</strong>: Activities matched to bike, then distributed to active components</li>
+                <li><strong>Offset</strong>: Add pre-existing mileage when installing used components</li>
+            </ul>
+
+            <h6 class="mt-3">Hybrid Time + Distance Tracking</h6>
+            <p>Components can be tracked by distance (km), time (days), or both:</p>
+            <ul>
+                <li><strong>Distance-based</strong>: Traditional km tracking from Strava activities (e.g., chain wears with distance)</li>
+                <li><strong>Time-based</strong>: Calendar-based tracking (e.g., brake fluid degrades over time regardless of use)</li>
+                <li><strong>Hybrid</strong>: Track both simultaneously - component triggers when <em>either</em> limit is reached</li>
+                <li><strong>Expected lifetime</strong>: Total km/days before replacement recommended</li>
+                <li><strong>Service interval</strong>: How often routine maintenance is needed (km/days)</li>
+                <li><strong>Status indicators</strong>: 🟢 OK, 🟡 Due for service, 🔴 Exceeded</li>
+                <li><strong>Trigger indicators</strong>: 📍 (distance), 📅 (time), or 📍📅 (both)</li>
+            </ul>
+            <p><em>Time-based values update automatically nightly at 3:00 AM. Retired components freeze time calculations at retirement date.</em></p>
+
+            <h6 class="mt-3">Understanding Thresholds</h6>
+            <p>Thresholds control when warnings appear. <strong>Important:</strong> The threshold represents <em>remaining</em> distance or time before a warning triggers, not distance/time traveled.</p>
+            <p><strong>Example 1 - Distance threshold:</strong></p>
+            <ul>
+                <li>Service interval: 600 km</li>
+                <li>Threshold: 50 km</li>
+                <li>Current mileage: 540 km</li>
+                <li>Remaining: 60 km (600 - 540)</li>
+                <li>Status: 🟢 <strong>OK</strong> (60 km remaining is above 50 km threshold)</li>
+            </ul>
+            <ul>
+                <li>Current mileage: 570 km</li>
+                <li>Remaining: 30 km (600 - 570)</li>
+                <li>Status: 🟡 <strong>Due</strong> (30 km remaining is below 50 km threshold)</li>
+            </ul>
+            <p><strong>Example 2 - Time threshold:</strong></p>
+            <ul>
+                <li>Service interval: 90 days</li>
+                <li>Threshold: 7 days</li>
+                <li>Days since service: 75 days</li>
+                <li>Remaining: 15 days (90 - 75)</li>
+                <li>Status: 🟢 <strong>OK</strong> (15 days remaining is above 7 days threshold)</li>
+            </ul>
+            <ul>
+                <li>Days since service: 85 days</li>
+                <li>Remaining: 5 days (90 - 85)</li>
+                <li>Status: 🟡 <strong>Due</strong> (5 days remaining is below 7 days threshold)</li>
+            </ul>
+            <p><strong>Choosing threshold values:</strong></p>
+            <ul>
+                <li>Typical distance thresholds: 50-100 km for most components</li>
+                <li>Typical time thresholds: 7-14 days for most components</li>
+                <li>Set based on how much advance notice you want before service is due</li>
+                <li>Keep thresholds much smaller than intervals (e.g., 50 km threshold for 600 km interval)</li>
+            </ul>
+        `
+    },
+    'common-tasks': {
+        emoji: '✅',
+        title: 'Common Tasks',
+        content: `
+            <h6>Adding a New Component</h6>
+            <ol>
+                <li>Go to <strong>⚙ COMPONENTS</strong></li>
+                <li>Click <strong>"⚙ New component"</strong></li>
+                <li>Fill in component name, type, and bike</li>
+                <li>Set installation status and date</li>
+                <li>Optionally override lifetime/service intervals (km and/or days)</li>
+                <li>Set thresholds - warnings trigger when remaining distance/time drops below this value (hover over <i class="bi bi-info-circle"></i> for details)</li>
+                <li>Add offset mileage if component has previous use</li>
+            </ol>
+            <p><em>Note: Component type defaults will auto-populate the interval and threshold fields. You can override these per component.</em></p>
+
+            <h6 class="mt-3">Changing Component Status</h6>
+            <ol>
+                <li>Navigate to component details page</li>
+                <li>Click <strong>"Change status"</strong> button</li>
+                <li>Select new status and date</li>
+                <li>Choose bike assignment if changing to "Active"</li>
+                <li>Confirm - a new history record is created</li>
+            </ol>
+
+            <h6 class="mt-3">Quick Swap Components (♻)</h6>
+            <p>Quickly replace an installed component with another in a single operation. This streamlines what was previously a 4-6 step process.</p>
+            <ol>
+                <li>Find an installed component (on Component Overview, Bike Details, or Component Details pages)</li>
+                <li>Click the <strong>♻ Quick swap</strong> button</li>
+                <li>Choose what happens to the old component: "Not installed" or "Retired"</li>
+                <li>Select a replacement:
+                    <ul>
+                        <li><strong>Swap to existing component:</strong> Choose from available components of matching type</li>
+                        <li><strong>Create new component:</strong> Check the box to create a new component with settings copied from current</li>
+                    </ul>
+                </li>
+                <li>Set the swap date (defaults to current date/time)</li>
+                <li>Click <strong>"Swap components"</strong> - both components update simultaneously</li>
+            </ol>
+            <p><strong>Features:</strong></p>
+            <ul>
+                <li>Component type matching enforced automatically (can't swap brake pads with saddle)</li>
+                <li>Health warnings appear if selecting worn components</li>
+                <li>Two history records created with synchronized timestamps</li>
+                <li>Fast workflow - perfect for routine component replacements</li>
+            </ul>
+
+            <h6 class="mt-3">Creating and Using Collections</h6>
+            <ol>
+                <li>Go to <strong>⚙ COMPONENTS</strong>, Collections tab</li>
+                <li>Click <strong>"📦 New collection"</strong></li>
+                <li>Name your collection (e.g., "Summer Wheelset")</li>
+                <li>Select components to include</li>
+                <li>Optionally assign to a bike</li>
+                <li>Use <strong>"Set new status"</strong> to change all components at once</li>
+            </ol>
+
+            <h6 class="mt-3">Swapping Wheelsets (Example Workflow)</h6>
+            <ol>
+                <li>Create two collections: "Summer Wheels" and "Winter Wheels"</li>
+                <li>When changing seasons, open "Summer Wheels" collection</li>
+                <li>Click <strong>"Set new status"</strong> → "Storage"</li>
+                <li>Open "Winter Wheels" collection</li>
+                <li>Click <strong>"Set new status"</strong> → "Active", select bike and date</li>
+                <li>All components update simultaneously with proper history tracking</li>
+            </ol>
+
+            <h6 class="mt-3">Tracking Service/Maintenance</h6>
+            <ol>
+                <li>Open component details page</li>
+                <li>Scroll to "Service history" section</li>
+                <li>Click <strong>"Add service record"</strong></li>
+                <li>Enter date and description (e.g., "Chain cleaned and lubed")</li>
+                <li>Service records appear in history timeline</li>
+            </ol>
+
+            <h6 class="mt-3">Syncing New Strava Activities</h6>
+            <ol>
+                <li>Go to <strong>🎛 CONFIG</strong></li>
+                <li>Click <strong>"Get new rides"</strong> (recent activities only)</li>
+                <li>Or click <strong>"Get all rides"</strong> (full sync - slower)</li>
+                <li>Wait for confirmation message</li>
+                <li>Click <strong>"Refresh all bikes"</strong> to recalculate mileage</li>
+            </ol>
+        `
+    },
+    'tips-best-practices': {
+        emoji: '💎',
+        title: 'Tips & Best Practices',
+        content: `
+            <h6>Component Naming</h6>
+            <ul>
+                <li>Use descriptive names: "Mavic Ksyrium Elite Front" instead of just "Wheel"</li>
+                <li>Include model/brand for expensive components</li>
+                <li>For consumables (chains, tires), date works: "Chain Aug 2024"</li>
+            </ul>
+
+            <h6 class="mt-3">Using Collections Effectively</h6>
+            <ul>
+                <li>Create collections for components you swap frequently</li>
+                <li>Use collections as templates - keep a "Standard Build" collection</li>
+                <li>Collections in storage = ready-to-install component sets</li>
+                <li>One component can only be in one collection at a time</li>
+            </ul>
+
+            <h6 class="mt-3">Mileage Tracking Accuracy</h6>
+            <ul>
+                <li>Sync Strava regularly (at least weekly) for accurate mileage</li>
+                <li>Use installation dates carefully - affects all mileage calculations</li>
+                <li>Add offset mileage for used/transferred components</li>
+                <li>Remember: only "Active" components accumulate mileage</li>
+            </ul>
+
+            <h6 class="mt-3">Maintenance Planning</h6>
+            <ul>
+                <li>Set realistic service intervals based on your riding conditions</li>
+                <li>Use time-based tracking for components that degrade with age (brake fluid, suspension seals)</li>
+                <li>Use distance-based tracking for wear-based components (chains, tires, brake pads)</li>
+                <li>Combine both for critical components (hydraulic brakes: 1000km OR 180 days)</li>
+                <li>Use workplans for complex multi-component maintenance</li>
+                <li>Log service records to track what was done and when</li>
+                <li>Review component health regularly on bike detail pages</li>
+            </ul>
+
+            <h6 class="mt-3">Search Functionality</h6>
+            <ul>
+                <li>All tables have search boxes - use them to find components quickly</li>
+                <li>Search includes component names, types, bikes, and collection names</li>
+                <li>Search is real-time and case-insensitive</li>
+            </ul>
+
+            <h6 class="mt-3">Data Management</h6>
+            <ul>
+                <li>Don't delete retired components - keep them for history</li>
+                <li>Use "Retired" status instead of deleting</li>
+                <li>Regular database backups recommended (see CLAUDE.md for backup script)</li>
+                <li>Export dataset feature available in CONFIG page</li>
+            </ul>
+        `
+    },
+    'troubleshooting': {
+        emoji: '🔧',
+        title: 'Troubleshooting',
+        content: `
+            <h6>Strava Data Not Updating</h6>
+            <p><strong>Symptoms:</strong> Warning banner "Data from Strava has not been updated recently"</p>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Go to <strong>🎛 CONFIG</strong> and click "Get new rides"</li>
+                <li>Check Strava token is valid in config settings</li>
+                <li>Verify internet connection is active</li>
+                <li>Check application logs at bottom of CONFIG page</li>
+            </ul>
+
+            <h6 class="mt-3">Component Mileage Not Increasing</h6>
+            <p><strong>Possible causes:</strong></p>
+            <ul>
+                <li>Component status is not "Active" - only active components track mileage</li>
+                <li>Installation date is in the future - check component details</li>
+                <li>Activities not synced from Strava yet - run "Get new rides"</li>
+                <li>Activities belong to different bike - verify bike assignment</li>
+                <li>Need to run "Refresh all bikes" to recalculate</li>
+            </ul>
+
+            <h6 class="mt-3">Cannot Change Collection Status</h6>
+            <p><strong>Error:</strong> "Cannot change status - components have different statuses"</p>
+            <p><strong>Solution:</strong> All components in a collection must have the same status for bulk operations. Either:</p>
+            <ul>
+                <li>Change individual component statuses first to match</li>
+                <li>Remove components with different statuses from collection</li>
+                <li>Change components individually instead of using collection</li>
+            </ul>
+
+            <h6 class="mt-3">Collection Locked (Retired Components)</h6>
+            <p><strong>Symptoms:</strong> Warning "Collection contains retired components - locked"</p>
+            <p><strong>Solution:</strong> Collections with retired components cannot have status changes. You can:</p>
+            <ul>
+                <li>Edit the collection to remove retired components</li>
+                <li>Keep collection as-is for historical record</li>
+                <li>Delete the collection (components remain unchanged)</li>
+            </ul>
+
+            <h6 class="mt-3">Date Format Errors</h6>
+            <p><strong>Error:</strong> Validation fails when entering dates</p>
+            <p><strong>Solution:</strong> Dates must be in YYYY-MM-DD format (e.g., 2024-12-25). Use the date picker widget to ensure correct format.</p>
+
+            <h6 class="mt-3">Cannot Delete Component Type</h6>
+            <p><strong>Error:</strong> Deletion blocked</p>
+            <p><strong>Cause:</strong> Component type is being used by existing components</p>
+            <p><strong>Solution:</strong> First delete or reassign all components using this type, then delete the type</p>
+
+            <h6 class="mt-3">Performance Issues</h6>
+            <p><strong>Symptoms:</strong> Slow page loads, timeouts</p>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Large database - consider archiving very old data</li>
+                <li>Running "Get all rides" - this can take time, be patient</li>
+                <li>Check system resources if running in Docker</li>
+                <li>Review application logs for errors</li>
+            </ul>
+
+            <h6 class="mt-3">Need More Help?</h6>
+            <p>For technical issues, database migrations, or Docker deployment:</p>
+            <ul>
+                <li>Check <code>CLAUDE.md</code> in the repository for technical documentation</li>
+                <li>Review handover documents in <code>.handovers/</code> for recent work and architectural decisions</li>
+                <li>Check application logs in CONFIG page</li>
+            </ul>
+        `
+    }
+};
+
+// Function to show help topic in modal
+function showHelpTopic(topicId) {
+    const topic = helpTopics[topicId];
+    if (!topic) return;
+
+    document.getElementById('docsModalEmoji').textContent = topic.emoji + ' ';
+    document.getElementById('docsModalTitle').textContent = topic.title;
+    document.getElementById('docsModalBody').innerHTML = topic.content;
+
+    const modal = new bootstrap.Modal(document.getElementById('docsModal'));
+    modal.show();
+}
+
+// Search functionality
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('helpSearchInput');
-    const accordionItems = document.querySelectorAll('.accordion-item');
+    const helpTiles = document.querySelectorAll('.help-tile');
 
     searchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase().trim();
 
         if (searchTerm === '') {
-            // Reset: show all items, remove highlights
-            accordionItems.forEach(item => {
-                item.classList.remove('search-hidden', 'search-match');
+            // Reset: show all tiles, remove highlights
+            helpTiles.forEach(tile => {
+                tile.classList.remove('search-hidden', 'search-match');
             });
             return;
         }
 
-        // Search and highlight matching sections
-        accordionItems.forEach(item => {
-            const content = item.textContent.toLowerCase();
+        // Search through topic content
+        helpTiles.forEach(tile => {
+            const topicId = tile.dataset.topic;
+            const topic = helpTopics[topicId];
 
-            if (content.includes(searchTerm)) {
-                item.classList.remove('search-hidden');
-                item.classList.add('search-match');
+            // Search in title and content
+            const searchableText = (topic.title + ' ' + topic.content).toLowerCase();
 
-                // Optionally expand matching sections
-                const collapseElement = item.querySelector('.accordion-collapse');
-                if (collapseElement && !collapseElement.classList.contains('show')) {
-                    const button = item.querySelector('.accordion-button');
-                    button.click();
-                }
+            if (searchableText.includes(searchTerm)) {
+                tile.classList.remove('search-hidden');
+                tile.classList.add('search-match');
             } else {
-                item.classList.add('search-hidden');
-                item.classList.remove('search-match');
+                tile.classList.add('search-hidden');
+                tile.classList.remove('search-match');
             }
         });
     });

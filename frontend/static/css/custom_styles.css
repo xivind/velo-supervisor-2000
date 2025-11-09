@@ -10,18 +10,18 @@
     color: white !important;
 }
 
-.bike_no_components {
+.bike-no-components {
     background-color: #979e9e !important; /* Enhance the secondary color for "no components" status */
     color: white !important;
 }
 
-.bike_healthy {
+.bike-healthy {
     background-color: #2967b9 !important; /* Enhance the info color for healthy components */
     color: white !important;
 }
 
-.bike-critical {
-    background-color: #b98356 !important; /* Custom styling for the critical status bikes */
+.bike-needs-attention {
+    background-color: #b98356 !important; /* Custom styling for the bike needs attention status */
     color: white !important;
 }    
 
@@ -58,6 +58,27 @@ th[data-sort].sorted-desc .sort-indicator::after {
     transform: translateY(-7px);
     transition: transform 0.3s ease;
     box-shadow: 0 10px 20px rgba(0,0,0,0.2)
+}
+
+/* Component details page - gradient header for better readability */
+.card-header.text-bg-success {
+    background: linear-gradient(to left, #198754, #ffffff) !important;
+    color: #000000 !important;
+}
+
+.card-header.text-bg-warning {
+    background: linear-gradient(to left, #ffc107, #ffffff) !important;
+    color: #000000 !important;
+}
+
+.card-header.text-bg-danger {
+    background: linear-gradient(to left, #dc3545, #ffffff) !important;
+    color: #000000 !important;
+}
+
+.card-header.text-bg-secondary {
+    background: linear-gradient(to left, #6c757d, #ffffff) !important;
+    color: #000000 !important;
 }
 
 /* Styling of input modals */

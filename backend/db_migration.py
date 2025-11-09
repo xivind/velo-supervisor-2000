@@ -259,6 +259,229 @@ def migrate_component_types(cursor, conn):
     print("Component counts have been populated in the 'in_use' column.")
     return True
 
+def check_component_types_time_columns(cursor):
+    """Check if ComponentTypes table needs time-based fields migration"""
+    cursor.execute("PRAGMA table_info(component_types)")
+    columns = [column[1] for column in cursor.fetchall()]
+
+    columns_to_add = []
+    if 'service_interval_days' not in columns:
+        columns_to_add.append('service_interval_days')
+    if 'lifetime_expected_days' not in columns:
+        columns_to_add.append('lifetime_expected_days')
+    if 'threshold_km' not in columns:
+        columns_to_add.append('threshold_km')
+    if 'threshold_days' not in columns:
+        columns_to_add.append('threshold_days')
+
+    return columns_to_add
+
+def migrate_component_types_time_fields(cursor, conn):
+    """Add time-based fields to ComponentTypes table"""
+    columns_to_add = check_component_types_time_columns(cursor)
+
+    if not columns_to_add:
+        print("ComponentTypes table already has all time-based fields.")
+        return False
+
+    print("\nMigrating ComponentTypes table with time-based fields...")
+
+    # Add new columns with NULL defaults
+    if 'service_interval_days' in columns_to_add:
+        print("Adding 'service_interval_days' column...")
+        cursor.execute("ALTER TABLE component_types ADD COLUMN service_interval_days INTEGER")
+
+    if 'lifetime_expected_days' in columns_to_add:
+        print("Adding 'lifetime_expected_days' column...")
+        cursor.execute("ALTER TABLE component_types ADD COLUMN lifetime_expected_days INTEGER")
+
+    if 'threshold_km' in columns_to_add:
+        print("Adding 'threshold_km' column...")
+        cursor.execute("ALTER TABLE component_types ADD COLUMN threshold_km INTEGER")
+
+    if 'threshold_days' in columns_to_add:
+        print("Adding 'threshold_days' column...")
+        cursor.execute("ALTER TABLE component_types ADD COLUMN threshold_days INTEGER")
+
+    conn.commit()
+    print("ComponentTypes time-based fields migration completed.")
+    return True
+
+def populate_component_types_thresholds(cursor, conn):
+    """
+    Populate threshold_km = 200 for existing component types with distance intervals.
+    This ensures all component types have default thresholds.
+    """
+    print("\nPopulating threshold_km for existing component types...")
+
+    cursor.execute("""
+        UPDATE component_types
+        SET threshold_km = 200
+        WHERE (service_interval IS NOT NULL OR expected_lifetime IS NOT NULL)
+        AND threshold_km IS NULL
+    """)
+    updated_count = cursor.rowcount
+    conn.commit()
+
+    if updated_count > 0:
+        print(f"Set threshold_km = 200 for {updated_count} component types with distance intervals")
+        return True
+    else:
+        print("All component types already have threshold_km set or no distance intervals defined")
+        return False
+
+def check_components_time_columns(cursor):
+    """Check if Components table needs time-based fields migration"""
+    cursor.execute("PRAGMA table_info(components)")
+    columns = [column[1] for column in cursor.fetchall()]
+
+    columns_to_add = []
+    if 'service_interval_days' not in columns:
+        columns_to_add.append('service_interval_days')
+    if 'lifetime_expected_days' not in columns:
+        columns_to_add.append('lifetime_expected_days')
+    if 'threshold_km' not in columns:
+        columns_to_add.append('threshold_km')
+    if 'threshold_days' not in columns:
+        columns_to_add.append('threshold_days')
+    if 'lifetime_remaining_days' not in columns:
+        columns_to_add.append('lifetime_remaining_days')
+    if 'service_next_days' not in columns:
+        columns_to_add.append('service_next_days')
+
+    return columns_to_add
+
+def migrate_components_time_fields(cursor, conn):
+    """Add time-based fields to Components table and populate threshold_km"""
+    columns_to_add = check_components_time_columns(cursor)
+
+    if not columns_to_add:
+        print("Components table already has all time-based fields.")
+        return False
+
+    print("\nMigrating Components table with time-based fields...")
+
+    # Add new columns with NULL defaults
+    if 'service_interval_days' in columns_to_add:
+        print("Adding 'service_interval_days' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN service_interval_days INTEGER")
+
+    if 'lifetime_expected_days' in columns_to_add:
+        print("Adding 'lifetime_expected_days' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN lifetime_expected_days INTEGER")
+
+    if 'threshold_km' in columns_to_add:
+        print("Adding 'threshold_km' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN threshold_km INTEGER")
+
+    if 'threshold_days' in columns_to_add:
+        print("Adding 'threshold_days' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN threshold_days INTEGER")
+
+    if 'lifetime_remaining_days' in columns_to_add:
+        print("Adding 'lifetime_remaining_days' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN lifetime_remaining_days INTEGER")
+
+    if 'service_next_days' in columns_to_add:
+        print("Adding 'service_next_days' column...")
+        cursor.execute("ALTER TABLE components ADD COLUMN service_next_days INTEGER")
+
+    conn.commit()
+    print("Components time-based fields migration completed.")
+    print("Note: New fields have NULL defaults - threshold_km will be populated in next step")
+    return True
+
+def populate_components_thresholds(cursor, conn):
+    """
+    Populate threshold_km = 200 for existing components with distance intervals.
+    This ensures all components have default thresholds.
+    """
+    print("\nPopulating threshold_km for existing components...")
+
+    cursor.execute("""
+        UPDATE components
+        SET threshold_km = 200
+        WHERE (service_interval IS NOT NULL OR lifetime_expected IS NOT NULL)
+        AND threshold_km IS NULL
+    """)
+    updated_count = cursor.rowcount
+    conn.commit()
+
+    if updated_count > 0:
+        print(f"Set threshold_km = 200 for {updated_count} components with distance intervals")
+        return True
+    else:
+        print("All components already have threshold_km set or no distance intervals defined")
+        return False
+
+def recalculate_distance_based_statuses(cursor, conn):
+    """
+    Recalculate lifetime_status and service_status for all components
+    using the new threshold-based logic (distance only, no time).
+    This converts old status strings to new ones and NULL to "Not defined".
+    """
+    print("\nRecalculating component statuses with new threshold logic...")
+
+    # Fetch all components
+    cursor.execute("""
+        SELECT component_id, threshold_km, lifetime_remaining, service_next,
+               lifetime_status, service_status
+        FROM components
+    """)
+    components = cursor.fetchall()
+
+    updated_count = 0
+
+    for component in components:
+        component_id, threshold_km, lifetime_remaining, service_next, old_lifetime_status, old_service_status = component
+        needs_update = False
+        new_lifetime_status = old_lifetime_status
+        new_service_status = old_service_status
+
+        # Recalculate lifetime_status
+        if threshold_km is not None and lifetime_remaining is not None:
+            if lifetime_remaining <= 0:
+                new_lifetime_status = "Lifetime exceeded"
+            elif lifetime_remaining < threshold_km:
+                new_lifetime_status = "Due for replacement"
+            else:
+                new_lifetime_status = "OK"
+        else:
+            # If no threshold or no remaining value, set to "Not defined"
+            new_lifetime_status = "Not defined"
+
+        if old_lifetime_status != new_lifetime_status:
+            needs_update = True
+
+        # Recalculate service_status
+        if threshold_km is not None and service_next is not None:
+            if service_next <= 0:
+                new_service_status = "Service interval exceeded"
+            elif service_next < threshold_km:
+                new_service_status = "Due for service"
+            else:
+                new_service_status = "OK"
+        else:
+            # If no threshold or no service_next value, set to "Not defined"
+            new_service_status = "Not defined"
+
+        if old_service_status != new_service_status:
+            needs_update = True
+
+        # Update if status changed
+        if needs_update:
+            cursor.execute("""
+                UPDATE components
+                SET lifetime_status = ?, service_status = ?
+                WHERE component_id = ?
+            """, (new_lifetime_status, new_service_status, component_id))
+            updated_count += 1
+
+    conn.commit()
+    print(f"Recalculated statuses for {updated_count} components")
+    print("Note: Components without threshold_km or NULL values now have 'Not defined' status")
+    return updated_count > 0
+
 def migrate_database():
     """Main function to handle the database migration."""
     print("=== Velo Supervisor 2000 Database Migration Tool ===\n")
@@ -278,34 +501,101 @@ def migrate_database():
     
     # Connect to the database
     try:
-        migrations_performed = 0
+        migrations_performed = []
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
-        
+
+        print("\n" + "="*70)
+        print("STARTING DATABASE MIGRATION")
+        print("="*70)
+
         # Create the 'incidents' table if it doesn't exist
+        print("\n[1/9] Checking incidents table...")
         incidents_created = create_incidents_table(cursor)
         if incidents_created:
-            migrations_performed += 1
+            migrations_performed.append("✓ Created incidents table")
+        else:
+            print("      → Already exists, skipping")
 
         # Create the 'workplans' table if it doesn't exist
+        print("\n[2/9] Checking workplans table...")
         workplans_created = create_workplans_table(cursor)
         if workplans_created:
-            migrations_performed += 1
+            migrations_performed.append("✓ Created workplans table")
+        else:
+            print("      → Already exists, skipping")
 
         # Create the 'collections' table if it doesn't exist
+        print("\n[3/9] Checking collections table...")
         collections_created = create_collections_table(cursor)
         if collections_created:
-            migrations_performed += 1
-        
+            migrations_performed.append("✓ Created collections table")
+        else:
+            print("      → Already exists, skipping")
+
         # Migrate component_types table if needed
+        print("\n[4/9] Checking component_types table (mandatory/max_quantity fields)...")
         component_types_updated = migrate_component_types(cursor, conn)
         if component_types_updated:
-            migrations_performed += 1
-        
-        if migrations_performed == 0:
-            print("\nNo migrations were needed - your database is already up to date!")
+            migrations_performed.append("✓ Updated component_types table (mandatory/max_quantity)")
         else:
-            print(f"\nDatabase migration completed successfully! {migrations_performed} changes applied.")
+            print("      → Already up to date, skipping")
+
+        # NEW: Migrate ComponentTypes with time-based fields
+        print("\n[5/9] Migrating component_types table (time-based fields)...")
+        component_types_time_updated = migrate_component_types_time_fields(cursor, conn)
+        if component_types_time_updated:
+            migrations_performed.append("✓ Added time-based fields to component_types")
+        else:
+            print("      → Already up to date, skipping")
+
+        # NEW: Populate threshold_km for ComponentTypes
+        print("\n[6/9] Populating threshold_km for component types...")
+        component_types_thresholds_populated = populate_component_types_thresholds(cursor, conn)
+        if component_types_thresholds_populated:
+            migrations_performed.append("✓ Populated threshold_km for component_types")
+        else:
+            print("      → Already populated or no data to update")
+
+        # NEW: Migrate Components with time-based fields
+        print("\n[7/9] Migrating components table (time-based fields)...")
+        components_time_updated = migrate_components_time_fields(cursor, conn)
+        if components_time_updated:
+            migrations_performed.append("✓ Added time-based fields to components")
+        else:
+            print("      → Already up to date, skipping")
+
+        # NEW: Populate threshold_km for Components
+        print("\n[8/9] Populating threshold_km for components...")
+        components_thresholds_populated = populate_components_thresholds(cursor, conn)
+        if components_thresholds_populated:
+            migrations_performed.append("✓ Populated threshold_km for components")
+        else:
+            print("      → Already populated or no data to update")
+
+        # NEW: Recalculate component statuses with new threshold logic
+        print("\n[9/9] Recalculating component statuses...")
+        statuses_recalculated = recalculate_distance_based_statuses(cursor, conn)
+        if statuses_recalculated:
+            migrations_performed.append("✓ Recalculated component statuses")
+        else:
+            print("      → No status updates needed")
+
+        # Print summary
+        print("\n" + "="*70)
+        print("MIGRATION SUMMARY")
+        print("="*70)
+
+        if len(migrations_performed) == 0:
+            print("\n✓ No migrations were needed - your database is already up to date!")
+        else:
+            print(f"\n✓ Successfully applied {len(migrations_performed)} migration(s):\n")
+            for migration in migrations_performed:
+                print(f"  {migration}")
+
+        print("\n" + "="*70)
+        print("MIGRATION COMPLETED SUCCESSFULLY")
+        print("="*70 + "\n")
         
     except sqlite3.Error as e:
         print(f"\nDatabase error: {e}")

@@ -10,7 +10,6 @@ from utils import (read_config,
                    generate_unique_id,
                    format_component_status,
                    format_cost,
-                   get_component_statistics,
                    get_formatted_datetime_now,
                    validate_date_format,
                    calculate_elapsed_days,
@@ -49,18 +48,18 @@ class BusinessLogic():
             total_distance = round(bike.total_distance)
 
             components = database_manager.read_subset_components(bike_id)
-            count_installed = sum(1 for component in components 
-                                if component.installation_status == "Installed")
+            count_installed = sum(1 for component in components
+                                  if component.installation_status == "Installed")
 
-            critical_count = sum(1 for component in components 
-                            if component.installation_status == "Installed" and
-                            (component.lifetime_status == "Lifetime exceeded" or
-                            component.service_status == "Service interval exceeded"))
+            exceeded_max_count = sum(1 for component in components
+                                     if component.installation_status == "Installed" and
+                                     (component.lifetime_status == "Lifetime exceeded" or
+                                      component.service_status == "Service interval exceeded"))
 
-            warning_count = sum(1 for component in components
-                            if component.installation_status == "Installed" and
-                            (component.lifetime_status == "Due for replacement" or
-                            component.service_status == "Due for service"))
+            due_past_threshold_count = sum(1 for component in components
+                                           if component.installation_status == "Installed" and
+                                           (component.lifetime_status == "Due for replacement" or
+                                            component.service_status == "Due for service"))
 
             compliance_report = self.process_bike_compliance_report(bike_id)
 
@@ -70,8 +69,8 @@ class BusinessLogic():
                                service_status,
                                total_distance,
                                count_installed,
-                               critical_count,
-                               warning_count,
+                               exceeded_max_count,
+                               due_past_threshold_count,
                                compliance_report))
 
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
@@ -106,20 +105,36 @@ class BusinessLogic():
         all_components_data = database_manager.read_all_components()
 
         bike_components = database_manager.read_subset_components(bike_id)
-        bike_component_data = [(component.component_id,
-                                 "-" if component.lifetime_remaining is None else round(component.lifetime_remaining),
-                                 "-" if component.service_next is None else round(component.service_next),
-                                 component.installation_status,
-                                 component.component_type,
-                                 component.component_name,
-                                 round(component.component_distance),
-                                 format_component_status(component.lifetime_status),
-                                 format_component_status(component.service_status),
-                                 format_cost(component.cost)
-                                 ) for component in bike_components]
+        bike_component_data = []
+        
+        for component in bike_components:
+            triggers = self.calculate_component_triggers(component)
 
-        component_statistics = get_component_statistics([tuple(component[3:])
-                                                         for component in bike_component_data])
+            bike_component_data.append((component.component_id,
+                                       "-" if component.lifetime_remaining is None else round(component.lifetime_remaining),
+                                       "-" if component.service_next is None else round(component.service_next),
+                                       component.installation_status,
+                                       component.component_type,
+                                       component.component_name,
+                                       round(component.component_distance),
+                                       format_component_status(component.lifetime_status),
+                                       format_component_status(component.service_status),
+                                       format_cost(component.cost),
+                                       triggers["lifetime_trigger"],
+                                       triggers["service_trigger"],
+                                       "-" if component.lifetime_remaining_days is None else component.lifetime_remaining_days,
+                                       "-" if component.service_next_days is None else component.service_next_days))
+
+        count_installed = sum(1 for component in bike_component_data if component[3] == "Installed")
+        count_retired = sum(1 for component in bike_component_data if component[3] == "Retired")
+
+        sum_cost = sum(component[9] for component in bike_component_data
+                      if component[3] == "Installed"
+                      and component[9] != "No estimate"
+                      and isinstance(component[9], int)
+                      and component[7] in ["Due for replacement", "Lifetime exceeded"])
+        
+        sum_cost = sum_cost if sum_cost > 0 else "No estimate"
 
         recent_rides = database_manager.read_recent_rides(bike_id)
         recent_rides_data = [(ride.ride_id,
@@ -180,19 +195,9 @@ class BusinessLogic():
                    "component_types_data": component_types_data,
                    "bike_component_data": bike_component_data,
                    "all_components_data": all_components_data,
-                   "count_installed" : component_statistics["count_installed"],
-                   "count_retired" : component_statistics["count_retired"],
-                   "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
-                   "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
-                   "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
-                   "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
-                   "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
-                   "count_service_status_green" : component_statistics["count_service_status_green"],
-                   "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
-                   "count_service_status_red" : component_statistics["count_service_status_red"],
-                   "count_service_status_purple" : component_statistics["count_service_status_purple"],
-                   "count_service_status_grey" : component_statistics["count_service_status_grey"],
-                   "sum_cost" : component_statistics["sum_cost"],
+                   "count_installed" : count_installed,
+                   "count_retired" : count_retired,
+                   "sum_cost" : sum_cost,
                    "compliance_report": compliance_report,
                    "open_incidents": open_incidents,
                    "incident_reports_data": incident_reports_data,
@@ -207,17 +212,26 @@ class BusinessLogic():
         """Method to produce payload for page component overview"""
         all_components_data = database_manager.read_all_components()
 
-        rearranged_component_data = [(comp[4],
-                                        None,
-                                        None,
-                                        None,
-                                        comp[5],
-                                        comp[6],
-                                        comp[8],
-                                        None,
-                                        comp[7]) for comp in all_components_data]
+        all_components = database_manager.read_all_components_objects()
+        all_components_display_data = []
+        for component in all_components:
+            triggers = self.calculate_component_triggers(component)
 
-        component_statistics = get_component_statistics(rearranged_component_data)
+            all_components_display_data.append((component.component_id,
+                                                component.component_type,
+                                                component.component_name,
+                                                round(component.component_distance),
+                                                component.installation_status,
+                                                format_component_status(component.lifetime_status),
+                                                format_component_status(component.service_status),
+                                                database_manager.read_bike_name(component.bike_id),
+                                                format_cost(component.cost),
+                                                triggers["lifetime_trigger"],
+                                                triggers["service_trigger"]))
+
+        count_installed = sum(1 for component in all_components_display_data if component[4] == "Installed")
+        count_not_installed = sum(1 for component in all_components_display_data if component[4] == "Not installed")
+        count_retired = sum(1 for component in all_components_display_data if component[4] == "Retired")
 
         bikes = database_manager.read_bikes()
         bikes_data = get_formatted_bikes_list(bikes)
@@ -227,27 +241,17 @@ class BusinessLogic():
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
 
         planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
-        
+
         all_collections = self.get_all_collections()
         component_collection_names, component_collection_data = self.get_component_collection_mapping()
 
         payload = {"all_components_data": all_components_data,
+                   "all_components_display_data": all_components_display_data,
                    "bikes_data": bikes_data,
                    "component_types_data": component_types_data,
-                   "count_installed" : component_statistics["count_installed"],
-                   "count_not_installed" : component_statistics["count_not_installed"],
-                   "count_retired" : component_statistics["count_retired"],
-                   "count_lifetime_status_green" : component_statistics["count_lifetime_status_green"],
-                   "count_lifetime_status_yellow" : component_statistics["count_lifetime_status_yellow"],
-                   "count_lifetime_status_red" : component_statistics["count_lifetime_status_red"],
-                   "count_lifetime_status_purple" : component_statistics["count_lifetime_status_purple"],
-                   "count_lifetime_status_grey" : component_statistics["count_lifetime_status_grey"],
-                   "count_service_status_green" : component_statistics["count_service_status_green"],
-                   "count_service_status_yellow" : component_statistics["count_service_status_yellow"],
-                   "count_service_status_red" : component_statistics["count_service_status_red"],
-                   "count_service_status_purple" : component_statistics["count_service_status_purple"],
-                   "count_service_status_grey" : component_statistics["count_service_status_grey"],
-                   "sum_cost" : component_statistics["sum_cost"],
+                   "count_installed": count_installed,
+                   "count_not_installed": count_not_installed,
+                   "count_retired": count_retired,
                    "open_incidents": open_incidents,
                    "planned_workplans": planned_workplans,
                    "all_collections": all_collections,
@@ -266,28 +270,68 @@ class BusinessLogic():
         all_components_data = database_manager.read_all_components()
 
         bike_component = database_manager.read_component(component_id)
+
+        component_age_days = None
+        oldest_history_record = database_manager.read_oldest_history_record(component_id)
+        if oldest_history_record:
+            if bike_component.installation_status == "Retired":
+                end_date = bike_component.updated_date
+            else:
+                end_date = get_formatted_datetime_now()
+            success, age_days = calculate_elapsed_days(oldest_history_record.updated_date, end_date)
+            
+            if success:
+                component_age_days = age_days
+
+        triggers = self.calculate_component_triggers(bike_component)
+
+        lifetime_percentage = (calculate_percentage_reached(bike_component.lifetime_expected,
+                                                            round(bike_component.lifetime_remaining))
+                              if bike_component.lifetime_remaining is not None else None)
+        lifetime_percentage_days = (calculate_percentage_reached(bike_component.lifetime_expected_days,
+                                                                 bike_component.lifetime_remaining_days)
+                                   if bike_component.lifetime_remaining_days is not None else None)
+
+        service_percentage = (calculate_percentage_reached(bike_component.service_interval,
+                                                           round(bike_component.service_next))
+                             if bike_component.service_next is not None else None)
+        service_percentage_days = (calculate_percentage_reached(bike_component.service_interval_days,
+                                                                bike_component.service_next_days)
+                                  if bike_component.service_next_days is not None else None)
+
         bike_component_data = {"bike_id": bike_component.bike_id,
                                "component_id": bike_component.component_id,
                                "updated_date": bike_component.updated_date,
                                "component_name": bike_component.component_name,
                                "component_type": bike_component.component_type,
-                               "component_distance": (round(bike_component.component_distance) 
+                               "component_distance": (round(bike_component.component_distance)
                                                       if bike_component.component_distance is not None else None),
                                 "installation_status": bike_component.installation_status,
+                                "component_age_days": component_age_days,
                                 "lifetime_expected": bike_component.lifetime_expected,
+                                "lifetime_expected_days": bike_component.lifetime_expected_days,
                                 "lifetime_remaining": (round(bike_component.lifetime_remaining)
                                                        if bike_component.lifetime_remaining is not None else None),
+                                "lifetime_remaining_days": bike_component.lifetime_remaining_days,
                                 "lifetime_status": format_component_status(bike_component.lifetime_status),
-                                "lifetime_percentage": (calculate_percentage_reached(bike_component.lifetime_expected,
-                                                                                     round(bike_component.lifetime_remaining))
-                                                                                     if bike_component.lifetime_remaining is not None else None),
+                                "lifetime_status_distance": format_component_status(triggers["lifetime_status_distance"]),
+                                "lifetime_status_days": format_component_status(triggers["lifetime_status_days"]),
+                                "lifetime_trigger": triggers["lifetime_trigger"],
+                                "lifetime_percentage": lifetime_percentage,
+                                "lifetime_percentage_days": lifetime_percentage_days,
                                 "service_interval": bike_component.service_interval,
+                                "service_interval_days": bike_component.service_interval_days,
                                 "service_next": (int(bike_component.service_next)
                                                  if bike_component.service_next is not None else None),
+                                "service_next_days": bike_component.service_next_days,
                                 "service_status": format_component_status(bike_component.service_status),
-                                "service_percentage": calculate_percentage_reached(bike_component.service_interval,
-                                                                                   round(bike_component.service_next))
-                                                                                   if bike_component.service_next is not None else None,
+                                "service_status_distance": format_component_status(triggers["service_status_distance"]),
+                                "service_status_days": format_component_status(triggers["service_status_days"]),
+                                "service_trigger": triggers["service_trigger"],
+                                "service_percentage": service_percentage,
+                                "service_percentage_days": service_percentage_days,
+                                "threshold_km": bike_component.threshold_km,
+                                "threshold_days": bike_component.threshold_days,
                                 "offset": bike_component.component_distance_offset,
                                 "component_notes": bike_component.notes,
                                 "cost": format_cost(bike_component.cost)}
@@ -345,28 +389,15 @@ class BusinessLogic():
         else:
             service_history_data = None
 
-        oldest_history_record = database_manager.read_oldest_history_record(component_id)
-        if oldest_history_record:
-            success, message = calculate_elapsed_days(oldest_history_record.updated_date, get_formatted_datetime_now())
-            if success:
-                days_since_install = f"{message} days since first installation"
-            else:
-                days_since_install = message
-        else:
-            days_since_install = "Component has never been installed"
-        
         latest_service_record = database_manager.read_latest_service_record(component_id)
         if latest_service_record:
             success, message = calculate_elapsed_days(latest_service_record.service_date, get_formatted_datetime_now())
             if success:
-                days_since_service = f"{message} days since last service"
+                days_since_service = f"{message} days ago"
             else:
-                days_since_service = message
+                days_since_service = "Failed to calculate days since last service"
         else:
             days_since_service = "Component has never been serviced"
-
-        elapsed_days = {"days_since_install": days_since_install,
-                        "days_since_service": days_since_service}
 
         open_incidents = self.process_incidents(database_manager.read_open_incidents())
 
@@ -418,7 +449,7 @@ class BusinessLogic():
                    "bike_name": database_manager.read_bike_name(bike_component.bike_id),
                    "component_history_data": component_history_data,
                    "service_history_data": service_history_data,
-                   "elapsed_days": elapsed_days,
+                   "days_since_service": days_since_service,
                    "open_incidents": open_incidents,
                    "incident_reports_data": incident_reports_data,
                    "planned_workplans": planned_workplans,
@@ -776,25 +807,42 @@ class BusinessLogic():
 
     def update_component_lifetime_status(self, component):
         """Method to update component table with lifetime status"""
+        logging.info(f"Updating lifetime status for component {component.component_name}.")
+
+        distance_status = "Not defined"
+        days_status = "Not defined"
+        lifetime_remaining = None
+        lifetime_remaining_days = None
+
         if component.lifetime_expected:
-            logging.info(f"Updating lifetime status for component {component.component_name}.")
-
             lifetime_remaining = component.lifetime_expected - component.component_distance
-            lifetime_status = self.compute_component_status("lifetime",
-                                                            calculate_percentage_reached(component.lifetime_expected,
-                                                                                        round(lifetime_remaining)))
+            distance_status = self.compute_component_status("lifetime",
+                                                            lifetime_remaining,
+                                                            component.threshold_km)
 
-            success, message = database_manager.write_component_lifetime_status(component,
-                                                                                lifetime_remaining,
-                                                                                lifetime_status)
+        if component.lifetime_expected_days:
+            oldest_record = database_manager.read_oldest_history_record(component.component_id)
+            if oldest_record:
+                first_install_date = oldest_record.updated_date
 
-        else:
-            logging.info(f"Component {component.component_name} has no expected lifetime, setting NULL values for lifetime.")
+                if component.installation_status == "Retired":
+                    end_date = component.updated_date
+                else:
+                    end_date = get_formatted_datetime_now()
 
-            lifetime_remaining = None
-            lifetime_status = None
+                success, age_days = calculate_elapsed_days(first_install_date, end_date)
+                if success:
+                    lifetime_remaining_days = component.lifetime_expected_days - age_days
+                    days_status = self.compute_component_status("lifetime",
+                                                                lifetime_remaining_days,
+                                                                component.threshold_days)
 
-            success, message = database_manager.write_component_lifetime_status(component, lifetime_remaining, lifetime_status)
+        final_status = self.determine_worst_status(distance_status, days_status)
+
+        success, message = database_manager.write_component_lifetime_status(component,
+                                                                            lifetime_remaining,
+                                                                            final_status,
+                                                                            lifetime_remaining_days)
 
         if success:
             logging.info(f"Component lifetime status update successful: {message}")
@@ -805,8 +853,9 @@ class BusinessLogic():
 
     def update_component_service_status(self, component):
         """Method to update component table with service status"""
+        logging.info(f"Updating service status for component {component.component_name}.")
+        
         if component.service_interval:
-            logging.info(f"Updating service status for component {component.component_name}.")
             latest_service_record = database_manager.read_latest_service_record(component.component_id)
             latest_history_record = database_manager.read_latest_history_record(component.component_id)
 
@@ -920,19 +969,40 @@ class BusinessLogic():
                                 logging.info(f"Ride on {ride.record_time} of {ride.ride_distance} km from bike {ride.bike_id} is relevant for calculating distance to next service")
 
             service_next = component.service_interval - distance_since_service
-            service_status = self.compute_component_status("service",
-                                                            calculate_percentage_reached(component.service_interval,
-                                                                                        round(service_next)))
-
-            success, message = database_manager.write_component_service_status(component, service_next, service_status)
-
+            distance_status = self.compute_component_status("service", service_next, component.threshold_km)
         else:
-            logging.info(f"Component {component.component_name} has no service interval, setting NULL values for service.")
-
             service_next = None
-            service_status = None
+            distance_status = "Not defined"
 
-            success, message = database_manager.write_component_service_status(component, service_next, service_status)
+        days_status = "Not defined"
+        service_next_days = None
+
+        if component.service_interval_days:
+            latest_service_record = database_manager.read_latest_service_record(component.component_id)
+
+            if latest_service_record:
+                last_service_date = latest_service_record.service_date
+            else:
+                oldest_record = database_manager.read_oldest_history_record(component.component_id)
+                if oldest_record:
+                    last_service_date = oldest_record.updated_date
+                else:
+                    last_service_date = None
+
+            if last_service_date:
+                if component.installation_status == "Retired":
+                    end_date = component.updated_date
+                else:
+                    end_date = get_formatted_datetime_now()
+
+                success, days_since_service = calculate_elapsed_days(last_service_date, end_date)
+                if success:
+                    service_next_days = component.service_interval_days - days_since_service
+                    days_status = self.compute_component_status("service", service_next_days, component.threshold_days)
+
+        final_status = self.determine_worst_status(distance_status, days_status)
+
+        success, message = database_manager.write_component_service_status(component, service_next, final_status, service_next_days)
 
         if success:
             logging.info(f"Component service status update successful: {message}")
@@ -950,34 +1020,76 @@ class BusinessLogic():
             if mode == "create":
                 total_distance = distance_offset
                 database_manager.write_component_distance(component, total_distance)
-         
+
             component = database_manager.read_component(component_id)
 
             if lifetime_expected:
                 lifetime_remaining = lifetime_expected - component.component_distance
-                lifetime_status = self.compute_component_status("lifetime",
-                                                                calculate_percentage_reached(lifetime_expected,
-                                                                                            round(lifetime_remaining)))
-                database_manager.write_component_lifetime_status(component,
-                                                                lifetime_remaining,
-                                                                lifetime_status)
+                lifetime_status_distance = self.compute_component_status("lifetime",
+                                                                         lifetime_remaining,
+                                                                         component.threshold_km)
             else:
-                database_manager.write_component_lifetime_status(component,
-                                                                None,
-                                                                None)
+                lifetime_remaining = None
+                lifetime_status_distance = "Not defined"
+
+            if component.lifetime_expected_days:
+                oldest_history = database_manager.read_oldest_history_record(component_id)
+                if oldest_history:
+                    success, elapsed_days = calculate_elapsed_days(oldest_history.updated_date, get_formatted_datetime_now())
+                    if success:
+                        lifetime_remaining_days = component.lifetime_expected_days - elapsed_days
+                    else:
+                        logging.error(f"Failed to calculate elapsed days for component {component.component_name}")
+                        lifetime_remaining_days = None
+                else:
+                    success, elapsed_days = calculate_elapsed_days(component.updated_date, get_formatted_datetime_now())
+                    if success:
+                        lifetime_remaining_days = component.lifetime_expected_days - elapsed_days
+                    else:
+                        logging.error(f"Failed to calculate elapsed days for component {component.component_name}")
+                        lifetime_remaining_days = None
+
+                if lifetime_remaining_days is not None:
+                    lifetime_status_days = self.compute_component_status("lifetime",
+                                                                         lifetime_remaining_days,
+                                                                         component.threshold_days)
+                else:
+                    lifetime_status_days = "Not defined"
+            else:
+                lifetime_remaining_days = None
+                lifetime_status_days = "Not defined"
+
+            lifetime_status = self.determine_worst_status(lifetime_status_distance, lifetime_status_days)
+
+            database_manager.write_component_lifetime_status(component,
+                                                            lifetime_remaining,
+                                                            lifetime_status,
+                                                            lifetime_remaining_days)
+
             if service_interval:
                 service_next = service_interval
-                service_status = self.compute_component_status("service",
-                                                                calculate_percentage_reached(service_interval,
-                                                                                            round(service_next)))
-
-                database_manager.write_component_service_status(component,
-                                                                service_next,
-                                                                service_status)
+                service_status_distance = self.compute_component_status("service",
+                                                                        service_next,
+                                                                        component.threshold_km)
             else:
-                database_manager.write_component_service_status(component,
-                                                                None,
-                                                                None)
+                service_next = None
+                service_status_distance = "Not defined"
+
+            if component.service_interval_days:
+                service_next_days = component.service_interval_days
+                service_status_days = self.compute_component_status("service",
+                                                                    service_next_days,
+                                                                    component.threshold_days)
+            else:
+                service_next_days = None
+                service_status_days = "Not defined"
+
+            service_status = self.determine_worst_status(service_status_distance, service_status_days)
+
+            database_manager.write_component_service_status(component,
+                                                            service_next,
+                                                            service_status,
+                                                            service_next_days)
 
             return True, f"Component {component.component_name} updated with lifetime and service status (no installation records)"
 
@@ -996,11 +1108,10 @@ class BusinessLogic():
         
         logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}.")
         
-        component_status = {"breakdown_imminent": 0,
-                            "maintenance_required": 0,
-                            "maintenance_approaching": 0,
+        component_status = {"exceeded_max": 0,
+                            "due_past_threshold": 0,
                             "ok": 0}
-        
+
         count_installed = 0
         count_retired = 0
 
@@ -1008,21 +1119,19 @@ class BusinessLogic():
             for component in components:
                 if component.installation_status == "Installed":
                     count_installed += 1
-                    if component.lifetime_status == "Lifetime exceeded" or component.service_status =="Service interval exceeded":
-                        component_status["breakdown_imminent"] += 1
-                    elif component.lifetime_status == "Due for replacement" or component.service_status =="Due for service":
-                        component_status["maintenance_required"] += 1
-                    elif component.lifetime_status == "End of life approaching" or component.service_status =="Service approaching":
-                        component_status["maintenance_approaching"] += 1
-                    elif component.lifetime_status == "OK" or component.service_status =="OK":
+                    if component.lifetime_status == "Lifetime exceeded" or component.service_status == "Service interval exceeded":
+                        component_status["exceeded_max"] += 1
+                    elif component.lifetime_status == "Due for replacement" or component.service_status == "Due for service":
+                        component_status["due_past_threshold"] += 1
+                    elif component.lifetime_status == "OK" or component.service_status == "OK":
                         component_status["ok"] += 1
-                
+
                 if component.installation_status == "Retired":
                     count_retired += 1
 
-            if component_status["breakdown_imminent"] > 0 or component_status["maintenance_required"] > 0:
+            if component_status["exceeded_max"] > 0:
                 service_status = "Components need attention"
-            elif component_status["ok"] > 0 or component_status["maintenance_approaching"] > 0:
+            elif component_status["ok"] > 0:
                 service_status = "All components healthy"
             elif all(value == 0 for value in component_status.values()) and count_installed > 0:
                 service_status = "Maintenance not defined"
@@ -1044,36 +1153,57 @@ class BusinessLogic():
         return success, message
 
     def create_component(self,
-                     component_id,
-                     component_installation_status,
-                     component_updated_date,
-                     component_name,
-                     component_type,
-                     component_bike_id,
-                     expected_lifetime,
-                     service_interval,
-                     cost,
-                     offset,
-                     component_notes):
+                         component_id,
+                         component_installation_status,
+                         component_updated_date,
+                         component_name,
+                         component_type,
+                         component_bike_id,
+                         expected_lifetime,
+                         service_interval,
+                         threshold_km,
+                         lifetime_expected_days,
+                         service_interval_days,
+                         threshold_days,
+                         cost,
+                         offset,
+                         component_notes):
         """Method to create component"""
         try:
             component_bike_id = None if component_bike_id == 'None' or component_bike_id == '' else component_bike_id
             expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
             service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
+            threshold_km = int(threshold_km) if threshold_km and threshold_km.isdigit() else None
+            lifetime_expected_days = int(lifetime_expected_days) if lifetime_expected_days and lifetime_expected_days.isdigit() else None
+            service_interval_days = int(service_interval_days) if service_interval_days and service_interval_days.isdigit() else None
+            threshold_days = int(threshold_days) if threshold_days and threshold_days.isdigit() else None
             cost = int(cost) if cost and cost.isdigit() else None
 
-            new_component_data = {
-                "installation_status": component_installation_status,
-                "updated_date": component_updated_date,
-                "component_name": component_name,
-                "component_type": component_type,
-                "bike_id": component_bike_id,
-                "lifetime_expected": expected_lifetime,
-                "service_interval": service_interval,
-                "cost": cost,
-                "component_distance_offset": offset,
-                "notes": component_notes
-            }
+            validation_success, validation_message = self.validate_threshold_configuration(expected_lifetime,
+                                                                                           service_interval,
+                                                                                           lifetime_expected_days,
+                                                                                           service_interval_days,
+                                                                                           threshold_km,
+                                                                                           threshold_days)
+
+            if not validation_success:
+                logging.warning(f"Component creation validation failed: {validation_message}")
+                return False, validation_message, None
+
+            new_component_data = {"installation_status": component_installation_status,
+                                  "updated_date": component_updated_date,
+                                  "component_name": component_name,
+                                  "component_type": component_type,
+                                  "bike_id": component_bike_id,
+                                  "lifetime_expected": expected_lifetime,
+                                  "service_interval": service_interval,
+                                  "threshold_km": threshold_km,
+                                  "lifetime_expected_days": lifetime_expected_days,
+                                  "service_interval_days": service_interval_days,
+                                  "threshold_days": threshold_days,
+                                  "cost": cost,
+                                  "component_distance_offset": offset,
+                                  "notes": component_notes}
 
             component_id = generate_unique_id()
             success, message = database_manager.write_component_details(component_id, new_component_data)
@@ -1127,6 +1257,10 @@ class BusinessLogic():
                                  component_bike_id,
                                  expected_lifetime,
                                  service_interval,
+                                 threshold_km,
+                                 lifetime_expected_days,
+                                 service_interval_days,
+                                 threshold_days,
                                  cost,
                                  offset,
                                  component_notes):
@@ -1135,19 +1269,37 @@ class BusinessLogic():
             component_bike_id = None if component_bike_id == 'None' or component_bike_id == '' else component_bike_id
             expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
             service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
+            threshold_km = int(threshold_km) if threshold_km and threshold_km.isdigit() else None
+            lifetime_expected_days = int(lifetime_expected_days) if lifetime_expected_days and lifetime_expected_days.isdigit() else None
+            service_interval_days = int(service_interval_days) if service_interval_days and service_interval_days.isdigit() else None
+            threshold_days = int(threshold_days) if threshold_days and threshold_days.isdigit() else None
             cost = int(cost) if cost and cost.isdigit() else None
 
-            new_component_data = {
-                "installation_status": component_installation_status,
-                "updated_date": component_updated_date,
-                "component_name": component_name,
-                "component_type": component_type,
-                "bike_id": component_bike_id,
-                "lifetime_expected": expected_lifetime,
-                "service_interval": service_interval,
-                "cost": cost,
-                "component_distance_offset": offset,
-                "notes": component_notes}
+            validation_success, validation_message = self.validate_threshold_configuration(expected_lifetime,
+                                                                                           service_interval,
+                                                                                           lifetime_expected_days,
+                                                                                           service_interval_days,
+                                                                                           threshold_km,
+                                                                                           threshold_days)
+
+            if not validation_success:
+                logging.warning(f"Component modification validation failed for {component_id}: {validation_message}")
+                return False, validation_message, component_id
+
+            new_component_data = {"installation_status": component_installation_status,
+                                  "updated_date": component_updated_date,
+                                  "component_name": component_name,
+                                  "component_type": component_type,
+                                  "bike_id": component_bike_id,
+                                  "lifetime_expected": expected_lifetime,
+                                  "service_interval": service_interval,
+                                  "threshold_km": threshold_km,
+                                  "lifetime_expected_days": lifetime_expected_days,
+                                  "service_interval_days": service_interval_days,
+                                  "threshold_days": threshold_days,
+                                  "cost": cost,
+                                  "component_distance_offset": offset,
+                                  "notes": component_notes}
 
             component = database_manager.read_component(component_id)
             if not component:
@@ -1511,6 +1663,10 @@ class BusinessLogic():
                                                                            component_bike_id=None,
                                                                            expected_lifetime=new_component_data["lifetime_expected"],
                                                                            service_interval=new_component_data["service_interval"],
+                                                                           threshold_km=new_component_data.get("threshold_km"),
+                                                                           lifetime_expected_days=new_component_data.get("lifetime_expected_days"),
+                                                                           service_interval_days=new_component_data.get("service_interval_days"),
+                                                                           threshold_days=new_component_data.get("threshold_days"),
                                                                            cost=new_component_data["cost"],
                                                                            offset=new_component_data["offset"],
                                                                            component_notes=new_component_data["notes"])
@@ -2040,7 +2196,7 @@ class BusinessLogic():
                 'bike_id': new_bike_id,
                 'distance_marker': new_service_distance
             }
-            
+
             success, message = database_manager.write_service_record(service_data)
             if not success:
                 logging.error(f"Error updating service records for {component.component_name}: {message}")
@@ -2055,29 +2211,163 @@ class BusinessLogic():
 
         return True, "All service records successfully processed"
 
-    def compute_component_status(self, mode, reached_distance_percent):
-        """Method to compute service status"""        
-        if mode == "service":
-            if 0 <= reached_distance_percent <= 70:
-                status = "OK"
-            elif 70 < reached_distance_percent <= 90:
-                status = "Service approaching"
-            elif 90 < reached_distance_percent <= 100:
-                status = "Due for service"
-            elif reached_distance_percent > 100:
-                status = "Service interval exceeded"
+    def compute_component_status(self, mode, remaining_value, threshold_value):
+        """Method to compute component status using threshold logic"""
+        if threshold_value is None or remaining_value is None:
+            return "Not defined"
 
-        if mode == "lifetime":
-            if 0 <= reached_distance_percent <= 70:
-                status = "OK"
-            elif 70 < reached_distance_percent <= 90:
-                status = "End of life approaching"
-            elif 90 < reached_distance_percent <= 100:
-                status = "Due for replacement"
-            elif reached_distance_percent > 100:
-                status = "Lifetime exceeded"
+        if remaining_value <= 0:
+            if mode == "service":
+                return "Service interval exceeded"
+            elif mode == "lifetime":
+                return "Lifetime exceeded"
 
-        return status
+        if 0 < remaining_value < threshold_value:
+            if mode == "service":
+                return "Due for service"
+            elif mode == "lifetime":
+                return "Due for replacement"
+
+        if remaining_value >= threshold_value:
+            return "OK"
+
+        return "Not defined"
+
+    def determine_trigger(self, distance_status, days_status):
+        """Method to determine which factor triggered a warning status"""
+        warning_statuses = ["Due for service",
+                            "Service interval exceeded",
+                            "Due for replacement",
+                            "Lifetime exceeded"]
+
+        distance_is_warning = distance_status in warning_statuses
+        days_is_warning = days_status in warning_statuses
+
+        if distance_is_warning and days_is_warning:
+            return 'both'
+        elif distance_is_warning:
+            return 'distance'
+        elif days_is_warning:
+            return 'time'
+        else:
+            return None
+
+    def calculate_component_triggers(self, component):
+        """Calculate lifetime and service triggers for a component"""
+        lifetime_status_distance = self.compute_component_status("lifetime",
+                                                                 component.lifetime_remaining,
+                                                                 component.threshold_km)
+        service_status_distance = self.compute_component_status("service",
+                                                                component.service_next,
+                                                                component.threshold_km)
+
+        lifetime_status_days = self.compute_component_status("lifetime",
+                                                             component.lifetime_remaining_days,
+                                                             component.threshold_days)
+        service_status_days = self.compute_component_status("service",
+                                                            component.service_next_days,
+                                                            component.threshold_days)
+
+        return {"lifetime_trigger": self.determine_trigger(lifetime_status_distance, lifetime_status_days),
+                "service_trigger": self.determine_trigger(service_status_distance, service_status_days),
+                "lifetime_status_distance": lifetime_status_distance,
+                "lifetime_status_days": lifetime_status_days,
+                "service_status_distance": service_status_distance,
+                "service_status_days": service_status_days}
+
+    def determine_worst_status(self, distance_status, days_status):
+        """Method to determine worst-case status between distance and days-based calculations"""
+        severity_ranking = {"Service interval exceeded": 4,
+                            "Lifetime exceeded": 4,
+                            "Due for service": 3,
+                            "Due for replacement": 3,
+                            "OK": 2,
+                            "Not defined": 1}
+
+        distance_severity = severity_ranking.get(distance_status, 0)
+        days_severity = severity_ranking.get(days_status, 0)
+
+        if days_severity > distance_severity:
+            return days_status
+        else:
+            return distance_status
+
+    def update_time_based_fields(self):
+        """Method to update time-based status fields for all non-retired components"""
+        components = database_manager.read_all_components_objects()
+        active_components = [component for component in components if component.installation_status != "Retired"]
+
+        component_count = len(active_components)
+        updated_count = 0
+        error_count = 0
+
+        logging.info(f'Starting time-based fields update for {component_count} components that are installed or not assigned.')
+        for component in active_components:
+            try:
+                if component.lifetime_expected_days or component.service_interval_days:
+                    logging.info(f'{component.component_name} tracks days for lifetime or service intervals. Updating time-based fields.')
+                    self.update_component_lifetime_status(component)
+                    self.update_component_service_status(component)
+
+                    if component.installation_status == "Installed" and component.bike_id:
+                        self.update_bike_status(component.bike_id)
+
+                    updated_count += 1
+
+            except Exception as exception:
+                error_count += 1
+                logging.error(f"Error updating time fields for component {component.component_id}: {exception}")
+
+        if error_count > 0:
+            return False, f"{updated_count} components successfully updated. {error_count} components failed to update."
+        elif updated_count > 0:
+            return True, f"{updated_count} components successfully updated"
+        else:
+            return True, "No components have been configured to track days for lifetime or service intervals"
+
+    def validate_threshold_configuration(self,
+                                         expected_lifetime,
+                                         service_interval,
+                                         lifetime_expected_days,
+                                         service_interval_days,
+                                         threshold_km,
+                                         threshold_days):
+        """Validate threshold configuration rules for component intervals"""
+        if expected_lifetime or service_interval:
+            if threshold_km is None:
+                return False, "Threshold (km) is required when distance-based intervals are configured"
+
+        if lifetime_expected_days or service_interval_days:
+            if threshold_days is None:
+                return False, "Threshold (days) is required when time-based intervals are configured"
+
+        if threshold_km is not None:
+            if threshold_km <= 0:
+                return False, "Threshold (km) must be greater than 0"
+
+            intervals = []
+            if expected_lifetime:
+                intervals.append(expected_lifetime)
+            if service_interval:
+                intervals.append(service_interval)
+
+            if intervals and threshold_km > min(intervals):
+                return False, f"Threshold (km) must be less than or equal to the smallest interval ({min(intervals)} km)"
+
+        if threshold_days is not None:
+            if threshold_days <= 0:
+                return False, "Threshold (days) must be greater than 0"
+
+            intervals = []
+            if lifetime_expected_days:
+                intervals.append(lifetime_expected_days)
+            if service_interval_days:
+                intervals.append(service_interval_days)
+
+            if intervals and threshold_days > min(intervals):
+                return False, f"Threshold (days) must be less than or equal to the smallest interval ({min(intervals)} days)"
+
+        return True, "Validation passed"
 
     def process_bike_compliance_report(self, bike_id):
         """Method to check if a bike has all mandatory components and respects max quantities"""
@@ -2090,10 +2380,14 @@ class BusinessLogic():
 
         component_types = {component_type[0]:
                                 {'expected_lifetime': component_type[1],
-                                 'service_interval': component_type[2],
-                                 'in_use': component_type[3],
-                                 'mandatory': component_type[4],
-                                 'max_quantity': component_type[5]} for component_type in component_types_raw}
+                                 'lifetime_expected_days': component_type[2],
+                                 'service_interval': component_type[3],
+                                 'service_interval_days': component_type[4],
+                                 'threshold_km': component_type[5],
+                                 'threshold_days': component_type[6],
+                                 'in_use': component_type[7],
+                                 'mandatory': component_type[8],
+                                 'max_quantity': component_type[9]} for component_type in component_types_raw}
 
         installed_components_raw = database_manager.read_subset_installed_components(bike_id)
         installed_components = list(installed_components_raw)
@@ -2295,20 +2589,43 @@ class BusinessLogic():
     def modify_component_type(self,
                             component_type,
                             expected_lifetime,
+                            lifetime_expected_days,
                             service_interval,
+                            service_interval_days,
+                            threshold_km,
+                            threshold_days,
                             mandatory,
                             max_quantity,
                             mode):
         """Method to create or update component types"""
         expected_lifetime = int(expected_lifetime) if expected_lifetime and expected_lifetime.isdigit() else None
+        lifetime_expected_days = int(lifetime_expected_days) if lifetime_expected_days and lifetime_expected_days.isdigit() else None
         service_interval = int(service_interval) if service_interval and service_interval.isdigit() else None
+        service_interval_days = int(service_interval_days) if service_interval_days and service_interval_days.isdigit() else None
+        threshold_km = int(threshold_km) if threshold_km and threshold_km.isdigit() else None
+        threshold_days = int(threshold_days) if threshold_days and threshold_days.isdigit() else None
         max_quantity = int(max_quantity) if max_quantity and max_quantity.isdigit() else None
 
+        validation_success, validation_message = self.validate_threshold_configuration(expected_lifetime,
+                                                                                       service_interval,
+                                                                                       lifetime_expected_days,
+                                                                                       service_interval_days,
+                                                                                       threshold_km,
+                                                                                       threshold_days)
+
+        if not validation_success:
+            logging.warning(f"Component type validation failed: {validation_message}")
+            return False, validation_message
+
         in_use = database_manager.count_component_types_in_use(component_type)
-        
+
         component_type_data = {"component_type": component_type,
-                            "service_interval": service_interval,
                             "expected_lifetime": expected_lifetime,
+                            "lifetime_expected_days": lifetime_expected_days,
+                            "service_interval": service_interval,
+                            "service_interval_days": service_interval_days,
+                            "threshold_km": threshold_km,
+                            "threshold_days": threshold_days,
                             "in_use": in_use,
                             "mandatory": mandatory,
                             "max_quantity": max_quantity}
@@ -2359,24 +2676,27 @@ class BusinessLogic():
         logging.info(f"Attempting to delete record with id {record_id} from table {table_selector}")
 
         component_id = None
+        bike_id = None
         if table_selector == "Services":
             component_id = database_manager.read_single_service_record(record_id).component_id
             component = database_manager.read_component(component_id)
+            bike_id = component.bike_id
         
         elif table_selector == "ComponentHistory":
             component_id = database_manager.read_single_history_record(record_id).component_id
             component = database_manager.read_component(component_id)
+            bike_id = component.bike_id
             service_history = database_manager.read_subset_service_history(component_id)
             history_records = database_manager.read_subset_component_history(component_id)
 
             if service_history and history_records.count() == 1:
                 logging.warning(f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist")
-                return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id
+                return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id, bike_id
         
         elif table_selector == "Components":
             component = database_manager.read_component(record_id)
             component_type = component.component_type
-            bike_id = database_manager.read_component(record_id).bike_id
+            bike_id = component.bike_id
 
         elif table_selector == "Collections":
             collection = database_manager.read_single_collection(record_id)
@@ -2384,14 +2704,14 @@ class BusinessLogic():
             print(table_selector)
             if collection_component_ids:
                 logging.warning(f"Cannot delete collection {collection.collection_name} as it still contains components.")
-                return False, f"Cannot delete collection {collection.collection_name} as it still contains components. Remove all components from collection before deleting.", None
+                return False, f"Cannot delete collection {collection.collection_name} as it still contains components. Remove all components from collection before deleting.", None, None
             
 
         elif table_selector == "ComponentTypes":
             component_type = database_manager.read_single_component_type(record_id)
             if component_type.in_use > 0:
                 logging.warning(f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted")
-                return False, f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted", component_id
+                return False, f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted", component_id, bike_id
         
         success, message = database_manager.write_delete_record(table_selector, record_id)
 
@@ -2409,7 +2729,7 @@ class BusinessLogic():
                                                                     first_service.description)
                     if not success:
                         logging.error(f"An error occured triggering update of service records for {component.component_name} after deletion: {message}")
-                        return False, f"An error occured triggering update of service records for {component.component_name} after deletion: {message}", component_id
+                        return False, f"An error occured triggering update of service records for {component.component_name} after deletion: {message}", component_id, bike_id
                 
                 elif not service_records:
                     component = database_manager.read_component(component_id)
@@ -2428,6 +2748,10 @@ class BusinessLogic():
                                                                      "None",
                                                                      str(component.lifetime_expected),
                                                                      str(component.service_interval),
+                                                                     str(component.threshold_km),
+                                                                     str(component.lifetime_expected_days),
+                                                                     str(component.service_interval_days),
+                                                                     str(component.threshold_days),
                                                                      str(component.cost),
                                                                      component.component_distance_offset,
                                                                      component.notes)
@@ -2437,7 +2761,7 @@ class BusinessLogic():
                 
                 if not success:
                     logging.error(f"An error occured triggering update of history records for {component_id} after deletion: {message}")
-                    return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id
+                    return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id, bike_id
                 
             elif table_selector == "Components":
                 self.update_component_type_count(component_type)
@@ -2446,9 +2770,9 @@ class BusinessLogic():
         
         else:
             logging.error(f"Deletion of {record_id} failed: {message}")
-            return False, f"Deletion of {record_id} failed: {message}", component_id
+            return False, f"Deletion of {record_id} failed: {message}", component_id, bike_id
 
-        return success, message, component_id
+        return success, message, component_id, bike_id
 
     async def refresh_all_bikes(self):
         """Method to refresh all bikes from Strava"""

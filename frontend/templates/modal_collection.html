@@ -24,7 +24,7 @@
                     <div class="col-md-12 mb-3">
                         <label for="components" class="form-label fw-bold">Collection components</label>
                         <select class="form-select" id="components" name="components" multiple placeholder="Search to add components to collection...">
-                            {% for component_id, type, name, distance, status, lifetime, service, bike, cost in payload.all_components_data %}
+                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days in payload.all_components_data %}
                                 <option value="{{ component_id }}" data-status="{{ status }}" data-bike="{{ bike }}">
                                     {{ name }} ({{ type }}){% if status == "Installed" %} - {{ bike }}{% else %} - Not assigned{% endif %}
                                 </option>
