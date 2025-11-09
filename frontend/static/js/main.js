@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
     reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
 
+    // Initialize Bootstrap tooltips for both desktop and mobile
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
     // Function to remove backdrop on some modals
     const removeBackdropModals = [
         'workplanRecordModal',
