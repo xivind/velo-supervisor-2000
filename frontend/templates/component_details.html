@@ -266,6 +266,7 @@
             <span class="fw-bold">Open incidents</span>
         </div>
         <div class="card-body">
+            <div class="table-responsive">
             <table class="table table-hover" id="incidentsTable">
                 <thead>
                     <tr>
@@ -317,6 +318,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     {% endif %}
@@ -326,6 +328,7 @@
             <span class="fw-bold">Unfinished workplans</span>
         </div>
         <div class="card-body">
+            <div class="table-responsive">
             <table class="table table-hover" id="workplansTable">
                 <thead>
                     <tr>
@@ -394,12 +397,14 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     {% endif %}
     <div class="card shadow mb-4">
         <div class="card-header fw-bold">Service history</div>
         <div class="card-body">
+            <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -441,11 +446,13 @@
                     {% endif %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     <div class="card shadow mt-2">
         <div class="card-header fw-bold">Installation history</div>
         <div class="card-body">
+            <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -489,8 +496,9 @@
                     {% endif %}
                 </tbody>
             </table>
+            </div>
         </div>
-    </div> 
+    </div>
 </div>
 
 {% endblock %}
