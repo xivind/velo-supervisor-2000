@@ -24,6 +24,7 @@
             <span class="input-group-text">🔍</span>
             <input type="text" class="form-control" id="componentTypeSearchInput" placeholder="Search component types..." aria-label="Search component types">
         </div>
+        <div class="table-responsive">
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -32,10 +33,10 @@
                     <th>Max pr bike</th>
                     <th>Status use</th>
                     <th>Life (km)</th>
-                    <th>Life (days)</th>
                     <th>Service (km)</th>
-                    <th>Service (days)</th>
                     <th>Thresh (km)</th>
+                    <th>Life (days)</th>
+                    <th>Service (days)</th>
                     <th>Thresh (days)</th>
                     <th class="text-end"></th>
                 </tr>
@@ -58,10 +59,10 @@
                         <td>{% if max_quantity == None or max_quantity == 0 %}-{% else %}{{ max_quantity }}{% endif %}</td>
                         <td>{% if in_use > 0 %}🟩 {{ in_use }} components{% else %}🟥 No components{% endif %}</td>
                         <td>{% if expected_lifetime == None or expected_lifetime == 0 %}-{% else %}{{ expected_lifetime }}{% endif %}</td>
-                        <td>{% if lifetime_expected_days == None or lifetime_expected_days == 0 %}-{% else %}{{ lifetime_expected_days }}{% endif %}</td>
                         <td>{% if service_interval == None or service_interval == 0 %}-{% else %}{{ service_interval }}{% endif %}</td>
-                        <td>{% if service_interval_days == None or service_interval_days == 0 %}-{% else %}{{ service_interval_days }}{% endif %}</td>
                         <td>{% if threshold_km == None or threshold_km == 0 %}-{% else %}{{ threshold_km }}{% endif %}</td>
+                        <td>{% if lifetime_expected_days == None or lifetime_expected_days == 0 %}-{% else %}{{ lifetime_expected_days }}{% endif %}</td>
+                        <td>{% if service_interval_days == None or service_interval_days == 0 %}-{% else %}{{ service_interval_days }}{% endif %}</td>
                         <td>{% if threshold_days == None or threshold_days == 0 %}-{% else %}{{ threshold_days }}{% endif %}</td>
                         <td class="text-end">                    
                             <button type="button" class="mb-1 btn btn-outline-success btn-sm modify-record"
@@ -83,6 +84,7 @@
                 {% endif %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 {% endblock %}

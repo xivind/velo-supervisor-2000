@@ -103,7 +103,7 @@
                         <div>
                             <h5 class="card-title mb-2">Component have open incidents</h5>
                             <p class="mb-1">
-                                There are <strong>{{ incident_count }}</strong> open incident(s) referencing this component. Check and edit incidents in the incident table at the bottom of the page.
+                                There are <strong>{{ incident_count }}</strong> open incident(s) referencing this component. Check and edit incidents in the incident table further down the page.
                             </p>
                         </div>
                     </div>
@@ -119,7 +119,7 @@
                         <div>
                             <h5 class="card-title mb-2">Component have unfinished workplans</h5>
                             <p class="mb-1">
-                                There are <strong>{{ workplan_count }}</strong> open workplan(s) referencing this component. Check and edit workplans in the workplan table at the bottom of the page.
+                                There are <strong>{{ workplan_count }}</strong> open workplan(s) referencing this component. Check and edit workplans in the workplan table further down the page.
                             </p>
                         </div>
                     </div>
@@ -163,7 +163,7 @@
                 <div class="d-flex flex-wrap gap-2">
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">🏷️ <strong>Type:</strong> {{ payload.bike_component_data['component_type'] }}</span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📍 <strong>Total mileage:</strong> {{ payload.bike_component_data['component_distance'] }} km</span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📅 {% if payload.bike_component_data['component_age_days'] %}<strong>Component age:</strong> {{ payload.bike_component_data['component_age_days'] }} days{% else %}Component has never been installed{% endif %}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📅 {% if payload.bike_component_data['component_age_days'] is not none %}<strong>Component age:</strong> {{ payload.bike_component_data['component_age_days'] }} days{% else %}Component has never been installed{% endif %}</span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">🔧 <strong>Last service:</strong> {{ payload.days_since_service }}</span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">🔄 <strong>Last status change:</strong> {{ payload.bike_component_data['updated_date'].split(' ')[0] }}</span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">💰 <strong>Cost:</strong> {{ payload.bike_component_data['cost'] }}</span>
@@ -266,6 +266,7 @@
             <span class="fw-bold">Open incidents</span>
         </div>
         <div class="card-body">
+            <div class="table-responsive">
             <table class="table table-hover" id="incidentsTable">
                 <thead>
                     <tr>
@@ -317,6 +318,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     {% endif %}
@@ -326,6 +328,7 @@
             <span class="fw-bold">Unfinished workplans</span>
         </div>
         <div class="card-body">
+            <div class="table-responsive">
             <table class="table table-hover" id="workplansTable">
                 <thead>
                     <tr>
@@ -394,12 +397,14 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     {% endif %}
     <div class="card shadow mb-4">
         <div class="card-header fw-bold">Service history</div>
         <div class="card-body">
+            <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -441,11 +446,13 @@
                     {% endif %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     <div class="card shadow mt-2">
         <div class="card-header fw-bold">Installation history</div>
         <div class="card-body">
+            <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -489,8 +496,9 @@
                     {% endif %}
                 </tbody>
             </table>
+            </div>
         </div>
-    </div> 
+    </div>
 </div>
 
 {% endblock %}

@@ -34,6 +34,7 @@
             <span class="input-group-text">🔍</span>
             <input type="text" class="form-control" id="collectionsSearchInput" placeholder="Search collections..." aria-label="Search collections">
         </div>
+        <div class="table-responsive">
         <table class="table table-hover" id="collectionsTable">
             <thead>
                 <tr>
@@ -93,6 +94,7 @@
                 {% endif %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 <hr/>
@@ -132,6 +134,7 @@
             <span class="input-group-text">🔍</span>
             <input type="text" class="form-control" id="allComponentsSearchInput" placeholder="Search all components... (use status filters to narrow results)" aria-label="Search components">
         </div>
+        <div class="table-responsive">
         <table class="table table-hover" id="componentsTable">
             <thead>
                 <tr>
@@ -235,6 +238,7 @@
                 {% endif %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 {% endblock %}

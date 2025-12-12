@@ -36,6 +36,7 @@
             <span class="input-group-text">🔍</span>
             <input type="text" class="form-control" id="allIncidentsSearchInput" placeholder="Search all incidents... (use status filters to narrow results)" aria-label="Search incidents">
         </div>
+        <div class="table-responsive">
         <table class="table table-hover" id="incidentsTable">
             <thead>
                 <tr>
@@ -123,6 +124,7 @@
                 {% endif %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 {% endblock %}
