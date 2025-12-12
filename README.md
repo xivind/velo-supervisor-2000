@@ -43,7 +43,7 @@ As a principle, development is to be done in the dev-branch. When changes are re
 
 - See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
-**v0.4.7 (CURRENT)**
+**v0.4.7 (CURRENT)**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.6 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
 
 There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the Velo Supervisor 2000 database. Remember to backup the database first.
@@ -51,9 +51,10 @@ There are new features in this version that require a database migration. Use [p
 *THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
 
 - New feature: Hybrid time + distance tracking for component lifetime and service intervals with automated nightly updates for tracking days
-- New feature: To avoid unnecessary noise, tresholds for when due status should be set are now user configurable. Default treshold for distance is set to 200 km. This may be changed by the user, pr component type and component. The Lifetime / service status "approaching" has proved to be of little value and is now removed. 
-- First iteration of mobile-first GUI improvements with single-column layouts and flexible badge design
+- New feature: To avoid unnecessary noise, thresholds for when due status should be set are now user configurable. Default threshold for distance is set to 200 km. This may be changed by the user, pr component type and component. The Lifetime / service status "approaching" has proved to be of little value and is now removed 
+- First iteration of mobile-first GUI improvements with single-column layouts, flexible badge design, improved footer and css classes for formatting tables on mobile devices 
 - Enhanced component status visualization with trigger indicators (distance, time, or both)
+- Changed date format in log to match date format elsewhere in the program  
 
 **v0.4.6**  
 *THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
