@@ -48,7 +48,7 @@ class Strava:
         refresh_url = "https://www.strava.com/oauth/token"
 
         if self.token["expires_at"] < datetime.now().timestamp():
-            logging.info(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens.')
+            logging.warning(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens.')
 
             try:
                 client = OAuth2Session(self.extra["client_id"], token=self.token)
@@ -70,11 +70,11 @@ class Strava:
                     self.json_response = raw_response.json()
 
                     if not self.json_response:
-                        logging.info(f'Reached last page. The last page with data was page {page-1}.')
+                        logging.debug(f'Reached last page. The last page with data was page {page-1}.')
                         break
 
-                    logging.info(f'API status for page {page}: {raw_response.status_code} - {raw_response.reason}.')
-                    logging.info(f'Page contained {len(self.json_response)} activities.')
+                    logging.debug(f'API status for page {page}: {raw_response.status_code} - {raw_response.reason}.')
+                    logging.debug(f'Page contained {len(self.json_response)} activities.')
                     page = page+1
                     self.prepare_payload_rides()
 
@@ -82,14 +82,14 @@ class Strava:
                 protected_url = "https://www.strava.com/api/v3/athlete/activities?page=1&per_page=200"
                 raw_response = client.get(protected_url)
                 self.json_response = raw_response.json()
-                logging.info(f'API status for page {page}: {raw_response.status_code} - {raw_response.reason}')
-                logging.info(f'Page contained {len(self.json_response)} activities')
+                logging.debug(f'API status for page {page}: {raw_response.status_code} - {raw_response.reason}')
+                logging.debug(f'Page contained {len(self.json_response)} activities')
                 self.prepare_payload_rides()
                 
                 for activity in self.json_response:
                     if str(activity["type"]) == "Ride" and activity["gear_id"] != None:
                         self.bike_ids_recent_rides.add(activity["gear_id"])
-                logging.info(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides.')
+                logging.debug(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides.')
 
         except Exception as error:
             logging.error(f'An error occured during the API call to fetch rides: {error}.')
@@ -102,7 +102,7 @@ class Strava:
         refresh_url = "https://www.strava.com/oauth/token"
 
         if self.token["expires_at"] < datetime.now().timestamp():
-            logging.info(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens.')
+            logging.warning(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens.')
 
             try:
                 client = OAuth2Session(self.extra["client_id"], token=self.token)
@@ -117,18 +117,18 @@ class Strava:
             logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])},in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}.')
             client = OAuth2Session(self.extra["client_id"], token=self.token)
 
-            logging.info(f"Retrieving data for {len(bike_ids)} bikes")
+            logging.debug(f"Retrieving data for {len(bike_ids)} bikes")
             for bike in bike_ids:
                 protected_url = f"https://www.strava.com/api/v3/gear/{bike}?page=1&per_page=50"
                 raw_response = client.get(protected_url)
                 self.json_response = raw_response.json()
 
                 if self.json_response:
-                    logging.info(f'API status for request: {raw_response.status_code} - {raw_response.reason}.')
+                    logging.debug(f'API status for request: {raw_response.status_code} - {raw_response.reason}.')
                     self.prepare_payload_bikes()
 
                 if not self.json_response:
-                    logging.info(f'API returned {len(self.json_response)} bikes.')
+                    logging.debug(f'API returned {len(self.json_response)} bikes.')
 
 
         except Exception as error:
@@ -152,14 +152,14 @@ class Strava:
                     ride.update({"commute": bool(activities["commute"])})
 
                     self.payload_rides.append(ride)
-                    logging.info(f'Ride data written to list: {ride}.')
+                    logging.debug(f'Ride data written to list: {ride}.')
 
                 except Exception as error:
                     logging.error(f'An error ocurred preparing payload for rides: {self.payload_rides}')
                     logging.error(f'More info about the error: {error}.')
 
             else:
-                logging.info("Activity is not of type Ride. Skipping.")
+                logging.warning("Activity is not of type Ride. Skipping.")
 
     def prepare_payload_bikes(self):
         """Method to prepare a list of bikes"""
@@ -173,7 +173,7 @@ class Strava:
             bike.update({"notes": str(self.json_response["description"])})
 
             self.payload_bikes.append(bike)
-            logging.info(f'Bike data written to list: {bike}.')
+            logging.debug(f'Bike data written to list: {bike}.')
 
         except Exception as error:
             logging.error(f'An error ocurred preparing payload for bikes: {self.payload_bikes}')
