@@ -3493,6 +3493,319 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// ----- Install Component Modal Implementation -----
+
+// Install Component Modal - Initialize and handle mode switching
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the bike details page
+    if (document.querySelector('h1#bike-details') === null) return;
+
+    const installModal = document.getElementById('installComponentModal');
+    if (!installModal) return;
+
+    let componentTomSelect = null;
+    let currentMode = 'component'; // Track current mode: 'component' or 'collection'
+
+    // Initialize modal when it opens
+    installModal.addEventListener('shown.bs.modal', function() {
+        // Set default installation dates to now
+        const now = new Date();
+        const formattedDate = now.getFullYear() + '-' +
+                              String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                              String(now.getDate()).padStart(2, '0') + ' ' +
+                              String(now.getHours()).padStart(2, '0') + ':' +
+                              String(now.getMinutes()).padStart(2, '0');
+
+        document.getElementById('component_installation_date').value = formattedDate;
+        document.getElementById('collection_installation_date').value = formattedDate;
+
+        // Initialize TomSelect for component dropdown (Component mode)
+        const componentSelect = document.getElementById('component_select');
+        if (componentSelect && !componentTomSelect) {
+            componentTomSelect = new TomSelect(componentSelect, {
+                plugins: ['remove_button'],
+                maxItems: 1,
+                valueField: 'value',
+                searchField: 'text',
+                create: false,
+                placeholder: 'Search for component to install...',
+                openOnFocus: false,
+                closeAfterSelect: true
+            });
+            componentSelect.tomSelect = componentTomSelect;
+        }
+
+        // Initialize date pickers
+        initializeDatePickers();
+
+        // Reset to Component mode
+        const componentTab = document.getElementById('component-mode-tab');
+        if (componentTab) {
+            componentTab.click();
+        }
+
+        // Update submit button text
+        updateSubmitButtonText();
+
+        // Check for empty states and disable submit button if needed (Issue 2 fix)
+        checkEmptyStatesAndUpdateButton();
+    });
+
+    // Clean up when modal closes
+    installModal.addEventListener('hidden.bs.modal', function() {
+        // Destroy TomSelect instance
+        if (componentTomSelect) {
+            componentTomSelect.destroy();
+            componentTomSelect = null;
+        }
+
+        // Clear form fields
+        document.getElementById('install_component_id').value = '';
+        document.getElementById('collection_select').value = '';
+        document.getElementById('collection_preview').style.display = 'none';
+
+        // Reset to component mode
+        currentMode = 'component';
+    });
+
+    // Handle tab switching (Component <-> Collection mode)
+    const tabButtons = document.querySelectorAll('#installModeTabs button[data-bs-toggle="tab"]');
+    tabButtons.forEach(button => {
+        button.addEventListener('shown.bs.tab', function(e) {
+            const targetTab = e.target.getAttribute('data-bs-target');
+
+            if (targetTab === '#component-mode') {
+                currentMode = 'component';
+                // Clear collection selection
+                document.getElementById('collection_select').value = '';
+                document.getElementById('collection_preview').style.display = 'none';
+            } else if (targetTab === '#collection-mode') {
+                currentMode = 'collection';
+                // Clear component selection
+                if (componentTomSelect) {
+                    componentTomSelect.clear();
+                }
+                document.getElementById('install_component_id').value = '';
+            }
+
+            updateSubmitButtonText();
+            checkEmptyStatesAndUpdateButton();
+        });
+    });
+
+    // Handle component selection (Component mode)
+    document.getElementById('component_select').addEventListener('change', function() {
+        document.getElementById('install_component_id').value = this.value;
+    });
+
+    // Handle collection selection (Collection mode) - Show preview (Issue 5 fix)
+    document.getElementById('collection_select').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+
+        if (this.value) {
+            // Show collection preview with component names
+            const componentIds = selectedOption.getAttribute('data-component-ids').split(',');
+
+            // Get component names from component_select options
+            const componentSelect = document.getElementById('component_select');
+            const componentNames = [];
+
+            componentIds.forEach(compId => {
+                const option = componentSelect.querySelector(`option[value="${compId}"]`);
+                if (option) {
+                    componentNames.push(option.textContent);
+                }
+            });
+
+            // Display component list
+            const previewList = document.getElementById('collection_members_list');
+            if (componentNames.length > 0) {
+                previewList.innerHTML = componentNames.map(name => `<li>${name}</li>`).join('');
+            } else {
+                previewList.innerHTML = `<li>${componentIds.length} components will be installed</li>`;
+            }
+
+            document.getElementById('collection_preview').style.display = 'block';
+        } else {
+            document.getElementById('collection_preview').style.display = 'none';
+        }
+    });
+
+    // Handle submit button click
+    document.getElementById('install_submit_btn').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        if (currentMode === 'component') {
+            // Component mode: Validate and submit form
+            submitComponentForm();
+        } else {
+            // Collection mode: Validate and submit via AJAX
+            submitCollectionAjax();
+        }
+    });
+
+    // Function to submit component form (form POST)
+    function submitComponentForm() {
+        const form = document.getElementById('install_component_form');
+        const componentId = document.getElementById('install_component_id').value;
+        const installDate = document.getElementById('component_installation_date').value;
+
+        // Validate required fields
+        if (!componentId) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Please select a component to install';
+            validationModal.show();
+            return;
+        }
+
+        // Validate date format (reuse existing pattern)
+        const datePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+        if (!installDate || !datePattern.test(installDate)) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Please enter a valid installation date in format YYYY-MM-DD HH:MM';
+            validationModal.show();
+            return;
+        }
+
+        // Validate date is not in future
+        const selectedDate = new Date(installDate.replace(' ', 'T'));
+        const now = new Date();
+        if (selectedDate > now) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Installation date cannot be in the future';
+            validationModal.show();
+            return;
+        }
+
+        // All validation passed - show loading state and submit form (Issue 6 fix)
+        const submitBtn = document.getElementById('install_submit_btn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Installing...';
+
+        // Submit form
+        form.submit();
+    }
+
+    // Function to submit collection via AJAX (like existing collection modal)
+    function submitCollectionAjax() {
+        const collectionId = document.getElementById('collection_select').value;
+        const installDate = document.getElementById('collection_installation_date').value;
+        const bikeId = document.getElementById('install-bike-name').closest('.alert').getAttribute('data-bike-id');
+
+        // Validate required fields
+        if (!collectionId) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Please select a collection to install';
+            validationModal.show();
+            return;
+        }
+
+        // Validate date format
+        const datePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+        if (!installDate || !datePattern.test(installDate)) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Please enter a valid installation date in format YYYY-MM-DD HH:MM';
+            validationModal.show();
+            return;
+        }
+
+        // Validate date is not in future
+        const selectedDate = new Date(installDate.replace(' ', 'T'));
+        const now = new Date();
+        if (selectedDate > now) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Installation date cannot be in the future';
+            validationModal.show();
+            return;
+        }
+
+        // Disable submit button during request
+        const submitBtn = document.getElementById('install_submit_btn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Installing...';
+
+        // Submit via AJAX to /change_collection_status
+        fetch('/change_collection_status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                collection_id: collectionId,
+                new_status: 'Installed',
+                updated_date: installDate,
+                bike_id: bikeId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Close install modal
+            const modal = bootstrap.Modal.getInstance(installModal);
+            modal.hide();
+
+            // Show report modal with results
+            const isSuccess = data.success === 'True';
+            const isPartial = data.success === 'warning';
+
+            showReportModal(
+                isSuccess ? 'Collection Installed Successfully' :
+                isPartial ? 'Collection Partially Installed' : 'Collection Installation Failed',
+                data.message,
+                isSuccess,
+                isPartial,
+                function() {
+                    // Refresh page after modal dismissed
+                    window.location.reload();
+                }
+            );
+
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Install Collection';
+        })
+        .catch(error => {
+            console.error('Error installing collection:', error);
+
+            // Show error toast
+            showToast('Network error. Please check your connection and try again.', 'False');
+
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Install Collection';
+        });
+    }
+
+    // Function to update submit button text based on current mode
+    function updateSubmitButtonText() {
+        const submitBtn = document.getElementById('install_submit_btn');
+        if (currentMode === 'component') {
+            submitBtn.textContent = 'Install Component';
+        } else {
+            submitBtn.textContent = 'Install Collection';
+        }
+    }
+
+    // Function to check empty states and disable submit button if needed (Issue 2 fix)
+    function checkEmptyStatesAndUpdateButton() {
+        const componentOptions = document.querySelectorAll('#component_select option[value!=""]');
+        const collectionOptions = document.querySelectorAll('#collection_select option[value!=""]');
+        const submitBtn = document.getElementById('install_submit_btn');
+
+        // If both modes have no options, disable the button
+        if (componentOptions.length === 0 && collectionOptions.length === 0) {
+            submitBtn.disabled = true;
+            submitBtn.title = 'No components or collections available to install';
+        } else if (currentMode === 'component' && componentOptions.length === 0) {
+            submitBtn.disabled = true;
+            submitBtn.title = 'No components available to install';
+        } else if (currentMode === 'collection' && collectionOptions.length === 0) {
+            submitBtn.disabled = true;
+            submitBtn.title = 'No collections available to install';
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.title = '';
+        }
+    }
+});
+
 // ====================================================================================
 // Component details page functions
 // ====================================================================================

@@ -52,7 +52,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 async def startup_event():
     """Function to register background tasks"""
     start_scheduler()
-    asyncio.create_task(business_logic.pull_strava_background("recent"))
+    #asyncio.create_task(business_logic.pull_strava_background("recent"))
 
 # Shutdown event
 @app.on_event("shutdown")
@@ -261,16 +261,22 @@ async def component_modify(component_id: Optional[str] = Form(None),
 async def add_history_record(component_id: str = Form(...),
                              component_installation_status: str = Form(...),
                              component_bike_id: str = Form(...),
-                             component_updated_date: str = Form(...)):
-    """Endpoint to update an existing component history record"""
+                             component_updated_date: str = Form(...),
+                             redirect_to: Optional[str] = Form(None)):
+    """Endpoint to add an existing component history record"""
 
     success, message = business_logic.create_history_record(component_id,
                                                             component_installation_status,
                                                             component_bike_id,
                                                             component_updated_date)
 
+    if redirect_to == "bike_details":
+        redirect_url = f"/bike_details/{component_bike_id}?success={success}&message={message}"
+    else:
+        redirect_url = f"/component_details/{component_id}?success={success}&message={message}"
+
     response = RedirectResponse(
-        url=f"/component_details/{component_id}?success={success}&message={message}",
+        url=redirect_url,
         status_code=303)
 
     return response

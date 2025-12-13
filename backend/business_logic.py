@@ -103,6 +103,7 @@ class BusinessLogic():
         component_types_data = database_manager.read_all_component_types()
 
         all_components_data = database_manager.read_all_components()
+        all_collections = self.get_all_collections()
 
         bike_components = database_manager.read_subset_components(bike_id)
         bike_component_data = []
@@ -195,6 +196,7 @@ class BusinessLogic():
                    "component_types_data": component_types_data,
                    "bike_component_data": bike_component_data,
                    "all_components_data": all_components_data,
+                   "all_collections": all_collections,
                    "count_installed" : count_installed,
                    "count_retired" : count_retired,
                    "sum_cost" : sum_cost,
