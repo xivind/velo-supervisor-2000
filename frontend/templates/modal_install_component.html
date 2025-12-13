@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header input-modal-header">
-                <h5 class="modal-title input-modal-title" id="installComponentModalLabel">Install Component</h5>
+                <h5 class="modal-title input-modal-title" id="installComponentModalLabel">Install component</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -51,13 +51,13 @@
                                 <select class="form-select" id="component_select" required>
                                     <option value=""></option>
                                     {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days in payload.all_components_data %}
-                                        {% if status == "Not installed" %}
+                                        {% if status == "Not installed" and (not bike or bike == "Not assigned") %}
                                         <option value="{{ component_id }}">{{ name }} ({{ type }}) - {{ distance }} km</option>
                                         {% endif %}
                                     {% endfor %}
                                 </select>
                                 <small class="form-text text-muted">
-                                    Only showing components not currently installed
+                                    Only showing components that are not installed and not assigned to any bike
                                 </small>
                             </div>
 
@@ -72,7 +72,7 @@
                                     <span class="input-group-text datepicker-toggle">🗓</span>
                                 </div>
                                 <small class="form-text text-muted">
-                                    Date cannot be in the future
+                                    Date will be set as updated date for the component
                                 </small>
                             </div>
                         </form>
@@ -86,28 +86,37 @@
                                 <label for="collection_select" class="form-label fw-bold">Select collection to install</label>
                                 <select class="form-select" id="collection_select">
                                     <option value="" selected></option>
-                                    {% for collection in payload.all_collections %}
-                                        {# Check if ALL components in this collection are "Not installed" #}
-                                        {% set all_not_installed = true %}
-                                        {% for comp_id in collection[3] %}
+                                    {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details in payload.all_collections %}
+                                        {# Skip collections without components #}
+                                        {% if component_details and component_details|length > 0 %}
+                                        {% set ns = namespace(all_available=true) %}
+                                        {% set component_ids = [] %}
+                                        {% set component_names = [] %}
+                                        {% for comp_detail in component_details %}
                                             {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days in payload.all_components_data %}
-                                                {% if component_id == comp_id and status != "Not installed" %}
-                                                    {% set all_not_installed = false %}
+                                                {% if component_id == comp_detail.id %}
+                                                    {% if component_ids.append(comp_detail.id) %}{% endif %}
+                                                    {% if component_names.append(name ~ ' (' ~ type ~ ')') %}{% endif %}
+                                                    {% if status != "Not installed" or (bike and bike != "Not assigned") %}
+                                                        {% set ns.all_available = false %}
+                                                    {% endif %}
                                                 {% endif %}
                                             {% endfor %}
                                         {% endfor %}
-                                        {# Only show collection if all components are "Not installed" #}
-                                        {% if all_not_installed %}
-                                        <option value="{{ collection[0] }}"
-                                                data-component-count="{{ collection[3]|length }}"
-                                                data-component-ids="{{ collection[3]|join(',') }}">
-                                            {{ collection[1] }} ({{ collection[3]|length }} components)
+                                        {# Only show collection if all components are available #}
+                                        {% if ns.all_available %}
+                                        <option value="{{ collection_id }}"
+                                                data-component-count="{{ component_details|length }}"
+                                                data-component-ids="{{ component_ids|join(',') }}"
+                                                data-component-names="{{ component_names|join('|||') }}">
+                                            {{ collection_name }} ({{ component_details|length }} components)
                                         </option>
+                                        {% endif %}
                                         {% endif %}
                                     {% endfor %}
                                 </select>
                                 <small class="form-text text-muted">
-                                    Only showing collections where all components are unassigned
+                                    Only showing collections that have components and where all components are unassigned
                                 </small>
                             </div>
 
@@ -115,7 +124,7 @@
                             <div id="collection_preview" style="display: none;">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h6 class="card-title">Collection members</h6>
+                                        <h6 class="card-title">Collection components:</h6>
                                         <ul id="collection_members_list" class="mb-0"></ul>
                                     </div>
                                 </div>
@@ -131,7 +140,7 @@
                                     <span class="input-group-text datepicker-toggle">🗓</span>
                                 </div>
                                 <small class="form-text text-muted">
-                                    Date will be applied to all components in the collection
+                                    Date will be set as updated date for all components in the collection
                                 </small>
                             </div>
                         </div>
@@ -141,7 +150,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="install_submit_btn">Install Component</button>
+                <button type="button" class="btn btn-primary" id="install_submit_btn">Install component</button>
             </div>
         </div>
     </div>

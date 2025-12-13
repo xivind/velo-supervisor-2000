@@ -1738,7 +1738,7 @@ function editCollection(element, options = {}) {
     }
 
     // Format collection status change messages following existing HTML patterns
-    function formatCollectionStatusMessage(messageData) {
+    window.formatCollectionStatusMessage = function(messageData) {
         if (typeof messageData === 'string') {
             // Backward compatibility: if message is still a string, return as-is
             return messageData;
@@ -3604,25 +3604,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (this.value) {
             // Show collection preview with component names
-            const componentIds = selectedOption.getAttribute('data-component-ids').split(',');
-
-            // Get component names from component_select options
-            const componentSelect = document.getElementById('component_select');
-            const componentNames = [];
-
-            componentIds.forEach(compId => {
-                const option = componentSelect.querySelector(`option[value="${compId}"]`);
-                if (option) {
-                    componentNames.push(option.textContent);
-                }
-            });
+            const componentNamesAttr = selectedOption.getAttribute('data-component-names');
+            const componentNames = componentNamesAttr ? componentNamesAttr.split('|||') : [];
 
             // Display component list
             const previewList = document.getElementById('collection_members_list');
             if (componentNames.length > 0) {
                 previewList.innerHTML = componentNames.map(name => `<li>${name}</li>`).join('');
             } else {
-                previewList.innerHTML = `<li>${componentIds.length} components will be installed</li>`;
+                // Fallback if names not available
+                const componentCount = selectedOption.getAttribute('data-component-count');
+                previewList.innerHTML = `<li>${componentCount} components will be installed</li>`;
             }
 
             document.getElementById('collection_preview').style.display = 'block';
@@ -3648,7 +3640,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function submitComponentForm() {
         const form = document.getElementById('install_component_form');
         const componentId = document.getElementById('install_component_id').value;
-        const installDate = document.getElementById('component_installation_date').value;
+        const dateInput = document.getElementById('component_installation_date');
 
         // Validate required fields
         if (!componentId) {
@@ -3658,26 +3650,29 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Validate date format (reuse existing pattern)
-        const datePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
-        if (!installDate || !datePattern.test(installDate)) {
+        // Validate date using standard validation function
+        if (!validateDateInput(dateInput)) {
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = 'Please enter a valid installation date in format YYYY-MM-DD HH:MM';
             validationModal.show();
             return;
         }
 
-        // Validate date is not in future
-        const selectedDate = new Date(installDate.replace(' ', 'T'));
+        // Validate date is not in future (TODO: standardize this check across codebase)
+        const selectedDate = new Date(dateInput.value.replace(' ', 'T'));
         const now = new Date();
         if (selectedDate > now) {
+            dateInput.classList.add('is-invalid');
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = 'Installation date cannot be in the future';
             validationModal.show();
             return;
         }
 
-        // All validation passed - show loading state and submit form (Issue 6 fix)
+        // Clear invalid state if we got here
+        dateInput.classList.remove('is-invalid');
+
+        // All validation passed - show loading state and submit form
         const submitBtn = document.getElementById('install_submit_btn');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Installing...';
@@ -3689,7 +3684,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to submit collection via AJAX (like existing collection modal)
     function submitCollectionAjax() {
         const collectionId = document.getElementById('collection_select').value;
-        const installDate = document.getElementById('collection_installation_date').value;
+        const dateInput = document.getElementById('collection_installation_date');
         const bikeId = document.getElementById('install-bike-name').closest('.alert').getAttribute('data-bike-id');
 
         // Validate required fields
@@ -3700,24 +3695,27 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Validate date format
-        const datePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
-        if (!installDate || !datePattern.test(installDate)) {
+        // Validate date using standard validation function
+        if (!validateDateInput(dateInput)) {
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = 'Please enter a valid installation date in format YYYY-MM-DD HH:MM';
             validationModal.show();
             return;
         }
 
-        // Validate date is not in future
-        const selectedDate = new Date(installDate.replace(' ', 'T'));
+        // Validate date is not in future (TODO: standardize this check across codebase)
+        const selectedDate = new Date(dateInput.value.replace(' ', 'T'));
         const now = new Date();
         if (selectedDate > now) {
+            dateInput.classList.add('is-invalid');
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = 'Installation date cannot be in the future';
             validationModal.show();
             return;
         }
+
+        // Clear invalid state if we got here
+        dateInput.classList.remove('is-invalid');
 
         // Disable submit button during request
         const submitBtn = document.getElementById('install_submit_btn');
@@ -3742,13 +3740,15 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.hide();
 
             // Show report modal with results
-            const isSuccess = data.success === 'True';
+            const isSuccess = data.success === 'True' || data.success === true;
             const isPartial = data.success === 'warning';
 
+            const formattedMessage = formatCollectionStatusMessage(data.message);
+
             showReportModal(
-                isSuccess ? 'Collection Installed Successfully' :
-                isPartial ? 'Collection Partially Installed' : 'Collection Installation Failed',
-                data.message,
+                isSuccess ? 'Collection installed successfully' :
+                isPartial ? 'Collection partially installed' : 'Collection installation failed',
+                formattedMessage,
                 isSuccess,
                 isPartial,
                 function() {
@@ -3759,7 +3759,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Re-enable submit button
             submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Install Collection';
+            submitBtn.innerHTML = 'Install collection';
         })
         .catch(error => {
             console.error('Error installing collection:', error);
@@ -3769,7 +3769,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Re-enable submit button
             submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Install Collection';
+            submitBtn.innerHTML = 'Install collection';
         });
     }
 
@@ -3777,16 +3777,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateSubmitButtonText() {
         const submitBtn = document.getElementById('install_submit_btn');
         if (currentMode === 'component') {
-            submitBtn.textContent = 'Install Component';
+            submitBtn.textContent = 'Install component';
         } else {
-            submitBtn.textContent = 'Install Collection';
+            submitBtn.textContent = 'Install collection';
         }
     }
 
     // Function to check empty states and disable submit button if needed (Issue 2 fix)
     function checkEmptyStatesAndUpdateButton() {
-        const componentOptions = document.querySelectorAll('#component_select option[value!=""]');
-        const collectionOptions = document.querySelectorAll('#collection_select option[value!=""]');
+        const componentOptions = document.querySelectorAll('#component_select option:not([value=""])');
+        const collectionOptions = document.querySelectorAll('#collection_select option:not([value=""])');
         const submitBtn = document.getElementById('install_submit_btn');
 
         // If both modes have no options, disable the button
