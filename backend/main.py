@@ -53,14 +53,10 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 async def startup_event():
     """Function to register background tasks and configure logging"""
 
-    # Configure logging level based on config
     verbose_logging = CONFIG.get('verbose_logging', False)
+    logging.info(f"Verbose logging is {'enabled' if verbose_logging else 'disabled'}")
     log_level = logging.DEBUG if verbose_logging else logging.INFO
-
-    # Set level for root logger (affects all loggers)
     logging.getLogger().setLevel(log_level)
-
-    # Also set for specific handlers if needed
     for handler in logging.getLogger().handlers:
         handler.setLevel(log_level)
 
