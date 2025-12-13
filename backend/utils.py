@@ -27,16 +27,17 @@ def read_config():
         config = json.load(file)
     return config
 
-def write_config(db_path, strava_tokens):
+def write_config(db_path, strava_tokens, verbose_logging=False):
     """Function to update configuration file"""
     try:
         updated_config = {"db_path": db_path,
-                          "strava_tokens": strava_tokens}
+                          "strava_tokens": strava_tokens,
+                          "verbose_logging": verbose_logging}
 
         with open('config.json', 'w', encoding='utf-8') as file:
             json.dump(updated_config, file, indent=4)
 
-        return True, f"Configuration updated. New database path is {db_path}. New strava tokens path is {strava_tokens}." 
+        return True, f"Configuration updated. Verbose logging: {'enabled' if verbose_logging else 'disabled'}."
 
     except OSError as error:
         return False, f"An error occured updating configuration: {str(error)}"

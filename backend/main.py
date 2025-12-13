@@ -4,6 +4,7 @@
 from typing import Optional, List
 import asyncio
 import atexit
+import logging
 from middleware import Middleware
 from scheduler import start_scheduler, stop_scheduler
 from fastapi import FastAPI, Request, Form
@@ -50,7 +51,19 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 # Startup event
 @app.on_event("startup")
 async def startup_event():
-    """Function to register background tasks"""
+    """Function to register background tasks and configure logging"""
+
+    # Configure logging level based on config
+    verbose_logging = CONFIG.get('verbose_logging', False)
+    log_level = logging.DEBUG if verbose_logging else logging.INFO
+
+    # Set level for root logger (affects all loggers)
+    logging.getLogger().setLevel(log_level)
+
+    # Also set for specific handlers if needed
+    for handler in logging.getLogger().handlers:
+        handler.setLevel(log_level)
+
     start_scheduler()
     #asyncio.create_task(business_logic.pull_strava_background("recent"))
 
@@ -157,7 +170,8 @@ async def config_overview(request: Request,
     """Endpoint for component types page"""
 
     payload = {"strava_tokens": CONFIG['strava_tokens'],
-               "db_path": CONFIG['db_path']}
+               "db_path": CONFIG['db_path'],
+               "verbose_logging": CONFIG.get('verbose_logging', False)}
     template_path = "config.html"
 
     return templates.TemplateResponse(template_path,
@@ -627,10 +641,11 @@ async def delete_record(record_id: str = Form(...),
 @app.post("/update_config")
 async def update_config(request: Request,
                         db_path: str = Form(...),
-                        strava_tokens: str = Form(...)):
+                        strava_tokens: str = Form(...),
+                        verbose_logging: bool = Form(False)):
     """Endpoint to update config file"""
 
-    success, message = write_config(db_path, strava_tokens)
+    success, message = write_config(db_path, strava_tokens, verbose_logging)
 
     response = RedirectResponse(
         url=f"/config_overview?success={success}&message={message}",

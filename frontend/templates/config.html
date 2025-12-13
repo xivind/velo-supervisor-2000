@@ -50,6 +50,16 @@
                     <label for="strava_tokens" class="form-label fw-bold">Path to oauth file</label>
                     <input type="text" class="form-control" id="strava_tokens" name="strava_tokens" value="{{ payload.strava_tokens }}">
                 </div>
+                <div class="col-12 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="verbose_logging"
+                               name="verbose_logging" {% if payload.verbose_logging %}checked{% endif %}>
+                        <label class="form-check-label fw-bold" for="verbose_logging">
+                            Verbose logging
+                        </label>
+                        <div class="form-text">Enable detailed diagnostic logging for troubleshooting. Application will restart after saving.</div>
+                    </div>
+                </div>
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary">Save and restart</button>
                 </div>
