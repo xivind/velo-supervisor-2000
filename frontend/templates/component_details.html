@@ -53,7 +53,9 @@
         <span>🚴 View bike</span>
     </button>
 {% endif %}
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentStatusModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentStatusModal"
+        data-collection-name="{{ payload.component_collection_names[payload.bike_component_data['component_id']] if payload.bike_component_data['component_id'] in payload.component_collection_names else '' }}"
+        {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>🔄 Update status</span>
 </button>
 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentDetailsModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>

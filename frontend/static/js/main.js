@@ -843,6 +843,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const bikeId = this.dataset.bikeId;
                 const updatedDate = this.dataset.updatedDate;
                 const collectionId = this.dataset.collectionId;
+                const collectionName = this.dataset.collectionName;
                 const pageBikeId = this.dataset.pageBikeId;
                 const pageContext = this.dataset.pageContext;
 
@@ -879,6 +880,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 const modalTitle = modal.querySelector('.modal-title');
                 if (modalTitle) {
                     modalTitle.textContent = `Update status: ${componentName}`;
+                }
+
+                // Show/hide collection warning banner
+                const collectionWarningBanner = modal.querySelector('#collection-warning-banner');
+                const collectionWarningCollectionName = modal.querySelector('#collection-warning-collection-name');
+                if (collectionWarningBanner && collectionWarningCollectionName) {
+                    if (collectionName) {
+                        collectionWarningCollectionName.textContent = `(${collectionName})`;
+                        collectionWarningBanner.style.display = 'block';
+                    } else {
+                        collectionWarningBanner.style.display = 'none';
+                    }
                 }
 
                 // Show the modal
@@ -3420,7 +3433,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             // Enhanced version that stores original values and sets current date
-            editComponentStatusModal.addEventListener('show.bs.modal', function() {
+            editComponentStatusModal.addEventListener('show.bs.modal', function(event) {
                 // Set current date/time
                 const now = new Date();
                 const formattedDate = now.getFullYear() + '-' +
@@ -3446,6 +3459,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (bikeSelect) {
                     bikeSelect.dataset.originalValue = bikeSelect.value;
+                }
+
+                // Handle collection warning for component_details page (when triggered by Bootstrap data-bs-toggle)
+                // Check if the button that triggered the modal has collection data
+                const triggerButton = event.relatedTarget;
+                if (triggerButton && triggerButton.hasAttribute('data-collection-name')) {
+                    const collectionName = triggerButton.dataset.collectionName;
+                    const collectionWarningBanner = editComponentStatusModal.querySelector('#collection-warning-banner');
+                    const collectionWarningCollectionName = editComponentStatusModal.querySelector('#collection-warning-collection-name');
+
+                    if (collectionWarningBanner && collectionWarningCollectionName) {
+                        if (collectionName) {
+                            collectionWarningCollectionName.textContent = `(${collectionName})`;
+                            collectionWarningBanner.style.display = 'block';
+                        } else {
+                            collectionWarningBanner.style.display = 'none';
+                        }
+                    }
                 }
             });
         } else {

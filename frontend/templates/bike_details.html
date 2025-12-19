@@ -267,6 +267,7 @@
                                             data-bike-id="{{ payload.bike_data['bike_id'] }}"
                                             data-updated-date="{{ updated_date }}"
                                             data-page-bike-id="{{ payload.bike_data['bike_id'] }}"
+                                            data-collection-name="{{ payload.component_collection_names[component_id] if component_id in payload.component_collection_names else '' }}"
                                             {% if installation_status == "Retired" %}disabled{% endif %}
                                             onclick="event.stopPropagation();">
                                             🔄
