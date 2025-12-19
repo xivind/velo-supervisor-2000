@@ -25,6 +25,7 @@
 {% endwith %}
 
 {% include "modal_quick_swap.html" %}
+{% include "modal_update_component_status.html" %}
 
 {% with bike_data = payload.bike_data %}
     {% include "modal_install_component.html" %}
@@ -178,7 +179,7 @@
                     </thead>
                     <tbody>
                         {% if payload.bike_component_data %}
-                            {% for component_id, lifetime_remaining, service_next, installation_status, type, name, component_distance, lifetime_status, service_status, cost, lifetime_trigger, service_trigger, lifetime_remaining_days, service_next_days in payload.bike_component_data %}
+                            {% for component_id, lifetime_remaining, service_next, installation_status, type, name, component_distance, lifetime_status, service_status, cost, lifetime_trigger, service_trigger, lifetime_remaining_days, service_next_days, updated_date in payload.bike_component_data %}
                                 <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
                                     <td>
                                         {% if installation_status == "Installed" %}
@@ -259,6 +260,16 @@
                                         {% endif %}
                                     </td>
                                     <td class="text-end">
+                                        <button type="button" class="btn btn-outline-primary btn-sm change-status-btn mb-1"
+                                            data-component-id="{{ component_id }}"
+                                            data-component-name="{{ name }}"
+                                            data-installation-status="{{ installation_status }}"
+                                            data-bike-id="{{ payload.bike_data['bike_id'] }}"
+                                            data-updated-date="{{ updated_date }}"
+                                            data-page-bike-id="{{ payload.bike_data['bike_id'] }}"
+                                            onclick="event.stopPropagation();">
+                                            🔄
+                                        </button>
                                         {% if installation_status == "Installed" %}
                                         <button type="button" class="btn btn-outline-primary btn-sm quick-swap-btn mb-1"
                                             data-component-id="{{ component_id }}"

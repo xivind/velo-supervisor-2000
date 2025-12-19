@@ -304,11 +304,14 @@ async def add_history_record(request: Request,
         return JSONResponse(content={"success": success,
                                      "message": message})
     else:
-        if redirect_to == "bike_details":
-            redirect_url = f"/bike_details/{component_bike_id}?success={success}&message={message}"
+        if redirect_to and redirect_to.startswith("bike_details_"):
+            bike_id = redirect_to.replace("bike_details_", "")
+            redirect_url = f"/bike_details/{bike_id}?success={success}&message={message}"
         elif redirect_to and redirect_to.startswith("collection_details_"):
             collection_id = redirect_to.replace("collection_details_", "")
             redirect_url = f"/collection_details/{collection_id}?success={success}&message={message}"
+        elif redirect_to == "component_overview":
+            redirect_url = f"/component_overview?success={success}&message={message}"
         else:
             redirect_url = f"/component_details/{component_id}?success={success}&message={message}"
 

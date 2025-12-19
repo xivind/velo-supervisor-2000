@@ -124,7 +124,8 @@ class BusinessLogic():
                                        triggers["lifetime_trigger"],
                                        triggers["service_trigger"],
                                        "-" if component.lifetime_remaining_days is None else component.lifetime_remaining_days,
-                                       "-" if component.service_next_days is None else component.service_next_days))
+                                       "-" if component.service_next_days is None else component.service_next_days,
+                                       component.updated_date))
 
         count_installed = sum(1 for component in bike_component_data if component[3] == "Installed")
         count_retired = sum(1 for component in bike_component_data if component[3] == "Retired")
@@ -1721,11 +1722,11 @@ class BusinessLogic():
                 
                 self.update_bike_status(bike_id)
 
-            return True, "Successfully processed history records and related services"
+            return True, f"Successfully processed history records and related services for {component.component_name}"
 
         except Exception as error:
-            logging.error(f"An error occurred processing history records for component {component_id}: {str(error)}")
-            return False, f"Error processing history records for component {component_id}: {str(error)}"
+            logging.error(f"An error occurred processing history records for component {component.component_name}: {str(error)}")
+            return False, f"Error processing history records for {component.component_name}: {str(error)}"
 
     def quick_swap_orchestrator(self,
                                 old_component_id,

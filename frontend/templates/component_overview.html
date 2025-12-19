@@ -25,6 +25,7 @@
 {% include "modal_workplan_record.html" %}
 {% include "modal_collection.html" %}
 {% include "modal_quick_swap.html" %}
+{% include "modal_update_component_status.html" %}
 
 <hr/>
 
@@ -232,6 +233,16 @@
                                 {{ bike }}
                             </td>
                             <td class="text-end">
+                                <button type="button" class="btn btn-outline-primary btn-sm change-status-btn mb-1"
+                                    data-component-id="{{ component_id }}"
+                                    data-component-name="{{ name }}"
+                                    data-installation-status="{{ installation_status }}"
+                                    data-bike-id="{{ bike_id if bike_id else '' }}"
+                                    data-updated-date="{{ updated_date }}"
+                                    data-page-context="component_overview"
+                                    onclick="event.stopPropagation();">
+                                    🔄
+                                </button>
                                 {% if installation_status == "Installed" %}
                                 <button type="button" class="btn btn-outline-primary btn-sm quick-swap-btn mb-1"
                                     data-component-id="{{ component_id }}"

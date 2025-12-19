@@ -820,6 +820,75 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Handle "Change Status" buttons (used on collection_details, bike_details, and component_overview pages)
+document.addEventListener('DOMContentLoaded', function() {
+    const changeStatusButtons = document.querySelectorAll('.change-status-btn');
+
+    if (changeStatusButtons.length > 0) {
+        const modal = document.getElementById('editComponentStatusModal');
+
+        if (!modal) {
+            console.error('editComponentStatusModal not found');
+            return;
+        }
+
+        changeStatusButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent row click event
+
+                // Get component data from button attributes
+                const componentId = this.dataset.componentId;
+                const componentName = this.dataset.componentName;
+                const installationStatus = this.dataset.installationStatus;
+                const bikeId = this.dataset.bikeId;
+                const updatedDate = this.dataset.updatedDate;
+                const collectionId = this.dataset.collectionId;
+                const pageBikeId = this.dataset.pageBikeId;
+                const pageContext = this.dataset.pageContext;
+
+                // Populate modal form fields
+                const componentIdInput = modal.querySelector('#component_id');
+                const statusSelect = modal.querySelector('#component_installation_status');
+                const bikeSelect = modal.querySelector('#component_bike_id');
+                const dateInput = modal.querySelector('#component_updated_date');
+                const redirectInput = modal.querySelector('#component_redirect_to');
+
+                if (componentIdInput) componentIdInput.value = componentId;
+                if (statusSelect) statusSelect.value = installationStatus;
+                if (bikeSelect) bikeSelect.value = bikeId;
+                if (dateInput) dateInput.value = updatedDate;
+
+                // Set redirect destination based on context
+                if (redirectInput) {
+                    if (collectionId) {
+                        // Collection details page - redirect back to collection
+                        redirectInput.value = `collection_details_${collectionId}`;
+                    } else if (pageBikeId) {
+                        // Bike details page - redirect back to bike details with bike_id
+                        redirectInput.value = `bike_details_${pageBikeId}`;
+                    } else if (pageContext === 'component_overview') {
+                        // Component overview page - redirect back to component overview
+                        redirectInput.value = 'component_overview';
+                    } else {
+                        // Other pages - default redirect to component details
+                        redirectInput.value = '';
+                    }
+                }
+
+                // Update modal title
+                const modalTitle = modal.querySelector('.modal-title');
+                if (modalTitle) {
+                    modalTitle.textContent = `Update status: ${componentName}`;
+                }
+
+                // Show the modal
+                const bsModal = new bootstrap.Modal(modal);
+                bsModal.show();
+            });
+        });
+    }
+});
+
 // Function to delete records
 document.addEventListener('DOMContentLoaded', function() {
     // Add confirm modal to the page if it doesn't exist
@@ -3291,62 +3360,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Collection details page functions
 // ============================================================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle "Change Status" buttons on collection_details page
-    const changeStatusButtons = document.querySelectorAll('.change-status-btn');
-
-    if (changeStatusButtons.length > 0) {
-        const modal = document.getElementById('editComponentStatusModal');
-
-        if (!modal) {
-            console.error('editComponentStatusModal not found');
-            return;
-        }
-
-        changeStatusButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.stopPropagation(); // Prevent row click event
-
-                // Get component data from button attributes
-                const componentId = this.dataset.componentId;
-                const componentName = this.dataset.componentName;
-                const installationStatus = this.dataset.installationStatus;
-                const bikeId = this.dataset.bikeId;
-                const updatedDate = this.dataset.updatedDate;
-                const collectionId = this.dataset.collectionId;
-
-                // Populate modal form fields
-                const componentIdInput = modal.querySelector('#component_id');
-                const statusSelect = modal.querySelector('#component_installation_status');
-                const bikeSelect = modal.querySelector('#component_bike_id');
-                const dateInput = modal.querySelector('#component_updated_date');
-                const redirectInput = modal.querySelector('#component_redirect_to');
-
-                if (componentIdInput) componentIdInput.value = componentId;
-                if (statusSelect) statusSelect.value = installationStatus;
-                if (bikeSelect) bikeSelect.value = bikeId;
-                if (dateInput) dateInput.value = updatedDate;
-
-                // Set redirect destination based on context
-                if (redirectInput && collectionId) {
-                    redirectInput.value = `collection_details_${collectionId}`;
-                } else if (redirectInput) {
-                    redirectInput.value = '';
-                }
-
-                // Update modal title
-                const modalTitle = modal.querySelector('.modal-title');
-                if (modalTitle) {
-                    modalTitle.textContent = `Update status: ${componentName}`;
-                }
-
-                // Show the modal
-                const bsModal = new bootstrap.Modal(modal);
-                bsModal.show();
-            });
-        });
-    }
-});
+// (Change status button handler moved to "Functions used on multiple pages" section)
 
 // ====================================================================================
 // Component details page functions
