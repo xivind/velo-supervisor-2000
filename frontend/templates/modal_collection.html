@@ -28,11 +28,12 @@
                         <label for="components" class="form-label fw-bold">Collection components</label>
                         <select class="form-select" id="components" name="components" multiple placeholder="Search to add components to collection...">
                             {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days, bike_id, updated_date in payload.all_components_data %}
-                                <option value="{{ component_id }}" data-status="{{ status }}" data-bike="{{ bike }}">
+                                <option value="{{ component_id }}" data-status="{{ status }}" data-bike="{{ bike }}" data-in-collection="{{ 'true' if component_id in payload.component_collection_names else 'false' }}">
                                     {{ name }} ({{ type }}){% if status == "Installed" %} - {{ bike }}{% else %} - Not assigned{% endif %}
                                 </option>
                             {% endfor %}
                         </select>
+                        <small class="text-muted">Retired components and components belonging to other collections are not shown.</small>
                     </div>
 
                     <div class="col-12">

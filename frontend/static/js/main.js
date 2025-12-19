@@ -1218,6 +1218,16 @@ function editCollection(element, options = {}) {
         const retiredOptions = componentSelect.querySelectorAll('option[data-status="Retired"]');
         retiredOptions.forEach(option => option.remove());
 
+        // Handle components already in other collections: remove them unless they belong to the current collection being edited
+        const componentsInCollections = componentSelect.querySelectorAll('option[data-in-collection="true"]');
+        componentsInCollections.forEach(option => {
+            const componentId = option.value;
+            // Only remove if NOT in the original collection components (when editing)
+            if (!window.originalCollectionComponents || !window.originalCollectionComponents.includes(componentId)) {
+                option.remove();
+            }
+        });
+
         if (componentSelect.tomSelect) {
             componentSelect.tomSelect.destroy();
         }
