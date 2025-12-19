@@ -887,7 +887,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const collectionWarningCollectionName = modal.querySelector('#collection-warning-collection-name');
                 if (collectionWarningBanner && collectionWarningCollectionName) {
                     if (collectionName) {
-                        collectionWarningCollectionName.textContent = `(${collectionName})`;
+                        collectionWarningCollectionName.textContent = collectionName;
                         collectionWarningBanner.style.display = 'block';
                     } else {
                         collectionWarningBanner.style.display = 'none';
@@ -3481,7 +3481,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (collectionWarningBanner && collectionWarningCollectionName) {
                         if (collectionName) {
-                            collectionWarningCollectionName.textContent = `(${collectionName})`;
+                            collectionWarningCollectionName.textContent = collectionName;
                             collectionWarningBanner.style.display = 'block';
                         } else {
                             collectionWarningBanner.style.display = 'none';
