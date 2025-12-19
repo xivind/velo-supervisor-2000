@@ -267,6 +267,7 @@
                                             data-bike-id="{{ payload.bike_data['bike_id'] }}"
                                             data-updated-date="{{ updated_date }}"
                                             data-page-bike-id="{{ payload.bike_data['bike_id'] }}"
+                                            {% if installation_status == "Retired" %}disabled{% endif %}
                                             onclick="event.stopPropagation();">
                                             🔄
                                         </button>

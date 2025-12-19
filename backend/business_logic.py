@@ -1570,10 +1570,15 @@ class BusinessLogic():
             
             latest_history_record = database_manager.read_latest_history_record(component_id)
             if latest_history_record:
+                # Check if component is already retired - no status changes allowed
+                if latest_history_record.update_reason == "Retired":
+                    logging.warning(f"Status cannot be changed on a retired component: {component.component_name}")
+                    return False, f"Status cannot be changed on a retired component: {component.component_name}"
+
                 if updated_date <= latest_history_record.updated_date:
                     logging.warning(f"Component status changes must be done chronologically. Date for new status cannot be at or before date for the last status: {latest_history_record.updated_date}. Component: {component.component_name}")
                     return False, f"Component status changes must be done chronologically. Date for new status cannot be at or before date for the last status: {latest_history_record.updated_date}. Component: {component.component_name}"
-                
+
                 if latest_history_record.update_reason == installation_status:
                     logging.warning(f"Component status for {component.component_name} is already set to: {installation_status}.")
                     return False, f"Component status for {component.component_name} is already set to: {installation_status}."

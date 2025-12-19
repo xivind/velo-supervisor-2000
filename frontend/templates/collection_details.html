@@ -227,7 +227,8 @@
                                             data-installation-status="{{ installation_status }}"
                                             data-bike-id="{{ bike_id if bike_id else '' }}"
                                             data-updated-date="{{ updated_date }}"
-                                            data-collection-id="{{ payload.collection_data.collection_id }}">
+                                            data-collection-id="{{ payload.collection_data.collection_id }}"
+                                            {% if installation_status == "Retired" %}disabled{% endif %}>
                                         🔄
                                     </button>
                                 </td>

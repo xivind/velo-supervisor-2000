@@ -240,6 +240,7 @@
                                     data-bike-id="{{ bike_id if bike_id else '' }}"
                                     data-updated-date="{{ updated_date }}"
                                     data-page-context="component_overview"
+                                    {% if installation_status == "Retired" %}disabled{% endif %}
                                     onclick="event.stopPropagation();">
                                     🔄
                                 </button>
