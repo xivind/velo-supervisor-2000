@@ -1915,7 +1915,7 @@ class BusinessLogic():
             logging.error(f"Error updating collection with id {collection_id}: {str(error)}")
             return False, f"Error updating collection with id {collection_id}: {str(error)}"
 
-    def validate_collection(self, collection_id, component_ids, bike_id):
+    def validate_collection(self, collection_id, component_ids, bike_id, new_status=None):
         """Method to validate collections before allowing bulk operations"""
         logging.debug(f"Running validation rules for collection: {collection_id}")
         
@@ -1963,10 +1963,10 @@ class BusinessLogic():
                 bike_names = [database_manager.read_single_bike(bike_id).bike_name for bike_id in component_bikes if database_manager.read_single_bike(bike_id)]
                 logging.warning(f"All installed components in a collection must be on the same bike. Found components on: {', '.join(bike_names)}")
                 return False, f"Operation cancelled: All installed components in a collection must be on the same bike. Found components on bikes: {', '.join(bike_names)}. Select components from the same bike. No changes have been made."
-            
-            if installed_components and not bike_id:
-                logging.warning(f"Collections with installed components must be assigned to a bike")
-                return False, f"Operation cancelled: Collections containing installed components must be assigned to a bike. Assign this collection to the appropriate bike. No changes have been made."
+
+            if new_status == "Installed" and not bike_id:
+                logging.warning(f"Collections being changed to Installed status must be assigned to a bike")
+                return False, f"Operation cancelled: Collections being changed to 'Installed' status must be assigned to a bike. Assign this collection to a bike. No changes have been made."
         
         if bike_id:
             bike = database_manager.read_single_bike(bike_id)
@@ -1991,7 +1991,7 @@ class BusinessLogic():
             if not component_ids:
                 return False, "No components found in collection"
 
-            is_valid, validation_message = self.validate_collection(collection_id, component_ids, bike_id)
+            is_valid, validation_message = self.validate_collection(collection_id, component_ids, bike_id, new_status)
             if not is_valid:
                 logging.warning(f"Collection validation failed: {validation_message}")
                 return False, validation_message
