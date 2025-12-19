@@ -32,9 +32,9 @@
 {# Legend for collection status colors #}
 <div class="d-flex justify-content-start align-items-center mb-2 ms-2">
     <div class="small text-secondary">
-        <span class="me-3"><span class="badge bike-healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection ready for bulk changes</span>
-        <span class="me-3"><span class="badge bike-needs-attention" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has configuration issues</span>
-        <span class="me-3"><span class="badge bike-no-components" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has no components</span>
+        <span class="me-3"><span class="badge status-healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection ready for bulk changes</span>
+        <span class="me-3"><span class="badge status-attention" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has configuration issues</span>
+        <span class="me-3"><span class="badge status-empty" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has no components</span>
     </div>
 </div>
 
@@ -62,9 +62,9 @@
                         <tr>
                             <td>
                                 <span class="badge
-                                    {% if status == 'healthy' %}bike-healthy
-                                    {% elif status == 'needs_attention' %}bike-needs-attention
-                                    {% else %}bike-no-components
+                                    {% if status == 'healthy' %}status-healthy
+                                    {% elif status == 'needs_attention' %}status-attention
+                                    {% else %}status-empty
                                     {% endif %}"
                                     style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0; margin-right: 8px;"></span>
                                 {{ collection_name }}

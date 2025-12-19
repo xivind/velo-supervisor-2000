@@ -55,11 +55,11 @@
         <div class="card shadow mb-4">
             <div class="card-header fs-5 fw-bold d-flex justify-content-between align-items-center
             {%- if payload.bike_data['bike_service_status'] == 'No components registered' or payload.bike_data['bike_service_status'] == 'No active components' -%}
-                text-bg-dark bike-no-components
+                text-bg-dark status-empty
             {%- elif payload.bike_data['bike_service_status'] == 'Components need attention' -%}
-                text-bg-dark bike-needs-attention
+                text-bg-dark status-attention
             {%- else -%}
-                text-bg-dark bike-healthy
+                text-bg-dark status-healthy
             {%- endif -%}">
                 <span>{{ payload.bike_data['bike_name'] }}</span>
                 <span class="fs-5">
