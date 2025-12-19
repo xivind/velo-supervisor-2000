@@ -144,6 +144,22 @@ async def component_details(request: Request,
                                        "success": success,
                                        "message": message})
 
+@app.get("/collection_details/{collection_id}", response_class=HTMLResponse)
+async def collection_details(request: Request,
+                             collection_id: str,
+                             success: Optional[str] = None,
+                             message: Optional[str] = None):
+    """Endpoint for collection details page"""
+
+    payload = business_logic.get_collection_details(collection_id)
+    template_path = "collection_details.html"
+
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "payload": payload,
+                                       "success": success,
+                                       "message": message})
+
 @app.get("/component_types_overview", response_class=HTMLResponse)
 async def component_types_overview(request: Request,
                                    success: Optional[str] = None,
@@ -267,29 +283,40 @@ async def component_modify(component_id: Optional[str] = Form(None),
 
     return response
 
-@app.post("/add_history_record", response_class=HTMLResponse)
-async def add_history_record(component_id: str = Form(...),
+@app.post("/add_history_record")
+async def add_history_record(request: Request,
+                             component_id: str = Form(...),
                              component_installation_status: str = Form(...),
                              component_bike_id: str = Form(...),
                              component_updated_date: str = Form(...),
                              redirect_to: Optional[str] = Form(None)):
-    """Endpoint to add an existing component history record"""
+    """Endpoint with conditional routing for redirects and AJAX to add an existing component history record."""
 
     success, message = business_logic.create_history_record(component_id,
                                                             component_installation_status,
                                                             component_bike_id,
                                                             component_updated_date)
 
-    if redirect_to == "bike_details":
-        redirect_url = f"/bike_details/{component_bike_id}?success={success}&message={message}"
+    accept_header = request.headers.get("accept", "")
+    is_ajax = "application/json" in accept_header or request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+    if is_ajax:
+        return JSONResponse(content={"success": success,
+                                     "message": message})
     else:
-        redirect_url = f"/component_details/{component_id}?success={success}&message={message}"
+        if redirect_to == "bike_details":
+            redirect_url = f"/bike_details/{component_bike_id}?success={success}&message={message}"
+        elif redirect_to and redirect_to.startswith("collection_details_"):
+            collection_id = redirect_to.replace("collection_details_", "")
+            redirect_url = f"/collection_details/{collection_id}?success={success}&message={message}"
+        else:
+            redirect_url = f"/component_details/{component_id}?success={success}&message={message}"
 
-    response = RedirectResponse(
-        url=redirect_url,
-        status_code=303)
+        response = RedirectResponse(
+            url=redirect_url,
+            status_code=303)
 
-    return response
+        return response
 
 @app.post("/update_history_record", response_class=HTMLResponse)
 async def update_history_record(component_id: str = Form(...),
@@ -355,18 +382,22 @@ async def quick_swap(old_component_id: str = Form(...),
 @app.post("/add_collection", response_class=HTMLResponse)
 async def add_collection(collection_name: str = Form(...),
                             components: Optional[List[str]] = Form(None),
-                            bike_id: Optional[str] = Form(None),
                             comment: Optional[str] = Form(None)):
     """Endpoint to add new collection"""
 
-    success, message = business_logic.create_collection(collection_name,
-                                                     components,
-                                                     bike_id,
-                                                     comment)
+    success, message, collection_id = business_logic.create_collection(collection_name,
+                                                                        components,
+                                                                        comment)
 
-    response = RedirectResponse(
-        url=f"/component_overview?success={success}&message={message}",
-        status_code=303)
+    if success and collection_id:
+        response = RedirectResponse(
+            url=f"/collection_details/{collection_id}?success={success}&message={message}",
+            status_code=303)
+    
+    else:
+        response = RedirectResponse(
+            url=f"/component_overview?success={success}&message={message}",
+            status_code=303)
 
     return response
 
@@ -374,19 +405,22 @@ async def add_collection(collection_name: str = Form(...),
 async def update_collection(collection_id: str = Form(...),
                             collection_name: str = Form(...),
                             components: Optional[List[str]] = Form(None),
-                            bike_id: Optional[str] = Form(None),
-                            comment: Optional[str] = Form(None)):
+                            comment: Optional[str] = Form(None),
+                            redirect_to: Optional[str] = Form(None)):
     """Endpoint to update existing collection"""
 
     success, message = business_logic.update_collection(collection_id,
                                                         collection_name,
                                                         components,
-                                                        bike_id,
                                                         comment)
 
-    response = RedirectResponse(
-        url=f"/component_overview?success={success}&message={message}",
-        status_code=303)
+    if redirect_to == "collection_details":
+        redirect_url = f"/collection_details/{collection_id}?success={success}&message={message}"
+    
+    else:
+        redirect_url = f"/component_overview?success={success}&message={message}"
+
+    response = RedirectResponse(url=redirect_url, status_code=303)
 
     return response
 
@@ -601,30 +635,50 @@ async def delete_record(record_id: str = Form(...),
                         source_page: str = Form(None)):
     """Endpoint to delete records"""
 
-    success, message, component_id, bike_id = business_logic.delete_record(table_selector, record_id)
+    success, message, component_id, bike_id, collection_id = business_logic.delete_record(table_selector, record_id)
 
     redirect_url = "/"
 
     if table_selector == "ComponentTypes":
         redirect_url = "/component_types_overview"
+    
     elif table_selector == "Components":
-        if source_page == "component_overview":
-            redirect_url = "/component_overview"
-        elif source_page == "bike_details" and bike_id:
-            redirect_url = f"/bike_details/{bike_id}"
-        elif source_page == "component_details":
-            if bike_id:
+        if not success:
+            if collection_id:
+                redirect_url = f"/collection_details/{collection_id}"
+            elif source_page == "component_overview":
+                redirect_url = "/component_overview"
+            elif source_page == "bike_details" and bike_id:
                 redirect_url = f"/bike_details/{bike_id}"
+            elif source_page == "component_details" and component_id:
+                redirect_url = f"/component_details/{component_id}"
+            else:
+                redirect_url = "/component_overview"
+        else:
+            if source_page == "component_details":
+                redirect_url = "/component_overview"
+            elif source_page == "bike_details" and bike_id:
+                redirect_url = f"/bike_details/{bike_id}"
+            elif source_page == "component_overview":
+                redirect_url = "/component_overview"
+            else:
+                redirect_url = "/component_overview"
+    
+    elif table_selector == "Collections":
+        if not success:
+            if source_page == "collection_details":
+                redirect_url = f"/collection_details/{record_id}"
             else:
                 redirect_url = "/component_overview"
         else:
             redirect_url = "/component_overview"
-    elif table_selector == "Collections":
-        redirect_url = "/component_overview"
+    
     elif table_selector == "Services" or table_selector == "ComponentHistory":
         redirect_url = f"/component_details/{component_id}"
+    
     elif table_selector == "Incidents":
         redirect_url = "/incident_reports"
+    
     elif table_selector == "Workplans":
         redirect_url = "/workplans"
 

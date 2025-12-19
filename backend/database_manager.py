@@ -173,7 +173,9 @@ class DatabaseManager:
                                 component.service_next,
                                 component.service_next_days,
                                 component.threshold_km,
-                                component.threshold_days) for component in all_components]
+                                component.threshold_days,
+                                component.bike_id,
+                                component.updated_date) for component in all_components]
 
         return all_components_data
 

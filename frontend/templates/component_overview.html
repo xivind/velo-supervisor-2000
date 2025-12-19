@@ -27,6 +27,16 @@
 {% include "modal_quick_swap.html" %}
 
 <hr/>
+
+{# Legend for collection status colors #}
+<div class="d-flex justify-content-start align-items-center mb-2 ms-2">
+    <div class="small text-secondary">
+        <span class="me-3"><span class="badge bike-healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection ready for bulk changes</span>
+        <span class="me-3"><span class="badge bike-needs-attention" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has configuration issues</span>
+        <span class="me-3"><span class="badge bike-no-components" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has no components</span>
+    </div>
+</div>
+
 <div class="card shadow mb-3">
     <div class="card-header fw-bold">Collections</div>
     <div class="card-body">
@@ -47,9 +57,15 @@
             </thead>
             <tbody>
                 {% if payload.all_collections %}
-                    {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details in payload.all_collections %}
+                    {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details, status in payload.all_collections %}
                         <tr>
                             <td>
+                                <span class="badge
+                                    {% if status == 'healthy' %}bike-healthy
+                                    {% elif status == 'needs_attention' %}bike-needs-attention
+                                    {% else %}bike-no-components
+                                    {% endif %}"
+                                    style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0; margin-right: 8px;"></span>
                                 {{ collection_name }}
                             </td>
                             <td>
@@ -151,7 +167,7 @@
             </thead>
             <tbody>
                 {% if payload.all_components_display_data %}
-                    {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost, lifetime_trigger, service_trigger in payload.all_components_display_data %}
+                    {% for component_id, type, name, component_distance, installation_status, lifetime_status, service_status, bike, cost, lifetime_trigger, service_trigger, bike_id, updated_date in payload.all_components_display_data %}
                         <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
                             <td>{{ name }}{% if component_id in payload.planned_workplans["component_workplans"] %} 📝{% endif %}{% if component_id in payload.open_incidents["component_incidents"] %} 🚨{% endif %}</td>
                             <td>

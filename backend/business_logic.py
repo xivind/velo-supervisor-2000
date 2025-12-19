@@ -229,7 +229,9 @@ class BusinessLogic():
                                                 database_manager.read_bike_name(component.bike_id),
                                                 format_cost(component.cost),
                                                 triggers["lifetime_trigger"],
-                                                triggers["service_trigger"]))
+                                                triggers["service_trigger"],
+                                                component.bike_id,
+                                                component.updated_date))
 
         count_installed = sum(1 for component in all_components_display_data if component[4] == "Installed")
         count_not_installed = sum(1 for component in all_components_display_data if component[4] == "Not installed")
@@ -461,6 +463,74 @@ class BusinessLogic():
 
         return payload
 
+    def calculate_collection_status(self, component_ids, collection_bike_id=None):
+        """Calculate status flags for a collection based on its components."""
+        retired_count = 0
+        installed_count = 0
+        not_installed_count = 0
+        bike_ids_of_installed = set()
+
+        for component_id in component_ids:
+            component = database_manager.read_component(component_id)
+            if not component:
+                continue
+
+            if component.installation_status == "Retired":
+                retired_count += 1
+            elif component.installation_status == "Installed":
+                installed_count += 1
+                if component.bike_id:
+                    bike_ids_of_installed.add(component.bike_id)
+            elif component.installation_status == "Not installed":
+                not_installed_count += 1
+
+        is_empty = len(component_ids) == 0
+        has_retired = retired_count > 0
+        has_mixed_statuses = (installed_count > 0 and not_installed_count > 0)
+        has_different_bikes = len(bike_ids_of_installed) > 1
+
+        collection_bike_mismatch = False
+        if collection_bike_id and len(bike_ids_of_installed) > 0:
+            collection_bike_mismatch = collection_bike_id not in bike_ids_of_installed
+
+        can_display_bike = (not is_empty and
+                            not has_retired and
+                            not has_mixed_statuses and
+                            not has_different_bikes and
+                            not collection_bike_mismatch)
+
+        blocks_operations = (is_empty or
+                             has_retired or
+                             has_mixed_statuses or
+                             has_different_bikes)
+
+        if is_empty:
+            status_string = 'no_components'
+        elif blocks_operations:
+            status_string = 'needs_attention'
+        else:
+            status_string = 'healthy'
+
+        bike_names_list = []
+        for bike_id in bike_ids_of_installed:
+            bike_name = database_manager.read_bike_name(bike_id)
+            if bike_name:
+                bike_names_list.append(bike_name)
+
+        return {'is_empty': is_empty,
+                'has_retired': has_retired,
+                'has_mixed_statuses': has_mixed_statuses,
+                'has_different_bikes': has_different_bikes,
+                'collection_bike_mismatch': collection_bike_mismatch,
+                'blocks_operations': blocks_operations,
+                'can_display_bike': can_display_bike,
+                'retired_count': retired_count,
+                'installed_count': installed_count,
+                'not_installed_count': not_installed_count,
+                'bike_count': len(bike_ids_of_installed),
+                'bike_names_list': bike_names_list,
+                'status': status_string}
+
     def get_component_collection_mapping(self):
         """Method to create component-to-collection mapping dictionaries"""
         component_collection_names = {}
@@ -491,12 +561,10 @@ class BusinessLogic():
             component_details = []
             for component_id in component_ids:
                 component = database_manager.read_component(component_id)
-                if component:
-                    component_details.append({'id': component_id,
-                                              'name': component.component_name})
-                else:
-                    component_details.append({'id': component_id,
-                                              'name': 'Deleted component'})
+                component_details.append({'id': component_id,
+                                          'name': component.component_name})
+
+            status_info = self.calculate_collection_status(component_ids, collection.bike_id)
 
             bike_name = None
 
@@ -511,12 +579,47 @@ class BusinessLogic():
                                json.dumps(component_ids),
                                collection.bike_id,
                                collection.comment,
-                               component_details)
-            
+                               component_details,
+                               status_info['status'])
+
             all_collections.append(collection_data)
 
         return all_collections
-    
+
+    def get_collection_details(self, collection_id):
+        """Method to produce payload for collection details page"""
+
+        collection = database_manager.read_single_collection(collection_id)
+        if not collection:
+            logging.error(f"Collection not found: {collection_id}")
+            return {"error": "Collection not found"}
+
+        component_ids = json.loads(collection.components) if collection.components else []
+
+        overview_payload = self.get_component_overview()
+
+        filtered_components = [component for component in overview_payload['all_components_display_data']
+                              if component[0] in component_ids]
+
+        bike_name = database_manager.read_bike_name(collection.bike_id) if collection.bike_id else None
+
+        collection_data = {'collection_id': collection.collection_id,
+                           'collection_name': collection.collection_name,
+                           'updated_date': collection.updated_date,
+                           'bike_name': bike_name,
+                           'bike_id': collection.bike_id,
+                           'component_count': len(component_ids),
+                           'comment': collection.comment,
+                           'components': json.dumps(component_ids)}
+
+        warnings = self.calculate_collection_status(component_ids, collection.bike_id)
+
+        overview_payload['collection_data'] = collection_data
+        overview_payload['all_components_display_data'] = filtered_components
+        overview_payload['warnings'] = warnings
+
+        return overview_payload
+
     def get_incident_reports(self):
         """Method to produce payload for page incident reports"""
         all_components_data = database_manager.read_all_components()
@@ -1761,61 +1864,43 @@ class BusinessLogic():
 
         return True, ""
 
-    def create_collection(self, collection_name, components, bike_id, comment):
+    def create_collection(self, collection_name, components, comment):
         """Method to create collection"""
         try:
             collection_id = generate_unique_id()
-            is_valid, validation_message = self.validate_collection("create collection",
-                                                                    collection_id,
-                                                                    components,
-                                                                    bike_id)
-            if not is_valid:
-                return False, validation_message
-
-            bike_id = None if bike_id == 'None' or bike_id == '' else bike_id
             comment = comment if comment else None
 
             collection_data = {"collection_id": collection_id,
                              "collection_name": collection_name,
                              "components": json.dumps(components) if components else None,
-                             "bike_id": bike_id,
+                             "bike_id": None,
                              "comment": comment,
                              "sub_collections": None,
                              "updated_date": None}
-            
+
             success, message = database_manager.write_collection(collection_data)
 
             if success:
                 logging.info(f"Creation of collection successful: {message}")
+                return success, message, collection_id
             else:
                 logging.error(f"Creation of collection failed: {message}")
-
-            return success, message
+                return success, message, None
 
         except Exception as error:
             logging.error(f"Error creating collection with id {collection_id}: {str(error)}")
-            return False, f"Error creating collection with id {collection_id}: {str(error)}"
+            return False, f"Error creating collection with id {collection_id}: {str(error)}", None
         
-    def update_collection(self, collection_id, collection_name, components, bike_id, comment):
+    def update_collection(self, collection_id, collection_name, components, comment):
         """Method to update collection"""
         try:
-            is_valid, validation_message = self.validate_collection("edit collection",
-                                                                    collection_id,
-                                                                    components,
-                                                                    bike_id)
-            if not is_valid:
-                return False, validation_message
-
-            bike_id = None if bike_id == 'None' or bike_id == '' else bike_id
             comment = comment if comment else None
 
             collection_data = {"collection_id": collection_id,
                              "collection_name": collection_name,
                              "components": json.dumps(components) if components else None,
-                             "bike_id": bike_id,
-                             "comment": comment,
-                             "sub_collections": None}
-            
+                             "comment": comment}
+
             success, message = database_manager.write_collection(collection_data)
 
             if success:
@@ -1829,41 +1914,48 @@ class BusinessLogic():
             logging.error(f"Error updating collection with id {collection_id}: {str(error)}")
             return False, f"Error updating collection with id {collection_id}: {str(error)}"
 
-    def validate_collection(self, mode, collection_id, component_ids, bike_id):
-        """Method to validate collection records before processing and storing in database"""
+    def validate_collection(self, collection_id, component_ids, bike_id):
+        """Method to validate collections before allowing bulk operations"""
         logging.debug(f"Running validation rules for collection: {collection_id}")
         
-        if mode == "edit collection":
-            current_collection = database_manager.read_single_collection(collection_id)
-            if not current_collection:
-                logging.warning(f"Collection not found: {collection_id}")
-                return False, f"Collection not found: {collection_id}"
+        current_collection = database_manager.read_single_collection(collection_id)
+        if not current_collection:
+            logging.warning(f"Collection not found: {collection_id}")
+            return False, f"Collection not found: {collection_id}"
         
         if component_ids:
             installed_components = []
             not_installed_components = []
+            retired_components = []
             component_bikes = set()
-            
+
             for component_id in component_ids:
                 component = database_manager.read_component(component_id)
                 if not component:
                     logging.warning(f"Component not found: {component_id}")
                     return False, f"Operation cancelled: Component {component_id} not found. No changes have been made."
-                
+
                 existing_collection = database_manager.read_collection_by_component(component_id)
                 if existing_collection and existing_collection.collection_id != collection_id:
                     logging.warning(f"Component {component.component_name} already belongs to collection {existing_collection.collection_name}")
                     return False, f"Operation cancelled: Component {component.component_name} already belongs to collection {existing_collection.collection_name}. Remove it from that collection first. No changes have been made."
-                
+
                 if component.installation_status == "Installed":
                     installed_components.append(component)
                     if component.bike_id:
                         component_bikes.add(component.bike_id)
                 elif component.installation_status == "Not installed":
                     not_installed_components.append(component)
-            
+                elif component.installation_status == "Retired":
+                    retired_components.append(component)
+
+            if retired_components:
+                retired_names = [comp.component_name for comp in retired_components]
+                logging.warning(f"Bulk operations not allowed on collections with retired components: {', '.join(retired_names)}")
+                return False, f"Operation cancelled: Bulk operations cannot be performed on collections containing retired components. Retired components: {', '.join(retired_names)}. Remove retired components from this collection first. No changes have been made."
+
             if installed_components and not_installed_components:
-                logging.warning(f"Cannot create collection with both installed and not-installed components")
+                logging.warning(f"Collection cannot contain both installed and not-installed components. No changes have been made.")
                 return False, f"Operation cancelled: Collection cannot contain both installed and not-installed components. Select components with the same installation status. No changes have been made."
             
             if installed_components and len(component_bikes) > 1:
@@ -1894,9 +1986,14 @@ class BusinessLogic():
                 return False, f"Collection {collection_id} not found"
 
             component_ids = json.loads(collection.components) if collection.components else []
-            
+
             if not component_ids:
                 return False, "No components found in collection"
+
+            is_valid, validation_message = self.validate_collection(collection_id, component_ids, bike_id)
+            if not is_valid:
+                logging.warning(f"Collection validation failed: {validation_message}")
+                return False, validation_message
 
             success_count = 0
             successful_components = []
@@ -2682,6 +2779,7 @@ class BusinessLogic():
 
         component_id = None
         bike_id = None
+        collection_id = None
         if table_selector == "Services":
             component_id = database_manager.read_single_service_record(record_id).component_id
             component = database_manager.read_component(component_id)
@@ -2696,12 +2794,18 @@ class BusinessLogic():
 
             if service_history and history_records.count() == 1:
                 logging.warning(f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist")
-                return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id, bike_id
+                return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id, bike_id, collection_id
         
         elif table_selector == "Components":
             component = database_manager.read_component(record_id)
             component_type = component.component_type
             bike_id = component.bike_id
+
+            collection = database_manager.read_collection_by_component(record_id)
+            if collection:
+                collection_id = collection.collection_id
+                logging.warning(f"Cannot delete component {component.component_name} as it is part of collection: {collection.collection_name}")
+                return False, f"Cannot delete component {component.component_name} as it is part of collection: {collection.collection_name}. Remove it from the collection first.", component.component_id, bike_id, collection_id
 
         elif table_selector == "Collections":
             collection = database_manager.read_single_collection(record_id)
@@ -2709,14 +2813,14 @@ class BusinessLogic():
             print(table_selector)
             if collection_component_ids:
                 logging.warning(f"Cannot delete collection {collection.collection_name} as it still contains components.")
-                return False, f"Cannot delete collection {collection.collection_name} as it still contains components. Remove all components from collection before deleting.", None, None
+                return False, f"Cannot delete collection {collection.collection_name} as it still contains components. Remove all components from collection before deleting.", None, None, None
             
 
         elif table_selector == "ComponentTypes":
             component_type = database_manager.read_single_component_type(record_id)
             if component_type.in_use > 0:
                 logging.warning(f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted")
-                return False, f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted", component_id, bike_id
+                return False, f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted", component_id, bike_id, collection_id
         
         success, message = database_manager.write_delete_record(table_selector, record_id)
 
@@ -2734,7 +2838,7 @@ class BusinessLogic():
                                                                     first_service.description)
                     if not success:
                         logging.error(f"An error occured triggering update of service records for {component.component_name} after deletion: {message}")
-                        return False, f"An error occured triggering update of service records for {component.component_name} after deletion: {message}", component_id, bike_id
+                        return False, f"An error occured triggering update of service records for {component.component_name} after deletion: {message}", component_id, bike_id, collection_id
                 
                 elif not service_records:
                     component = database_manager.read_component(component_id)
@@ -2746,27 +2850,27 @@ class BusinessLogic():
                 if history_records.count() == 0:
                     database_manager.write_component_distance(component, component.component_distance_offset)
                     success, message, component_id = self.modify_component_details(component_id,
-                                                                     "Not installed",
-                                                                     get_formatted_datetime_now(),
-                                                                     component.component_name,
-                                                                     component.component_type,
-                                                                     "None",
-                                                                     str(component.lifetime_expected),
-                                                                     str(component.service_interval),
-                                                                     str(component.threshold_km),
-                                                                     str(component.lifetime_expected_days),
-                                                                     str(component.service_interval_days),
-                                                                     str(component.threshold_days),
-                                                                     str(component.cost),
-                                                                     component.component_distance_offset,
-                                                                     component.notes)
+                                                                                   "Not installed",
+                                                                                   get_formatted_datetime_now(),
+                                                                                   component.component_name,
+                                                                                   component.component_type,
+                                                                                   "None",
+                                                                                   str(component.lifetime_expected),
+                                                                                   str(component.service_interval),
+                                                                                   str(component.threshold_km),
+                                                                                   str(component.lifetime_expected_days),
+                                                                                   str(component.service_interval_days),
+                                                                                   str(component.threshold_days),
+                                                                                   str(component.cost),
+                                                                                   component.component_distance_offset,
+                                                                                   component.notes)
                 
                 else:
                     success, message = self.process_history_records(component_id)
                 
                 if not success:
                     logging.error(f"An error occured triggering update of history records for {component_id} after deletion: {message}")
-                    return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id, bike_id
+                    return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id, bike_id, collection_id
                 
             elif table_selector == "Components":
                 self.update_component_type_count(component_type)
@@ -2775,9 +2879,9 @@ class BusinessLogic():
         
         else:
             logging.error(f"Deletion of {record_id} failed: {message}")
-            return False, f"Deletion of {record_id} failed: {message}", component_id, bike_id
+            return False, f"Deletion of {record_id} failed: {message}", component_id, bike_id, collection_id
 
-        return success, message, component_id, bike_id
+        return success, message, component_id, bike_id, collection_id
 
     async def refresh_all_bikes(self):
         """Method to refresh all bikes from Strava"""

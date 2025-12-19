@@ -54,7 +54,7 @@
     </button>
 {% endif %}
 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentStatusModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-    <span>🔄 Change status</span>
+    <span>🔄 Update status</span>
 </button>
 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentDetailsModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>✍ Update details</span>
