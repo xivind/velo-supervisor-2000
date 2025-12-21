@@ -39,11 +39,25 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.4.8**  
+**Planned for v0.4.9**  
 
 - See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
-**v0.4.7 (CURRENT)**  
+**v0.4.8 (CURRENT)**  
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+
+- New feature: Install existing components or collections directly from bike details page
+- New feature: Log level is now user configurable from the configuration page. Verbose logging is disabled by default.
+- Collections feature totally rewritten based on user feedback. Each collection now has their separate page, allowing users to change single component status, in addition to chaging collection status, without losing page context.
+- Component statuses may now be changed directly from component overview page or bike details page, in addition to collection details page, so the user no longer need to navigate to the component details page for each component
+- Improved handling of redirects, so users don't lose page context, but are redirected back to the page they initiated the action from, assuming that page still exists 
+- To prevent unintentional collection desyncs, users are now informed in a non blocking way, if they try to change status directly of a single component that is managed through collections
+- Refactored application startup to use FastAPI's modern lifespan context manager, replacing deprecated event handlers. Background tasks (Strava sync, component field updates) are now centrally managed by APScheduler 
+- Improvements in backend validation rules
+- Minor GUI enhancements
+- Miscellaneous minor bug fixes
+
+**v0.4.7**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.6 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
 
 There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the Velo Supervisor 2000 database. Remember to backup the database first.
