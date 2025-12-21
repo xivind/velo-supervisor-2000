@@ -1,0 +1,157 @@
+<div class="modal fade" id="installComponentModal" tabindex="-1" aria-labelledby="installComponentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="installComponentModalLabel">Install component</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Bike Context Alert -->
+                <div class="alert alert-info mb-3" role="alert" data-bike-id="{{ bike_data.bike_id }}">
+                    <strong>Installing on:</strong> <span id="install-bike-name">{{ bike_data.bike_name }}</span>
+                </div>
+
+                <!-- Mode Toggle Tabs -->
+                <ul class="nav nav-tabs mb-3" id="installModeTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="component-mode-tab"
+                                data-bs-toggle="tab" data-bs-target="#component-mode"
+                                type="button" role="tab"
+                                aria-controls="component-mode"
+                                aria-selected="true">
+                            Component
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="collection-mode-tab"
+                                data-bs-toggle="tab" data-bs-target="#collection-mode"
+                                type="button" role="tab"
+                                aria-controls="collection-mode"
+                                aria-selected="false">
+                            Collection
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="installModeTabContent">
+
+                    <!-- Component Mode Tab -->
+                    <div class="tab-pane fade show active" id="component-mode" role="tabpanel" aria-labelledby="component-mode-tab">
+                        <form id="install_component_form" action="/add_history_record" method="POST" enctype="application/x-www-form-urlencoded">
+                            <!-- Hidden Fields -->
+                            <input type="hidden" name="component_id" id="install_component_id">
+                            <input type="hidden" name="component_installation_status" value="Installed">
+                            <input type="hidden" name="component_bike_id" value="{{ bike_data.bike_id }}">
+                            <input type="hidden" name="redirect_to" value="bike_details">
+
+                            <!-- Component Selection -->
+                            <div class="mb-3">
+                                <label for="component_select" class="form-label fw-bold">Select component to install</label>
+                                <select class="form-select" id="component_select" required>
+                                    <option value=""></option>
+                                    {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days, bike_id, updated_date in payload.all_components_data %}
+                                        {% if status == "Not installed" and (not bike or bike == "Not assigned") %}
+                                        <option value="{{ component_id }}">{{ name }} ({{ type }}) - {{ distance }} km</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">
+                                    Only showing components that are not installed and not assigned to any bike
+                                </small>
+                            </div>
+
+                            <!-- Installation Date -->
+                            <div class="mb-3">
+                                <label for="component_installation_date" class="form-label fw-bold">Installation date</label>
+                                <div class="input-group date-input-group">
+                                    <input type="text" class="form-control datepicker-input"
+                                           id="component_installation_date"
+                                           name="component_updated_date"
+                                           required>
+                                    <span class="input-group-text datepicker-toggle">🗓</span>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Date will be set as updated date for the component
+                                </small>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Collection Mode Tab -->
+                    <div class="tab-pane fade" id="collection-mode" role="tabpanel" aria-labelledby="collection-mode-tab">
+                        <div id="collection-mode-content">
+                            <!-- Collection Selection -->
+                            <div class="mb-3">
+                                <label for="collection_select" class="form-label fw-bold">Select collection to install</label>
+                                <select class="form-select" id="collection_select">
+                                    <option value="" selected></option>
+                                    {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details, status in payload.all_collections %}
+                                        {# Skip collections without components #}
+                                        {% if component_details and component_details|length > 0 %}
+                                        {% set ns = namespace(all_available=true) %}
+                                        {% set component_ids = [] %}
+                                        {% set component_names = [] %}
+                                        {% for comp_detail in component_details %}
+                                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days, bike_id, updated_date in payload.all_components_data %}
+                                                {% if component_id == comp_detail.id %}
+                                                    {% if component_ids.append(comp_detail.id) %}{% endif %}
+                                                    {% if component_names.append(name ~ ' (' ~ type ~ ')') %}{% endif %}
+                                                    {% if status != "Not installed" or (bike and bike != "Not assigned") %}
+                                                        {% set ns.all_available = false %}
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {# Only show collection if all components are available #}
+                                        {% if ns.all_available %}
+                                        <option value="{{ collection_id }}"
+                                                data-component-count="{{ component_details|length }}"
+                                                data-component-ids="{{ component_ids|join(',') }}"
+                                                data-component-names="{{ component_names|join('|||') }}">
+                                            {{ collection_name }} ({{ component_details|length }} components)
+                                        </option>
+                                        {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">
+                                    Only showing collections that have components and where all components are unassigned
+                                </small>
+                            </div>
+
+                            <!-- Collection Preview (Optional - shown after selection) -->
+                            <div id="collection_preview" style="display: none;">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Collection components:</h6>
+                                        <ul id="collection_members_list" class="mb-0"></ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Installation Date for Collection -->
+                            <div class="mb-3">
+                                <label for="collection_installation_date" class="form-label fw-bold">Installation date</label>
+                                <div class="input-group date-input-group">
+                                    <input type="text" class="form-control datepicker-input"
+                                           id="collection_installation_date"
+                                           required>
+                                    <span class="input-group-text datepicker-toggle">🗓</span>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Date will be set as updated date for all components in the collection
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="install_submit_btn">Install component</button>
+            </div>
+        </div>
+    </div>
+</div>

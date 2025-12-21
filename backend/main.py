@@ -3,7 +3,8 @@
 
 from typing import Optional, List
 import asyncio
-import atexit
+import logging
+from contextlib import asynccontextmanager
 from middleware import Middleware
 from scheduler import start_scheduler, stop_scheduler
 from fastapi import FastAPI, Request, Form
@@ -21,8 +22,25 @@ from utils import (read_config,
 # Load configuration
 CONFIG = read_config()
 
+# Lifespan context manager for startup and shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application startup and shutdown"""
+    verbose_logging = CONFIG.get('verbose_logging', False)
+    logging.info(f"Verbose logging is {'enabled' if verbose_logging else 'disabled'}")
+    log_level = logging.DEBUG if verbose_logging else logging.INFO
+    logging.getLogger().setLevel(log_level)
+    for handler in logging.getLogger().handlers:
+        handler.setLevel(log_level)
+
+    start_scheduler()
+
+    yield
+
+    stop_scheduler()
+
 # Create application object
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 # Setup static files and templates
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
@@ -46,21 +64,6 @@ business_logic.set_time_strava_last_pull()
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     """Function to catch http errors from Uvicorn and return them to the middleware"""
     return await Middleware(app, templates=templates).handle_exception(exc, request)
-
-# Startup event
-@app.on_event("startup")
-async def startup_event():
-    """Function to register background tasks"""
-    start_scheduler()
-    asyncio.create_task(business_logic.pull_strava_background("recent"))
-
-# Shutdown event
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Function to gracefully shutdown scheduler"""
-    stop_scheduler()
-
-atexit.register(lambda: stop_scheduler() if stop_scheduler else None)
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
@@ -135,6 +138,22 @@ async def component_details(request: Request,
                                        "success": success,
                                        "message": message})
 
+@app.get("/collection_details/{collection_id}", response_class=HTMLResponse)
+async def collection_details(request: Request,
+                             collection_id: str,
+                             success: Optional[str] = None,
+                             message: Optional[str] = None):
+    """Endpoint for collection details page"""
+
+    payload = business_logic.get_collection_details(collection_id)
+    template_path = "collection_details.html"
+
+    return templates.TemplateResponse(template_path,
+                                      {"request": request,
+                                       "payload": payload,
+                                       "success": success,
+                                       "message": message})
+
 @app.get("/component_types_overview", response_class=HTMLResponse)
 async def component_types_overview(request: Request,
                                    success: Optional[str] = None,
@@ -157,7 +176,8 @@ async def config_overview(request: Request,
     """Endpoint for component types page"""
 
     payload = {"strava_tokens": CONFIG['strava_tokens'],
-               "db_path": CONFIG['db_path']}
+               "db_path": CONFIG['db_path'],
+               "verbose_logging": CONFIG.get('verbose_logging', False)}
     template_path = "config.html"
 
     return templates.TemplateResponse(template_path,
@@ -257,23 +277,43 @@ async def component_modify(component_id: Optional[str] = Form(None),
 
     return response
 
-@app.post("/add_history_record", response_class=HTMLResponse)
-async def add_history_record(component_id: str = Form(...),
+@app.post("/add_history_record")
+async def add_history_record(request: Request,
+                             component_id: str = Form(...),
                              component_installation_status: str = Form(...),
                              component_bike_id: str = Form(...),
-                             component_updated_date: str = Form(...)):
-    """Endpoint to update an existing component history record"""
+                             component_updated_date: str = Form(...),
+                             redirect_to: Optional[str] = Form(None)):
+    """Endpoint with conditional routing for redirects and AJAX to add an existing component history record."""
 
     success, message = business_logic.create_history_record(component_id,
                                                             component_installation_status,
                                                             component_bike_id,
                                                             component_updated_date)
 
-    response = RedirectResponse(
-        url=f"/component_details/{component_id}?success={success}&message={message}",
-        status_code=303)
+    accept_header = request.headers.get("accept", "")
+    is_ajax = "application/json" in accept_header or request.headers.get("x-requested-with") == "XMLHttpRequest"
 
-    return response
+    if is_ajax:
+        return JSONResponse(content={"success": success,
+                                     "message": message})
+    else:
+        if redirect_to and redirect_to.startswith("bike_details_"):
+            bike_id = redirect_to.replace("bike_details_", "")
+            redirect_url = f"/bike_details/{bike_id}?success={success}&message={message}"
+        elif redirect_to and redirect_to.startswith("collection_details_"):
+            collection_id = redirect_to.replace("collection_details_", "")
+            redirect_url = f"/collection_details/{collection_id}?success={success}&message={message}"
+        elif redirect_to == "component_overview":
+            redirect_url = f"/component_overview?success={success}&message={message}"
+        else:
+            redirect_url = f"/component_details/{component_id}?success={success}&message={message}"
+
+        response = RedirectResponse(
+            url=redirect_url,
+            status_code=303)
+
+        return response
 
 @app.post("/update_history_record", response_class=HTMLResponse)
 async def update_history_record(component_id: str = Form(...),
@@ -339,18 +379,22 @@ async def quick_swap(old_component_id: str = Form(...),
 @app.post("/add_collection", response_class=HTMLResponse)
 async def add_collection(collection_name: str = Form(...),
                             components: Optional[List[str]] = Form(None),
-                            bike_id: Optional[str] = Form(None),
                             comment: Optional[str] = Form(None)):
     """Endpoint to add new collection"""
 
-    success, message = business_logic.create_collection(collection_name,
-                                                     components,
-                                                     bike_id,
-                                                     comment)
+    success, message, collection_id = business_logic.create_collection(collection_name,
+                                                                        components,
+                                                                        comment)
 
-    response = RedirectResponse(
-        url=f"/component_overview?success={success}&message={message}",
-        status_code=303)
+    if success and collection_id:
+        response = RedirectResponse(
+            url=f"/collection_details/{collection_id}?success={success}&message={message}",
+            status_code=303)
+    
+    else:
+        response = RedirectResponse(
+            url=f"/component_overview?success={success}&message={message}",
+            status_code=303)
 
     return response
 
@@ -358,19 +402,22 @@ async def add_collection(collection_name: str = Form(...),
 async def update_collection(collection_id: str = Form(...),
                             collection_name: str = Form(...),
                             components: Optional[List[str]] = Form(None),
-                            bike_id: Optional[str] = Form(None),
-                            comment: Optional[str] = Form(None)):
+                            comment: Optional[str] = Form(None),
+                            redirect_to: Optional[str] = Form(None)):
     """Endpoint to update existing collection"""
 
     success, message = business_logic.update_collection(collection_id,
                                                         collection_name,
                                                         components,
-                                                        bike_id,
                                                         comment)
 
-    response = RedirectResponse(
-        url=f"/component_overview?success={success}&message={message}",
-        status_code=303)
+    if redirect_to == "collection_details":
+        redirect_url = f"/collection_details/{collection_id}?success={success}&message={message}"
+    
+    else:
+        redirect_url = f"/component_overview?success={success}&message={message}"
+
+    response = RedirectResponse(url=redirect_url, status_code=303)
 
     return response
 
@@ -585,30 +632,50 @@ async def delete_record(record_id: str = Form(...),
                         source_page: str = Form(None)):
     """Endpoint to delete records"""
 
-    success, message, component_id, bike_id = business_logic.delete_record(table_selector, record_id)
+    success, message, component_id, bike_id, collection_id = business_logic.delete_record(table_selector, record_id)
 
     redirect_url = "/"
 
     if table_selector == "ComponentTypes":
         redirect_url = "/component_types_overview"
+    
     elif table_selector == "Components":
-        if source_page == "component_overview":
-            redirect_url = "/component_overview"
-        elif source_page == "bike_details" and bike_id:
-            redirect_url = f"/bike_details/{bike_id}"
-        elif source_page == "component_details":
-            if bike_id:
+        if not success:
+            if collection_id:
+                redirect_url = f"/collection_details/{collection_id}"
+            elif source_page == "component_overview":
+                redirect_url = "/component_overview"
+            elif source_page == "bike_details" and bike_id:
                 redirect_url = f"/bike_details/{bike_id}"
+            elif source_page == "component_details" and component_id:
+                redirect_url = f"/component_details/{component_id}"
+            else:
+                redirect_url = "/component_overview"
+        else:
+            if source_page == "component_details":
+                redirect_url = "/component_overview"
+            elif source_page == "bike_details" and bike_id:
+                redirect_url = f"/bike_details/{bike_id}"
+            elif source_page == "component_overview":
+                redirect_url = "/component_overview"
+            else:
+                redirect_url = "/component_overview"
+    
+    elif table_selector == "Collections":
+        if not success:
+            if source_page == "collection_details":
+                redirect_url = f"/collection_details/{record_id}"
             else:
                 redirect_url = "/component_overview"
         else:
             redirect_url = "/component_overview"
-    elif table_selector == "Collections":
-        redirect_url = "/component_overview"
+    
     elif table_selector == "Services" or table_selector == "ComponentHistory":
         redirect_url = f"/component_details/{component_id}"
+    
     elif table_selector == "Incidents":
         redirect_url = "/incident_reports"
+    
     elif table_selector == "Workplans":
         redirect_url = "/workplans"
 
@@ -621,10 +688,11 @@ async def delete_record(record_id: str = Form(...),
 @app.post("/update_config")
 async def update_config(request: Request,
                         db_path: str = Form(...),
-                        strava_tokens: str = Form(...)):
+                        strava_tokens: str = Form(...),
+                        verbose_logging: bool = Form(False)):
     """Endpoint to update config file"""
 
-    success, message = write_config(db_path, strava_tokens)
+    success, message = write_config(db_path, strava_tokens, verbose_logging)
 
     response = RedirectResponse(
         url=f"/config_overview?success={success}&message={message}",

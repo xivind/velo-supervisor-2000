@@ -7,9 +7,9 @@
 
 <div class="d-flex justify-content-between align-items-center mt-4 mb-2 ms-2 toggle-container-right">
     <div class="small text-secondary">
-        <span class="me-3"><span class="badge bike-healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> All parts healthy</span>
-        <span class="me-3"><span class="badge bike-needs-attention" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Parts need attention</span>
-        <span class="me-3"><span class="badge bike-no-components" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> No parts registered / no active parts</span>
+        <span class="me-3"><span class="badge status-healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> All parts healthy</span>
+        <span class="me-3"><span class="badge status-attention" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Parts need attention</span>
+        <span class="me-3"><span class="badge status-empty" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> No parts registered / no active parts</span>
         <span class="me-3">📝 Unfinished workplans</span>
         <span class="me-3">🚨 Open incidents</span>
         <span class="me-3">📦 Assigned collections</span>
@@ -26,11 +26,11 @@
                 <div class="card shadow hover-effect" data-bike-status="{{ bike_status }}">
                     <div class="card-header h5 fw-bold d-flex justify-content-between align-items-center
                         {%- if service_status == 'No components registered' or service_status == 'No active components' -%}
-                            text-bg-dark bike-no-components
+                            text-bg-dark status-empty
                         {%- elif service_status == 'Components need attention' -%}
-                            text-bg-dark bike-needs-attention
+                            text-bg-dark status-attention
                         {%- else -%}
-                            text-bg-dark bike-healthy
+                            text-bg-dark status-healthy
                         {%- endif -%}">
                         <span>{{ name }}</span>
                         <span>

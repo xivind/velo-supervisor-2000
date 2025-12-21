@@ -79,8 +79,8 @@
             </div>
             <div class="card-body">
                 <p class="card-text">
-                    Step-by-step guides for everyday operations: adding components, quick swaps,
-                    using collections, tracking service, and syncing Strava activities.
+                    Step-by-step guides for everyday operations: adding components, installing from bike details page,
+                    quick swaps, using collections, tracking service, and syncing Strava activities.
                 </p>
             </div>
         </div>
@@ -332,6 +332,41 @@ const helpTopics = {
                 <li>Choose bike assignment if changing to "Active"</li>
                 <li>Confirm - a new history record is created</li>
             </ol>
+
+            <h6 class="mt-3">Installing Unassigned Components from Bike Details Page</h6>
+            <p>Install components or collections that are in storage (not installed) directly from the bike details page without navigating away.</p>
+            <ol>
+                <li>Navigate to the bike details page where you want to install components</li>
+                <li>Click <strong>"⚙ Install component"</strong> button (in the action button row)</li>
+                <li><strong>For individual components:</strong>
+                    <ul>
+                        <li>Stay in the "Component" tab (default)</li>
+                        <li>Search and select the component you want to install</li>
+                        <li>Set the installation date (defaults to today)</li>
+                        <li>Click <strong>"Install Component"</strong></li>
+                        <li>Success message appears and page refreshes to show the newly installed component</li>
+                    </ul>
+                </li>
+                <li><strong>For collections:</strong>
+                    <ul>
+                        <li>Switch to the "Collection" tab</li>
+                        <li>Select a collection from the dropdown (only shows collections where all components are unassigned)</li>
+                        <li>Preview shows how many components will be installed</li>
+                        <li>Set the installation date (defaults to today, applies to all components)</li>
+                        <li>Click <strong>"Install Collection"</strong></li>
+                        <li>Report modal shows which components were installed successfully</li>
+                        <li>Page refreshes to show all newly installed components</li>
+                    </ul>
+                </li>
+            </ol>
+            <p><strong>Features:</strong></p>
+            <ul>
+                <li>Only unassigned components (status "Not installed") are available to install</li>
+                <li>Collections only appear if all member components are unassigned</li>
+                <li>Installation date validation prevents future dates</li>
+                <li>Component type compliance warnings appear if needed (non-blocking)</li>
+                <li>Quick workflow - no need to navigate to component details pages</li>
+            </ul>
 
             <h6 class="mt-3">Quick Swap Components (♻)</h6>
             <p>Quickly replace an installed component with another in a single operation. This streamlines what was previously a 4-6 step process.</p>

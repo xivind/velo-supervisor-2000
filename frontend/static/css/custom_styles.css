@@ -10,18 +10,18 @@
     color: white !important;
 }
 
-.bike-no-components {
-    background-color: #979e9e !important; /* Enhance the secondary color for "no components" status */
+.status-empty {
+    background-color: #979e9e !important; /* Status indicator for empty/no items state */
     color: white !important;
 }
 
-.bike-healthy {
-    background-color: #2967b9 !important; /* Enhance the info color for healthy components */
+.status-healthy {
+    background-color: #2967b9 !important; /* Status indicator for healthy/ready state */
     color: white !important;
 }
 
-.bike-needs-attention {
-    background-color: #b98356 !important; /* Custom styling for the bike needs attention status */
+.status-attention {
+    background-color: #b98356 !important; /* Status indicator for items needing attention */
     color: white !important;
 }    
 

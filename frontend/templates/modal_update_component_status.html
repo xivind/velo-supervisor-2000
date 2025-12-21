@@ -6,15 +6,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-info mb-3" role="alert">
+                    <strong>Showing current status.</strong> Update fields and save to change status.
+                </div>
+                <div class="alert alert-warning mb-3" role="alert" id="collection-warning-banner" style="display: none;">
+                    ⚠️ This component is being managed through the collection <span id="collection-warning-collection-name"></span>. Changing status now might bring the component out of sync with the collection.
+                </div>
                 <form id="component_status_form" action="/add_history_record" method="post" enctype="application/x-www-form-urlencoded" data-initial-bike-id="{{ initial_bike_id or '' }}">
-                    <input type="hidden" id="component_id" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
+                    <input type="hidden" id="component_id" name="component_id" value="{% if payload.bike_component_data is defined %}{{ payload.bike_component_data['component_id'] }}{% endif %}">
+                    <input type="hidden" id="component_redirect_to" name="redirect_to" value="">
 
                     <div class="mb-3">
                         <label for="component_installation_status" class="form-label fw-bold">Status</label>
                         <select class="form-select" id="component_installation_status" name="component_installation_status">
-                            <option value="Installed" {% if payload.bike_component_data['installation_status'] == "Installed" %}selected{% endif %}>Installed</option>
-                            <option value="Not installed" {% if payload.bike_component_data['installation_status'] == "Not installed" %}selected{% endif %}>Not installed</option>
-                            <option value="Retired" {% if payload.bike_component_data['installation_status'] == "Retired" %}selected{% endif %}>Retired</option>
+                            <option value="Installed" {% if payload.bike_component_data is defined and payload.bike_component_data['installation_status'] == "Installed" %}selected{% endif %}>Installed</option>
+                            <option value="Not installed" {% if payload.bike_component_data is defined and payload.bike_component_data['installation_status'] == "Not installed" %}selected{% endif %}>Not installed</option>
+                            <option value="Retired" {% if payload.bike_component_data is defined and payload.bike_component_data['installation_status'] == "Retired" %}selected{% endif %}>Retired</option>
                         </select>
                     </div>
 
@@ -23,7 +30,7 @@
                         <select class="form-select" id="component_bike_id" name="component_bike_id">
                             <option value="">Not assigned</option>
                             {% for bike_name, bike_id in payload.bikes_data %}
-                                <option value="{{ bike_id }}" {% if bike_id == payload.bike_component_data['bike_id'] %}selected{% endif %}>
+                                <option value="{{ bike_id }}" {% if payload.bike_component_data is defined and bike_id == payload.bike_component_data['bike_id'] %}selected{% endif %}>
                                     {{ bike_name }}
                                 </option>
                             {% endfor %}
@@ -33,7 +40,7 @@
                     <div class="mb-3">
                         <label for="component_updated_date" class="form-label fw-bold">Updated date</label>
                         <div class="input-group date-input-group">
-                            <input type="text" class="form-control datepicker-input" id="component_updated_date" name="component_updated_date" value="{{ payload.bike_component_data['updated_date'] }}" required>
+                            <input type="text" class="form-control datepicker-input" id="component_updated_date" name="component_updated_date" value="{% if payload.bike_component_data is defined %}{{ payload.bike_component_data['updated_date'] }}{% endif %}" required>
                             <span class="input-group-text datepicker-toggle">🗓</span>
                         </div>
                     </div>
