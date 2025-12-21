@@ -1044,12 +1044,6 @@ function editCollection(element, options = {}) {
         form.setAttribute('data-collection-submit-listener', 'true');
     }
 
-    // Update ID display
-    const collectionIdDisplay = document.getElementById('collection-id-display');
-    if (collectionIdDisplay) {
-        collectionIdDisplay.textContent = collectionId;
-    }
-
     // Set redirect destination if specified
     const redirectInput = document.getElementById('redirect_to');
     if (redirectInput && options.redirectTo) {
@@ -1189,7 +1183,6 @@ function editCollection(element, options = {}) {
                 document.getElementById('collection_form').reset();
                 document.getElementById('collection_id').value = '';
                 document.getElementById('redirect_to').value = '';
-                document.getElementById('collection-id-display').textContent = 'Not created yet';
 
                 const componentSelect = document.getElementById('components');
                 if (componentSelect.tomSelect) {

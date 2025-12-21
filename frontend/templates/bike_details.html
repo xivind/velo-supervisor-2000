@@ -82,6 +82,12 @@
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">💰 <strong>Expected cost next service:</strong> {% if payload.sum_cost == "No estimate" %}{{ payload.sum_cost }}{% else %}{{ payload.sum_cost }}{% endif %}</span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📝 <strong>Notes:</strong> {% if payload.bike_data.bike_notes %}{{ payload.bike_data.bike_notes }}{% else %}No bike notes available{% endif %}</span>
                 </div>
+                <hr/>
+                <div class="text-end">
+                    <small class="text-muted">
+                        🔑 <strong>Bike id:</strong> {{ payload.bike_data['bike_id'] }}
+                    </small>
+                </div>
             </div>
         </div>
         {% set bike_id = payload.bike_data['bike_id'] %}
