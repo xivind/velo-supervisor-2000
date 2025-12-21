@@ -490,6 +490,8 @@ class BusinessLogic():
         has_mixed_statuses = (installed_count > 0 and not_installed_count > 0)
         has_different_bikes = len(bike_ids_of_installed) > 1
 
+        actual_component_bike_id = list(bike_ids_of_installed)[0] if len(bike_ids_of_installed) == 1 else None
+
         collection_bike_mismatch = False
         if collection_bike_id and len(bike_ids_of_installed) > 0:
             collection_bike_mismatch = collection_bike_id not in bike_ids_of_installed
@@ -518,6 +520,10 @@ class BusinessLogic():
             if bike_name:
                 bike_names_list.append(bike_name)
 
+        actual_component_bike_name = None
+        if actual_component_bike_id:
+            actual_component_bike_name = database_manager.read_bike_name(actual_component_bike_id)
+
         return {'is_empty': is_empty,
                 'has_retired': has_retired,
                 'has_mixed_statuses': has_mixed_statuses,
@@ -530,6 +536,8 @@ class BusinessLogic():
                 'not_installed_count': not_installed_count,
                 'bike_count': len(bike_ids_of_installed),
                 'bike_names_list': bike_names_list,
+                'actual_component_bike_id': actual_component_bike_id,
+                'actual_component_bike_name': actual_component_bike_name,
                 'status': status_string}
 
     def get_component_collection_mapping(self):
@@ -1570,7 +1578,6 @@ class BusinessLogic():
             
             latest_history_record = database_manager.read_latest_history_record(component_id)
             if latest_history_record:
-                # Check if component is already retired - no status changes allowed
                 if latest_history_record.update_reason == "Retired":
                     logging.warning(f"Status cannot be changed on a retired component: {component.component_name}")
                     return False, f"Status cannot be changed on a retired component: {component.component_name}"
@@ -1876,10 +1883,13 @@ class BusinessLogic():
             collection_id = generate_unique_id()
             comment = comment if comment else None
 
+            collection_status = self.calculate_collection_status(components if components else [])
+            calculated_bike_id = collection_status.get('actual_component_bike_id')
+
             collection_data = {"collection_id": collection_id,
                              "collection_name": collection_name,
                              "components": json.dumps(components) if components else None,
-                             "bike_id": None,
+                             "bike_id": calculated_bike_id,
                              "comment": comment,
                              "sub_collections": None,
                              "updated_date": None}
@@ -1888,6 +1898,7 @@ class BusinessLogic():
 
             if success:
                 logging.info(f"Creation of collection successful: {message}")
+                logging.debug(f"Collection {collection_id} bike_id set to {calculated_bike_id} based on component states")
                 return success, message, collection_id
             else:
                 logging.error(f"Creation of collection failed: {message}")
@@ -1902,15 +1913,20 @@ class BusinessLogic():
         try:
             comment = comment if comment else None
 
+            collection_status = self.calculate_collection_status(components if components else [])
+            calculated_bike_id = collection_status.get('actual_component_bike_id')
+
             collection_data = {"collection_id": collection_id,
                              "collection_name": collection_name,
                              "components": json.dumps(components) if components else None,
+                             "bike_id": calculated_bike_id,
                              "comment": comment}
 
             success, message = database_manager.write_collection(collection_data)
 
             if success:
                 logging.info(f"Update of collection successful: {message}")
+                logging.debug(f"Collection {collection_id} bike_id set to {calculated_bike_id} based on component states")
             else:
                 logging.error(f"Update of collection failed: {message}")
 
@@ -2024,18 +2040,20 @@ class BusinessLogic():
 
             if success_count > 0:
                 try:
-                    collection_bike_id = bike_id if new_status == "Installed" else None
+                    collection_status = self.calculate_collection_status(component_ids)
+                    calculated_bike_id = collection_status.get('actual_component_bike_id')
 
                     collection_update_data = {
                         "collection_id": collection_id,
                         "collection_name": collection.collection_name,
                         "components": collection.components,
-                        "bike_id": collection_bike_id,
+                        "bike_id": calculated_bike_id,
                         "comment": collection.comment,
                         "updated_date": updated_date}
 
                     database_manager.write_collection(collection_update_data)
-                    
+
+                    logging.debug(f"Collection {collection_id} bike_id set to {calculated_bike_id} based on component states")
                     logging.debug(f"Collection {collection_id} last updated date set to {updated_date}")
 
                 except Exception as error:

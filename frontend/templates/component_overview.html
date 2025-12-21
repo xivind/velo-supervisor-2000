@@ -80,9 +80,9 @@
                             </td>
                             <td>
                                 {% if bike_name and bike_id %}
-                                    <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">{{ bike_name }}</a>
+                                    <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">{{ bike_name }}</a>{% if status == 'needs_attention' %} ❓{% endif %}
                                 {% else %}
-                                    Not assigned
+                                    Not assigned{% if status == 'needs_attention' %} ❓{% endif %}
                                 {% endif %}
                             </td>
                             <td>{{ updated_date.split(' ')[0] if updated_date else "-" }}</td>
@@ -245,13 +245,12 @@
                                     onclick="event.stopPropagation();">
                                     🔄
                                 </button>
-                                {% if installation_status == "Installed" %}
                                 <button type="button" class="btn btn-outline-primary btn-sm quick-swap-btn mb-1"
                                     data-component-id="{{ component_id }}"
+                                    {% if installation_status != "Installed" %}disabled{% endif %}
                                     onclick="event.stopPropagation();">
                                     ♻
                                 </button>
-                                {% endif %}
                                 <button type="button" class="btn btn-outline-danger btn-sm delete-record mb-1"
                                     data-component-id="{{ component_id }}"
                                     onclick="event.stopPropagation();">

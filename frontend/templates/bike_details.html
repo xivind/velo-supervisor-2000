@@ -40,7 +40,7 @@
     <span>⚙ New component</span>
 </button>
 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#installComponentModal">
-    <span>⚙ Install component</span>
+    <span>⚙ Install existing</span>
 </button>
 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
     <span>📝 New workplan</span>
@@ -272,13 +272,12 @@
                                             onclick="event.stopPropagation();">
                                             🔄
                                         </button>
-                                        {% if installation_status == "Installed" %}
                                         <button type="button" class="btn btn-outline-primary btn-sm quick-swap-btn mb-1"
                                             data-component-id="{{ component_id }}"
+                                            {% if installation_status != "Installed" %}disabled{% endif %}
                                             onclick="event.stopPropagation();">
                                             ♻
                                         </button>
-                                        {% endif %}
                                         <button type="button" class="btn btn-outline-danger btn-sm delete-record mb-1"
                                             data-component-id="{{ component_id }}"
                                             onclick="event.stopPropagation();">

@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-info mb-3" role="alert">
-                    <strong>Bulk operation:</strong> Update fields and save to change status. This will update the status of all components in this collection.
+                    <strong>Bulk operation:</strong> Showing current status. Update fields and save to change status. This will update the status of all components in this collection.
                 </div>
                 <form id="collection_status_form" action="/change_collection_status" method="post" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" id="collection_id" name="collection_id" value="">
@@ -15,29 +15,22 @@
                     <div class="mb-3">
                         <label for="new_status" class="form-label fw-bold">Status</label>
                         <select class="form-select" id="new_status" name="new_status" required>
-                            <option value="">Select new status...</option>
                             <option value="Installed">Installed</option>
                             <option value="Not installed">Not installed</option>
                             <option value="Retired">Retired</option>
                         </select>
-                        <small class="form-text text-muted">
-                            Current collection status: <span id="current_status_display">Status never set through collections</span>
-                        </small>
                     </div>
 
                     <div class="mb-3">
                         <label for="bike_id" class="form-label fw-bold">Bike</label>
                         <select class="form-select" id="bike_id" name="bike_id">
-                            <option value="">Select bike...</option>
+                            <option value="">Not assigned</option>
                             {% for bike_name, bike_id in payload.bikes_data %}
                                 {% if "(Retired)" not in bike_name %}
                                     <option value="{{ bike_id }}">{{ bike_name }}</option>
                                 {% endif %}
                             {% endfor %}
                         </select>
-                        <small class="form-text text-muted">
-                            Current collection bike assignment: <span id="current_bike_assignment">Bike never changed from collections</span>
-                        </small>
                     </div>
 
                     <div class="mb-3">
@@ -46,9 +39,6 @@
                             <input type="text" class="form-control datepicker-input" id="updated_date" name="updated_date" required>
                             <span class="input-group-text datepicker-toggle">🗓</span>
                         </div>
-                        <small class="form-text text-muted">
-                            Collection last updated: <span id="collection_last_updated">Never</span>
-                        </small>
                     </div>
                 </form>
             </div>

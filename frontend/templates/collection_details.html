@@ -22,9 +22,7 @@
     </button>
     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#updateCollectionStatusModal"
             data-collection-id="{{ payload.collection_data.collection_id }}"
-            data-collection-bike-id="{{ payload.collection_data.bike_id if payload.collection_data.bike_id else '' }}"
-            data-collection-bike-name="{{ payload.collection_data.bike_name if payload.collection_data.bike_name else 'Not assigned' }}"
-            data-collection-updated-date="{{ payload.collection_data.updated_date if payload.collection_data.updated_date else 'Never' }}"
+            data-actual-component-bike-id="{{ payload.collection_data.bike_id if payload.collection_data.bike_id else '' }}"
             data-collection-status="{% if payload.warnings.installed_count > 0 and payload.warnings.not_installed_count == 0 and payload.warnings.retired_count == 0 %}Installed{% elif payload.warnings.retired_count > 0 and payload.warnings.installed_count == 0 and payload.warnings.not_installed_count == 0 %}Retired{% elif payload.warnings.not_installed_count > 0 and payload.warnings.installed_count == 0 and payload.warnings.retired_count == 0 %}Not installed{% else %}Mixed{% endif %}"
             {% if payload.warnings.blocks_operations %}disabled title="Fix collection problems before changing status"{% endif %}>
         <span>🔄 Update collection status</span>
@@ -71,12 +69,12 @@
                     </span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
                         🚴 <strong>Collection bike assignment:</strong>
-                        {% if payload.warnings.can_display_bike %}
-                            {{ payload.collection_data.bike_name if payload.collection_data.bike_name else 'Not assigned' }}
-                        {% elif payload.warnings.is_empty %}
-                            Cannot be computed - collection has no components
+                        {% if payload.warnings.blocks_operations %}
+                            Could not be computed
+                        {% elif payload.collection_data.bike_name %}
+                            {{ payload.collection_data.bike_name }}
                         {% else %}
-                            Cannot be computed - fix collection issues first
+                            Not assigned
                         {% endif %}
                     </span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">

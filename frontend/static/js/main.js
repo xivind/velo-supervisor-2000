@@ -1291,26 +1291,6 @@ function editCollection(element, options = {}) {
         }
     };
 
-    // Helper function to get bike_id from "Current bike: [name]" display
-    function getCurrentBikeId() {
-        const currentBikeDisplay = document.getElementById('current_bike_assignment');
-        const bikeSelect = document.getElementById('bike_id');
-
-        if (!currentBikeDisplay || !bikeSelect) return null;
-
-        const currentBikeName = currentBikeDisplay.textContent.trim();
-
-        if (currentBikeName === 'Not assigned' || currentBikeName === 'Unable to compute bike') {
-            return null;
-        }
-
-        const bikeOption = Array.from(bikeSelect.options).find(option =>
-            option.textContent.trim() === currentBikeName && option.value !== ''
-        );
-
-        return bikeOption ? bikeOption.value : null;
-    }
-
     // Format collection status change messages following existing HTML patterns
     window.formatCollectionStatusMessage = function(messageData) {
         if (typeof messageData === 'string') {
@@ -1348,12 +1328,52 @@ function editCollection(element, options = {}) {
         return html;
     }
 
-    // Simplified validation for collection status change (on collection_details page)
-    // Backend already prevents modal from opening if collection has problems
-    function validateCollectionStatusChange() {
-        const newStatus = document.getElementById('new_status').value;
-        const updatedDate = document.getElementById('updated_date').value;
+    // Function to handle collection form status and bike selection synchronization
+    function initializeCollectionForm(formElement) {
+        const bikeSelect = formElement.querySelector('[name="bike_id"]');
+        const statusSelect = formElement.querySelector('[name="new_status"]');
 
+        if (!bikeSelect || !statusSelect) {
+            console.debug('Collection form elements not found:', { bikeSelect, statusSelect });
+            return;
+        }
+
+        // Handle bike selection changes
+        bikeSelect.addEventListener('change', function() {
+            if (statusSelect.value !== "Retired") {
+                if (this.value !== "") {
+                    statusSelect.value = "Installed";
+                } else {
+                    statusSelect.value = "Not installed";
+                }
+            }
+        });
+
+        // Handle status changes
+        statusSelect.addEventListener('change', function() {
+            if (this.value === "Not installed") {
+                bikeSelect.value = "";
+            }
+        });
+
+        // Initial state check
+        if (bikeSelect.value === "" && statusSelect.value !== "Retired") {
+            statusSelect.value = "Not installed";
+        }
+    }
+
+    // Validation for collection status change (same rules as component status change)
+    function validateCollectionStatusChange() {
+        const statusSelect = document.getElementById('new_status');
+        const bikeSelect = document.getElementById('bike_id');
+        const dateInput = document.getElementById('updated_date');
+
+        const newStatus = statusSelect.value;
+        const originalStatus = statusSelect.dataset.originalValue || '';
+        const bikeId = bikeSelect.value;
+        const originalBikeId = bikeSelect.dataset.originalValue || '';
+
+        // Rule 1: Can't keep same status
         if (!newStatus) {
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = 'Status selection required. Select a new status from the dropdown.';
@@ -1361,14 +1381,21 @@ function editCollection(element, options = {}) {
             return false;
         }
 
-        if (!updatedDate) {
+        if (newStatus === originalStatus) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = `Status cannot be changed to "${newStatus}" since status is already "${originalStatus}"`;
+            validationModal.show();
+            return false;
+        }
+
+        // Rule 2: Date validation
+        if (!dateInput.value) {
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = 'Date required. Select the date when this status change occurred.';
             validationModal.show();
             return false;
         }
 
-        const dateInput = document.getElementById('updated_date');
         if (!validateDateInput(dateInput)) {
             const modalBody = document.getElementById('validationModalBody');
             modalBody.innerHTML = 'Invalid date format. Expected format: YYYY-MM-DD HH:MM (e.g., 2025-02-04 14:30)';
@@ -1376,10 +1403,9 @@ function editCollection(element, options = {}) {
             return false;
         }
 
-        const bikeSelect = document.getElementById('bike_id');
-
+        // Rule 3: Installed requires bike
         if (newStatus === 'Installed') {
-            if (!bikeSelect || !bikeSelect.value) {
+            if (!bikeId) {
                 const modalBody = document.getElementById('validationModalBody');
                 modalBody.innerHTML = 'Bike selection required. When setting status to "Installed", you must select which bike the components will be installed on.';
                 validationModal.show();
@@ -1387,13 +1413,22 @@ function editCollection(element, options = {}) {
             }
         }
 
+        // Rule 4: Not installed should not have bike
         if (newStatus === 'Not installed') {
-            if (bikeSelect && bikeSelect.value) {
+            if (bikeId) {
                 const modalBody = document.getElementById('validationModalBody');
                 modalBody.innerHTML = 'Bike must not be selected. When setting status to "Not installed", the bike field must be left blank since components are being removed from any bike.';
                 validationModal.show();
                 return false;
             }
+        }
+
+        // Rule 5: Can't change bike during retirement
+        if (newStatus === 'Retired' && originalBikeId !== bikeId) {
+            const modalBody = document.getElementById('validationModalBody');
+            modalBody.innerHTML = 'Bike assignment cannot be changed at time of retirement. If you need to unassign or change bike prior to retiring, uninstall or install components first';
+            validationModal.show();
+            return false;
         }
 
         return true;
@@ -1412,46 +1447,26 @@ function editCollection(element, options = {}) {
 
             // Get data from button attributes
             const collectionId = button.dataset.collectionId;
-            const currentBikeId = button.dataset.collectionBikeId || '';
-            const currentBikeName = button.dataset.collectionBikeName || '';
-            const updatedDate = button.dataset.collectionUpdatedDate || '';
+            const actualComponentBikeId = button.dataset.actualComponentBikeId || '';
             const currentStatus = button.dataset.collectionStatus || '';
 
             // Populate hidden field
             document.getElementById('collection_id').value = collectionId;
 
-            // Populate display fields with appropriate messaging
-            // If collection has been updated through collections before, show actual values
-            // Otherwise show "never set/changed" messages
-            if (currentStatus && currentStatus !== 'Not assigned' && currentStatus !== 'Mixed') {
-                document.getElementById('current_status_display').textContent = currentStatus;
-            } else if (currentStatus === 'Mixed') {
-                document.getElementById('current_status_display').textContent = 'Mixed (components have different statuses)';
-            } else {
-                document.getElementById('current_status_display').textContent = 'Status never set through collections';
-            }
-
-            if (currentBikeName && currentBikeName !== 'Not assigned') {
-                document.getElementById('current_bike_assignment').textContent = currentBikeName;
-            } else {
-                document.getElementById('current_bike_assignment').textContent = 'Bike never changed from collections';
-            }
-
-            if (updatedDate && updatedDate !== 'Never') {
-                document.getElementById('collection_last_updated').textContent = updatedDate;
-            } else {
-                document.getElementById('collection_last_updated').textContent = 'Never';
-            }
-
-            // Reset dropdowns to blank (no pre-filling - user must make explicit choice)
+            // Pre-fill status dropdown with current status
             const statusSelect = document.getElementById('new_status');
             if (statusSelect) {
-                statusSelect.value = '';
+                statusSelect.value = currentStatus;
+                // Store original value for validation
+                statusSelect.dataset.originalValue = currentStatus;
             }
 
+            // Pre-fill bike dropdown with actual component bike (derived from components)
             const bikeSelect = document.getElementById('bike_id');
             if (bikeSelect) {
-                bikeSelect.value = '';
+                bikeSelect.value = actualComponentBikeId;
+                // Store original value for validation
+                bikeSelect.dataset.originalValue = actualComponentBikeId;
             }
 
             // Set current date/time in updated_date field
@@ -1463,6 +1478,12 @@ function editCollection(element, options = {}) {
                 String(now.getHours()).padStart(2, '0') + ':' +
                 String(now.getMinutes()).padStart(2, '0');
             document.getElementById('updated_date').value = formattedDate;
+
+            // Initialize status/bike interaction logic
+            const collectionStatusForm = document.getElementById('collection_status_form');
+            if (collectionStatusForm) {
+                initializeCollectionForm(collectionStatusForm);
+            }
         });
     });
 
@@ -1573,21 +1594,18 @@ function editCollection(element, options = {}) {
             loadingModal.show();
 
             // Determine bike_id based on status:
-            // - "Installed": Use dropdown selection (required by validation)
-            // - "Not installed": Send empty (backend auto-preserves from component.bike_id)
-            // - "Retired": Use current bike_id from button dataset (preserves bike association)
+            // - "Installed": Use dropdown selection (validation ensures it's selected)
+            // - "Not installed": Send empty string (backend auto-preserves from component.bike_id)
+            // - "Retired": Use dropdown value (pre-filled with actual_component_bike_id, validation prevents changes)
             let bikeIdToSend;
             const bikeSelect = document.getElementById('bike_id');
 
-            if (newStatus === 'Installed') {
+            if (newStatus === 'Installed' || newStatus === 'Retired') {
+                // Send dropdown value for both Installed and Retired
                 bikeIdToSend = bikeSelect && bikeSelect.value ? bikeSelect.value : '';
             } else if (newStatus === 'Not installed') {
+                // Send empty - backend will override with component's current bike anyway
                 bikeIdToSend = '';
-            } else if (newStatus === 'Retired') {
-                // Get current bike from button dataset stored during modal initialization
-                const button = document.querySelector('[data-bs-target="#updateCollectionStatusModal"]');
-                const currentBikeId = button ? button.dataset.collectionBikeId : '';
-                bikeIdToSend = currentBikeId || '';
             }
 
             fetch('/change_collection_status', {
@@ -1637,43 +1655,6 @@ function editCollection(element, options = {}) {
         });
         }, 300);
     }
-
-    // Setup collection form validation
-    function setupCollectionFormValidation() {
-        const collectionForm = document.getElementById('collection_form');
-        if (!collectionForm) return;
-
-        collectionForm.onsubmit = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // No validation on create/update - collections are organizational containers
-            // Validation only happens when using "Change collection status" button
-
-            // For add_collection and update_collection, use bike_id from "Current bike" display
-            const currentBikeId = getCurrentBikeId();
-            const bikeIdField = document.getElementById('bike_id');
-
-            if (bikeIdField) {
-                const originalValue = bikeIdField.value;
-                const originalDisabled = bikeIdField.disabled;
-
-                bikeIdField.value = currentBikeId || '';
-                bikeIdField.disabled = false;
-
-                this.submit();
-
-                bikeIdField.value = originalValue;
-                bikeIdField.disabled = originalDisabled;
-            } else {
-                this.submit();
-            }
-        };
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        setupCollectionFormValidation();
-    });
 
 })();
 
@@ -2622,8 +2603,8 @@ function initializeCollectionsSorting() {
                 case 0: // Collection column
                 case 2: // Bike column
                     // Remove emojis and compare case-insensitively for text columns
-                    cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟩🟥]/gu, '').trim().toLowerCase();
-                    cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}🟩🟥]/gu, '').trim().toLowerCase();
+                    cellA = cellA.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{27BF}🟩🟥]/gu, '').trim().toLowerCase();
+                    cellB = cellB.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{27BF}🟩🟥]/gu, '').trim().toLowerCase();
                     break;
 
                 case 1: // Status column - sort by component count
