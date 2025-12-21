@@ -2,7 +2,6 @@
 """Module to handle business logic"""
 
 import logging
-import asyncio
 from datetime import datetime
 import json
 from utils import (read_config,
@@ -785,25 +784,6 @@ class BusinessLogic():
         payload = {"component_types": database_manager.read_all_component_types()}
 
         return payload
-
-    async def pull_strava_background(self, mode):
-        """Function to pull data from Strava in the background"""
-        while True:
-            try:
-                logging.info(f"Retrieving rides from Strava as background task. Mode set to: {mode}")
-
-                success, message = await self.update_rides_bulk(mode)
-
-                if success:
-                    logging.info(f"Background update successful: {message}")
-                else:
-                    logging.error(f"Background update failed: {message}")
-
-            except Exception as error:
-                logging.error(f"An error occurred during background update: {error}")
-
-            logging.info("Next pull from Strava is in four hours")
-            await asyncio.sleep(14400)
 
     async def update_rides_bulk(self, mode):
         """Method to create or update ride data in bulk to database"""

@@ -3,8 +3,8 @@
 
 from typing import Optional, List
 import asyncio
-import atexit
 import logging
+from contextlib import asynccontextmanager
 from middleware import Middleware
 from scheduler import start_scheduler, stop_scheduler
 from fastapi import FastAPI, Request, Form
@@ -22,8 +22,25 @@ from utils import (read_config,
 # Load configuration
 CONFIG = read_config()
 
+# Lifespan context manager for startup and shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application startup and shutdown"""
+    verbose_logging = CONFIG.get('verbose_logging', False)
+    logging.info(f"Verbose logging is {'enabled' if verbose_logging else 'disabled'}")
+    log_level = logging.DEBUG if verbose_logging else logging.INFO
+    logging.getLogger().setLevel(log_level)
+    for handler in logging.getLogger().handlers:
+        handler.setLevel(log_level)
+
+    start_scheduler()
+
+    yield
+
+    stop_scheduler()
+
 # Create application object
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 # Setup static files and templates
 app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
@@ -47,29 +64,6 @@ business_logic.set_time_strava_last_pull()
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     """Function to catch http errors from Uvicorn and return them to the middleware"""
     return await Middleware(app, templates=templates).handle_exception(exc, request)
-
-# Startup event
-@app.on_event("startup")
-async def startup_event():
-    """Function to register background tasks and configure logging"""
-
-    verbose_logging = CONFIG.get('verbose_logging', False)
-    logging.info(f"Verbose logging is {'enabled' if verbose_logging else 'disabled'}")
-    log_level = logging.DEBUG if verbose_logging else logging.INFO
-    logging.getLogger().setLevel(log_level)
-    for handler in logging.getLogger().handlers:
-        handler.setLevel(log_level)
-
-    start_scheduler()
-    #asyncio.create_task(business_logic.pull_strava_background("recent"))
-
-# Shutdown event
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Function to gracefully shutdown scheduler"""
-    stop_scheduler()
-
-atexit.register(lambda: stop_scheduler() if stop_scheduler else None)
 
 # Route handlers
 @app.get("/", response_class=HTMLResponse)
