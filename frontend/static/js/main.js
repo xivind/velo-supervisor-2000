@@ -3353,9 +3353,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// ============================================================================
+// ====================================================================================
 // Collection details page functions
-// ============================================================================
+// ====================================================================================
 
 // (Change status button handler moved to "Functions used on multiple pages" section)
 
@@ -5492,6 +5492,21 @@ document.addEventListener('DOMContentLoaded', function() {
 // ====================================================================================
 // Configuration page functions
 // ====================================================================================
+
+// Function for informing user that server requires restart
+document.addEventListener('DOMContentLoaded', function() {
+    const verboseLoggingCheckbox = document.getElementById('verbose_logging');
+    if (verboseLoggingCheckbox) {
+        verboseLoggingCheckbox.addEventListener('change', function() {
+            showReportModal(
+                '⚠️ Server restart required',
+                'Restart the server to use the new log level.',
+                false,  // not success
+                true    // is partial/warning (shows yellow background)
+            );
+        });
+    }
+});
 
 // Function for fetching logs
 document.addEventListener('DOMContentLoaded', function() {
