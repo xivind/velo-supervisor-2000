@@ -33,6 +33,8 @@ Velo Supervisor 2000 is a FastAPI + Bootstrap web application for tracking bicyc
 - **`strava.py`**: Strava API integration
 - **`middleware.py`**: Custom middleware for request/response handling
 - **`utils.py`**: Utility functions including configuration management
+- **`main.js`**: Contains all javascript code. All javascript should be placed in this file.
+- **`custom_styles.css`**: Contains all CSS code. All CSS should be placed in this file.
 
 ### Configuration
 - **Required files**: 
