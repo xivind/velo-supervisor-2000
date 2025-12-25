@@ -47,8 +47,9 @@ As a principle, development is to be done in the dev-branch. When changes are re
 *THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
 
 - New feature: Install existing components or collections directly from bike details page
-- New feature: Log level is now user configurable from the configuration page. Verbose logging is disabled by default.
-- Collections feature totally rewritten based on user feedback. Each collection now has their separate page, allowing users to change single component status, in addition to chaging collection status, without losing page context.
+- New feature: Sorting of buttons on bike details page and component details page are now user configurable from the configuration page
+- New feature: Log level is now user configurable from the configuration page. Verbose logging is disabled by default
+- Collections feature totally rewritten based on user feedback. Each collection now has their separate page, allowing users to change single component status, in addition to chaging collection status, without losing page context
 - Component statuses may now be changed directly from component overview page or bike details page, in addition to collection details page, so the user no longer need to navigate to the component details page for each component
 - Improved handling of redirects, so users don't lose page context, but are redirected back to the page they initiated the action from, assuming that page still exists 
 - To prevent unintentional collection desyncs, users are now informed in a non blocking way, if they try to change status directly of a single component that is managed through collections
