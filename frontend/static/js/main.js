@@ -5508,6 +5508,93 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Button sorting configuration
+document.addEventListener('DOMContentLoaded', function() {
+    const bikeDetailsList = document.getElementById('sortable-bike-details');
+    const componentDetailsList = document.getElementById('sortable-component-details');
+    const configForm = document.getElementById('config_form');
+
+    // Only run if we're on the config page with sortable lists
+    if (!bikeDetailsList || !componentDetailsList || !configForm) {
+        return;
+    }
+
+    // Button label mapping for user-friendly display
+    const buttonLabels = {
+        'new-collection': '📦 New collection',
+        'new-component': '⚙ New component',
+        'install-existing': '⚙ Install existing',
+        'new-workplan': '📝 New workplan',
+        'new-incident': '🚨 New incident',
+        'view-bike': '🚴 View bike',
+        'update-status': '🔄 Update status',
+        'update-details': '✍ Update details',
+        'edit-collection': '📦 Edit collection',
+        'quick-swap': '♻ Quick swap',
+        'duplicate': '⛓ Duplicate',
+        'new-service': '🧑‍🔧 New service',
+        'delete': '🗑 Delete'
+    };
+
+    // Update button labels with friendly names
+    function updateButtonLabels(listElement) {
+        const items = listElement.querySelectorAll('.list-group-item');
+        items.forEach(item => {
+            const buttonId = item.getAttribute('data-id');
+            const labelSpan = item.querySelector('.button-label');
+            if (labelSpan && buttonLabels[buttonId]) {
+                labelSpan.textContent = buttonLabels[buttonId];
+            }
+        });
+    }
+
+    // Initialize labels
+    updateButtonLabels(bikeDetailsList);
+    updateButtonLabels(componentDetailsList);
+
+    // Initialize Sortable for bike details buttons
+    new Sortable(bikeDetailsList, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        dragClass: 'sortable-drag',
+        handle: '.drag-handle',
+        onEnd: function() {
+            console.log('Bike details button order changed');
+        }
+    });
+
+    // Initialize Sortable for component details buttons
+    new Sortable(componentDetailsList, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        dragClass: 'sortable-drag',
+        handle: '.drag-handle',
+        onEnd: function() {
+            console.log('Component details button order changed');
+        }
+    });
+
+    // Before form submission, populate hidden fields with current order
+    configForm.addEventListener('submit', function() {
+        // Get bike details button order
+        const bikeDetailsOrder = Array.from(bikeDetailsList.querySelectorAll('.list-group-item'))
+            .map(item => item.getAttribute('data-id'));
+
+        // Get component details button order
+        const componentDetailsOrder = Array.from(componentDetailsList.querySelectorAll('.list-group-item'))
+            .map(item => item.getAttribute('data-id'));
+
+        // Set hidden field values as JSON strings
+        document.getElementById('button_sorting_bike_details').value = JSON.stringify(bikeDetailsOrder);
+        document.getElementById('button_sorting_component_details').value = JSON.stringify(componentDetailsOrder);
+
+        console.log('Saving button order:', {
+            bike_details: bikeDetailsOrder,
+            component_details: componentDetailsOrder
+        });
+    });
+});
+
 // Function for fetching logs
 document.addEventListener('DOMContentLoaded', function() {
     // First check if we're on the page with logs

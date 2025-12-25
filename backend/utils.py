@@ -27,12 +27,96 @@ def read_config():
         config = json.load(file)
     return config
 
-def write_config(db_path, strava_tokens, verbose_logging=False):
+def get_button_order(config, page_name):
+    """Function to get button order for a specific page with defaults"""
+    defaults = {'bike_details': ['new-collection',
+                                 'new-component',
+                                 'install-existing',
+                                 'new-workplan',
+                                 'new-incident'],
+                'component_details': ['view-bike',
+                                      'update-status',
+                                      'update-details',
+                                      'edit-collection',
+                                      'quick-swap',
+                                      'duplicate',
+                                      'new-service',
+                                      'new-workplan',
+                                      'new-incident',
+                                      'delete']}
+
+    return config.get('button_sorting', {}).get(page_name, defaults.get(page_name, []))
+
+def get_button_sorting_config(config):
+    """Function to get button sorting configuration for config page"""
+    default_button_sorting = {'bike_details': ['new-collection',
+                                               'new-component',
+                                               'install-existing',
+                                               'new-workplan',
+                                               'new-incident'],
+                            'component_details': ['view-bike',
+                                                  'update-status',
+                                                  'update-details',
+                                                  'edit-collection',
+                                                  'quick-swap',
+                                                  'duplicate',
+                                                  'new-service',
+                                                  'new-workplan',
+                                                  'new-incident',
+                                                  'delete']}
+
+    return config.get('button_sorting', default_button_sorting)
+
+def parse_button_sorting(bike_details_json, component_details_json):
+    """Function to parse button sorting data from form submission"""
+    if not bike_details_json and not component_details_json:
+        return None
+
+    button_sorting = {}
+    if bike_details_json:
+        button_sorting['bike_details'] = json.loads(bike_details_json)
+    if component_details_json:
+        button_sorting['component_details'] = json.loads(component_details_json)
+
+    return button_sorting
+
+def write_config(db_path, strava_tokens, verbose_logging=False,
+                 button_sorting_bike_details=None, button_sorting_component_details=None):
     """Function to update configuration file"""
     try:
+        existing_config = {}
+        try:
+            existing_config = read_config()
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+
         updated_config = {"db_path": db_path,
                           "strava_tokens": strava_tokens,
                           "verbose_logging": verbose_logging}
+
+        button_sorting = parse_button_sorting(button_sorting_bike_details,
+                                              button_sorting_component_details)
+
+        if button_sorting is not None:
+            updated_config["button_sorting"] = button_sorting
+        elif "button_sorting" in existing_config:
+            updated_config["button_sorting"] = existing_config["button_sorting"]
+        else:
+            updated_config["button_sorting"] = {"bike_details": ["new-collection",
+                                                                 "new-component",
+                                                                 "install-existing",
+                                                                 "new-workplan",
+                                                                 "new-incident"],
+                                                "component_details": ["view-bike",
+                                                                      "update-status",
+                                                                      "update-details",
+                                                                      "edit-collection",
+                                                                      "quick-swap",
+                                                                      "duplicate",
+                                                                      "new-service",
+                                                                      "new-workplan",
+                                                                      "new-incident",
+                                                                      "delete"]}
 
         with open('config.json', 'w', encoding='utf-8') as file:
             json.dump(updated_config, file, indent=4)
