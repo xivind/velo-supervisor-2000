@@ -80,9 +80,9 @@ def parse_button_sorting(bike_details_json, component_details_json):
 
     return button_sorting
 
-def write_config(db_path, strava_tokens, verbose_logging=False,
+def write_config(form_type, db_path=None, strava_tokens=None, verbose_logging=None,
                  button_sorting_bike_details=None, button_sorting_component_details=None):
-    """Function to update configuration file"""
+    """Function to update configuration file based on which form was submitted"""
     try:
         existing_config = {}
         try:
@@ -90,18 +90,32 @@ def write_config(db_path, strava_tokens, verbose_logging=False,
         except (FileNotFoundError, json.JSONDecodeError):
             pass
 
-        updated_config = {"db_path": db_path,
-                          "strava_tokens": strava_tokens,
-                          "verbose_logging": verbose_logging}
+        updated_config = existing_config.copy()
 
-        button_sorting = parse_button_sorting(button_sorting_bike_details,
-                                              button_sorting_component_details)
+        if form_type == "file_paths":
+            if db_path is not None:
+                updated_config["db_path"] = db_path
+            if strava_tokens is not None:
+                updated_config["strava_tokens"] = strava_tokens
+            message = "File paths updated."
 
-        if button_sorting is not None:
-            updated_config["button_sorting"] = button_sorting
-        elif "button_sorting" in existing_config:
-            updated_config["button_sorting"] = existing_config["button_sorting"]
+        elif form_type == "button_sorting":
+            button_sorting = parse_button_sorting(button_sorting_bike_details,
+                                                  button_sorting_component_details)
+            if button_sorting is not None:
+                if "button_sorting" not in updated_config:
+                    updated_config["button_sorting"] = {}
+                updated_config["button_sorting"].update(button_sorting)
+            message = "Button sorting updated."
+
+        elif form_type == "system_settings":
+            updated_config["verbose_logging"] = verbose_logging if verbose_logging is not None else False
+            message = f"System settings updated. Verbose logging: {'enabled' if updated_config['verbose_logging'] else 'disabled'}."
+
         else:
+            return False, f"Unknown form type: {form_type}"
+
+        if "button_sorting" not in updated_config:
             updated_config["button_sorting"] = {"bike_details": ["new-collection",
                                                                  "new-component",
                                                                  "install-existing",
@@ -121,7 +135,7 @@ def write_config(db_path, strava_tokens, verbose_logging=False,
         with open('config.json', 'w', encoding='utf-8') as file:
             json.dump(updated_config, file, indent=4)
 
-        return True, f"Configuration updated. Verbose logging: {'enabled' if verbose_logging else 'disabled'}."
+        return True, message
 
     except OSError as error:
         return False, f"An error occured updating configuration: {str(error)}"

@@ -5512,10 +5512,10 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const bikeDetailsList = document.getElementById('sortable-bike-details');
     const componentDetailsList = document.getElementById('sortable-component-details');
-    const configForm = document.getElementById('config_form');
+    const buttonSortingForm = document.getElementById('button_sorting_form');
 
     // Only run if we're on the config page with sortable lists
-    if (!bikeDetailsList || !componentDetailsList || !configForm) {
+    if (!bikeDetailsList || !componentDetailsList || !buttonSortingForm) {
         return;
     }
 
@@ -5575,7 +5575,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Before form submission, populate hidden fields with current order
-    configForm.addEventListener('submit', function() {
+    buttonSortingForm.addEventListener('submit', function() {
         // Get bike details button order
         const bikeDetailsOrder = Array.from(bikeDetailsList.querySelectorAll('.list-group-item'))
             .map(item => item.getAttribute('data-id'));

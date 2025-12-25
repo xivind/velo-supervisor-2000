@@ -692,14 +692,18 @@ async def delete_record(record_id: str = Form(...),
 
 @app.post("/update_config")
 async def update_config(request: Request,
-                        db_path: str = Form(...),
-                        strava_tokens: str = Form(...),
-                        verbose_logging: bool = Form(False),
+                        form_type: str = Form(...),
+                        db_path: Optional[str] = Form(None),
+                        strava_tokens: Optional[str] = Form(None),
+                        verbose_logging: Optional[bool] = Form(None),
                         button_sorting_bike_details: Optional[str] = Form(None),
                         button_sorting_component_details: Optional[str] = Form(None)):
-    """Endpoint to update config file"""
+    """Endpoint to update config file based on which form was submitted"""
 
-    success, message = write_config(db_path, strava_tokens, verbose_logging,
+    success, message = write_config(form_type,
+                                    db_path,
+                                    strava_tokens,
+                                    verbose_logging,
                                     button_sorting_bike_details,
                                     button_sorting_component_details)
 
