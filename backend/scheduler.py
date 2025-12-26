@@ -25,20 +25,20 @@ def start_scheduler():
                           replace_existing=True,
                           misfire_grace_time=3600)
 
-        #SCHEDULER.add_job(strava_sync_job,
-        #                  trigger=IntervalTrigger(hours=4),
-        #                  id='strava_sync',
-        #                  name='Sync Strava activities',
-        #                  replace_existing=True,
-        #                  misfire_grace_time=3600)
+        SCHEDULER.add_job(strava_sync_job,
+                          trigger=IntervalTrigger(hours=4),
+                          id='strava_sync',
+                          name='Sync Strava activities',
+                          replace_existing=True,
+                          misfire_grace_time=3600)
 
         SCHEDULER.start()
         logging.info("APScheduler started successfully. Jobs registered:")
         logging.info(" * update_time_based_fields: Daily at 3:00 AM")
 
-        #strava_job = SCHEDULER.get_job('strava_sync')
-        #if strava_job:
-        #    logging.info(f" * strava_sync: Every 4 hours (next run: {strava_job.next_run_time})")
+        strava_job = SCHEDULER.get_job('strava_sync')
+        if strava_job:
+            logging.info(f" * strava_sync: Every 4 hours (next run: {strava_job.next_run_time})")
 
     except Exception as exception:
         logging.error(f"Failed to start scheduler: {exception}")

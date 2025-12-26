@@ -86,7 +86,7 @@
                                 <label for="collection_select" class="form-label fw-bold">Select collection to install</label>
                                 <select class="form-select" id="collection_select">
                                     <option value="" selected></option>
-                                    {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details, status in payload.all_collections %}
+                                    {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details, status, collection_bike_mismatch in payload.all_collections %}
                                         {# Skip collections without components #}
                                         {% if component_details and component_details|length > 0 %}
                                         {% set ns = namespace(all_available=true) %}

@@ -3279,17 +3279,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Show report modal with results after a brief delay
                 setTimeout(() => {
-                    const isSuccess = data.success === 'True' || data.success === true;
-                    const isPartial = data.success === 'warning';
-
+                    const isPartialFailure = data.message && data.message.type === 'partial_failure';
+                    const title = data.success ? '✅ Collection installed successfully' :
+                                 isPartialFailure ? '⚠️ Collection partially installed' : '❌ Collection installation failed';
                     const formattedMessage = formatCollectionStatusMessage(data.message);
 
                     showReportModal(
-                        isSuccess ? 'Collection installed successfully' :
-                        isPartial ? 'Collection partially installed' : 'Collection installation failed',
+                        title,
                         formattedMessage,
-                        isSuccess,
-                        isPartial,
+                        data.success,
+                        isPartialFailure,
                         function() {
                             // Refresh page after modal dismissed
                             window.location.reload();
