@@ -79,7 +79,7 @@
         data-comment="{{ payload.component_collection_data[payload.bike_component_data['component_id']][4] }}"
         data-updated-date="{{ payload.component_collection_data[payload.bike_component_data['component_id']][5] }}"
         {% endif %}
-        {% if payload.bike_component_data['installation_status'] == "Retired" or payload.bike_component_data['component_id'] not in payload.component_collection_names %}disabled{% endif %}>
+        {% if payload.bike_component_data['component_id'] not in payload.component_collection_names %}disabled{% endif %}>
     <span>📦 Edit collection</span>
 </button>
 {% endmacro %}
