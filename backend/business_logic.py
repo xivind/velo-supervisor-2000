@@ -492,8 +492,13 @@ class BusinessLogic():
         actual_component_bike_id = list(bike_ids_of_installed)[0] if len(bike_ids_of_installed) == 1 else None
 
         collection_bike_mismatch = False
-        if collection_bike_id and len(bike_ids_of_installed) > 0:
-            collection_bike_mismatch = collection_bike_id not in bike_ids_of_installed
+        if collection_bike_id:
+            if len(bike_ids_of_installed) > 0:
+                collection_bike_mismatch = collection_bike_id not in bike_ids_of_installed
+            else:
+                collection_bike_mismatch = True
+        elif len(bike_ids_of_installed) > 0:
+            collection_bike_mismatch = True
 
         can_display_bike = (not is_empty and
                             not has_retired and
@@ -588,7 +593,8 @@ class BusinessLogic():
                                collection.bike_id,
                                collection.comment,
                                component_details,
-                               status_info['status'])
+                               status_info['status'],
+                               status_info['collection_bike_mismatch'])
 
             all_collections.append(collection_data)
 

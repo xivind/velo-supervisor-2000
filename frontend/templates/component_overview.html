@@ -58,7 +58,7 @@
             </thead>
             <tbody>
                 {% if payload.all_collections %}
-                    {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details, status in payload.all_collections %}
+                    {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details, status, collection_bike_mismatch in payload.all_collections %}
                         <tr>
                             <td>
                                 <span class="badge
@@ -80,9 +80,9 @@
                             </td>
                             <td>
                                 {% if bike_name and bike_id %}
-                                    <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">{{ bike_name }}</a>{% if status == 'needs_attention' %} ❓{% endif %}
+                                    <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">{{ bike_name }}</a>{% if status == 'needs_attention' or collection_bike_mismatch %} ❓{% endif %}
                                 {% else %}
-                                    Not assigned{% if status == 'needs_attention' %} ❓{% endif %}
+                                    Not assigned{% if status == 'needs_attention' or collection_bike_mismatch %} ❓{% endif %}
                                 {% endif %}
                             </td>
                             <td>{{ updated_date.split(' ')[0] if updated_date else "-" }}</td>
