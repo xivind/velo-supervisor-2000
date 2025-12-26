@@ -56,11 +56,11 @@
                         <tr data-description="{{ workplan_description }}" data-notes="{{ completion_notes }}">
                             <td class="text-center">
                                 {% if elapsed_days > 0 and workplan_status != "Done" %}
-                                    <span class="badge rounded-pill text-bg-primary fixed-width-badge-workplan-status">Overdue</span>
+                                    <span class="badge rounded-pill status-attention fixed-width-badge-workplan-status">Overdue</span>
                                 {% elif workplan_status == "Planned" %}
-                                    <span class="badge rounded-pill text-bg-info fixed-width-badge-workplan-status">Planned</span>
+                                    <span class="badge rounded-pill status-healthy fixed-width-badge-workplan-status">Planned</span>
                                 {% elif workplan_status == "Done" %}
-                                    <span class="badge rounded-pill text-bg-secondary fixed-width-badge-workplan-status">Done</span>
+                                    <span class="badge rounded-pill status-empty fixed-width-badge-workplan-status">Done</span>
                                 {% endif %}
                             </td>
                             <td>

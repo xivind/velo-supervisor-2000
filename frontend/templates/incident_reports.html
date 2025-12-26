@@ -56,9 +56,9 @@
                         <tr data-description="{{ incident_description }}" data-notes="{{ resolution_notes }}">
                             <td class="text-center">
                                 {% if incident_status == "Open" %}
-                                <span class="badge rounded-pill text-bg-info fixed-width-badge-incident-status">Open</span>
+                                <span class="badge rounded-pill status-attention fixed-width-badge-incident-status">Open</span>
                                 {% elif incident_status == "Resolved" %}
-                                <span class="badge rounded-pill text-bg-secondary fixed-width-badge-incident-status">Resolved</span>
+                                <span class="badge rounded-pill status-empty fixed-width-badge-incident-status">Resolved</span>
                                 {% endif %}
                             </td>
                             <td>

@@ -17,7 +17,9 @@ from utils import (read_config,
                    get_current_version,
                    write_config,
                    read_filtered_logs,
-                   shutdown_server)
+                   shutdown_server,
+                   get_button_order,
+                   get_button_sorting_config)
 
 # Load configuration
 CONFIG = read_config()
@@ -87,7 +89,8 @@ async def bike_details(request: Request,
 
     return templates.TemplateResponse(template_path,
                                       {"request": request,
-                                       "payload": payload})
+                                       "payload": payload,
+                                       "button_order": get_button_order(CONFIG, 'bike_details')})
 
 @app.get("/component_overview", response_class=HTMLResponse)
 async def component_overview(request: Request):
@@ -136,7 +139,8 @@ async def component_details(request: Request,
                                       {"request": request,
                                        "payload": payload,
                                        "success": success,
-                                       "message": message})
+                                       "message": message,
+                                       "button_order": get_button_order(CONFIG, 'component_details')})
 
 @app.get("/collection_details/{collection_id}", response_class=HTMLResponse)
 async def collection_details(request: Request,
@@ -177,7 +181,8 @@ async def config_overview(request: Request,
 
     payload = {"strava_tokens": CONFIG['strava_tokens'],
                "db_path": CONFIG['db_path'],
-               "verbose_logging": CONFIG.get('verbose_logging', False)}
+               "verbose_logging": CONFIG.get('verbose_logging', False),
+               "button_sorting": get_button_sorting_config(CONFIG)}
     template_path = "config.html"
 
     return templates.TemplateResponse(template_path,
@@ -687,12 +692,20 @@ async def delete_record(record_id: str = Form(...),
 
 @app.post("/update_config")
 async def update_config(request: Request,
-                        db_path: str = Form(...),
-                        strava_tokens: str = Form(...),
-                        verbose_logging: bool = Form(False)):
-    """Endpoint to update config file"""
+                        form_type: str = Form(...),
+                        db_path: Optional[str] = Form(None),
+                        strava_tokens: Optional[str] = Form(None),
+                        verbose_logging: Optional[bool] = Form(None),
+                        button_sorting_bike_details: Optional[str] = Form(None),
+                        button_sorting_component_details: Optional[str] = Form(None)):
+    """Endpoint to update config file based on which form was submitted"""
 
-    success, message = write_config(db_path, strava_tokens, verbose_logging)
+    success, message = write_config(form_type,
+                                    db_path,
+                                    strava_tokens,
+                                    verbose_logging,
+                                    button_sorting_bike_details,
+                                    button_sorting_component_details)
 
     response = RedirectResponse(
         url=f"/config_overview?success={success}&message={message}",
