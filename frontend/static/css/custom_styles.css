@@ -10,18 +10,18 @@
     color: white !important;
 }
 
-.bike-no-components {
-    background-color: #979e9e !important; /* Enhance the secondary color for "no components" status */
+.status-empty {
+    background-color: #979e9e !important; /* Status indicator for empty/no items state */
     color: white !important;
 }
 
-.bike-healthy {
-    background-color: #2967b9 !important; /* Enhance the info color for healthy components */
+.status-healthy {
+    background-color: #2967b9 !important; /* Status indicator for healthy/ready state */
     color: white !important;
 }
 
-.bike-needs-attention {
-    background-color: #b98356 !important; /* Custom styling for the bike needs attention status */
+.status-attention {
+    background-color: #b98356 !important; /* Status indicator for items needing attention */
     color: white !important;
 }    
 
@@ -389,4 +389,43 @@ tr:hover .checkbox-progress-text {
 
 tr:hover .checkbox-progress-text.complete {
     color: #198754;
+}
+
+/* Sortable lists for button configuration */
+.sortable-list .list-group-item {
+    cursor: move;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    background-color: #fff;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.sortable-list .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.sortable-list .drag-handle {
+    color: #6c757d;
+    margin-right: 0.75rem;
+    cursor: grab;
+    user-select: none;
+}
+
+.sortable-list .drag-handle:active {
+    cursor: grabbing;
+}
+
+.sortable-list .button-label {
+    font-weight: 500;
+}
+
+.sortable-ghost {
+    opacity: 0.4;
+    background-color: #e9ecef;
+}
+
+.sortable-drag {
+    opacity: 1;
+    background-color: #fff;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }

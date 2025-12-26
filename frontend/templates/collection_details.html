@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Collection details - Velo Supervisor 2000{% endblock %}
+
+{% block content %}
+
+{# Include modals needed for collection management #}
+{% include "modal_collection.html" %}
+{% include "modal_update_component_status.html" %}
+{% include "modal_update_collection_status.html" %}
+
+<h1 id="collection-details" class="display-5 mt-5 text-center mb-4">Collection details</h1>
+
+{# Action buttons #}
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <button type="button" class="btn btn-outline-primary edit-collection-on-details-page"
+            data-collection-id="{{ payload.collection_data.collection_id }}"
+            data-collection-name="{{ payload.collection_data.collection_name }}"
+            data-collection-comment="{{ payload.collection_data.comment if payload.collection_data.comment else '' }}"
+            data-collection-components="{{ payload.collection_data.components if payload.collection_data.components else '[]' }}">
+        <span>✍ Edit collection</span>
+    </button>
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#updateCollectionStatusModal"
+            data-collection-id="{{ payload.collection_data.collection_id }}"
+            data-actual-component-bike-id="{{ payload.collection_data.bike_id if payload.collection_data.bike_id else '' }}"
+            data-collection-status="{% if payload.warnings.installed_count > 0 and payload.warnings.not_installed_count == 0 and payload.warnings.retired_count == 0 %}Installed{% elif payload.warnings.retired_count > 0 and payload.warnings.installed_count == 0 and payload.warnings.not_installed_count == 0 %}Retired{% elif payload.warnings.not_installed_count > 0 and payload.warnings.installed_count == 0 and payload.warnings.retired_count == 0 %}Not installed{% else %}Mixed{% endif %}"
+            {% if payload.warnings.blocks_operations %}disabled title="Fix collection problems before changing status"{% endif %}>
+        <span>🔄 Update collection status</span>
+    </button>
+    <button type="button" class="btn btn-outline-danger delete-record"
+            data-collection-id="{{ payload.collection_data.collection_id }}"
+            data-collection-name="{{ payload.collection_data.collection_name }}">
+        <span>🗑 Delete</span>
+    </button>
+</div>
+
+<hr/>
+
+{# Legend for collection status colors #}
+<div class="d-flex justify-content-start align-items-center mb-2 ms-2">
+    <div class="small text-secondary">
+        <span class="me-3"><span class="badge status-healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection ready for bulk changes</span>
+        <span class="me-3"><span class="badge status-attention" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has configuration issues</span>
+        <span class="me-3"><span class="badge status-empty" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has no components</span>
+    </div>
+</div>
+
+{# Collection info card #}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header fs-5 fw-bold d-flex justify-content-between align-items-center
+                {% if payload.warnings.is_empty %}
+                text-bg-dark status-empty
+                {% elif payload.warnings.blocks_operations %}
+                text-bg-dark status-attention
+                {% elif payload.warnings.can_display_bike or payload.warnings.collection_bike_mismatch %}
+                text-bg-dark status-healthy
+                {% else %}
+                text-bg-dark status-empty
+                {% endif %}
+                ">
+                <span>{{ payload.collection_data.collection_name }}</span>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                        🔄 <strong>Last collection status change:</strong> {{ payload.collection_data.updated_date if payload.collection_data.updated_date else 'Status never changed through collection' }}
+                    </span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                        🚴 <strong>Collection bike assignment:</strong>
+                        {% if payload.warnings.blocks_operations %}
+                            Could not be computed
+                        {% elif payload.collection_data.bike_name %}
+                            {{ payload.collection_data.bike_name }}
+                        {% else %}
+                            Not assigned
+                        {% endif %}
+                    </span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                        ⚙ <strong>Components:</strong> {{ payload.collection_data.component_count }}
+                    </span>
+                    {% if payload.collection_data.comment %}
+                        <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                            📝 <strong>Description:</strong> {{ payload.collection_data.comment }}
+                        </span>
+                    {% endif %}
+                </div>
+                <hr/>
+                <div class="text-end">
+                    <small class="text-muted">
+                        🔑 <strong>Collection id:</strong> {{ payload.collection_data.collection_id }}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        {# Warning banner if there are problems with the collection #}
+        {% if payload.warnings.blocks_operations %}
+        <div class="card shadow mb-4">
+            <div class="alert alert-warning m-0">
+                <div class="d-flex align-items-center">
+                    <div class="fs-2 me-3">⚠️</div>
+                    <div>
+                        {% if payload.warnings.is_empty %}
+                        <h5 class="card-title mb-2">Collection is empty</h5>
+                        <p class="mb-1">
+                            This collection contains no components. Add components using the "Edit collection" button above.
+                        </p>
+
+                        {% elif payload.warnings.has_retired %}
+                        <h5 class="card-title mb-2">Collection contains retired components</h5>
+                        <p class="mb-1">
+                            This collection has {{ payload.warnings.retired_count }} retired component{{ 's' if payload.warnings.retired_count != 1 else '' }}.
+                            Remove retired components using the "Edit collection" button above to enable bulk operations.
+                        </p>
+
+                        {% elif payload.warnings.has_mixed_statuses %}
+                        <h5 class="card-title mb-2">Components have mixed installation statuses</h5>
+                        <p class="mb-1">
+                            This collection has {{ payload.warnings.installed_count }} installed and {{ payload.warnings.not_installed_count }} not-installed components.
+                            All components must have the same installation status for bulk operations. Update individual component statuses below using the 🔄 buttons.
+                        </p>
+
+                        {% elif payload.warnings.has_different_bikes %}
+                        <h5 class="card-title mb-2">Components are on different bikes</h5>
+                        <p class="mb-1">
+                            Installed components are on {{ payload.warnings.bike_count }} different bikes: {{ payload.warnings.bike_names_list | join(', ') }}.
+                            Either uninstall all components or make sure all components are installed on the same bike using the 🔄 buttons, before using bulk operations.
+                        </p>
+
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {# Info banner if collection bike assignment doesn't match components #}
+        {% if payload.warnings.collection_bike_mismatch and not payload.warnings.blocks_operations %}
+        <div class="card shadow mb-4">
+            <div class="alert alert-info m-0">
+                <div class="d-flex align-items-center">
+                    <div class="fs-2 me-3">ℹ️</div>
+                    <div>
+                        <h5 class="card-title mb-2">Bike assignment mismatch</h5>
+                        <p class="mb-1">
+                            The collection's bike assignment doesn't match the actual bikes where components are installed.
+                            This will be automatically corrected when you perform a bulk status change.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {# Components table #}
+        <div class="card shadow mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Collection components</span>
+            </div>
+            <div class="card-body">
+                {% if payload.all_components_display_data and payload.all_components_display_data|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover" id="collectionComponentsTable">
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Type</th>
+                                <th>Current Bike</th>
+                                <th>Updated</th>
+                                <th>Distance</th>
+                                <th class="text-center">Lifetime</th>
+                                <th class="text-center">Service</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for component_id, component_type, component_name, component_distance, installation_status, lifetime_status, service_status, bike_name, cost, lifetime_trigger, service_trigger, bike_id, updated_date in payload.all_components_display_data %}
+                            <tr data-component-id="{{ component_id }}">
+                                <td>
+                                    {% if installation_status == "Installed" %}⚡
+                                    {% elif installation_status == "Not installed" %}💤
+                                    {% elif installation_status == "Retired" %}⛔
+                                    {% endif %}
+                                    <a href="/component_details/{{ component_id }}" class="text-decoration-none text-reset">{{ component_name }}</a>
+                                </td>
+                                <td>{{ component_type }}</td>
+                                <td>
+                                    {% if bike_name and bike_id %}
+                                        <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">{{ bike_name }}</a>
+                                    {% else %}
+                                        Not assigned
+                                    {% endif %}
+                                </td>
+                                <td>{{ updated_date }}</td>
+                                <td>{{ component_distance }} km</td>
+                                <td class="text-center">
+                                    {% if lifetime_status == "OK" %}🟢
+                                    {% elif lifetime_status == "Due for replacement" %}🟡
+                                    {% elif lifetime_status == "Lifetime exceeded" %}🔴
+                                    {% elif lifetime_status == "Not defined" %}⚪
+                                    {% else %}❓
+                                    {% endif %}
+                                    {% if lifetime_status != 'OK' and lifetime_status != 'Not defined' %}
+                                        {% if lifetime_trigger == 'distance' %}📍
+                                        {% elif lifetime_trigger == 'time' %}📅
+                                        {% elif lifetime_trigger == 'both' %}📍📅
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if service_status == "OK" %}🟢
+                                    {% elif service_status == "Due for service" %}🟡
+                                    {% elif service_status == "Service interval exceeded" %}🔴
+                                    {% elif service_status == "Not defined" %}⚪
+                                    {% else %}❓
+                                    {% endif %}
+                                    {% if service_status != 'OK' and service_status != 'Not defined' %}
+                                        {% if service_trigger == 'distance' %}📍
+                                        {% elif service_trigger == 'time' %}📅
+                                        {% elif service_trigger == 'both' %}📍📅
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <button type="button"
+                                            class="btn btn-outline-primary btn-sm change-status-btn"
+                                            data-component-id="{{ component_id }}"
+                                            data-component-name="{{ component_name }}"
+                                            data-installation-status="{{ installation_status }}"
+                                            data-bike-id="{{ bike_id if bike_id else '' }}"
+                                            data-updated-date="{{ updated_date }}"
+                                            data-collection-id="{{ payload.collection_data.collection_id }}"
+                                            data-collection-name="{{ payload.collection_data.collection_name }}"
+                                            {% if installation_status == "Retired" %}disabled{% endif %}>
+                                        🔄
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted mb-0">No components in this collection</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{# JavaScript handlers will be added to frontend/static/js/main.js #}
+
+{% endblock %}

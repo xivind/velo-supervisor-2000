@@ -1,5 +1,5 @@
 <div class="modal fade" id="collectionModal" tabindex="-1" aria-labelledby="collectionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header input-modal-header">
                 <h5 class="modal-title input-modal-title" id="collectionModalLabel">Collection</h5> <!-- Title set with JS -->
@@ -9,13 +9,16 @@
                 <form id="collection_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"> <!-- Endpoint set with JS -->
                     <!-- Hidden fields -->
                     <input type="hidden" id="collection_id" name="collection_id"> <!-- Should be set automatically, and is required -->
+                    <input type="hidden" id="redirect_to" name="redirect_to" value=""> <!-- Redirect destination after save -->
                     
-                    <!-- First row: Collection name and description -->
-                    <div class="col-md-6 mb-3">
+                    <!-- First row: Collection name -->
+                    <div class="col-md-12 mb-3">
                         <label for="collection_name" class="form-label fw-bold">Collection name</label>
                         <input type="text" class="form-control" id="collection_name" name="collection_name" required>
                     </div>
-                    <div class="col-md-6 mb-3">
+
+                    <!-- Second row: Collection description -->
+                    <div class="col-md-12 mb-3">
                         <label for="comment" class="form-label fw-bold">Description</label>
                         <input type="text" class="form-control" id="comment" name="comment">
                     </div>
@@ -24,88 +27,18 @@
                     <div class="col-md-12 mb-3">
                         <label for="components" class="form-label fw-bold">Collection components</label>
                         <select class="form-select" id="components" name="components" multiple placeholder="Search to add components to collection...">
-                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days in payload.all_components_data %}
-                                <option value="{{ component_id }}" data-status="{{ status }}" data-bike="{{ bike }}">
+                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days, bike_id, updated_date in payload.all_components_data %}
+                                <option value="{{ component_id }}" data-status="{{ status }}" data-bike="{{ bike }}" data-in-collection="{{ 'true' if component_id in payload.component_collection_names else 'false' }}">
                                     {{ name }} ({{ type }}){% if status == "Installed" %} - {{ bike }}{% else %} - Not assigned{% endif %}
                                 </option>
                             {% endfor %}
                         </select>
-                    </div>
-                    
-                    <!-- Dynamic validation warning (populated by JavaScript) -->
-                    <div class="col-12" id="mixed_status_warning" style="display: none;">
-                        <div class="alert alert-warning mb-2" role="alert">
-                            <!-- Content dynamically populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Unsaved changes warning (populated by JavaScript) -->
-                    <div class="col-12" id="unsaved_changes_warning" style="display: none;">
-                        <div class="alert alert-info mb-2" role="alert">
-                            <!-- Content dynamically populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Retired component warning (populated by JavaScript) -->
-                    <div class="col-12" id="retired_component_warning" style="display: none;">
-                        <div class="alert alert-danger mb-2" role="alert">
-                            <!-- Content dynamically populated by JavaScript -->
-                        </div>
-                    </div>
-                    <div class="col-12 mb-1" id="bulk_status_section" style="display: none;">
-                        <hr>
-                        <div class="mb-2">
-                            <!-- Simplified header - status now shown below New Status field -->
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-1">
-                                <label for="updated_date" class="form-label fw-bold">Collection updated date</label>
-                                <div class="input-group date-input-group">
-                                    <input type="text" class="form-control datepicker-input" id="updated_date" name="updated_date">
-                                    <span class="input-group-text datepicker-toggle">🗓</span>
-                                </div>
-                                <small class="form-text text-muted">
-                                    <strong>Collection updated:</strong> <span id="last_updated">Never updated through collections</span>
-                                </small>
-                            </div>
-                            <div class="col-md-4 mb-1">
-                                <label for="new_status" class="form-label fw-bold">New status</label>
-                                <select class="form-select" id="new_status" name="new_status">
-                                    <!-- Options populated dynamically by JavaScript -->
-                                </select>
-                                <small class="form-text text-muted">
-                                    <strong>Current status:</strong> <span id="current_installation_status"></span>
-                                </small>
-                            </div>
-                            <div class="col-md-4 mb-1">
-                                <label for="bike_id" class="form-label fw-bold">Bike assignment</label>
-                                <select class="form-select" id="bike_id" name="bike_id">
-                                    <option value="" selected></option>
-                                    {% for bike_name, bike_id in payload.bikes_data %}
-                                        {% if "(Retired)" not in bike_name %}
-                                            <option value="{{ bike_id }}">{{ bike_name }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                                <small class="form-text text-muted">
-                                    <strong>Current bike:</strong> <span id="current_bike_assignment">Not assigned</span>
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="text-end">
-                            <small class="text-muted">
-                                🔑 <strong>Collection id:</strong> 
-                                <span id="collection-id-display">Not created yet</span>
-                            </small>
-                        </div>
+                        <small class="text-muted">Retired components and components belonging to other collections are not shown when searching for components to add.</small>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="apply_status_change">Set new status</button>
                 <button type="submit" class="btn btn-primary" form="collection_form">Save details</button>
             </div>
         </div>

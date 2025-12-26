@@ -1,4 +1,5 @@
 {
     "db_path": "/data/prod_db.sqlite",
-    "strava_tokens": "/secrets/strava_tokens.json"
+    "strava_tokens": "/secrets/strava_tokens.json",
+    "verbose_logging": false
 }

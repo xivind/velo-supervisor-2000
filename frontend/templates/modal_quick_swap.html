@@ -15,7 +15,7 @@
                         <label for="old_component_id" class="form-label fw-bold">Component to swap out</label>
                         <select class="form-select" id="old_component_id" name="old_component_id" required placeholder="Select component to swap out...">
                             <option value=""></option>
-                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days in payload.all_components_data %}
+                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days, bike_id, updated_date in payload.all_components_data %}
                                 {% if status == "Installed" %}
                                 <option value="{{ component_id }}"
                                         data-name="{{ name }}"
@@ -55,7 +55,7 @@
                         </div>
                         <select class="form-select" id="new_component_id" name="new_component_id" placeholder="Select component...">
                             <option value=""></option>
-                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days in payload.all_components_data %}
+                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days, bike_id, updated_date in payload.all_components_data %}
                                 {% if status == "Not installed" %}
                                 <option value="{{ component_id }}"
                                         data-type="{{ type }}"

@@ -25,21 +25,59 @@
 {% endwith %}
 
 {% include "modal_quick_swap.html" %}
+{% include "modal_update_component_status.html" %}
 
-<h1 id="bike-details" class="display-5 mt-5 text-center mb-4">Bike details</h1>
-<div class="d-flex flex-wrap gap-2 mb-3">
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#collectionModal">
+{% with bike_data = payload.bike_data %}
+    {% include "modal_install_component.html" %}
+{% endwith %}
+
+{# Define button macros #}
+{% macro btn_new_collection() %}
+<button type="button" id="btn-new-collection" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#collectionModal">
     <span>📦 New collection</span>
 </button>
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+{% endmacro %}
+
+{% macro btn_new_component() %}
+<button type="button" id="btn-new-component" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createComponentModal">
     <span>⚙ New component</span>
 </button>
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
+{% endmacro %}
+
+{% macro btn_install_existing() %}
+<button type="button" id="btn-install-existing" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#installComponentModal">
+    <span>⚙ Install existing</span>
+</button>
+{% endmacro %}
+
+{% macro btn_new_workplan() %}
+<button type="button" id="btn-new-workplan" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
     <span>📝 New workplan</span>
 </button>
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+{% endmacro %}
+
+{% macro btn_new_incident() %}
+<button type="button" id="btn-new-incident" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
     <span>🚨 New incident</span>
 </button>
+{% endmacro %}
+
+<h1 id="bike-details" class="display-5 mt-5 text-center mb-4">Bike details</h1>
+<div class="d-flex flex-wrap gap-2 mb-3" id="bike-details-buttons">
+{# Map button IDs to their respective macros #}
+{% set button_map = {
+    'new-collection': btn_new_collection,
+    'new-component': btn_new_component,
+    'install-existing': btn_install_existing,
+    'new-workplan': btn_new_workplan,
+    'new-incident': btn_new_incident
+} %}
+{# Render buttons in configured order #}
+{% for button_id in button_order %}
+    {% if button_id in button_map %}
+{{ button_map[button_id]() }}
+    {% endif %}
+{% endfor %}
 </div>
 <hr/>
 <div class="row">
@@ -47,11 +85,11 @@
         <div class="card shadow mb-4">
             <div class="card-header fs-5 fw-bold d-flex justify-content-between align-items-center
             {%- if payload.bike_data['bike_service_status'] == 'No components registered' or payload.bike_data['bike_service_status'] == 'No active components' -%}
-                text-bg-dark bike-no-components
+                text-bg-dark status-empty
             {%- elif payload.bike_data['bike_service_status'] == 'Components need attention' -%}
-                text-bg-dark bike-needs-attention
+                text-bg-dark status-attention
             {%- else -%}
-                text-bg-dark bike-healthy
+                text-bg-dark status-healthy
             {%- endif -%}">
                 <span>{{ payload.bike_data['bike_name'] }}</span>
                 <span class="fs-5">
@@ -73,6 +111,12 @@
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">⛔ <strong>Retired components:</strong> {{ payload.count_retired }}</span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">💰 <strong>Expected cost next service:</strong> {% if payload.sum_cost == "No estimate" %}{{ payload.sum_cost }}{% else %}{{ payload.sum_cost }}{% endif %}</span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📝 <strong>Notes:</strong> {% if payload.bike_data.bike_notes %}{{ payload.bike_data.bike_notes }}{% else %}No bike notes available{% endif %}</span>
+                </div>
+                <hr/>
+                <div class="text-end">
+                    <small class="text-muted">
+                        🔑 <strong>Bike id:</strong> {{ payload.bike_data['bike_id'] }}
+                    </small>
                 </div>
             </div>
         </div>
@@ -171,7 +215,7 @@
                     </thead>
                     <tbody>
                         {% if payload.bike_component_data %}
-                            {% for component_id, lifetime_remaining, service_next, installation_status, type, name, component_distance, lifetime_status, service_status, cost, lifetime_trigger, service_trigger, lifetime_remaining_days, service_next_days in payload.bike_component_data %}
+                            {% for component_id, lifetime_remaining, service_next, installation_status, type, name, component_distance, lifetime_status, service_status, cost, lifetime_trigger, service_trigger, lifetime_remaining_days, service_next_days, updated_date in payload.bike_component_data %}
                                 <tr data-status="{{ installation_status }}" role="button" onclick="window.location='/component_details/{{ component_id }}';">
                                     <td>
                                         {% if installation_status == "Installed" %}
@@ -252,13 +296,24 @@
                                         {% endif %}
                                     </td>
                                     <td class="text-end">
-                                        {% if installation_status == "Installed" %}
+                                        <button type="button" class="btn btn-outline-primary btn-sm change-status-btn mb-1"
+                                            data-component-id="{{ component_id }}"
+                                            data-component-name="{{ name }}"
+                                            data-installation-status="{{ installation_status }}"
+                                            data-bike-id="{{ payload.bike_data['bike_id'] }}"
+                                            data-updated-date="{{ updated_date }}"
+                                            data-page-bike-id="{{ payload.bike_data['bike_id'] }}"
+                                            data-collection-name="{{ payload.component_collection_names[component_id] if component_id in payload.component_collection_names else '' }}"
+                                            {% if installation_status == "Retired" %}disabled{% endif %}
+                                            onclick="event.stopPropagation();">
+                                            🔄
+                                        </button>
                                         <button type="button" class="btn btn-outline-primary btn-sm quick-swap-btn mb-1"
                                             data-component-id="{{ component_id }}"
+                                            {% if installation_status != "Installed" %}disabled{% endif %}
                                             onclick="event.stopPropagation();">
                                             ♻
                                         </button>
-                                        {% endif %}
                                         <button type="button" class="btn btn-outline-danger btn-sm delete-record mb-1"
                                             data-component-id="{{ component_id }}"
                                             onclick="event.stopPropagation();">

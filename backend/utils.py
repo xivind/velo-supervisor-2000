@@ -27,16 +27,115 @@ def read_config():
         config = json.load(file)
     return config
 
-def write_config(db_path, strava_tokens):
-    """Function to update configuration file"""
+def get_button_order(config, page_name):
+    """Function to get button order for a specific page with defaults"""
+    defaults = {'bike_details': ['new-collection',
+                                 'new-component',
+                                 'install-existing',
+                                 'new-workplan',
+                                 'new-incident'],
+                'component_details': ['view-bike',
+                                      'update-status',
+                                      'update-details',
+                                      'edit-collection',
+                                      'quick-swap',
+                                      'duplicate',
+                                      'new-service',
+                                      'new-workplan',
+                                      'new-incident',
+                                      'delete']}
+
+    return config.get('button_sorting', {}).get(page_name, defaults.get(page_name, []))
+
+def get_button_sorting_config(config):
+    """Function to get button sorting configuration for config page"""
+    default_button_sorting = {'bike_details': ['new-collection',
+                                               'new-component',
+                                               'install-existing',
+                                               'new-workplan',
+                                               'new-incident'],
+                            'component_details': ['view-bike',
+                                                  'update-status',
+                                                  'update-details',
+                                                  'edit-collection',
+                                                  'quick-swap',
+                                                  'duplicate',
+                                                  'new-service',
+                                                  'new-workplan',
+                                                  'new-incident',
+                                                  'delete']}
+
+    return config.get('button_sorting', default_button_sorting)
+
+def parse_button_sorting(bike_details_json, component_details_json):
+    """Function to parse button sorting data from form submission"""
+    if not bike_details_json and not component_details_json:
+        return None
+
+    button_sorting = {}
+    if bike_details_json:
+        button_sorting['bike_details'] = json.loads(bike_details_json)
+    if component_details_json:
+        button_sorting['component_details'] = json.loads(component_details_json)
+
+    return button_sorting
+
+def write_config(form_type, db_path=None, strava_tokens=None, verbose_logging=None,
+                 button_sorting_bike_details=None, button_sorting_component_details=None):
+    """Function to update configuration file based on which form was submitted"""
     try:
-        updated_config = {"db_path": db_path,
-                          "strava_tokens": strava_tokens}
+        existing_config = {}
+        try:
+            existing_config = read_config()
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+
+        updated_config = existing_config.copy()
+
+        if form_type == "file_paths":
+            if db_path is not None:
+                updated_config["db_path"] = db_path
+            if strava_tokens is not None:
+                updated_config["strava_tokens"] = strava_tokens
+            message = "File paths updated."
+
+        elif form_type == "button_sorting":
+            button_sorting = parse_button_sorting(button_sorting_bike_details,
+                                                  button_sorting_component_details)
+            if button_sorting is not None:
+                if "button_sorting" not in updated_config:
+                    updated_config["button_sorting"] = {}
+                updated_config["button_sorting"].update(button_sorting)
+            message = "Button sorting updated."
+
+        elif form_type == "system_settings":
+            updated_config["verbose_logging"] = verbose_logging if verbose_logging is not None else False
+            message = f"System settings updated. Verbose logging: {'enabled' if updated_config['verbose_logging'] else 'disabled'}."
+
+        else:
+            return False, f"Unknown form type: {form_type}"
+
+        if "button_sorting" not in updated_config:
+            updated_config["button_sorting"] = {"bike_details": ["new-collection",
+                                                                 "new-component",
+                                                                 "install-existing",
+                                                                 "new-workplan",
+                                                                 "new-incident"],
+                                                "component_details": ["view-bike",
+                                                                      "update-status",
+                                                                      "update-details",
+                                                                      "edit-collection",
+                                                                      "quick-swap",
+                                                                      "duplicate",
+                                                                      "new-service",
+                                                                      "new-workplan",
+                                                                      "new-incident",
+                                                                      "delete"]}
 
         with open('config.json', 'w', encoding='utf-8') as file:
             json.dump(updated_config, file, indent=4)
 
-        return True, f"Configuration updated. New database path is {db_path}. New strava tokens path is {strava_tokens}." 
+        return True, message
 
     except OSError as error:
         return False, f"An error occured updating configuration: {str(error)}"

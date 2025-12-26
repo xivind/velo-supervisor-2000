@@ -38,28 +38,39 @@
 
 {% include "modal_quick_swap.html" %}
 
-<h1 id="component-details" class="display-5 mt-5 mb-4 text-center">Component details</h1>
-<div class="d-flex flex-wrap gap-2 mb-3">
+{# Define button macros #}
+{% macro btn_view_bike() %}
 {% if payload.bike_component_data['bike_id'] %}
-    <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" class="btn btn-outline-primary">
+    <a href="/bike_details/{{ payload.bike_component_data['bike_id'] }}" id="btn-view-bike" class="btn btn-outline-primary">
         <span>🚴 View bike</span>
     </a>
-{% elif payload.component_history_data|length > 1 and payload.bike_component_data['installation_status'] != 'Installed'  %}
-    <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="btn btn-outline-primary">
+{% elif payload.component_history_data|length > 1 and payload.bike_component_data['installation_status'] != 'Installed' %}
+    <a href="/bike_details/{{ payload.component_history_data[1][3] }}" id="btn-view-bike" class="btn btn-outline-primary">
         <span>🚴 View previous bike</span>
     </a>
 {% else %}
-    <button type="button" class="btn btn-outline-primary" disabled>
+    <button type="button" id="btn-view-bike" class="btn btn-outline-primary" disabled>
         <span>🚴 View bike</span>
     </button>
 {% endif %}
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentStatusModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
-    <span>🔄 Change status</span>
+{% endmacro %}
+
+{% macro btn_update_status() %}
+<button type="button" id="btn-update-status" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentStatusModal"
+        data-collection-name="{{ payload.component_collection_names[payload.bike_component_data['component_id']] if payload.bike_component_data['component_id'] in payload.component_collection_names else '' }}"
+        {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>🔄 Update status</span>
 </button>
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentDetailsModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+{% endmacro %}
+
+{% macro btn_update_details() %}
+<button type="button" id="btn-update-details" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editComponentDetailsModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>✍ Update details</span>
 </button>
-<button type="button" class="btn btn-outline-primary edit-collection-btn"
+{% endmacro %}
+
+{% macro btn_edit_collection() %}
+<button type="button" id="btn-edit-collection" class="btn btn-outline-primary edit-collection-btn"
         {% if payload.bike_component_data['component_id'] in payload.component_collection_names %}
         data-collection-id="{{ payload.component_collection_data[payload.bike_component_data['component_id']][0] }}"
         data-collection-name="{{ payload.component_collection_data[payload.bike_component_data['component_id']][1] }}"
@@ -68,27 +79,68 @@
         data-comment="{{ payload.component_collection_data[payload.bike_component_data['component_id']][4] }}"
         data-updated-date="{{ payload.component_collection_data[payload.bike_component_data['component_id']][5] }}"
         {% endif %}
-        {% if payload.bike_component_data['installation_status'] == "Retired" or payload.bike_component_data['component_id'] not in payload.component_collection_names %}disabled{% endif %}>
+        {% if payload.bike_component_data['component_id'] not in payload.component_collection_names %}disabled{% endif %}>
     <span>📦 Edit collection</span>
 </button>
-<button type="button" class="btn btn-outline-primary quick-swap-btn" data-component-id="{{ payload.bike_component_data['component_id'] }}" {% if payload.bike_component_data['installation_status'] != "Installed" %}disabled{% endif %}>
+{% endmacro %}
+
+{% macro btn_quick_swap() %}
+<button type="button" id="btn-quick-swap" class="btn btn-outline-primary quick-swap-btn" data-component-id="{{ payload.bike_component_data['component_id'] }}" {% if payload.bike_component_data['installation_status'] != "Installed" %}disabled{% endif %}>
     <span>♻ Quick swap</span>
 </button>
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createComponentModal">
+{% endmacro %}
+
+{% macro btn_duplicate() %}
+<button type="button" id="btn-duplicate" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createComponentModal">
     <span>⛓ Duplicate</span>
 </button>
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+{% endmacro %}
+
+{% macro btn_new_service() %}
+<button type="button" id="btn-new-service" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>🧑‍🔧 New service</span>
 </button>
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#workplanRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+{% endmacro %}
+
+{% macro btn_new_workplan() %}
+<button type="button" id="btn-new-workplan" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#workplanRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>📝 New workplan</span>
 </button>
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+{% endmacro %}
+
+{% macro btn_new_incident() %}
+<button type="button" id="btn-new-incident" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal" {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>🚨 New incident</span>
 </button>
-<button type="button" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">
+{% endmacro %}
+
+{% macro btn_delete() %}
+<button type="button" id="btn-delete" class="btn btn-outline-danger delete-record" data-component-id="{{ payload.bike_component_data['component_id'] }}">
     <span>🗑 Delete</span>
 </button>
+{% endmacro %}
+
+<h1 id="component-details" class="display-5 mt-5 mb-4 text-center">Component details</h1>
+<div class="d-flex flex-wrap gap-2 mb-3" id="component-details-buttons">
+{# Map button IDs to their respective macros #}
+{% set button_map = {
+    'view-bike': btn_view_bike,
+    'update-status': btn_update_status,
+    'update-details': btn_update_details,
+    'edit-collection': btn_edit_collection,
+    'quick-swap': btn_quick_swap,
+    'duplicate': btn_duplicate,
+    'new-service': btn_new_service,
+    'new-workplan': btn_new_workplan,
+    'new-incident': btn_new_incident,
+    'delete': btn_delete
+} %}
+{# Render buttons in configured order #}
+{% for button_id in button_order %}
+    {% if button_id in button_map %}
+{{ button_map[button_id]() }}
+    {% endif %}
+{% endfor %}
 </div>
 <hr/>
 <div class="row">

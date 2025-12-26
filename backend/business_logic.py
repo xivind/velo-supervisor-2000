@@ -2,7 +2,6 @@
 """Module to handle business logic"""
 
 import logging
-import asyncio
 from datetime import datetime
 import json
 from utils import (read_config,
@@ -103,6 +102,7 @@ class BusinessLogic():
         component_types_data = database_manager.read_all_component_types()
 
         all_components_data = database_manager.read_all_components()
+        all_collections = self.get_all_collections()
 
         bike_components = database_manager.read_subset_components(bike_id)
         bike_component_data = []
@@ -123,7 +123,8 @@ class BusinessLogic():
                                        triggers["lifetime_trigger"],
                                        triggers["service_trigger"],
                                        "-" if component.lifetime_remaining_days is None else component.lifetime_remaining_days,
-                                       "-" if component.service_next_days is None else component.service_next_days))
+                                       "-" if component.service_next_days is None else component.service_next_days,
+                                       component.updated_date))
 
         count_installed = sum(1 for component in bike_component_data if component[3] == "Installed")
         count_retired = sum(1 for component in bike_component_data if component[3] == "Retired")
@@ -195,6 +196,7 @@ class BusinessLogic():
                    "component_types_data": component_types_data,
                    "bike_component_data": bike_component_data,
                    "all_components_data": all_components_data,
+                   "all_collections": all_collections,
                    "count_installed" : count_installed,
                    "count_retired" : count_retired,
                    "sum_cost" : sum_cost,
@@ -227,7 +229,9 @@ class BusinessLogic():
                                                 database_manager.read_bike_name(component.bike_id),
                                                 format_cost(component.cost),
                                                 triggers["lifetime_trigger"],
-                                                triggers["service_trigger"]))
+                                                triggers["service_trigger"],
+                                                component.bike_id,
+                                                component.updated_date))
 
         count_installed = sum(1 for component in all_components_display_data if component[4] == "Installed")
         count_not_installed = sum(1 for component in all_components_display_data if component[4] == "Not installed")
@@ -459,6 +463,87 @@ class BusinessLogic():
 
         return payload
 
+    def calculate_collection_status(self, component_ids, collection_bike_id=None):
+        """Calculate status flags for a collection based on its components."""
+        retired_count = 0
+        installed_count = 0
+        not_installed_count = 0
+        bike_ids_of_installed = set()
+
+        for component_id in component_ids:
+            component = database_manager.read_component(component_id)
+            if not component:
+                continue
+
+            if component.installation_status == "Retired":
+                retired_count += 1
+            elif component.installation_status == "Installed":
+                installed_count += 1
+                if component.bike_id:
+                    bike_ids_of_installed.add(component.bike_id)
+            elif component.installation_status == "Not installed":
+                not_installed_count += 1
+
+        is_empty = len(component_ids) == 0
+        has_retired = retired_count > 0
+        has_mixed_statuses = (installed_count > 0 and not_installed_count > 0)
+        has_different_bikes = len(bike_ids_of_installed) > 1
+
+        actual_component_bike_id = list(bike_ids_of_installed)[0] if len(bike_ids_of_installed) == 1 else None
+
+        collection_bike_mismatch = False
+        if collection_bike_id:
+            if len(bike_ids_of_installed) > 0:
+                collection_bike_mismatch = collection_bike_id not in bike_ids_of_installed
+            else:
+                collection_bike_mismatch = True
+        elif len(bike_ids_of_installed) > 0:
+            collection_bike_mismatch = True
+
+        can_display_bike = (not is_empty and
+                            not has_retired and
+                            not has_mixed_statuses and
+                            not has_different_bikes and
+                            not collection_bike_mismatch)
+
+        blocks_operations = (is_empty or
+                             has_retired or
+                             has_mixed_statuses or
+                             has_different_bikes)
+
+        if is_empty:
+            status_string = 'no_components'
+        elif blocks_operations:
+            status_string = 'needs_attention'
+        else:
+            status_string = 'healthy'
+
+        bike_names_list = []
+        for bike_id in bike_ids_of_installed:
+            bike_name = database_manager.read_bike_name(bike_id)
+            if bike_name:
+                bike_names_list.append(bike_name)
+
+        actual_component_bike_name = None
+        if actual_component_bike_id:
+            actual_component_bike_name = database_manager.read_bike_name(actual_component_bike_id)
+
+        return {'is_empty': is_empty,
+                'has_retired': has_retired,
+                'has_mixed_statuses': has_mixed_statuses,
+                'has_different_bikes': has_different_bikes,
+                'collection_bike_mismatch': collection_bike_mismatch,
+                'blocks_operations': blocks_operations,
+                'can_display_bike': can_display_bike,
+                'retired_count': retired_count,
+                'installed_count': installed_count,
+                'not_installed_count': not_installed_count,
+                'bike_count': len(bike_ids_of_installed),
+                'bike_names_list': bike_names_list,
+                'actual_component_bike_id': actual_component_bike_id,
+                'actual_component_bike_name': actual_component_bike_name,
+                'status': status_string}
+
     def get_component_collection_mapping(self):
         """Method to create component-to-collection mapping dictionaries"""
         component_collection_names = {}
@@ -489,12 +574,10 @@ class BusinessLogic():
             component_details = []
             for component_id in component_ids:
                 component = database_manager.read_component(component_id)
-                if component:
-                    component_details.append({'id': component_id,
-                                              'name': component.component_name})
-                else:
-                    component_details.append({'id': component_id,
-                                              'name': 'Deleted component'})
+                component_details.append({'id': component_id,
+                                          'name': component.component_name})
+
+            status_info = self.calculate_collection_status(component_ids, collection.bike_id)
 
             bike_name = None
 
@@ -509,12 +592,48 @@ class BusinessLogic():
                                json.dumps(component_ids),
                                collection.bike_id,
                                collection.comment,
-                               component_details)
-            
+                               component_details,
+                               status_info['status'],
+                               status_info['collection_bike_mismatch'])
+
             all_collections.append(collection_data)
 
         return all_collections
-    
+
+    def get_collection_details(self, collection_id):
+        """Method to produce payload for collection details page"""
+
+        collection = database_manager.read_single_collection(collection_id)
+        if not collection:
+            logging.error(f"Collection not found: {collection_id}")
+            return {"error": "Collection not found"}
+
+        component_ids = json.loads(collection.components) if collection.components else []
+
+        overview_payload = self.get_component_overview()
+
+        filtered_components = [component for component in overview_payload['all_components_display_data']
+                              if component[0] in component_ids]
+
+        bike_name = database_manager.read_bike_name(collection.bike_id) if collection.bike_id else None
+
+        collection_data = {'collection_id': collection.collection_id,
+                           'collection_name': collection.collection_name,
+                           'updated_date': collection.updated_date,
+                           'bike_name': bike_name,
+                           'bike_id': collection.bike_id,
+                           'component_count': len(component_ids),
+                           'comment': collection.comment,
+                           'components': json.dumps(component_ids)}
+
+        warnings = self.calculate_collection_status(component_ids, collection.bike_id)
+
+        overview_payload['collection_data'] = collection_data
+        overview_payload['all_components_display_data'] = filtered_components
+        overview_payload['warnings'] = warnings
+
+        return overview_payload
+
     def get_incident_reports(self):
         """Method to produce payload for page incident reports"""
         all_components_data = database_manager.read_all_components()
@@ -672,30 +791,11 @@ class BusinessLogic():
 
         return payload
 
-    async def pull_strava_background(self, mode):
-        """Function to pull data from Strava in the background"""
-        while True:
-            try:
-                logging.info(f"Retrieving rides from Strava as background task. Mode set to: {mode}")
-
-                success, message = await self.update_rides_bulk(mode)
-
-                if success:
-                    logging.info(f"Background update successful: {message}")
-                else:
-                    logging.error(f"Background update failed: {message}")
-
-            except Exception as error:
-                logging.error(f"An error occurred during background update: {error}")
-
-            logging.info("Next pull from Strava is in four hours")
-            await asyncio.sleep(14400)
-
     async def update_rides_bulk(self, mode):
         """Method to create or update ride data in bulk to database"""
         logging.info(f"Retrieving rides from Strava. Mode set to: {mode}.")
         await strava.get_rides(mode)
-        logging.info(f'There are {len(strava.payload_rides)} rides in the list.')
+        logging.debug(f'There are {len(strava.payload_rides)} rides in the list.')
 
         success, message = database_manager.write_update_rides_bulk(strava.payload_rides)
 
@@ -770,7 +870,7 @@ class BusinessLogic():
         history_records = database_manager.read_subset_component_history(component_id)
 
         success, message = database_manager.write_component_distance(component, total_distance)
-        logging.info(f"Updated distance for component {component.component_name}. New total distance: {total_distance}.")
+        logging.debug(f"Updated distance for component {component.component_name}. New total distance: {total_distance}.")
 
         if not history_records:
             logging.warning(f"Component {component.component_name} has no installation records. Using alternate method to set lifetime and service status")
@@ -781,7 +881,7 @@ class BusinessLogic():
                                                                                 None)
 
             if success:
-                logging.info(message)
+                logging.debug(message)
             else:
                 logging.error(message)
 
@@ -799,7 +899,7 @@ class BusinessLogic():
         self.update_bike_status(bike_id)
 
         if success:
-            logging.info(f"Component distance update successful: {message}")
+            logging.debug(f"Component distance update successful: {message}")
         else:
             logging.error(f"Component distance update failed: {message}")
 
@@ -807,7 +907,7 @@ class BusinessLogic():
 
     def update_component_lifetime_status(self, component):
         """Method to update component table with lifetime status"""
-        logging.info(f"Updating lifetime status for component {component.component_name}.")
+        logging.debug(f"Updating lifetime status for component {component.component_name}.")
 
         distance_status = "Not defined"
         days_status = "Not defined"
@@ -845,7 +945,7 @@ class BusinessLogic():
                                                                             lifetime_remaining_days)
 
         if success:
-            logging.info(f"Component lifetime status update successful: {message}")
+            logging.debug(f"Component lifetime status update successful: {message}")
         else:
             logging.error(f"Component lifetime status update failed: {message}")
 
@@ -853,7 +953,7 @@ class BusinessLogic():
 
     def update_component_service_status(self, component):
         """Method to update component table with service status"""
-        logging.info(f"Updating service status for component {component.component_name}.")
+        logging.debug(f"Updating service status for component {component.component_name}.")
         
         if component.service_interval:
             latest_service_record = database_manager.read_latest_service_record(component.component_id)
@@ -861,38 +961,38 @@ class BusinessLogic():
 
             if component.installation_status == "Installed":
                 if latest_service_record is None:
-                    logging.info(f'No service record found for component {component.component_name}. Using distance from installation log and querying distance from installation date to today.')
+                    logging.debug(f'No service record found for component {component.component_name}. Using distance from installation log and querying distance from installation date to today.')
                     distance_since_service = latest_history_record.distance_marker
                     matching_rides = database_manager.read_matching_rides(component.bike_id, latest_history_record.updated_date)
                     distance_since_service += sum(ride.ride_distance for ride in matching_rides)
 
                 elif latest_service_record:
-                    logging.info(f'Service record found for component {component.component_name}. Processing installation periods since service.')
+                    logging.debug(f'Service record found for component {component.component_name}. Processing installation periods since service.')
                     
                     history_records = database_manager.read_subset_component_history(component.component_id)
                     sorted_history = sorted(history_records, key=lambda x: x.updated_date)
                     
                     distance_since_service = 0
                     
-                    logging.info(f"Finding installation status at time of service for component {component.component_name}.")
+                    logging.debug(f"Finding installation status at time of service for component {component.component_name}.")
                     service_time_status = next((record for record in reversed(sorted_history) 
                                                 if record.updated_date <= latest_service_record.service_date),
                                                 None)
 
-                    logging.info(f"Finding relevant bikes since service date for component {component.component_name}.")
+                    logging.debug(f"Finding relevant bikes since service date for component {component.component_name}.")
                     relevant_bikes = {record.bike_id for record in sorted_history 
                                     if record.updated_date >= latest_service_record.service_date
                                     and record.bike_id is not None}
                     
-                    logging.info(f"Building list of relevant bikes to calculate distance to next service")
+                    logging.debug(f"Building list of relevant bikes to calculate distance to next service")
                     if (component.installation_status == "Installed" and
                         (not sorted_history or
                         latest_service_record.service_date >= sorted_history[-1].updated_date)):
                         relevant_bikes.add(component.bike_id)
                     
-                    logging.info(f"Found {len(relevant_bikes)} bikes to check for rides to calculate distance to next service")
+                    logging.debug(f"Found {len(relevant_bikes)} bikes to check for rides to calculate distance to next service")
                     
-                    logging.info(f"Querying rides for all relevant bikes to calculate distance to next service")
+                    logging.debug(f"Querying rides for all relevant bikes to calculate distance to next service")
                     all_rides = []
                     for bike_id in relevant_bikes:
                         matching_rides = database_manager.read_matching_rides(bike_id, latest_service_record.service_date)
@@ -900,7 +1000,7 @@ class BusinessLogic():
 
                     all_rides.sort(key=lambda x: x.record_time)
 
-                    logging.info(f"Filtering rides and installation status to only count rides when component was installed")
+                    logging.debug(f"Filtering rides and installation status to only count rides when component was installed")
                     for ride in all_rides:
                         current_status = next(
                             (record for record in reversed(sorted_history)
@@ -911,40 +1011,40 @@ class BusinessLogic():
                             current_status.update_reason == "Installed" and
                             current_status.bike_id == ride.bike_id):
                             distance_since_service += ride.ride_distance
-                            logging.info(f"Ride on {ride.record_time} of {ride.ride_distance} km from bike {ride.bike_id} is relevant for calculating distance to next service")    
+                            logging.debug(f"Ride on {ride.record_time} of {ride.ride_distance} km from bike {ride.bike_id} is relevant for calculating distance to next service")    
                 
             elif component.installation_status != "Installed":
                 if latest_service_record is None:
-                    logging.info(f'Component {component.component_name} has been uninstalled and there are no previous services. Setting distance since service to distance at the time of uninstallation.')
+                    logging.debug(f'Component {component.component_name} has been uninstalled and there are no previous services. Setting distance since service to distance at the time of uninstallation.')
                     distance_since_service = latest_history_record.distance_marker
 
                 elif latest_service_record:
                     if latest_service_record.service_date >= component.updated_date:
-                        logging.info(f'Component {component.component_name} has been serviced after or at uninstall. Setting distance since service to 0.')
+                        logging.debug(f'Component {component.component_name} has been serviced after or at uninstall. Setting distance since service to 0.')
                         distance_since_service = 0
 
                     else:
-                        logging.info(f'Component {component.component_name} was serviced before uninstall. Processing installation periods from service to uninstall.')
+                        logging.debug(f'Component {component.component_name} was serviced before uninstall. Processing installation periods from service to uninstall.')
                         
                         history_records = database_manager.read_subset_component_history(component.component_id)
                         sorted_history = sorted(history_records, key=lambda x: x.updated_date)
                         
                         distance_since_service = 0
 
-                        logging.info(f"Finding installation status at time of service for component {component.component_name}.")
+                        logging.debug(f"Finding installation status at time of service for component {component.component_name}.")
                         service_time_status = next((record for record in reversed(sorted_history) 
                                                 if record.updated_date <= latest_service_record.service_date),
                                                 None)
 
-                        logging.info(f"Finding relevant bikes between service date and uninstall date for component {component.component_name}.")
+                        logging.debug(f"Finding relevant bikes between service date and uninstall date for component {component.component_name}.")
                         relevant_bikes = {record.bike_id for record in sorted_history 
                                         if (record.updated_date >= latest_service_record.service_date and 
                                             record.updated_date <= component.updated_date and
                                             record.bike_id is not None)}
                         
-                        logging.info(f"Found {len(relevant_bikes)} bikes to check for rides to calculate distance to next service")
+                        logging.debug(f"Found {len(relevant_bikes)} bikes to check for rides to calculate distance to next service")
                         
-                        logging.info(f"Querying rides for all relevant bikes to calculate distance to next service")
+                        logging.debug(f"Querying rides for all relevant bikes to calculate distance to next service")
                         all_rides = []
                         for bike_id in relevant_bikes:
                             matching_rides = database_manager.read_matching_rides(bike_id, latest_service_record.service_date)
@@ -952,7 +1052,7 @@ class BusinessLogic():
                         
                         all_rides.sort(key=lambda x: x.record_time)
 
-                        logging.info(f"Filtering rides and installation status to only count rides when component was installed and before uninstall date")
+                        logging.debug(f"Filtering rides and installation status to only count rides when component was installed and before uninstall date")
                         for ride in all_rides:
                             if ride.record_time > component.updated_date:
                                 break
@@ -966,7 +1066,7 @@ class BusinessLogic():
                                 current_status.update_reason == "Installed" and
                                 current_status.bike_id == ride.bike_id):
                                 distance_since_service += ride.ride_distance
-                                logging.info(f"Ride on {ride.record_time} of {ride.ride_distance} km from bike {ride.bike_id} is relevant for calculating distance to next service")
+                                logging.debug(f"Ride on {ride.record_time} of {ride.ride_distance} km from bike {ride.bike_id} is relevant for calculating distance to next service")
 
             service_next = component.service_interval - distance_since_service
             distance_status = self.compute_component_status("service", service_next, component.threshold_km)
@@ -1005,7 +1105,7 @@ class BusinessLogic():
         success, message = database_manager.write_component_service_status(component, service_next, final_status, service_next_days)
 
         if success:
-            logging.info(f"Component service status update successful: {message}")
+            logging.debug(f"Component service status update successful: {message}")
         else:
             logging.error(f"Component service status update failed: {message}")
 
@@ -1106,7 +1206,7 @@ class BusinessLogic():
         bike = database_manager.read_single_bike(bike_id)
         components = database_manager.read_subset_components(bike_id)            
         
-        logging.info(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}.")
+        logging.debug(f"Updating bike status for bike {bike.bike_name} with id {bike.bike_id}.")
         
         component_status = {"exceeded_max": 0,
                             "due_past_threshold": 0,
@@ -1141,7 +1241,7 @@ class BusinessLogic():
         else:
             service_status = "No components registered"
     
-        logging.info(f"New status for bike {bike.bike_name}: {service_status}")
+        logging.debug(f"New status for bike {bike.bike_name}: {service_status}")
 
         success, message = database_manager.write_bike_service_status(bike, service_status)
 
@@ -1213,7 +1313,7 @@ class BusinessLogic():
                 if component_installation_status == "Installed":
                     success, message = self.create_history_record(component_id, component_installation_status, component_bike_id, component_updated_date)
                     if success:
-                        logging.info(message)
+                        logging.debug(message)
                     else:
                         logging.error(message)
                 
@@ -1437,7 +1537,7 @@ class BusinessLogic():
     def validate_history_record(self, mode, component_id, history_id, updated_date, installation_status, component_bike_id):
         """Method to validate history records before processing and storing in database"""
     
-        logging.info(f"Running general validation rules for history records: {history_id}.")
+        logging.debug(f"Running general validation rules for history records: {history_id}.")
         
         component = database_manager.read_component(component_id)
         if not component:
@@ -1454,7 +1554,7 @@ class BusinessLogic():
             return False, f"Updated date cannot be in the future. Component: {component.component_name}"
 
         if mode == "create history":
-            logging.info(f"Running validation rules for creation of history records: {history_id}.")
+            logging.debug(f"Running validation rules for creation of history records: {history_id}.")
 
             oldest_history_record = database_manager.read_oldest_history_record(component.component_id)
             if oldest_history_record:
@@ -1464,10 +1564,14 @@ class BusinessLogic():
             
             latest_history_record = database_manager.read_latest_history_record(component_id)
             if latest_history_record:
+                if latest_history_record.update_reason == "Retired":
+                    logging.warning(f"Status cannot be changed on a retired component: {component.component_name}")
+                    return False, f"Status cannot be changed on a retired component: {component.component_name}"
+
                 if updated_date <= latest_history_record.updated_date:
                     logging.warning(f"Component status changes must be done chronologically. Date for new status cannot be at or before date for the last status: {latest_history_record.updated_date}. Component: {component.component_name}")
                     return False, f"Component status changes must be done chronologically. Date for new status cannot be at or before date for the last status: {latest_history_record.updated_date}. Component: {component.component_name}"
-                
+
                 if latest_history_record.update_reason == installation_status:
                     logging.warning(f"Component status for {component.component_name} is already set to: {installation_status}.")
                     return False, f"Component status for {component.component_name} is already set to: {installation_status}."
@@ -1487,7 +1591,7 @@ class BusinessLogic():
                     return False, f"A retired component cannot be serviced. Set retire date after latest service date: {lastest_service_record.service_date}"
        
         if mode == "edit history":
-            logging.info(f"Running validation rules for editing of history records: {history_id}.")
+            logging.debug(f"Running validation rules for editing of history records: {history_id}.")
 
             current_history = database_manager.read_single_history_record(history_id)
             if not current_history:
@@ -1518,7 +1622,7 @@ class BusinessLogic():
                         logging.warning(f"First installation date for component {component.component_name} cannot be at or after first service date: {oldest_service_record.service_date}")
                         return False, f"First installation date for component {component.component_name} cannot be at or after first service date: {oldest_service_record.service_date}"
             
-        logging.info(f"Validation of history record for {component.component_name} passed")
+        logging.debug(f"Validation of history record for {component.component_name} passed")
         return True, f"Validation of service record for {component.component_name} passed"
         
     def process_history_records(self, component_id):
@@ -1538,7 +1642,7 @@ class BusinessLogic():
                     distance_marker = 0
                 else:
                     if previous_record.update_reason == "Installed":
-                        logging.info(f'Timespan for historic distance query: start date {previous_record.updated_date} stop date {record.updated_date}.')
+                        logging.debug(f'Timespan for historic distance query: start date {previous_record.updated_date} stop date {record.updated_date}.')
                         historic_distance = database_manager.read_sum_distance_subset_rides(previous_record.bike_id, previous_record.updated_date, record.updated_date)
                         distance_marker = previous_record.distance_marker + historic_distance
 
@@ -1564,12 +1668,12 @@ class BusinessLogic():
             current_distance = latest_history_record.distance_marker
 
             if latest_history_record.update_reason == "Installed":
-                logging.info(f'Calculating additional distance since last history record: start date {latest_history_record.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}')
+                logging.debug(f'Calculating additional distance since last history record: start date {latest_history_record.updated_date} stop date {datetime.now().strftime("%Y-%m-%d %H:%M")}')
                 additional_distance = database_manager.read_sum_distance_subset_rides(latest_history_record.bike_id,
                                                                                       latest_history_record.updated_date,
                                                                                       datetime.now().strftime("%Y-%m-%d %H:%M"))
                 current_distance += additional_distance
-                logging.info(f'Total distance: {current_distance} (History: {latest_history_record.distance_marker}, Additional: {additional_distance})')
+                logging.debug(f'Total distance: {current_distance} (History: {latest_history_record.distance_marker}, Additional: {additional_distance})')
                 
             self.update_component_distance(component_id, current_distance)
 
@@ -1616,11 +1720,11 @@ class BusinessLogic():
                 
                 self.update_bike_status(bike_id)
 
-            return True, "Successfully processed history records and related services"
+            return True, f"Successfully processed history records and related services for {component.component_name}"
 
         except Exception as error:
-            logging.error(f"An error occurred processing history records for component {component_id}: {str(error)}")
-            return False, f"Error processing history records for component {component_id}: {str(error)}"
+            logging.error(f"An error occurred processing history records for component {component.component_name}: {str(error)}")
+            return False, f"Error processing history records for {component.component_name}: {str(error)}"
 
     def quick_swap_orchestrator(self,
                                 old_component_id,
@@ -1637,7 +1741,7 @@ class BusinessLogic():
                 logging.error(f"Quick swap failed: Old component not found: {old_component_id}")
                 return False, f"Quick swap failed: The component to be swapped (ID: {old_component_id}) was not found."
 
-            logging.info(f"Quick swap: Old component validated: {old_component.component_name}")
+            logging.debug(f"Quick swap: Old component validated: {old_component.component_name}")
 
             is_valid, validation_message = self.validate_quick_swap(old_component,
                                                                     fate,
@@ -1650,10 +1754,10 @@ class BusinessLogic():
 
             bike_id = old_component.bike_id
             bike = database_manager.read_single_bike(bike_id)
-            logging.info(f"Quick swap: Validation passed. Bike: {bike.bike_name}, Fate: {fate}")
+            logging.debug(f"Quick swap: Validation passed. Bike: {bike.bike_name}, Fate: {fate}")
 
             if new_component_data:
-                logging.info(f"Quick swap: Creating new component '{new_component_data['component_name']}' of type {new_component_data['component_type']}")
+                logging.debug(f"Quick swap: Creating new component '{new_component_data['component_name']}' of type {new_component_data['component_type']}")
 
                 success, message, new_component_id = self.create_component(component_id=None,
                                                                            component_installation_status="Not installed",
@@ -1678,14 +1782,14 @@ class BusinessLogic():
                 elif success == "warning":
                     logging.warning(f"Quick swap: New component created with warning: {message}")
 
-                logging.info(f"Quick swap: New component created successfully with ID {new_component_id}")
+                logging.debug(f"Quick swap: New component created successfully with ID {new_component_id}")
                 new_component = database_manager.read_component(new_component_id)
             
             else:
                 new_component = database_manager.read_component(new_component_id)
-                logging.info(f"Quick swap: Using existing component: {new_component.component_name}")
+                logging.debug(f"Quick swap: Using existing component: {new_component.component_name}")
 
-            logging.info(f"Quick swap: Setting {old_component.component_name} to '{fate}'")
+            logging.debug(f"Quick swap: Setting {old_component.component_name} to '{fate}'")
 
             success, message = self.create_history_record(component_id=old_component_id,
                                                           installation_status=fate,
@@ -1700,8 +1804,8 @@ class BusinessLogic():
                 else:
                     return False, f"Quick swap failed: Could not update '{old_component.component_name}' to '{fate}'. Existing component '{new_component.component_name}' was not touched. {message}"
 
-            logging.info(f"Quick swap: Old component status updated successfully")
-            logging.info(f"Quick swap: Installing {new_component.component_name} on {bike.bike_name}")
+            logging.debug(f"Quick swap: Old component status updated successfully")
+            logging.debug(f"Quick swap: Installing {new_component.component_name} on {bike.bike_name}")
 
             success, message = self.create_history_record(component_id=new_component_id,
                                                           installation_status="Installed",
@@ -1759,65 +1863,56 @@ class BusinessLogic():
 
         return True, ""
 
-    def create_collection(self, collection_name, components, bike_id, comment):
+    def create_collection(self, collection_name, components, comment):
         """Method to create collection"""
         try:
             collection_id = generate_unique_id()
-            is_valid, validation_message = self.validate_collection("create collection",
-                                                                    collection_id,
-                                                                    components,
-                                                                    bike_id)
-            if not is_valid:
-                return False, validation_message
-
-            bike_id = None if bike_id == 'None' or bike_id == '' else bike_id
             comment = comment if comment else None
+
+            collection_status = self.calculate_collection_status(components if components else [])
+            calculated_bike_id = collection_status.get('actual_component_bike_id')
 
             collection_data = {"collection_id": collection_id,
                              "collection_name": collection_name,
                              "components": json.dumps(components) if components else None,
-                             "bike_id": bike_id,
+                             "bike_id": calculated_bike_id,
                              "comment": comment,
                              "sub_collections": None,
                              "updated_date": None}
-            
+
             success, message = database_manager.write_collection(collection_data)
 
             if success:
                 logging.info(f"Creation of collection successful: {message}")
+                logging.debug(f"Collection {collection_id} bike_id set to {calculated_bike_id} based on component states")
+                return success, message, collection_id
             else:
                 logging.error(f"Creation of collection failed: {message}")
-
-            return success, message
+                return success, message, None
 
         except Exception as error:
             logging.error(f"Error creating collection with id {collection_id}: {str(error)}")
-            return False, f"Error creating collection with id {collection_id}: {str(error)}"
+            return False, f"Error creating collection with id {collection_id}: {str(error)}", None
         
-    def update_collection(self, collection_id, collection_name, components, bike_id, comment):
+    def update_collection(self, collection_id, collection_name, components, comment):
         """Method to update collection"""
         try:
-            is_valid, validation_message = self.validate_collection("edit collection",
-                                                                    collection_id,
-                                                                    components,
-                                                                    bike_id)
-            if not is_valid:
-                return False, validation_message
-
-            bike_id = None if bike_id == 'None' or bike_id == '' else bike_id
             comment = comment if comment else None
+
+            collection_status = self.calculate_collection_status(components if components else [])
+            calculated_bike_id = collection_status.get('actual_component_bike_id')
 
             collection_data = {"collection_id": collection_id,
                              "collection_name": collection_name,
                              "components": json.dumps(components) if components else None,
-                             "bike_id": bike_id,
-                             "comment": comment,
-                             "sub_collections": None}
-            
+                             "bike_id": calculated_bike_id,
+                             "comment": comment}
+
             success, message = database_manager.write_collection(collection_data)
 
             if success:
                 logging.info(f"Update of collection successful: {message}")
+                logging.debug(f"Collection {collection_id} bike_id set to {calculated_bike_id} based on component states")
             else:
                 logging.error(f"Update of collection failed: {message}")
 
@@ -1827,51 +1922,58 @@ class BusinessLogic():
             logging.error(f"Error updating collection with id {collection_id}: {str(error)}")
             return False, f"Error updating collection with id {collection_id}: {str(error)}"
 
-    def validate_collection(self, mode, collection_id, component_ids, bike_id):
-        """Method to validate collection records before processing and storing in database"""
-        logging.info(f"Running validation rules for collection: {collection_id}")
+    def validate_collection(self, collection_id, component_ids, bike_id, new_status=None):
+        """Method to validate collections before allowing bulk operations"""
+        logging.debug(f"Running validation rules for collection: {collection_id}")
         
-        if mode == "edit collection":
-            current_collection = database_manager.read_single_collection(collection_id)
-            if not current_collection:
-                logging.warning(f"Collection not found: {collection_id}")
-                return False, f"Collection not found: {collection_id}"
+        current_collection = database_manager.read_single_collection(collection_id)
+        if not current_collection:
+            logging.warning(f"Collection not found: {collection_id}")
+            return False, f"Collection not found: {collection_id}"
         
         if component_ids:
             installed_components = []
             not_installed_components = []
+            retired_components = []
             component_bikes = set()
-            
+
             for component_id in component_ids:
                 component = database_manager.read_component(component_id)
                 if not component:
                     logging.warning(f"Component not found: {component_id}")
                     return False, f"Operation cancelled: Component {component_id} not found. No changes have been made."
-                
+
                 existing_collection = database_manager.read_collection_by_component(component_id)
                 if existing_collection and existing_collection.collection_id != collection_id:
                     logging.warning(f"Component {component.component_name} already belongs to collection {existing_collection.collection_name}")
                     return False, f"Operation cancelled: Component {component.component_name} already belongs to collection {existing_collection.collection_name}. Remove it from that collection first. No changes have been made."
-                
+
                 if component.installation_status == "Installed":
                     installed_components.append(component)
                     if component.bike_id:
                         component_bikes.add(component.bike_id)
                 elif component.installation_status == "Not installed":
                     not_installed_components.append(component)
-            
+                elif component.installation_status == "Retired":
+                    retired_components.append(component)
+
+            if retired_components:
+                retired_names = [comp.component_name for comp in retired_components]
+                logging.warning(f"Bulk operations not allowed on collections with retired components: {', '.join(retired_names)}")
+                return False, f"Operation cancelled: Bulk operations cannot be performed on collections containing retired components. Retired components: {', '.join(retired_names)}. Remove retired components from this collection first. No changes have been made."
+
             if installed_components and not_installed_components:
-                logging.warning(f"Cannot create collection with both installed and not-installed components")
+                logging.warning(f"Collection cannot contain both installed and not-installed components. No changes have been made.")
                 return False, f"Operation cancelled: Collection cannot contain both installed and not-installed components. Select components with the same installation status. No changes have been made."
             
             if installed_components and len(component_bikes) > 1:
                 bike_names = [database_manager.read_single_bike(bike_id).bike_name for bike_id in component_bikes if database_manager.read_single_bike(bike_id)]
                 logging.warning(f"All installed components in a collection must be on the same bike. Found components on: {', '.join(bike_names)}")
                 return False, f"Operation cancelled: All installed components in a collection must be on the same bike. Found components on bikes: {', '.join(bike_names)}. Select components from the same bike. No changes have been made."
-            
-            if installed_components and not bike_id:
-                logging.warning(f"Collections with installed components must be assigned to a bike")
-                return False, f"Operation cancelled: Collections containing installed components must be assigned to a bike. Assign this collection to the appropriate bike. No changes have been made."
+
+            if new_status == "Installed" and not bike_id:
+                logging.warning(f"Collections being changed to Installed status must be assigned to a bike")
+                return False, f"Operation cancelled: Collections being changed to 'Installed' status must be assigned to a bike. Assign this collection to a bike. No changes have been made."
         
         if bike_id:
             bike = database_manager.read_single_bike(bike_id)
@@ -1879,7 +1981,7 @@ class BusinessLogic():
                 logging.warning(f"Bike not found: {bike_id}")
                 return False, f"Bike not found: {bike_id}"
         
-        logging.info(f"Validation of collection {collection_id} passed")
+        logging.debug(f"Validation of collection {collection_id} passed")
         return True, f"Validation of collection {collection_id} passed"
     
     def change_collection_status(self, collection_id, new_status, updated_date, bike_id):
@@ -1892,9 +1994,14 @@ class BusinessLogic():
                 return False, f"Collection {collection_id} not found"
 
             component_ids = json.loads(collection.components) if collection.components else []
-            
+
             if not component_ids:
                 return False, "No components found in collection"
+
+            is_valid, validation_message = self.validate_collection(collection_id, component_ids, bike_id, new_status)
+            if not is_valid:
+                logging.warning(f"Collection validation failed: {validation_message}")
+                return False, validation_message
 
             success_count = 0
             successful_components = []
@@ -1919,19 +2026,21 @@ class BusinessLogic():
 
             if success_count > 0:
                 try:
-                    collection_bike_id = bike_id if new_status == "Installed" else None
+                    collection_status = self.calculate_collection_status(component_ids)
+                    calculated_bike_id = collection_status.get('actual_component_bike_id')
 
                     collection_update_data = {
                         "collection_id": collection_id,
                         "collection_name": collection.collection_name,
                         "components": collection.components,
-                        "bike_id": collection_bike_id,
+                        "bike_id": calculated_bike_id,
                         "comment": collection.comment,
                         "updated_date": updated_date}
 
                     database_manager.write_collection(collection_update_data)
-                    
-                    logging.info(f"Collection {collection_id} last updated date set to {updated_date}")
+
+                    logging.debug(f"Collection {collection_id} bike_id set to {calculated_bike_id} based on component states")
+                    logging.debug(f"Collection {collection_id} last updated date set to {updated_date}")
 
                 except Exception as error:
                     logging.error(f"Collection update failed entirely. Last updated date not chaged. Error: {str(error)}")
@@ -2050,7 +2159,7 @@ class BusinessLogic():
     def validate_service_record(self, mode, component_id, service_id, service_date):
         """Method to validate service records before processing and storing in database"""
 
-        logging.info(f"Running validation rules for service records: {service_id}.")
+        logging.debug(f"Running validation rules for service records: {service_id}.")
         
         current_service = database_manager.read_single_service_record(service_id)
         if mode == "edit service" and not current_service:
@@ -2082,7 +2191,7 @@ class BusinessLogic():
             logging.warning(f"Service date cannot be in the future. Component: {component.component_name}")
             return False, f"Service date cannot be in the future. Component: {component.component_name}"
         
-        logging.info(f"Validation of service record for {component.component_name} passed")
+        logging.debug(f"Validation of service record for {component.component_name} passed")
         return True, f"Validation of service record for {component.component_name} passed"
     
     def process_service_records(self, component_id, service_id, service_date, service_description):
@@ -2098,12 +2207,12 @@ class BusinessLogic():
         history_records = database_manager.read_subset_component_history(component.component_id)
         sorted_history = sorted(history_records, key=lambda x: x.updated_date)
 
-        logging.info(f"Consolidating and sorting all services for component {component.component_name}")
+        logging.debug(f"Consolidating and sorting all services for component {component.component_name}")
         all_services = [service for service in all_services if service.service_id != service_id]
         all_services.append(type('Service', (), current_service_data)())
         all_services.sort(key=lambda x: x.service_date)
 
-        logging.info(f"Iterating over all services for component {component.component_name} to update distance markers and bike ids")
+        logging.debug(f"Iterating over all services for component {component.component_name} to update distance markers and bike ids")
         for index, service in enumerate(all_services):
             if index == 0:
                 accumulated_distance = 0
@@ -2117,26 +2226,26 @@ class BusinessLogic():
                     if record.update_reason == "Installed":
                         current_installation = record
                     elif record.update_reason == "Not installed" and current_installation:
-                        logging.info(f"Calculating distance for installation period for first service record: {current_installation.updated_date} to {record.updated_date}")
+                        logging.debug(f"Calculating distance for installation period for first service record: {current_installation.updated_date} to {record.updated_date}")
                         period_distance = database_manager.read_sum_distance_subset_rides(current_installation.bike_id,
                                                                                           current_installation.updated_date,
                                                                                           record.updated_date)
                         accumulated_distance += period_distance
-                        logging.info(f"Added {period_distance} km from bike {current_installation.bike_id}")
+                        logging.debug(f"Added {period_distance} km from bike {current_installation.bike_id}")
                         current_installation = None
 
-                logging.info(f"Processing final installation period for first service record")
+                logging.debug(f"Processing final installation period for first service record")
                 if current_installation:
                     period_distance = database_manager.read_sum_distance_subset_rides(current_installation.bike_id,
                                                                                       current_installation.updated_date,
                                                                                       service_date)
                     accumulated_distance += period_distance
-                    logging.info(f"Added final period of {period_distance} km from bike {current_installation.bike_id} for first service record")
+                    logging.debug(f"Added final period of {period_distance} km from bike {current_installation.bike_id} for first service record")
 
                 new_service_distance = accumulated_distance
 
             else:
-                logging.info(f"Processing subsequent service records, using service dates to calculate distance")
+                logging.debug(f"Processing subsequent service records, using service dates to calculate distance")
                 previous_service_date = all_services[index-1].service_date
                 current_service_date = service.service_date
                 
@@ -2149,39 +2258,39 @@ class BusinessLogic():
                 if initial_status.update_reason == "Installed":
                     current_installation = initial_status
                 
-                logging.info(f"Processing installation changes within window {previous_service_date} to {current_service_date}")
+                logging.debug(f"Processing installation changes within window {previous_service_date} to {current_service_date}")
                 for record in sorted_history:
                     if record.updated_date <= previous_service_date:
-                        logging.info(f"Record {record.history_id} dated {record.updated_date} outside window, skipping")
+                        logging.debug(f"Record {record.history_id} dated {record.updated_date} outside window, skipping")
                         continue
                     if record.updated_date > current_service_date:
-                        logging.info(f"Record {record.history_id} dated {record.updated_date} inside window, processing")
+                        logging.debug(f"Record {record.history_id} dated {record.updated_date} inside window, processing")
                         break
                     
                     if record.update_reason == "Installed":
                         current_installation = record
                     elif record.update_reason == "Not installed" and current_installation:
-                        logging.info(f"Calculating distance for the installation period: {current_installation.updated_date} to {record.updated_date}")
+                        logging.debug(f"Calculating distance for the installation period: {current_installation.updated_date} to {record.updated_date}")
                         period_distance = database_manager.read_sum_distance_subset_rides(
                             current_installation.bike_id,
                             max(current_installation.updated_date, previous_service_date),
                             record.updated_date)
                         accumulated_distance += period_distance
-                        logging.info(f"Added {period_distance} km from bike {current_installation.bike_id} ({current_installation.updated_date} to {record.updated_date})")
+                        logging.debug(f"Added {period_distance} km from bike {current_installation.bike_id} ({current_installation.updated_date} to {record.updated_date})")
                         current_installation = None
 
-                logging.info("Processing final installation period at the end of window")
+                logging.debug("Processing final installation period at the end of window")
                 if current_installation:
                     period_distance = database_manager.read_sum_distance_subset_rides(current_installation.bike_id,
                                                                                       max(current_installation.updated_date, previous_service_date),
                                                                                       current_service_date)
                     accumulated_distance += period_distance
-                    logging.info(f"Added final period of {period_distance} km from bike {current_installation.bike_id} ({current_installation.updated_date} to {current_service_date})")
+                    logging.debug(f"Added final period of {period_distance} km from bike {current_installation.bike_id} ({current_installation.updated_date} to {current_service_date})")
 
                 new_service_distance = accumulated_distance
-                logging.info(f"Total accumulated distance: {accumulated_distance} km")
+                logging.debug(f"Total accumulated distance: {accumulated_distance} km")
 
-            logging.info(f"Setting bike_id based on component status at service time")
+            logging.debug(f"Setting bike_id based on component status at service time")
             relevant_history = next(record for record in reversed(sorted_history)
                                     if record.updated_date <= service.service_date)
                 
@@ -2305,7 +2414,7 @@ class BusinessLogic():
         for component in active_components:
             try:
                 if component.lifetime_expected_days or component.service_interval_days:
-                    logging.info(f'{component.component_name} tracks days for lifetime or service intervals. Updating time-based fields.')
+                    logging.debug(f'{component.component_name} tracks days for lifetime or service intervals. Updating time-based fields.')
                     self.update_component_lifetime_status(component)
                     self.update_component_service_status(component)
 
@@ -2319,10 +2428,13 @@ class BusinessLogic():
                 logging.error(f"Error updating time fields for component {component.component_id}: {exception}")
 
         if error_count > 0:
+            logging.warning(f"{updated_count} components successfully updated. {error_count} components failed to update.")
             return False, f"{updated_count} components successfully updated. {error_count} components failed to update."
         elif updated_count > 0:
+            logging.info(f"{updated_count} components successfully updated.")
             return True, f"{updated_count} components successfully updated"
         else:
+            logging.warning("No components have been configured to track days for lifetime or service intervals")
             return True, "No components have been configured to track days for lifetime or service intervals"
 
     def validate_threshold_configuration(self,
@@ -2663,7 +2775,7 @@ class BusinessLogic():
             success, message = database_manager.write_component_type(component_type_data)
             
             if success:
-                logging.info(f"Component type count updated: {component_type} used by {in_use} components")
+                logging.debug(f"Component type count updated: {component_type} used by {in_use} components")
             else:
                 logging.error(f"Component type count update failed: {message}")
             
@@ -2677,6 +2789,7 @@ class BusinessLogic():
 
         component_id = None
         bike_id = None
+        collection_id = None
         if table_selector == "Services":
             component_id = database_manager.read_single_service_record(record_id).component_id
             component = database_manager.read_component(component_id)
@@ -2691,12 +2804,18 @@ class BusinessLogic():
 
             if service_history and history_records.count() == 1:
                 logging.warning(f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist")
-                return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id, bike_id
+                return False, f"Cannot delete initial history record {record_id} for component {component.component_name} as service records exist", component_id, bike_id, collection_id
         
         elif table_selector == "Components":
             component = database_manager.read_component(record_id)
             component_type = component.component_type
             bike_id = component.bike_id
+
+            collection = database_manager.read_collection_by_component(record_id)
+            if collection:
+                collection_id = collection.collection_id
+                logging.warning(f"Cannot delete component {component.component_name} as it is part of collection: {collection.collection_name}")
+                return False, f"Cannot delete component {component.component_name} as it is part of collection: {collection.collection_name}. Remove it from the collection first.", component.component_id, bike_id, collection_id
 
         elif table_selector == "Collections":
             collection = database_manager.read_single_collection(record_id)
@@ -2704,21 +2823,21 @@ class BusinessLogic():
             print(table_selector)
             if collection_component_ids:
                 logging.warning(f"Cannot delete collection {collection.collection_name} as it still contains components.")
-                return False, f"Cannot delete collection {collection.collection_name} as it still contains components. Remove all components from collection before deleting.", None, None
+                return False, f"Cannot delete collection {collection.collection_name} as it still contains components. Remove all components from collection before deleting.", None, None, None
             
 
         elif table_selector == "ComponentTypes":
             component_type = database_manager.read_single_component_type(record_id)
             if component_type.in_use > 0:
                 logging.warning(f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted")
-                return False, f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted", component_id, bike_id
+                return False, f"Component type {component_type.component_type} is in use by {component_type.in_use} components and cannot be deleted", component_id, bike_id, collection_id
         
         success, message = database_manager.write_delete_record(table_selector, record_id)
 
         if success:
             logging.info(f"Deletion successful: {message}")
             if table_selector == "Services":
-                logging.info(f"Recalculating service records for component {component.component_name} after deletion")
+                logging.debug(f"Recalculating service records for component {component.component_name} after deletion")
 
                 service_records = database_manager.read_subset_service_history(component_id)
                 if service_records:
@@ -2729,39 +2848,39 @@ class BusinessLogic():
                                                                     first_service.description)
                     if not success:
                         logging.error(f"An error occured triggering update of service records for {component.component_name} after deletion: {message}")
-                        return False, f"An error occured triggering update of service records for {component.component_name} after deletion: {message}", component_id, bike_id
+                        return False, f"An error occured triggering update of service records for {component.component_name} after deletion: {message}", component_id, bike_id, collection_id
                 
                 elif not service_records:
                     component = database_manager.read_component(component_id)
                     self.update_component_distance(component_id, component.component_distance - component.component_distance_offset)
 
             elif table_selector == "ComponentHistory":
-                logging.info(f"Recalculating installation history records for component {component.component_name} after deletion")
+                logging.debug(f"Recalculating installation history records for component {component.component_name} after deletion")
                 
                 if history_records.count() == 0:
                     database_manager.write_component_distance(component, component.component_distance_offset)
                     success, message, component_id = self.modify_component_details(component_id,
-                                                                     "Not installed",
-                                                                     get_formatted_datetime_now(),
-                                                                     component.component_name,
-                                                                     component.component_type,
-                                                                     "None",
-                                                                     str(component.lifetime_expected),
-                                                                     str(component.service_interval),
-                                                                     str(component.threshold_km),
-                                                                     str(component.lifetime_expected_days),
-                                                                     str(component.service_interval_days),
-                                                                     str(component.threshold_days),
-                                                                     str(component.cost),
-                                                                     component.component_distance_offset,
-                                                                     component.notes)
+                                                                                   "Not installed",
+                                                                                   get_formatted_datetime_now(),
+                                                                                   component.component_name,
+                                                                                   component.component_type,
+                                                                                   "None",
+                                                                                   str(component.lifetime_expected),
+                                                                                   str(component.service_interval),
+                                                                                   str(component.threshold_km),
+                                                                                   str(component.lifetime_expected_days),
+                                                                                   str(component.service_interval_days),
+                                                                                   str(component.threshold_days),
+                                                                                   str(component.cost),
+                                                                                   component.component_distance_offset,
+                                                                                   component.notes)
                 
                 else:
                     success, message = self.process_history_records(component_id)
                 
                 if not success:
                     logging.error(f"An error occured triggering update of history records for {component_id} after deletion: {message}")
-                    return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id, bike_id
+                    return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id, bike_id, collection_id
                 
             elif table_selector == "Components":
                 self.update_component_type_count(component_type)
@@ -2770,9 +2889,9 @@ class BusinessLogic():
         
         else:
             logging.error(f"Deletion of {record_id} failed: {message}")
-            return False, f"Deletion of {record_id} failed: {message}", component_id, bike_id
+            return False, f"Deletion of {record_id} failed: {message}", component_id, bike_id, collection_id
 
-        return success, message, component_id, bike_id
+        return success, message, component_id, bike_id, collection_id
 
     async def refresh_all_bikes(self):
         """Method to refresh all bikes from Strava"""
