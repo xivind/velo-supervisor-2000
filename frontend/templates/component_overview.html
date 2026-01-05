@@ -59,7 +59,7 @@
             <tbody>
                 {% if payload.all_collections %}
                     {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details, status, collection_bike_mismatch in payload.all_collections %}
-                        <tr>
+                        <tr role="button" style="cursor: pointer;" onclick="window.location='/collection_details/{{ collection_id }}';">
                             <td>
                                 <span class="badge
                                     {% if status == 'healthy' %}status-healthy
@@ -72,7 +72,7 @@
                             <td>
                                 {% if component_details %}
                                     {% for component in component_details %}
-                                        <a href="/component_details/{{ component.id }}" class="text-decoration-none text-reset">{{ component.name }}</a>{% if not loop.last %}, {% endif %}
+                                        <a href="/component_details/{{ component.id }}" class="text-decoration-none text-reset" onclick="event.stopPropagation();">{{ component.name }}</a>{% if not loop.last %}, {% endif %}
                                     {% endfor %}
                                 {% else %}
                                     Not assigned
@@ -80,25 +80,16 @@
                             </td>
                             <td>
                                 {% if bike_name and bike_id %}
-                                    <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset">{{ bike_name }}</a>{% if status == 'needs_attention' or collection_bike_mismatch %} ❓{% endif %}
+                                    <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset" onclick="event.stopPropagation();">{{ bike_name }}</a>{% if status == 'needs_attention' or collection_bike_mismatch %} ❓{% endif %}
                                 {% else %}
                                     Not assigned{% if status == 'needs_attention' or collection_bike_mismatch %} ❓{% endif %}
                                 {% endif %}
                             </td>
                             <td>{{ updated_date.split(' ')[0] if updated_date else "-" }}</td>
                             <td class="text-end">
-                                <button type="button" class="btn btn-outline-primary btn-sm edit-collection-btn mb-1"
-                                    data-collection-id="{{ collection_id }}"
-                                    data-collection-name="{{ collection_name }}"
-                                    data-components="{{ components }}"
-                                    data-bike-id="{{ bike_id }}"
-                                    data-comment="{{ comment }}"
-                                    data-updated-date="{{ updated_date or '' }}">
-                                    ✍
-                                </button>
                                 <button type="button" class="btn btn-outline-danger btn-sm delete-record mb-1"
                                     data-collection-id="{{ collection_id }}"
-                                    data-collection-name="{{ collection_name }}">
+                                    onclick="event.stopPropagation();">
                                     🗑
                                 </button>
                             </td>
@@ -174,14 +165,8 @@
                             <td>
                                 {% if component_id in payload.component_collection_names %}
                                     {% set collection_data = payload.component_collection_data[component_id] %}
-                                    <span class="collection-name-link" role="button" 
-                                          data-collection-id="{{ collection_data[0] }}"
-                                          data-collection-name="{{ collection_data[1] }}"
-                                          data-components="{{ collection_data[2] }}"
-                                          data-bike-id="{{ collection_data[3] }}"
-                                          data-comment="{{ collection_data[4] }}"
-                                          data-updated-date="{{ collection_data[5] }}"
-                                          onclick="event.stopPropagation();" 
+                                    <span role="button"
+                                          onclick="event.stopPropagation(); window.location.href='/collection_details/{{ collection_data[0] }}';"
                                           style="cursor: pointer;">
                                         {{ payload.component_collection_names[component_id] }}
                                     </span>
