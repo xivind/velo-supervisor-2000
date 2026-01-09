@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
     for handler in logging.getLogger().handlers:
         handler.setLevel(log_level)
 
-    start_scheduler()
+    start_scheduler(app.state)
 
     yield
 

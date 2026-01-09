@@ -8,10 +8,13 @@ from apscheduler.triggers.interval import IntervalTrigger
 from business_logic import BusinessLogic
 
 SCHEDULER = None
+APP_STATE = None
 
-def start_scheduler():
+def start_scheduler(app_state=None):
     """Initialize and start the APScheduler instance"""
-    global SCHEDULER
+    global SCHEDULER, APP_STATE
+
+    APP_STATE = app_state
 
     try:
         logging.info("Initializing APScheduler...")
@@ -83,7 +86,7 @@ async def strava_sync_job():
     try:
         logging.info("Starting scheduled job: update_rides_bulk with parameter 'recent'")
 
-        business_logic = BusinessLogic(app_state=None)
+        business_logic = BusinessLogic(app_state=APP_STATE)
 
         success, message = await business_logic.update_rides_bulk("recent")
 

@@ -1147,27 +1147,17 @@ function editCollection(element, options = {}) {
             });
         }
 
-        // Setup edit collection buttons
-        document.querySelectorAll('.edit-collection-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const collectionId = this.dataset.collectionId;
-                if (collectionId) {
-                    window.location.href = `/collection_details/${collectionId}`;
-                }
-            });
-        });
 
         // Setup edit collection button on collection_details page
-        document.querySelectorAll('.edit-collection-on-details-page').forEach(button => {
-            button.addEventListener('click', function() {
+        const editCollectionBtn = document.querySelector('.edit-collection-on-details-page');
+        if (editCollectionBtn) {
+            editCollectionBtn.addEventListener('click', function() {
                 editCollection(this, {
                     redirectTo: 'collection_details',
                     useDelayedComponentSelection: false
                 });
             });
-        });
+        }
 
         // Setup new collection button
         document.querySelectorAll('[data-bs-target="#collectionModal"]').forEach(button => {
@@ -2481,20 +2471,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize collections table sorting
     initializeCollectionsSorting();
-
-    // Setup collection name link handlers for component table
-    document.querySelectorAll('.collection-name-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Redirect to collection details page
-            const collectionId = this.dataset.collectionId;
-            if (collectionId) {
-                window.location.href = `/collection_details/${collectionId}`;
-            }
-        });
-    });
 });
 
 // ----- Collections table search and filtering -----
@@ -2934,26 +2910,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update visibility after clearing
             updateRowVisibility();
         }
-    });
-});
-
-// Add collection name click handlers for bike details page
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the bike details page
-    if (document.querySelector('h1#bike-details') === null) return;
-    
-    // Add click handlers to collection name links
-    document.querySelectorAll('.collection-name-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Redirect to collection details page
-            const collectionId = this.dataset.collectionId;
-            if (collectionId) {
-                window.location.href = `/collection_details/${collectionId}`;
-            }
-        });
     });
 });
 
@@ -3611,40 +3567,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Add collection name click handlers for component details page
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the component details page
-    if (document.querySelector('h1#component-details') === null) return;
-    
-    
-    // Add click handler to collection name links
-    document.querySelectorAll('.collection-name-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Redirect to collection details page
-            const collectionId = this.dataset.collectionId;
-            if (collectionId) {
-                window.location.href = `/collection_details/${collectionId}`;
-            }
-        });
-    });
-    
-    // Add click handler to Edit collection button (following workplan pattern)
-    document.querySelectorAll('.edit-collection-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Redirect to collection details page
-            const collectionId = this.dataset.collectionId;
-            if (collectionId) {
-                window.location.href = `/collection_details/${collectionId}`;
-            }
-        });
-    });
-});
 
 // Function to handle service records and history records
 document.addEventListener('DOMContentLoaded', function() {
