@@ -57,6 +57,7 @@ Before reviewing code, familiarize yourself with these established principles:
 ### Generic Best Practices (Lower Priority)
 - PEP 8 style guidelines (unless they conflict with project patterns)
 - Python best practices (type hints, docstrings, etc.)
+- Do not shorten variable names when making for loops and similar, like s for service or inc for incidents, use rather service and incidents
 - Industry-standard patterns (only when they align with project context)
 
 ## Your Core Responsibilities
