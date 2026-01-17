@@ -1091,6 +1091,53 @@ function editCollection(element, options = {}) {
     modal.show();
 }
 
+// ----- Global helper function to forcefully close loading modal -----
+window.forceCloseLoadingModal = function() {
+    const loadingElement = document.getElementById('loadingModal');
+    if (!loadingElement) return;
+
+    // Try Bootstrap's official methods first
+    const loadingInstance = bootstrap.Modal.getInstance(loadingElement);
+    if (loadingInstance) {
+        loadingInstance.hide();
+    }
+
+    // Force cleanup of any remaining modal artifacts
+    setTimeout(() => {
+        // Check if any other modals are still open before removing backdrop
+        const openModals = document.querySelectorAll('.modal.show:not(#loadingModal)');
+        const hasOtherModalsOpen = openModals.length > 0;
+
+        if (!hasOtherModalsOpen) {
+            // Only remove backdrop and body styles if no other modals are open
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                backdrop.remove();
+            });
+
+            if (document.body.classList.contains('modal-open')) {
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+            }
+        } else {
+            // Other modals are open, ensure backdrop exists for them
+            if (!document.querySelector('.modal-backdrop')) {
+                // Create new backdrop if none exists
+                const backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                document.body.appendChild(backdrop);
+            }
+        }
+
+        // Always force hide loading modal element directly (nuclear option)
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+            loadingElement.classList.remove('show');
+            loadingElement.setAttribute('aria-hidden', 'true');
+        }
+    }, 200);
+};
+
 // Function to initialize collection features
 (function() {
     // Only run this code if the collection modal is present
@@ -1517,52 +1564,6 @@ function editCollection(element, options = {}) {
             });
         }
     });
-    
-    // Helper function to forcefully close loading modal when Bootstrap fails
-    window.forceCloseLoadingModal = function() {
-        // Try Bootstrap's official methods first
-        loadingModal.hide();
-        const loadingInstance = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
-        if (loadingInstance) {
-            loadingInstance.hide();
-        }
-        
-        // Force cleanup of any remaining modal artifacts
-        setTimeout(() => {
-            // Check if any other modals are still open before removing backdrop
-            const openModals = document.querySelectorAll('.modal.show:not(#loadingModal)');
-            const hasOtherModalsOpen = openModals.length > 0;
-            
-            if (!hasOtherModalsOpen) {
-                // Only remove backdrop and body styles if no other modals are open
-                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-                    backdrop.remove();
-                });
-                
-                if (document.body.classList.contains('modal-open')) {
-                    document.body.classList.remove('modal-open');
-                    document.body.style.removeProperty('overflow');
-                    document.body.style.removeProperty('padding-right');
-                }
-            } else {
-                // Other modals are open, ensure backdrop exists for them
-                if (!document.querySelector('.modal-backdrop')) {
-                    // Create new backdrop if none exists
-                    const backdrop = document.createElement('div');
-                    backdrop.className = 'modal-backdrop fade show';
-                    document.body.appendChild(backdrop);
-                }
-            }
-            
-            // Always force hide loading modal element directly (nuclear option)
-            const loadingElement = document.getElementById('loadingModal');
-            if (loadingElement) {
-                loadingElement.style.display = 'none';
-                loadingElement.classList.remove('show');
-                loadingElement.setAttribute('aria-hidden', 'true');
-            }
-        }, 200);
-    }
 
     // Perform bulk status change via API
     function performBulkStatusChange(collectionId, newStatus, updatedDate) {
@@ -4416,7 +4417,7 @@ function setupIncidentSearch() {
 }
 
 // ====================================================================================
-// Workplan page functions
+// Workplans page functions
 // ====================================================================================
 
 // Function to initialize workplan features
@@ -4480,72 +4481,22 @@ function setupIncidentSearch() {
                 }
             });
         }
-        
-        // Setup edit button click handlers
-        document.querySelectorAll('.edit-workplan-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                isNewWorkplan = false;
-                
-                // Configure modal for editing
-                document.getElementById('workplanRecordModalLabel').textContent = 'Edit workplan';
-                document.getElementById('workplan_form').action = '/update_workplan';
-                
-                // Get data from the button
-                const workplanId = this.dataset.workplanId;
-                const dueDate = this.dataset.dueDate;
-                const workplanStatus = this.dataset.workplanStatus;
-                const workplanSize = this.dataset.workplanSize;
-                const workplanAffectedComponents = this.dataset.workplanAffectedComponents;
-                const workplanAffectedBikeId = this.dataset.workplanAffectedBikeId;
-                const description = this.dataset.description?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
-                const completionDate = this.dataset.completionDate;
-                const completionNotes = this.dataset.completionNotes?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
 
-                // Prepare component data
-                const componentList = [];
-                let hasComponents = false;
-                if (workplanAffectedComponents && workplanAffectedComponents !== 'Not assigned') {
-                    console.log("Processing components:", workplanAffectedComponents);
-                    hasComponents = true;
-                    
-                    // Parse the JSON-like string back into an array
-                    const componentIds = JSON.parse(workplanAffectedComponents);
-                    componentIds.forEach(id => {
-                        if (id) {
-                            componentList.push(id);
-                            console.log("Added component ID:", id);
-                        }
-                    });
-                }
-                
-                // Store data for use by the modal
-                pendingComponentData = {
-                    hasComponents: hasComponents,
-                    componentIds: componentList,
-                    formData: {
-                        workplanId: workplanId,
-                        dueDate: dueDate,
-                        workplanStatus: workplanStatus,
-                        workplanSize: workplanSize,
-                        workplanAffectedBikeId: workplanAffectedBikeId,
-                        description: description,
-                        completionDate: completionDate,
-                        completionNotes: completionNotes
-                    }
-                };
-                
-                // Show the modal (which will trigger the shown.bs.modal event)
-                const modal = new bootstrap.Modal(workplanModal);
-                modal.show();
-            });
-        });
-        
         // Initialize workplan table functionality (sorting, filtering, searching and more)
         initializeWorkplanTable();
-        
+
+        // Setup clickable row handler for workplans table
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', function() {
+                // Get the URL from data-href attribute
+                const href = this.dataset.href;
+                if (href) {
+                    // Navigate to the URL
+                    window.location.href = href;
+                }
+            });
+        });
+
         // Setup new workplan button
         document.querySelectorAll('[data-bs-target="#workplanRecordModal"]').forEach(button => {
             button.addEventListener('click', function() {
@@ -4560,9 +4511,6 @@ function setupIncidentSearch() {
                 document.getElementById('workplan_id').value = '';
                 document.getElementById('status_planned').checked = true;
 
-                // Reset ID display to placeholder text
-                document.getElementById('workplan-id-display').textContent = 'Not created yet';
-                
                 // Clear TomSelect if it's already initialized
                 const componentSelect = document.getElementById('workplan_affected_component_ids');
                 if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
@@ -5147,6 +5095,328 @@ function setupWorkplanSearch() {
         }
     });
 }
+
+// ====================================================================================
+// Workplan detail page functions
+// ====================================================================================
+
+// Function to handle workplan editing from workplan_details page
+(function() {
+    // Only run this code if we're on the workplan details page
+    if (!document.getElementById('workplan-details')) {
+        return;
+    }
+
+    // Variable to store form data for modal
+    let pendingFormData = null;
+
+    // Wait for DOM to load
+    document.addEventListener('DOMContentLoaded', function() {
+        const workplanModal = document.getElementById('workplanRecordModal');
+        if (!workplanModal) return;
+
+        // Setup edit button click handler
+        const editButton = document.querySelector('.edit-workplan-btn');
+        if (editButton) {
+            editButton.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Get data from the button and store for use after modal is shown
+                pendingFormData = {
+                    workplanId: this.dataset.workplanId,
+                    dueDate: this.dataset.dueDate,
+                    workplanStatus: this.dataset.workplanStatus,
+                    workplanSize: this.dataset.workplanSize,
+                    workplanAffectedComponents: this.dataset.workplanAffectedComponents,
+                    workplanAffectedBikeId: this.dataset.workplanAffectedBikeId,
+                    description: this.dataset.description?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '',
+                    completionDate: this.dataset.completionDate,
+                    completionNotes: this.dataset.completionNotes?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || ''
+                };
+
+                // Configure modal for editing
+                document.getElementById('workplanRecordModalLabel').textContent = 'Edit workplan';
+                document.getElementById('workplan_form').action = '/update_workplan';
+
+                // Show the modal (form will be populated in shown.bs.modal event)
+                const modal = new bootstrap.Modal(workplanModal);
+                modal.show();
+            });
+        }
+
+        // Handle modal shown event to initialize everything and populate form
+        workplanModal.addEventListener('shown.bs.modal', function() {
+            // Initialize datepickers first
+            initializeDatePickers(workplanModal);
+
+            // Now populate form fields if we have pending data
+            if (pendingFormData) {
+                // Set basic form values
+                document.getElementById('workplan_id').value = pendingFormData.workplanId;
+                document.getElementById('due_date').value = pendingFormData.dueDate;
+
+                // Set status radio buttons
+                if (pendingFormData.workplanStatus === 'Done') {
+                    document.getElementById('status_done').checked = true;
+                } else {
+                    document.getElementById('status_planned').checked = true;
+                }
+
+                // Set size dropdown
+                document.getElementById('workplan_size').value = pendingFormData.workplanSize;
+
+                // Set bike dropdown
+                document.getElementById('workplan_affected_bike_id').value = pendingFormData.workplanAffectedBikeId || '';
+
+                // Set description
+                document.getElementById('workplan_description').value = pendingFormData.description;
+
+                // Set completion fields (AFTER datepickers are initialized)
+                document.getElementById('completion_date').value = pendingFormData.completionDate || '';
+                document.getElementById('completion_notes').value = pendingFormData.completionNotes || '';
+
+                // Handle component selection
+                const componentSelect = document.getElementById('workplan_affected_component_ids');
+                if (componentSelect) {
+                    // Parse component IDs
+                    let componentIds = [];
+                    try {
+                        componentIds = JSON.parse(pendingFormData.workplanAffectedComponents || '[]');
+                    } catch (e) {
+                        console.error('Error parsing component IDs:', e);
+                    }
+
+                    // Initialize TomSelect if not already done
+                    if (!componentSelect.tomSelect) {
+                        const ts = new TomSelect(componentSelect, {
+                            plugins: ['remove_button'],
+                            maxItems: null,
+                            placeholder: 'Search to add more components...'
+                        });
+                        componentSelect.tomSelect = ts;
+                    }
+
+                    // Set the component values
+                    componentSelect.tomSelect.clear();
+                    componentSelect.tomSelect.setValue(componentIds);
+                }
+
+                // Clear the pending data
+                pendingFormData = null;
+            }
+        });
+    });
+})();
+
+// Function to handle bulk service creation for workplan
+(function() {
+    // Only run this code if we're on the workplan details page
+    if (!document.getElementById('workplan-details')) {
+        return;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const createServicesModal = document.getElementById('createServicesWorkplanModal');
+        if (!createServicesModal) return;
+
+        let workplanId = null;
+
+        // Local helper function to format service creation response messages
+        function formatServiceCreationMessage(messageData) {
+            if (typeof messageData === 'string') {
+                return messageData;
+            }
+
+            let html = '';
+
+            if (messageData.type === 'success') {
+                html = `<strong>${messageData.summary}</strong><br><br>`;
+                html += '<strong>Services created for:</strong><br>';
+                html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
+
+            } else if (messageData.type === 'partial_failure') {
+                html = `<strong>${messageData.summary}</strong><br><br>`;
+
+                if (messageData.successful_components.length > 0) {
+                    html += '<strong>Services created for:</strong><br>';
+                    html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
+                    html += '<br><br>';
+                }
+
+                if (messageData.failed_components.length > 0) {
+                    html += '<strong>Failed to create services for:</strong><br>';
+                    html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
+                }
+
+            } else if (messageData.type === 'complete_failure') {
+                html = `<strong>${messageData.summary}</strong><br><br>`;
+                html += '<strong>All services failed:</strong><br>';
+                html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
+            }
+
+            return html;
+        }
+
+        // Handle modal shown event - populate checkboxes
+        createServicesModal.addEventListener('shown.bs.modal', function(event) {
+            // Get workplan ID and component info from the button that triggered the modal
+            const button = event.relatedTarget;
+            workplanId = button.dataset.workplanId;
+            const componentsInfo = JSON.parse(button.dataset.workplanComponentsInfo || '[]');
+
+            // Initialize datepicker
+            initializeDatePickers(createServicesModal);
+
+            // Set current date
+            const now = new Date();
+            const formattedDate = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('bulkServiceDate').value = formattedDate;
+
+            // Build checkbox list
+            const checkboxContainer = document.getElementById('bulkServiceComponentCheckboxes');
+            checkboxContainer.innerHTML = '';
+
+            if (componentsInfo.length === 0) {
+                checkboxContainer.innerHTML = '<p class="text-muted">No components in this workplan</p>';
+                return;
+            }
+
+            // Create checkboxes for each component
+            componentsInfo.forEach(componentData => {
+                const hasService = componentData.has_service || false;
+                const label = hasService ?
+                    `${componentData.component_name} (Already serviced)` :
+                    componentData.component_name;
+
+                const checkboxHtml = `
+                    <div class="form-check mb-2">
+                        <input class="form-check-input bulk-service-checkbox" type="checkbox"
+                               value="${componentData.component_id}" id="component_${componentData.component_id}">
+                        <label class="form-check-label" for="component_${componentData.component_id}">
+                            ${label}
+                        </label>
+                    </div>
+                `;
+                checkboxContainer.insertAdjacentHTML('beforeend', checkboxHtml);
+            });
+
+            // Add change event listeners to checkboxes
+            document.querySelectorAll('.bulk-service-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateMultipleSelectionBanner);
+            });
+        });
+
+        // Function to update the multiple selection banner
+        function updateMultipleSelectionBanner() {
+            const checkedCount = document.querySelectorAll('.bulk-service-checkbox:checked').length;
+            const banner = document.getElementById('multipleSelectionBanner');
+            if (checkedCount > 1) {
+                banner.style.display = 'block';
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('bulkCreateServicesBtn').addEventListener('click', function() {
+            // Validate form
+            const serviceDate = document.getElementById('bulkServiceDate').value;
+            const serviceDescription = document.getElementById('bulkServiceDescription').value;
+            const selectedComponents = Array.from(document.querySelectorAll('.bulk-service-checkbox:checked'))
+                .map(cb => cb.value);
+
+            if (!serviceDate) {
+                showValidationModal('Validation Error', 'Please enter a service date.');
+                return;
+            }
+
+            if (!serviceDescription || serviceDescription.trim().length < 5) {
+                showValidationModal('Validation Error', 'Please enter a description (minimum 5 characters).');
+                return;
+            }
+
+            if (selectedComponents.length === 0) {
+                showValidationModal('Validation Error', 'Please select at least one component.');
+                return;
+            }
+
+            // Validate date
+            const dateInput = document.getElementById('bulkServiceDate');
+            if (!validateDateInput(dateInput)) {
+                showValidationModal('Validation Error', 'Please enter a valid date in format YYYY-MM-DD HH:MM.');
+                return;
+            }
+
+            // Close the create services modal
+            const modal = bootstrap.Modal.getInstance(createServicesModal);
+            if (modal) {
+                modal.hide();
+            }
+
+            // Show loading modal
+            document.getElementById('loadingMessage').textContent = 'Creating service records...';
+            setTimeout(() => {
+                loadingModal.show();
+
+                // Prepare form data with same component_ids key for all values (FastAPI List[str] form handling)
+                const formData = new FormData();
+                formData.append('workplan_id', workplanId);
+                formData.append('service_date', serviceDate);
+                formData.append('service_description', serviceDescription);
+                selectedComponents.forEach(componentId => {
+                    formData.append('component_ids', componentId);
+                });
+
+                // Submit to backend
+                fetch('/bulk_add_service_records', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    forceCloseLoadingModal();
+
+                    setTimeout(() => {
+                        const isPartialFailure = data.message && data.message.type === 'partial_failure';
+                        const title = data.success ? '✅ Services created successfully' :
+                                     isPartialFailure ? '⚠️ Services partially created' : '❌ Service creation failed';
+                        const formattedMessage = formatServiceCreationMessage(data.message);
+
+                        showReportModal(title, formattedMessage, data.success, isPartialFailure, function() {
+                            const url = window.location.pathname;
+                            window.history.replaceState({}, document.title, url);
+                            window.location.reload();
+                        });
+                    }, 500);
+                })
+                .catch(error => {
+                    console.error('Bulk service creation error:', error);
+                    forceCloseLoadingModal();
+
+                    setTimeout(() => {
+                        showReportModal('❌ Application error', 'An error occurred while creating service records. Give it another go.', false, false, function() {
+                            const url = window.location.pathname;
+                            window.history.replaceState({}, document.title, url);
+                            window.location.reload();
+                        });
+                    }, 400);
+                });
+            }, 300);
+        });
+
+        function showValidationModal(title, message) {
+            const validationModal = bootstrap.Modal.getInstance(document.getElementById('validationModal')) ||
+                new bootstrap.Modal(document.getElementById('validationModal'));
+            document.getElementById('validationModalLabel').textContent = title;
+            document.getElementById('validationModalBody').textContent = message;
+            validationModal.show();
+        }
+    });
+})();
 
 // ====================================================================================
 // Component types page functions
