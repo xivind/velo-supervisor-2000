@@ -313,6 +313,20 @@ class DatabaseManager:
                 .where(Workplans.workplan_status == "Planned")
                 .order_by(Workplans.due_date.desc()))
 
+    def read_incidents_by_workplan(self, workplan_id):
+        """Method to read all incidents linked to a specific workplan"""
+        return (Incidents
+                .select()
+                .where(Incidents.workplan_id == workplan_id)
+                .order_by(Incidents.incident_date.desc()))
+
+    def read_services_by_workplan(self, workplan_id):
+        """Method to read all services linked to a specific workplan"""
+        return (Services
+                .select()
+                .where(Services.workplan_id == workplan_id)
+                .order_by(Services.service_date.desc()))
+
     def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk in database"""
         try:
