@@ -9,6 +9,7 @@
                 <form id="incident_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
                     <!-- Hidden fields -->
                     <input type="hidden" id="incident_id" name="incident_id"> <!-- Should be set automatically, and is required -->
+                    <input type="hidden" id="incident_redirect_url" name="redirect_url"> <!-- Populated by JS for edit mode -->
                     <input type="hidden" id="initial_incident_component_id" name="initial_incident_component_id" value="{{ duplicate_data.component_id if duplicate_data }}">
                     
                     <!-- First row: Date, Status (as radio), Severity -->
@@ -69,7 +70,17 @@
                         <label for="incident_description" class="form-label fw-bold">Description</label>
                         <textarea class="form-control" id="incident_description" name="incident_description" rows="3"></textarea>
                     </div>
-                    
+
+                    <!-- Workplan link (optional) -->
+                    <div class="col-12 mb-3">
+                        <label for="incidentWorkplanId" class="form-label fw-bold">Link to workplan</label>
+                        <select class="form-select" id="incidentWorkplanId" name="workplan_id">
+                            <option value="">No workplan selected</option>
+                            <!-- Workplan options will be populated dynamically -->
+                        </select>
+                        <small class="form-text text-muted">Only open (planned) workplans that reference the same bike or components can be selected.</small>
+                    </div>
+
                     <!-- Resolution section with date and notes -->
                     <div class="col-md-4 mb-3">
                         <label for="resolution_date" class="form-label fw-bold">Resolution date</label>

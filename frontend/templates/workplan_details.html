@@ -8,6 +8,7 @@
 {% include "modal_workplan_record.html" %}
 {% include "modal_complete_workplan.html" %}
 {% include "modal_create_services_workplan.html" %}
+{% include "modal_link_incident.html" %}
 {% include "modal_service_record.html" %}
 {% include "modal_incident_record.html" %}
 
@@ -27,6 +28,11 @@
             data-completion-notes="{{ payload.workplan_data.completion_notes|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') if payload.workplan_data.completion_notes else '' }}">
         <span>✍ Edit workplan</span>
     </button>
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#linkIncidentsModal"
+            data-workplan-id="{{ payload.workplan_data.workplan_id }}"
+            data-linkable-incidents='{{ payload.linkable_incidents_data | tojson if payload.linkable_incidents_data else "[]" }}'>
+        <span>🚨 Link incident</span>
+    </button>
     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createServicesWorkplanModal"
             data-workplan-id="{{ payload.workplan_data.workplan_id }}"
             data-workplan-affected-components='{{ payload.workplan_data.affected_component_ids|tojson if payload.workplan_data.affected_component_ids else "[]" }}'
@@ -36,7 +42,7 @@
     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#completeWorkplanModal"
             data-workplan-id="{{ payload.workplan_data.workplan_id }}"
             {% if payload.workplan_data.workplan_status == "Done" %}disabled{% endif %}>
-        <span>✅ Close incidents</span>
+        <span>✅ Complete workplan</span>
     </button>
     <button type="button" class="btn btn-outline-danger delete-record"
             data-workplan-id="{{ payload.workplan_data.workplan_id }}">
@@ -153,10 +159,9 @@
                 <div class="d-flex align-items-center">
                     <div class="fs-2 me-3">✅</div>
                     <div>
-                        <h5 class="card-title mb-2">All components have services</h5>
+                        <h5 class="card-title mb-2">All components have been serviced</h5>
                         <p class="mb-1">
                             All components associated with this workplan have services linked to the workplan.
-                            You can close this workplan by clicking the "Complete workplan" button above.
                         </p>
                     </div>
                 </div>
@@ -178,7 +183,7 @@
                     <thead>
                         <tr>
                             <th class="text-center">Status</th>
-                            <th>Severity</th>
+                            <th class="text-center">Severity</th>
                             <th>Incident date</th>
                             <th>Description</th>
                             <th>Bike</th>
@@ -189,13 +194,13 @@
                     </thead>
                     <tbody>
                         {% if payload.incidents_data %}
-                            {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, workplan_id in payload.incidents_data %}
+                            {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, workplan_id, workplan_name in payload.incidents_data %}
                             <tr>
                                 <td class="text-center">
                                     {% if incident_status == "Open" %}
                                         <span class="badge rounded-pill status-attention fixed-width-badge-incident-status">Open</span>
-                                    {% elif incident_status == "Closed" %}
-                                        <span class="badge rounded-pill status-empty fixed-width-badge-incident-status">Closed</span>
+                                    {% elif incident_status == "Resolved" %}
+                                        <span class="badge rounded-pill status-empty fixed-width-badge-incident-status">Resolved</span>
                                     {% endif %}
                                 </td>
                                 <td class="text-center">
@@ -252,7 +257,9 @@
                                         data-description="{{ incident_description|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') if incident_description else '' }}"
                                         data-resolution-date="{{ resolution_date if resolution_date else '' }}"
                                         data-resolution-notes="{{ resolution_notes|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') if resolution_notes else '' }}"
-                                        data-workplan-id="{{ workplan_id if workplan_id else '' }}">✍
+                                        data-workplan-id="{{ workplan_id if workplan_id else '' }}"
+                                        data-workplans='{{ payload.workplans_data | tojson if payload.workplans_data else "[]" }}'
+                                        data-redirect-url="/workplan_details/{{ payload.workplan_data.workplan_id }}">✍
                                     </button>
                                     <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
                                         data-incident-id="{{ incident_id }}">🗑
@@ -291,12 +298,12 @@
                     <tbody>
                         {% if payload.services_data %}
                             {% for service_id, service_date, description, component_id, component_name, workplan_id in payload.services_data %}
-                                <tr>
+                                <tr {% if component_name and component_name != "Deleted component" %}role="button" onclick="window.location='/component_details/{{ component_id }}';"{% endif %}>
                                     <td>{{ service_date }}</td>
                                     <td>{{ description }}</td>
                                     <td>
                                         {% if component_name and component_name != "Deleted component" %}
-                                            <a href="/component_details/{{ component_id }}" class="text-decoration-none text-reset">{{ component_name }}</a>
+                                            {{ component_name }}
                                         {% else %}
                                             {{ component_name if component_name else 'Unknown' }}
                                         {% endif %}
@@ -307,11 +314,15 @@
                                                 data-service-date="{{ service_date }}"
                                                 data-service-description="{{ description }}"
                                                 data-component-id="{{ component_id }}"
-                                                data-workplan-id="{{ workplan_id if workplan_id else '' }}">
+                                                data-workplan-id="{{ workplan_id if workplan_id else '' }}"
+                                                data-workplans='{{ payload.workplans_data | tojson if payload.workplans_data else "[]" }}'
+                                                data-redirect-url="/workplan_details/{{ payload.workplan_data.workplan_id }}"
+                                                onclick="event.stopPropagation();">
                                                 ✍
                                         </button>
                                         <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
-                                                data-service-id="{{ service_id }}">
+                                                data-service-id="{{ service_id }}"
+                                                onclick="event.stopPropagation();">
                                                 🗑
                                         </button>
                                     </td>
