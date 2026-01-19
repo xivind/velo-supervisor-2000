@@ -615,3 +615,6 @@ class DatabaseManager:
 
         except peewee.OperationalError as error:
             return False, {str(error)}
+
+        except Exception as error:
+            return False, f"Unexpected error deleting record: {str(error)}"
