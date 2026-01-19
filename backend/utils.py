@@ -181,8 +181,64 @@ def get_formatted_bikes_list(bikes):
     bikes_data = [(bike.bike_name + (" (Retired)" if bike.bike_retired == "True" else ""),
                   bike.bike_id)
                   for bike in bikes]
-    
+
     return sorted(bikes_data, key=lambda x: (("(Retired)" in x[0]), x[0].lower()))
+
+def get_workplan_names_dict(database_manager):
+    """Build dictionary mapping workplan_id -> workplan_name for all workplans"""
+    workplan_names = {}
+    for workplan in database_manager.read_all_workplans():
+        affected_component_names = database_manager.read_component_names(workplan.workplan_affected_component_ids)
+        affected_bike_name = database_manager.read_bike_name(workplan.workplan_affected_bike_id)
+        workplan_names[workplan.workplan_id] = generate_workplan_title(affected_component_names,
+                                                                       affected_bike_name,
+                                                                       workplan.workplan_description)
+
+    return workplan_names
+
+def get_incident_data_tuple(incident, database_manager, workplan_names):
+    """Build standard incident data tuple for display (15 fields)"""
+    return (incident.incident_id,
+            incident.incident_date,
+            incident.incident_status,
+            incident.incident_severity,
+            parse_json_string(incident.incident_affected_component_ids),
+            database_manager.read_component_names(incident.incident_affected_component_ids),
+            incident.incident_affected_bike_id,
+            database_manager.read_bike_name(incident.incident_affected_bike_id),
+            incident.incident_description,
+            incident.resolution_date,
+            incident.resolution_notes,
+            calculate_elapsed_days(incident.incident_date,
+                                   incident.resolution_date if incident.resolution_date else get_formatted_datetime_now())[1],
+            generate_incident_title(database_manager.read_component_names(incident.incident_affected_component_ids),
+                                    database_manager.read_bike_name(incident.incident_affected_bike_id),
+                                    incident.incident_description),
+            incident.workplan_id,
+            workplan_names.get(incident.workplan_id, None))
+
+def get_workplan_data_tuple(workplan, database_manager):
+    """Build standard workplan data tuple for display (14 fields)"""
+    affected_component_names = database_manager.read_component_names(workplan.workplan_affected_component_ids)
+    affected_bike_name = database_manager.read_bike_name(workplan.workplan_affected_bike_id)
+
+    return (workplan.workplan_id,
+            workplan.due_date,
+            workplan.workplan_status,
+            workplan.workplan_size,
+            parse_json_string(workplan.workplan_affected_component_ids),
+            affected_component_names,
+            workplan.workplan_affected_bike_id,
+            affected_bike_name,
+            workplan.workplan_description,
+            workplan.completion_date,
+            workplan.completion_notes,
+            calculate_elapsed_days(workplan.due_date,
+                                   workplan.completion_date if workplan.completion_date else get_formatted_datetime_now())[1],
+            generate_workplan_title(affected_component_names,
+                                    affected_bike_name,
+                                    workplan.workplan_description),
+            parse_checkbox_progress(workplan.workplan_description))
 
 def calculate_percentage_reached(total, remaining):
     """Function to calculate remaining service interval or remaining lifetime as percentage"""
