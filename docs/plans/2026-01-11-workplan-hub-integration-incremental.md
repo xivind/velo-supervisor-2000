@@ -1,6 +1,6 @@
 # Workplan Hub Integration - Incremental Implementation
 
-**Date:** 2026-01-17 (Create Services modal complete)
+**Date:** 2026-01-19 (Modal routing completed: incident/service modals now redirect users back to source pages. Workplan dropdown fixed on all pages. Deletion checks implemented.)
 
 ---
 
@@ -32,26 +32,27 @@ But still, this is an opt-in workflow, so users must be able to work independent
 ## Frontend changes - html pages
 
 ### component_overview.html
-[] The New workplan and New incident buttons on top of the page should continue to work as before.
+[X] The New workplan and New incident buttons on top of the page should continue to work as before.
+[X] Added data-workplans attribute to "New incident" button for workplan dropdown functionality
 
-*Status:*
-*Testing:* TBD
+*Status:* Complete - Buttons working, workplan dropdown now functional on this page
+*Testing:* Manual testing successful
 
 ### component_details.html
-[] The New workplan and New incident buttons on top of the page should continue to work as before.
-[] On the services table, add a column after Mileage, called Workplan. It should display the name of the associated workplan. The name of the workplan should be clickable, and navigate to `/workplan_details/{workplan_id}`. If there is no workplan assigned, show "-"
-[] The table for open incidents should have a similar functionality
-[] The table for unfinished workplans should no longer have an edit button that brings up the modal to edit workplans. Instead the entire row should be clickable and take the user to the workplan_details.html page for the workplan in question
+[X] The New workplan and New incident buttons on top of the page should continue to work as before.
+[X] On the services table, add a column after Mileage, called Workplan. It should display the name of the associated workplan. The name of the workplan should be clickable, and navigate to `/workplan_details/{workplan_id}`. If there is no workplan assigned, show "-"
+[X] The table for open incidents should have a similar functionality
+[X] The table for unfinished workplans should no longer have an edit button that brings up the modal to edit workplans. Instead the entire row should be clickable and take the user to the workplan_details.html page for the workplan in question
 
-*Status:*
+*Status:* Complete - Workplan column added to services and incidents tables with clickable links, workplan rows now clickable (edit button removed), updated business_logic.py to include workplan_id/workplan_name in tuples
 *Testing:* TBD
 
 ### bike_details.html
-[] The New workplan and New incident buttons on top of the page should continue to work as before
-[] On the table for open incidents, add a column after Days open, called Workplan. It should display the name of the associated workplan. The name of the workplan should be clickable, and navigate to `/workplan_details/{workplan_id}`. If there is no workplan assigned, show "-"
-[] The table for unfinished workplans should no longer have an edit button that brings up the modal to edit workplans. Instead the entire row should be clickable and take the user to the workplan_details.html page for the workplan in question
+[X] The New workplan and New incident buttons on top of the page should continue to work as before
+[X] On the table for open incidents, add a column after Days open, called Workplan. It should display the name of the associated workplan. The name of the workplan should be clickable, and navigate to `/workplan_details/{workplan_id}`. If there is no workplan assigned, show "-"
+[X] The table for unfinished workplans should no longer have an edit button that brings up the modal to edit workplans. Instead the entire row should be clickable and take the user to the workplan_details.html page for the workplan in question
 
-*Status:*
+*Status:* Complete - Workplan column added to incidents table with clickable links, workplan rows now clickable (edit button removed), updated business_logic.py get_bike_details to include workplan_id/workplan_name
 *Testing:* TBD
 
 ### workplans.html
@@ -62,12 +63,14 @@ But still, this is an opt-in workflow, so users must be able to work independent
 *Testing:* TBD
 
 ### incident_reports.html
-[] The New incident button should continue to work as before
-[] On the table for all incidents, add a column after Days open, called Workplan. It should display the name of the associated workplan. The name of the workplan should be clickable, and take the user to the workplan_details.html page for the workplan in question. If there is no workplan assigned, show "-"
-[] Add a new action button, to the left of the edit button, with this emoji 📝. This button should bring up the modal to create a new workplan and prefill it with info from the incident. We will discuss at implementation time what info to prefill. On submit, the workplan will be created, and then the incident will be updated with the workplan_id with the newly created workplan. According to patterns elsewhere, this button should always be visible, but it should be disabled if the incident is already assigned to a workplan, meaning that the workplan_id field of the incident is not none
+[X] The New incident button should continue to work as before
+[X] On the table for all incidents, add a column after Days open, called Workplan. It should display the name of the associated workplan. The name of the workplan should be clickable, and take the user to the workplan_details.html page for the workplan in question. If there is no workplan assigned, show "-"
+[X] Add a new action button, to the left of the edit button, with this emoji 📝. This button should bring up the modal to create a new workplan and prefill it with info from the incident. We will discuss at implementation time what info to prefill. On submit, the workplan will be created, and then the incident will be updated with the workplan_id with the newly created workplan. According to patterns elsewhere, this button should always be visible, but it should be disabled if the incident is already assigned to a workplan, meaning that the workplan_id field of the incident is not none
+[X] Search function now includes workplan column
+[X] Sorting support added for workplan column (case-insensitive alphabetical)
 
-*Status:*
-*Testing:* TBD
+*Status:* Complete - Workplan column added, 📝 button creates workplan from incident with prefilled bike/components/description, automatic linking on creation, search/sort support added
+*Testing:* Manual testing successful - workplan creation and linking verified
 
 ### workplan_details.html (new page)
 [X] Create this page and base it on the layout and looks of the collection_details.html page.
@@ -80,8 +83,9 @@ But still, this is an opt-in workflow, so users must be able to work independent
 [X] If all components associated with the workplan has a service, that is linked to the workplan, a banner should display, with green color (probably bootstrap success), that informs the user that workplan can be closed by clicking Complete workplan. This should also close any incidents linked to the workplan.
 [X] Below the banner, it should be a table listing incidents that references the current workplan. This table should have the same appearance as the table on the incident_reports.html page, however it should not have the search functionality. It should however have the same actions button for each row (edit incident + delete incident). In contrast to the incident table on bike details and component details, that only shows open incidents, this one should show all incidents connected to the workplan, regardless of the incident status.
 [X] Below the incident table, there should be a table listing services that references the workplan. This table should have the same appearance as the services table on the component_details.html page, however it should not have a workplan column, since that context is already established. It should however have the same actions button for each row (edit service + delete service).
+[X] Service table rows are now clickable (except buttons) to navigate to component_details page
 
-*Status:* Page created with all required elements following collection_details.html layout pattern
+*Status:* Page created with all required elements following collection_details.html layout pattern, service table rows made clickable
 *Testing:* TBD
 
 ## Frontend changes - modal changes
@@ -93,19 +97,28 @@ But still, this is an opt-in workflow, so users must be able to work independent
 *Testing:* TBD
 
 ### modal_incident_record.html
-[] Add a single value dropdown box below the Description field, to allow the user to link the incident to a workplan. We must discuss how the user is supposed to search for such workplans.
+[X] Add a single value dropdown box below the Description field, to allow the user to link the incident to a workplan. We must discuss how the user is supposed to search for such workplans.
+[X] Added redirect_url hidden field for proper routing on edit
+[X] Added data-workplans attribute support to "New incident" buttons on bike_details, component_details, component_overview
+[X] Added data-redirect-url to edit buttons on incident_reports, bike_details, component_details, workplan_details
 
-*Status:*
-*Testing:* TBD
+*Status:* Complete - Dropdown working on all pages, routing fixed: CREATE always goes to workplan_details (if linked) or incident_reports, EDIT returns to source page
+*Testing:* Manual testing successful - dropdown populates from all pages, edit routing verified on all pages
 
 ### modal_service_record.html
-[] Add a single value dropdown box below the Description field, to allow the user to link the service to a workplan. We must discuss how the user is supposed to search for such workplans.
+[X] Add a single value dropdown box below the Description field, to allow the user to link the service to a workplan. We must discuss how the user is supposed to search for such workplans.
+[X] Added redirect_url hidden field for proper routing on edit
+[X] Added data-redirect-url to edit buttons on component_details and workplan_details
 
-*Status:*
-*Testing:* TBD
+*Status:* Complete - Dropdown working, routing fixed: CREATE single service always goes to component_details, CREATE bulk services stays on workplan_details, EDIT returns to source page
+*Testing:* Manual testing successful - routing verified on both pages
 
 ### modal_complete_workplan.html
-[] Make a modal that allows the user to comlpete a workplan and associated incidents. We must discuss implementation together.
+[] Make a modal that allows the user to complete a workplan and associated incidents. A stub for the modal is created, but requires critical review
+[] Include a checkbox that also allows users to close linked incidents. The incidents should have the same close date as the workplan,
+but resolution notes for incident should be like this: "Closed from workplan with description <"workplan description"> (workplan id: ...)"
+[] Muted text below the checkbox, explaining what it does.
+[] Show toast message when completed
 
 *Status:*
 *Testing:* TBD
@@ -132,9 +145,15 @@ But still, this is an opt-in workflow, so users must be able to work independent
 [X] Added bulk service creation handler in workplan_details page section
 [X] Moved forceCloseLoadingModal to global scope for availability across all pages
 [X] Cleaned up verbose logging and matched existing code patterns
+[X] Added service workplan dropdown population (lines 3573-3726) with component filtering, works on both component_details and workplan_details pages
+[X] Added workplan column to incident search (lines 4617, 4624)
+[X] Added sorting support for workplan column (case 7, lines 4541-4546) with case-insensitive alphabetical sorting
+[X] Updated incident edit handler to capture and populate redirect_url from data-redirect-url attribute
+[X] Updated service edit handler to capture and populate redirect_url from data-redirect-url attribute
+[X] Added redirect_url clearing in new incident/service handlers
 
-*Status:* Complete - all handlers working, code cleaned and production-ready
-*Testing:* Manual testing successful - bulk service creation, loading/report modals working
+*Status:* Complete - all handlers working, routing logic implemented for both incidents and services
+*Testing:* Manual testing successful - all modal routing verified on all pages
 
 ---
 
@@ -155,22 +174,28 @@ But still, this is an opt-in workflow, so users must be able to work independent
 ### main.py
 [X] Route /workplan_details/{workplan_id} already exists and calls business_logic.get_workplan_details
 [X] Route /bulk_add_service_records implemented with parameters: workplan_id, component_ids, service_date, service_description
+[X] Updated /add_service_record - now always redirects to component_details (removed workplan_id redirect logic)
+[X] Updated /update_service_record - added redirect_url parameter support, falls back to component_details if not provided
+[X] Route /update_incident_record already supports redirect_url parameter
 
-*Status:* Complete - workplan_details route functional, bulk service creation route implemented
-*Testing:* TBD
+*Status:* Complete - all routing logic implemented for incidents and services
+*Testing:* Manual testing successful - all redirects working as specified
 
 ### business_logic.py
 [X] Implemented get_workplan_details method - fetches workplan, incidents, services, checks service completion status
 [X] Added bikes_data and all_components_data to payload for modal dropdowns
 [X] Added workplan_components_info to payload for bulk service creation modal
 [X] Implemented bulk_create_service_records method - creates multiple service records with same date/description
-[] Add check in delete_record to prevent workplans from being deleted if they have linked incidents or services
+[X] Updated get_component_details - added workplan_id to service_history_data tuple, added workplan_id/workplan_name to incident_reports_data tuple
+[X] Updated get_bike_details - added workplan_id/workplan_name to incident_reports_data tuple
+[X] Updated get_component_overview - added workplans_data to payload for incident modal dropdown functionality
+[X] Add check in delete_record to prevent workplans from being deleted if they have linked incidents or services
 
-*Status:* Complete - get_workplan_details with full payload, bulk_create_service_records implemented
-*Testing:* TBD
+*Status:* Complete - all payload updates implemented, deletion checks in place
+*Testing:* Manual testing successful - workplan dropdown works from component_overview page
 
 ### utils.py
-[] Improve function generate_incident_title to gracefully handle markdown syntax if detected
+[] Improve function generate_incident_title to gracefully handle markdown syntax if detected. Fix for workplan_title_generator as well
 
 *Status:*
 *Testing:* TBD
