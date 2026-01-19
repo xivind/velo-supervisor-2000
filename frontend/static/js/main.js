@@ -3313,7 +3313,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // Collection details page functions
 // ====================================================================================
 
-// (Change status button handler moved to "Functions used on multiple pages" section)
+// NOTE: All collection details page handlers are in the "Functions used on multiple pages" section
+// under "Collection modals" subsection for better code organization:
+// - Edit collection button handler (.edit-collection-on-details-page)
+// - Update collection status modal handler (#updateCollectionStatusModal)
+// - Collection modal functionality is grouped together since the modals themselves are reusable components
 
 // ====================================================================================
 // Component details page functions
