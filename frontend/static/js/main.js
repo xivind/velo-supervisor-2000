@@ -3571,18 +3571,98 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to handle service records and history records
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the component details page
-    if (document.querySelector('h1#component-details') === null) return;
+    // Check if we're on the component details page OR workplan details page (both use service modal)
+    const isComponentDetailsPage = document.querySelector('h1#component-details') !== null;
+    const isWorkplanDetailsPage = document.querySelector('h1#workplan-details') !== null;
+
+    if (!isComponentDetailsPage && !isWorkplanDetailsPage) return;
 
     // Initialize modals
-    const serviceRecordModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
-    const editHistoryModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
+    const serviceRecordModal = document.getElementById('serviceRecordModal');
+    if (!serviceRecordModal) return;
+
+    const serviceModal = new bootstrap.Modal(serviceRecordModal);
+    const editHistoryModal = isComponentDetailsPage ? new bootstrap.Modal(document.getElementById('editHistoryModal')) : null;
 
     // Get component ID from the page context
     const currentComponentId = document.getElementById('serviceComponentId')?.value;
 
+    // ----- Workplan Dropdown Population for Service Modal -----
+
+    // Function to populate workplan dropdown in service modal
+    function populateServiceWorkplanDropdown(workplansData, selectedWorkplanId = null, componentId = null) {
+        // Use provided componentId or fall back to currentComponentId
+        const targetComponentId = componentId || currentComponentId;
+        const workplanSelect = document.getElementById('serviceWorkplanId');
+        if (!workplanSelect) return;
+
+        // Clear existing options
+        workplanSelect.innerHTML = '<option value="">No workplan selected</option>';
+
+        if (!workplansData || workplansData.length === 0) return;
+
+        // Filter and add workplan options
+        workplansData.forEach(workplan => {
+            const workplanId = workplan[0];
+            const workplanStatus = workplan[2];
+            const workplanAffectedComponentIds = workplan[4] || [];
+            const affectedComponentNames = workplan[5];
+            const affectedBikeName = workplan[7];
+            const workplanDescription = workplan[8];
+
+            // Only show "Planned" workplans (not "Done")
+            if (workplanStatus !== 'Planned') {
+                return;
+            }
+
+            // Filter: Only show workplans that include this component
+            const includesComponent = targetComponentId && workplanAffectedComponentIds.includes(targetComponentId);
+
+            // Always show the currently selected workplan (even if it doesn't match filters)
+            const isSelected = selectedWorkplanId && workplanId === selectedWorkplanId;
+
+            // Skip if not relevant
+            if (!includesComponent && !isSelected) {
+                return;
+            }
+
+            // Generate workplan title
+            let title = '';
+            if (affectedComponentNames && affectedComponentNames[0] !== 'Not assigned') {
+                title = affectedComponentNames[0];
+                if (affectedComponentNames.length > 1) {
+                    title += ` (+${affectedComponentNames.length - 1} more)`;
+                }
+            }
+            if (workplanDescription && workplanDescription !== 'None') {
+                const desc = workplanDescription.length > 30 ? workplanDescription.substring(0, 30) + '...' : workplanDescription;
+                title = title ? `${title} - ${desc}` : desc;
+            }
+            if (affectedBikeName && affectedBikeName !== 'Not assigned') {
+                title += ` (${affectedBikeName})`;
+            }
+            if (!title) {
+                title = 'No workplan metadata';
+            }
+
+            const option = document.createElement('option');
+            option.value = workplanId;
+            option.textContent = title;
+            if (isSelected) {
+                option.selected = true;
+            }
+            workplanSelect.appendChild(option);
+        });
+    }
+
     // Handle "New Service" button click
     document.querySelector('[data-bs-target="#serviceRecordModal"]')?.addEventListener('click', function() {
+        const workplansData = JSON.parse(this.dataset.workplans || '[]');
+
+        // Populate workplan dropdown for new service (no selected workplan)
+        setTimeout(() => {
+            populateServiceWorkplanDropdown(workplansData, null);
+        }, 100);
         // Set up modal for creating new service
         document.getElementById('serviceRecordModalLabel').textContent = 'New service record';
         document.getElementById('serviceRecordForm').action = '/add_service_record';
@@ -3593,6 +3673,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear other form fields
         document.getElementById('serviceId').value = '';
         document.getElementById('serviceDescription').value = '';
+        document.getElementById('service_redirect_url').value = '';
 
         // Reset ID display to placeholder text
         document.getElementById('service-id-display').textContent = 'Not created yet';
@@ -3609,33 +3690,44 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             document.getElementById('serviceDate').value = formattedDate;
         }, 100);
-        
-        serviceRecordModal.show();
+
+        serviceModal.show();
     });
 
     // Handle service record edit button clicks
     document.querySelectorAll('.edit-service-btn').forEach(button => {
         button.addEventListener('click', function() {
+            const workplansData = JSON.parse(this.dataset.workplans || '[]');
+            const workplanId = this.dataset.workplanId || null;
+            const componentId = this.dataset.componentId;
+            const redirectUrl = this.dataset.redirectUrl || '';
+
+            // Populate workplan dropdown after a short delay to ensure modal is ready
+            setTimeout(() => {
+                populateServiceWorkplanDropdown(workplansData, workplanId, componentId);
+            }, 100);
+
             // Set up modal for editing service
             document.getElementById('serviceRecordModalLabel').textContent = 'Edit service record';
             document.getElementById('serviceRecordForm').action = '/update_service_record';
-            
+
             // Fill in the form with existing data
             document.getElementById('serviceComponentId').value = this.dataset.componentId;
             document.getElementById('serviceId').value = this.dataset.serviceId;
             document.getElementById('serviceDescription').value = this.dataset.serviceDescription;
+            document.getElementById('service_redirect_url').value = redirectUrl;
 
             // Update ID display with actual service ID
             document.getElementById('service-id-display').textContent = this.dataset.serviceId || 'Not created yet';
 
             // Simply set the input value directly and avoid using the API
             document.getElementById('serviceDate').value = this.dataset.serviceDate;
-            
-            serviceRecordModal.show();
+
+            serviceModal.show();
         });
     });
 
-    // Handle history record edit button clicks
+    // Handle history record edit button clicks (only on component details page)
     document.querySelectorAll('.edit-history-btn').forEach(button => {
         button.addEventListener('click', function() {
             const historyId = this.dataset.historyId;
@@ -3744,6 +3836,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const description = this.dataset.description?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
                 const resolutionDate = this.dataset.resolutionDate;
                 const resolutionNotes = this.dataset.resolutionNotes?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
+                const redirectUrl = this.dataset.redirectUrl || '';
 
                 // Prepare component data
                 const componentList = [];
@@ -3774,7 +3867,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         incidentAffectedBikeId: incidentAffectedBikeId,
                         description: description,
                         resolutionDate: resolutionDate,
-                        resolutionNotes: resolutionNotes
+                        resolutionNotes: resolutionNotes,
+                        redirectUrl: redirectUrl
                     }
                 };
                 
@@ -3799,6 +3893,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('incident_form').action = '/add_incident_record';
                 document.getElementById('incident_form').reset();
                 document.getElementById('incident_id').value = '';
+                document.getElementById('incident_redirect_url').value = '';
                 document.getElementById('status_open').checked = true;
 
                 // Reset ID display to placeholder text
@@ -3906,6 +4001,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set basic form fields
         document.getElementById('incident_id').value = data.incidentId || '';
+        document.getElementById('incident_redirect_url').value = data.redirectUrl || '';
         document.getElementById('incident-id-display').textContent = data.incidentId || 'Not created yet';
         
         // Set status radio buttons
@@ -3946,7 +4042,185 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 100);
     }
+
+    // ----- Workplan Dropdown Population in Incident Modal -----
+
+    // Populate workplan dropdown when incident modal opens
+    function populateIncidentWorkplanDropdown(workplansData, selectedWorkplanId = null) {
+        const workplanSelect = document.getElementById('incidentWorkplanId');
+        if (!workplanSelect) return;
+
+        // Clear existing options except the first (default) one
+        workplanSelect.innerHTML = '<option value="">No workplan selected</option>';
+
+        if (!workplansData || workplansData.length === 0) return;
+
+        // Get incident's current bike and component selections
+        const incidentBikeId = document.getElementById('incident_affected_bike_id')?.value || null;
+        const incidentComponentSelect = document.getElementById('incident_affected_component_ids');
+        const incidentComponentIds = incidentComponentSelect?.tomSelect?.getValue() || [];
+
+        // Filter and add workplan options
+        workplansData.forEach(workplan => {
+            const workplanId = workplan[0];
+            const workplanStatus = workplan[2];
+            const workplanAffectedComponentIds = workplan[4] || [];
+            const affectedComponentNames = workplan[5];
+            const workplanAffectedBikeId = workplan[6];
+            const affectedBikeName = workplan[7];
+            const workplanDescription = workplan[8];
+
+            // Only show "Planned" workplans (not "Done")
+            if (workplanStatus !== 'Planned') {
+                return;
+            }
+
+            // Filter: Only show workplans that match incident's bike OR have overlapping components
+            let isRelevant = false;
+
+            // Check if bikes match
+            if (incidentBikeId && workplanAffectedBikeId && incidentBikeId === workplanAffectedBikeId) {
+                isRelevant = true;
+            }
+
+            // Check if any components overlap
+            if (!isRelevant && incidentComponentIds.length > 0 && workplanAffectedComponentIds.length > 0) {
+                const hasOverlap = incidentComponentIds.some(componentId =>
+                    workplanAffectedComponentIds.includes(componentId)
+                );
+                if (hasOverlap) {
+                    isRelevant = true;
+                }
+            }
+
+            // Always show the currently selected workplan (even if it doesn't match filters)
+            if (selectedWorkplanId && workplanId === selectedWorkplanId) {
+                isRelevant = true;
+            }
+
+            // Skip if not relevant
+            if (!isRelevant) {
+                return;
+            }
+
+            // Generate workplan title (similar to backend)
+            let title = '';
+            if (affectedComponentNames && affectedComponentNames[0] !== 'Not assigned') {
+                title = affectedComponentNames[0];
+                if (affectedComponentNames.length > 1) {
+                    title += ` (+${affectedComponentNames.length - 1} more)`;
+                }
+            }
+            if (workplanDescription && workplanDescription !== 'None') {
+                const desc = workplanDescription.length > 30 ? workplanDescription.substring(0, 30) + '...' : workplanDescription;
+                title = title ? `${title} - ${desc}` : desc;
+            }
+            if (affectedBikeName && affectedBikeName !== 'Not assigned') {
+                title += ` (${affectedBikeName})`;
+            }
+            if (!title) {
+                title = 'No workplan metadata';
+            }
+
+            const option = document.createElement('option');
+            option.value = workplanId;
+            option.textContent = title;
+            if (selectedWorkplanId && workplanId === selectedWorkplanId) {
+                option.selected = true;
+            }
+            workplanSelect.appendChild(option);
+        });
+    }
+
+    // Store workplans data and selected ID for dynamic updates
+    let currentWorkplansData = [];
+    let currentSelectedWorkplanId = null;
+
+    // Add event listener to populate dropdown when edit button is clicked
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.edit-incident-btn').forEach(button => {
+            const originalHandler = button.onclick;
+            button.addEventListener('click', function() {
+                currentWorkplansData = JSON.parse(this.dataset.workplans || '[]');
+                currentSelectedWorkplanId = this.dataset.workplanId || null;
+
+                // Populate dropdown after a short delay to ensure modal is ready
+                setTimeout(() => {
+                    populateIncidentWorkplanDropdown(currentWorkplansData, currentSelectedWorkplanId);
+                }, 100);
+            });
+        });
+
+        // Handle new incident button
+        document.querySelectorAll('[data-bs-target="#incidentRecordModal"]').forEach(button => {
+            button.addEventListener('click', function() {
+                currentWorkplansData = JSON.parse(this.dataset.workplans || '[]');
+                currentSelectedWorkplanId = null;
+
+                // Populate dropdown for new incident (no selected workplan)
+                setTimeout(() => {
+                    populateIncidentWorkplanDropdown(currentWorkplansData, null);
+                }, 100);
+            });
+        });
+
+        // Add event listeners for bike and component changes to update workplan dropdown
+        const incidentModal = document.getElementById('incidentRecordModal');
+        if (incidentModal) {
+            // Listen for bike changes
+            const bikeSelect = document.getElementById('incident_affected_bike_id');
+            if (bikeSelect) {
+                bikeSelect.addEventListener('change', function() {
+                    // Re-filter workplan dropdown based on new bike selection
+                    const currentSelection = document.getElementById('incidentWorkplanId')?.value || null;
+                    populateIncidentWorkplanDropdown(currentWorkplansData, currentSelection);
+                });
+            }
+
+            // Listen for component changes (via TomSelect)
+            incidentModal.addEventListener('shown.bs.modal', function() {
+                const componentSelect = document.getElementById('incident_affected_component_ids');
+                if (componentSelect && componentSelect.tomSelect) {
+                    componentSelect.tomSelect.on('change', function() {
+                        // Re-filter workplan dropdown based on new component selection
+                        const currentSelection = document.getElementById('incidentWorkplanId')?.value || null;
+                        populateIncidentWorkplanDropdown(currentWorkplansData, currentSelection);
+                    });
+                }
+            });
+        }
+    });
 })();
+
+// ----- Create Workplan from Incident -----
+
+// Variable to store source incident ID for workplan creation (module-level, accessible to workplan IIFE)
+let sourceIncidentIdForWorkplan = null;
+
+// Modify workplan form submission to include source_incident_id
+document.addEventListener('DOMContentLoaded', function() {
+    const workplanForm = document.getElementById('workplan_form');
+    if (!workplanForm) return;
+
+    // Intercept form submission to add source_incident_id if present
+    workplanForm.addEventListener('submit', function(e) {
+        if (sourceIncidentIdForWorkplan) {
+            // Check if source_incident_id input already exists
+            let sourceIncidentInput = this.querySelector('input[name="source_incident_id"]');
+
+            if (!sourceIncidentInput) {
+                // Create hidden input for source_incident_id
+                sourceIncidentInput = document.createElement('input');
+                sourceIncidentInput.type = 'hidden';
+                sourceIncidentInput.name = 'source_incident_id';
+                this.appendChild(sourceIncidentInput);
+            }
+
+            // Set the value
+            sourceIncidentInput.value = sourceIncidentIdForWorkplan;
+        }
+    }, true); // Use capture phase to run before other handlers
+});
 
 // Initialize the incident form and set up validation
 function initializeIncidentForm() {
@@ -4255,23 +4529,30 @@ function setupIncidentTableSorting() {
                     cellA = severityOrder[cellA] !== undefined ? severityOrder[cellA] : 999;
                     cellB = severityOrder[cellB] !== undefined ? severityOrder[cellB] : 999;
                     break;
-                    
+
                 case 4: // Incident date column
                 case 5: // Resolution date column
                     // Parse dates, handling "-" for empty dates
                     if (cellA === "-") cellA = asc ? "9999-12-31" : "0000-01-01";
                     if (cellB === "-") cellB = asc ? "9999-12-31" : "0000-01-01";
-                    
+
                     // Compare as strings (YYYY-MM-DD format sorts correctly)
                     break;
-                    
+
                 case 6: // Days open column
                     // Parse as number
                     cellA = parseInt(cellA) || 0;
                     cellB = parseInt(cellB) || 0;
                     break;
+
+                case 7: // Workplan column
+                    // Simple text comparison, case-insensitive
+                    // Treat "-" (no workplan) as empty string to sort at the beginning/end
+                    cellA = cellA === "-" ? "" : cellA.toLowerCase();
+                    cellB = cellB === "-" ? "" : cellB.toLowerCase();
+                    break;
             }
-            
+
             // Compare based on formatted values
             if (typeof cellA === 'number' && typeof cellB === 'number') {
                 return asc ? cellA - cellB : cellB - cellA;
@@ -4340,20 +4621,21 @@ function updateIncidentVisibility() {
                 (status.includes('Resolved') && showResolved)
             );
         }
-        
+
         // Check if row matches search term
         let matchesSearch = true;
         if (searchTerm) {
             const bikeText = row.cells[1].textContent.toLowerCase();
             const componentsText = row.cells[2].textContent.toLowerCase();
             const severityText = row.cells[3].textContent.toLowerCase();
-            
+            const workplanText = row.cells[7].textContent.toLowerCase();
+
             // Get hidden content from data attributes
             const descriptionText = (row.dataset.description || '').toLowerCase();
             const notesText = (row.dataset.notes || '').toLowerCase();
-            
+
             // Include all text fields in the search
-            const rowText = `${bikeText} ${componentsText} ${severityText} ${descriptionText} ${notesText}`;
+            const rowText = `${bikeText} ${componentsText} ${severityText} ${workplanText} ${descriptionText} ${notesText}`;
             matchesSearch = rowText.includes(searchTerm);
         }
         
@@ -4426,10 +4708,12 @@ function setupIncidentSearch() {
     if (!document.getElementById('workplanRecordModal')) {
         return;
     }
-    
+
     // Local variables
     let pendingComponentData = null;
     let isNewWorkplan = false;
+    let isNewWorkplanFromIncident = false;
+    let pendingIncidentData = null;
     let originalWorkplanOptions = null;
     
     // Initialize when the DOM is loaded
@@ -4440,27 +4724,53 @@ function setupIncidentSearch() {
             workplanModal.addEventListener('shown.bs.modal', function() {
                 // console.log("Workplan modal shown, isNewWorkplan:", isNewWorkplan);
                 initializeDatePickers(workplanModal);
-                
-                // If it's a new workplan, we need special handling
-                if (isNewWorkplan) {
+
+                // If it's a new workplan from incident, handle specially
+                if (isNewWorkplanFromIncident && pendingIncidentData) {
+                    initializeComponentSelector(pendingIncidentData);
+
+                    // Set current date after pickers are initialized (normal behavior)
+                    setTimeout(() => {
+                        const now = new Date();
+                        const formattedDate = now.getFullYear() + '-' +
+                            String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                            String(now.getDate()).padStart(2, '0') + ' ' +
+                            String(now.getHours()).padStart(2, '0') + ':' +
+                            String(now.getMinutes()).padStart(2, '0');
+
+                        document.getElementById('due_date').value = formattedDate;
+
+                        // Set bike from incident data
+                        if (pendingIncidentData.bikeId) {
+                            document.getElementById('workplan_affected_bike_id').value = pendingIncidentData.bikeId;
+                        }
+
+                        // Set description from incident data
+                        if (pendingIncidentData.description) {
+                            document.getElementById('workplan_description').value = pendingIncidentData.description;
+                        }
+                    }, 100);
+                }
+                // If it's a regular new workplan, we need special handling
+                else if (isNewWorkplan) {
                     initializeComponentSelector(null);
-                    
+
                     // Set current date after pickers are initialized
                     setTimeout(() => {
                         const now = new Date();
-                        const formattedDate = now.getFullYear() + '-' + 
-                            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                            String(now.getDate()).padStart(2, '0') + ' ' + 
-                            String(now.getHours()).padStart(2, '0') + ':' + 
+                        const formattedDate = now.getFullYear() + '-' +
+                            String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                            String(now.getDate()).padStart(2, '0') + ' ' +
+                            String(now.getHours()).padStart(2, '0') + ':' +
                             String(now.getMinutes()).padStart(2, '0');
-                        
+
                         document.getElementById('due_date').value = formattedDate;
                     }, 100);
                 } else {
                     // For editing workplans
                     initializeComponentSelector(pendingComponentData);
                 }
-                
+
                 // Call the existing form initialization function
                 initializeWorkplanForm();
             });
@@ -4469,8 +4779,11 @@ function setupIncidentSearch() {
             workplanModal.addEventListener('hidden.bs.modal', function() {
                 // console.log("Workplan modal hidden - resetting flags");
                 pendingComponentData = null;
-                isNewWorkplan = false; // This should reset the flag
-                
+                isNewWorkplan = false;
+                isNewWorkplanFromIncident = false;
+                pendingIncidentData = null;
+                sourceIncidentIdForWorkplan = null;
+
                 // Also clear any TomSelect instances to prevent memory leaks
                 const componentSelect = document.getElementById('workplan_affected_component_ids');
                 if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
@@ -4503,7 +4816,7 @@ function setupIncidentSearch() {
                 // Flag as new workplan
                 isNewWorkplan = true;
                 pendingComponentData = null;
-                
+
                 // Reset the form
                 document.getElementById('workplanRecordModalLabel').textContent = 'New workplan';
                 document.getElementById('workplan_form').action = '/add_workplan';
@@ -4517,9 +4830,49 @@ function setupIncidentSearch() {
                     const ts = componentSelect.tomSelect || componentSelect.tomselect;
                     ts.clear();
                 }
-                
+
                 // Show the modal
                 const modal = new bootstrap.Modal(document.getElementById('workplanRecordModal'));
+                modal.show();
+            });
+        });
+
+        // Setup create workplan from incident button
+        document.querySelectorAll('.create-workplan-from-incident-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Get incident data from button
+                const incidentId = this.dataset.incidentId;
+                const incidentAffectedComponents = JSON.parse(this.dataset.incidentAffectedComponents || '[]');
+                const incidentAffectedBikeId = this.dataset.incidentAffectedBikeId;
+                const incidentDescription = this.dataset.description?.replace(/&#10;/g, '\n')?.replace(/&quot;/g, '"') || '';
+
+                // Store incident ID for later use when workplan is created
+                sourceIncidentIdForWorkplan = incidentId;
+
+                // Set flags for workplan from incident
+                isNewWorkplanFromIncident = true;
+                isNewWorkplan = false;
+
+                // Prepare component data in the format expected by initializeComponentSelector
+                pendingIncidentData = {
+                    hasComponents: incidentAffectedComponents.length > 0,
+                    componentIds: incidentAffectedComponents,
+                    bikeId: incidentAffectedBikeId || '',
+                    description: 'Transferred from incident description: ' + incidentDescription
+                };
+
+                // Configure modal for new workplan
+                document.getElementById('workplanRecordModalLabel').textContent = 'New workplan from incident';
+                document.getElementById('workplan_form').action = '/add_workplan';
+                document.getElementById('workplan_form').reset();
+                document.getElementById('workplan_id').value = '';
+                document.getElementById('status_planned').checked = true;
+
+                // Show the modal
+                const modal = new bootstrap.Modal(workplanModal);
                 modal.show();
             });
         });
@@ -4537,9 +4890,9 @@ function setupIncidentSearch() {
         
         // Always start fresh with all options
         componentSelect.innerHTML = originalWorkplanOptions;
-        
-        // Remove retired options if this is a new workplan (before TomSelect sees them)
-        if (isNewWorkplan) {
+
+        // Remove retired options if this is a new workplan or new from incident (before TomSelect sees them)
+        if (isNewWorkplan || isNewWorkplanFromIncident) {
             const retiredOptions = componentSelect.querySelectorAll('option[data-status="Retired"]');
             retiredOptions.forEach(option => option.remove());
         }
@@ -4564,13 +4917,22 @@ function setupIncidentSearch() {
                 },
                 openOnFocus: false,
                 closeAfterSelect: true,
-                onInitialize: function() {                    
-                    // Handle initial component selection for new workplans
-                    const initialComponentId = document.getElementById('initial_workplan_component_id')?.value;
-                    if (initialComponentId && isNewWorkplan) {
+                onInitialize: function() {
+                    // Handle workplan from incident - set components from incident data
+                    if (isNewWorkplanFromIncident && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
                         setTimeout(() => {
-                            this.setValue([initialComponentId]);
-                        }, 100);
+                            this.clear();
+                            this.setValue(pendingData.componentIds);
+                        }, 50);
+                    }
+                    // Handle initial component selection for new workplans
+                    else if (isNewWorkplan) {
+                        const initialComponentId = document.getElementById('initial_workplan_component_id')?.value;
+                        if (initialComponentId) {
+                            setTimeout(() => {
+                                this.setValue([initialComponentId]);
+                            }, 100);
+                        }
                     }
                     // Handle edit mode data
                     else if (!isNewWorkplan && pendingData && pendingData.hasComponents && pendingData.componentIds.length > 0) {
@@ -4579,7 +4941,7 @@ function setupIncidentSearch() {
                             this.setValue(pendingData.componentIds);
                         }, 50);
                     }
-                    
+
                     if (!isNewWorkplan && pendingData && pendingData.formData) {
                         updateFormFields(pendingData.formData);
                     }
@@ -5289,8 +5651,8 @@ function setupWorkplanSearch() {
             componentsInfo.forEach(componentData => {
                 const hasService = componentData.has_service || false;
                 const label = hasService ?
-                    `${componentData.component_name} (Already serviced)` :
-                    componentData.component_name;
+                    `${componentData.component_name} - ${componentData.component_type} (Already serviced in this workplan)` :
+                    `${componentData.component_name} - ${componentData.component_type}`;
 
                 const checkboxHtml = `
                     <div class="form-check mb-2">
@@ -5414,6 +5776,95 @@ function setupWorkplanSearch() {
             document.getElementById('validationModalLabel').textContent = title;
             document.getElementById('validationModalBody').textContent = message;
             validationModal.show();
+        }
+    });
+})();
+
+// Function to handle linking incidents to workplan
+(function() {
+    // Only run this code if we're on the workplan details page
+    if (!document.getElementById('workplan-details')) {
+        return;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const linkIncidentsModal = document.getElementById('linkIncidentsModal');
+        if (!linkIncidentsModal) return;
+
+        const linkIncidentSelect = document.getElementById('linkableIncidentSelect');
+        const linkIncidentSubmitBtn = document.getElementById('linkIncidentSubmitBtn');
+        const noIncidentsWarning = document.getElementById('noIncidentsWarning');
+
+        // Populate modal when "Link incidents" button is clicked
+        const linkIncidentsBtn = document.querySelector('[data-bs-target="#linkIncidentsModal"]');
+        if (linkIncidentsBtn) {
+            linkIncidentsBtn.addEventListener('click', function() {
+                const workplanId = this.dataset.workplanId;
+
+                // Set hidden fields
+                document.getElementById('linkIncidentWorkplanId').value = workplanId;
+                document.getElementById('linkIncidentRedirectUrl').value = `/workplan_details/${workplanId}`;
+
+                // Get linkable incidents from button data attribute
+                const linkableIncidents = JSON.parse(this.dataset.linkableIncidents || '[]');
+
+                // Clear and populate dropdown
+                linkIncidentSelect.innerHTML = '<option value="">Select an incident...</option>';
+
+                if (linkableIncidents.length === 0) {
+                    // No linkable incidents - show warning, disable dropdown and submit button
+                    noIncidentsWarning.style.display = 'block';
+                    linkIncidentSelect.disabled = true;
+                    linkIncidentSubmitBtn.disabled = true;
+                } else {
+                    // Has linkable incidents - hide warning, enable dropdown and submit button
+                    noIncidentsWarning.style.display = 'none';
+                    linkIncidentSelect.disabled = false;
+                    linkIncidentSubmitBtn.disabled = false;
+
+                    // Populate options
+                    linkableIncidents.forEach(([incidentId, displayText]) => {
+                        const option = document.createElement('option');
+                        option.value = incidentId;
+                        option.textContent = displayText;
+                        linkIncidentSelect.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        // Handle form submission
+        if (linkIncidentSubmitBtn) {
+            linkIncidentSubmitBtn.addEventListener('click', function() {
+                const incidentId = linkIncidentSelect.value;
+
+                if (!incidentId) {
+                    alert('Please select an incident to link');
+                    return;
+                }
+
+                // Prepare form data for partial update
+                const formData = new FormData();
+                formData.append('incident_id', incidentId);
+                formData.append('workplan_id', document.getElementById('linkIncidentWorkplanId').value);
+                formData.append('redirect_url', document.getElementById('linkIncidentRedirectUrl').value);
+                formData.append('update_mode', 'partial');
+
+                // Submit to update_incident endpoint
+                fetch('/update_incident_record', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                })
+                .catch(error => {
+                    console.error('Link incident error:', error);
+                    alert('An error occurred while linking the incident. Please try again.');
+                });
+            });
         }
     });
 })();
