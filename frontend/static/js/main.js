@@ -5463,7 +5463,7 @@ function setupWorkplanSearch() {
 }
 
 // ====================================================================================
-// Workplan detail page functions
+// Workplan details page functions
 // ====================================================================================
 
 // Function to handle workplan editing from workplan_details page
