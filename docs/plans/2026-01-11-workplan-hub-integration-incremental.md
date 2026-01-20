@@ -115,10 +115,11 @@ But still, this is an opt-in workflow, so users must be able to work independent
 
 ### modal_complete_workplan.html
 [] Make a modal that allows the user to complete a workplan and associated incidents. A stub for the modal is created, but requires critical review
-[] Include a checkbox that also allows users to close linked incidents. The incidents should have the same close date as the workplan,
+[] Include a checkbox that also allows users to close linked incidents that are open. The incidents should have the same close date as the workplan,
 but resolution notes for incident should be like this: "Closed from workplan with description <"workplan description"> (workplan id: ...)"
 [] Muted text below the checkbox, explaining what it does.
 [] Show toast message when completed
+[] I think we can use much of the same approach here as we did with the link incidents modal. My assumption is that we already have the endpoints needed, just require some modifications in main.py, business_logic.py and probably some js is also needed. Should probably be placed around line 5465 (Workplan details page functions)
 
 *Status:*
 *Testing:* TBD

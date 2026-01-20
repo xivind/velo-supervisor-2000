@@ -1,0 +1,46 @@
+<div class="modal fade" id="completeWorkplanModal" tabindex="-1" aria-labelledby="completeWorkplanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="completeWorkplanModalLabel">Complete workplan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="completeWorkplanForm" method="POST" action="/update_workplan">
+                <div class="modal-body">
+                    <input type="hidden" id="completeWorkplanId" name="workplan_id">
+                    <input type="hidden" id="completeWorkplanDueDate" name="due_date">
+                    <input type="hidden" name="workplan_status" value="Done">
+                    <input type="hidden" id="completeWorkplanSize" name="workplan_size">
+                    <input type="hidden" id="completeWorkplanComponentIds" name="workplan_affected_component_ids">
+                    <input type="hidden" id="completeWorkplanBikeId" name="workplan_affected_bike_id">
+                    <input type="hidden" id="completeWorkplanDescription" name="workplan_description">
+
+                    <div class="mb-3">
+                        <label for="completeWorkplanCompletionDate" class="form-label fw-bold">Completion date</label>
+                        <div class="input-group date-input-group">
+                            <input type="text" class="form-control datepicker-input" id="completeWorkplanCompletionDate" name="completion_date" required>
+                            <span class="input-group-text datepicker-toggle">🗓</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="completeWorkplanCompletionNotes" class="form-label fw-bold">Completion notes</label>
+                        <textarea class="form-control" id="completeWorkplanCompletionNotes" name="completion_notes" rows="3" placeholder="Optional notes about completion"></textarea>
+                    </div>
+                    <div class="mb-3" id="closeIncidentsCheckboxContainer" style="display: none;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="closeLinkedIncidents" name="close_linked_incidents">
+                            <label class="form-check-label" for="closeLinkedIncidents">
+                                Also close all linked open incidents
+                            </label>
+                        </div>
+                        <small class="form-text text-muted">Incidents will be marked as "Resolved" with the same completion date and notes.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Complete workplan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
