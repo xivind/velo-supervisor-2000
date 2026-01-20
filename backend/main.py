@@ -608,7 +608,7 @@ async def update_workplan(workplan_id: str = Form(...),
                           close_linked_incidents: Optional[str] = Form(None)):
     """Endpoint to update a workplan"""
 
-    # Convert checkbox string to boolean (HTML checkbox sends "on" if checked, None if unchecked). Claude: lets discuss a better way?
+    # Convert checkbox string to boolean (HTML checkbox sends "on" if checked, None if unchecked). Claude: lets discuss a better way, also remember all logic goes in business_logic
     close_incidents_bool = close_linked_incidents == "on"
 
     success, message = business_logic.update_workplan(workplan_id,
