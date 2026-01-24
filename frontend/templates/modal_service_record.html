@@ -23,8 +23,11 @@
                         <textarea class="form-control" id="serviceDescription" name="service_description" rows="3" required minlength="5"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="serviceWorkplanId" class="form-label fw-bold">Link to workplan</label>
-                        <select class="form-select" id="serviceWorkplanId" name="workplan_id">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="serviceWorkplanId" class="form-label fw-bold mb-0">Link to workplan</label>
+                            <a href="#" id="serviceViewWorkplanLink" class="text-primary" style="display: none;" target="_blank">View workplan</a>
+                        </div>
+                        <select class="form-select mt-2" id="serviceWorkplanId" name="workplan_id">
                             <option value="">No workplan selected</option>
                             <!-- Workplan options will be populated dynamically -->
                         </select>

@@ -400,7 +400,7 @@
                 </thead>
                 <tbody>
                     {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, checkbox_progress in payload.workplans_data %}
-                        {% if workplan_affected_component_ids and payload.bike_component_data['component_id'] in workplan_affected_component_ids %}
+                        {% if workplan_status == "Planned" and workplan_affected_component_ids and payload.bike_component_data['component_id'] in workplan_affected_component_ids %}
                             <tr role="button" onclick="window.location='/workplan_details/{{ workplan_id }}';">
                                 <td class="text-center">
                                     <div>

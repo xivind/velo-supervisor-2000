@@ -597,19 +597,17 @@ async def add_workplan(due_date: str = Form(...),
 
 @app.post("/update_workplan", response_class=HTMLResponse)
 async def update_workplan(workplan_id: str = Form(...),
-                          due_date: str = Form(...),
-                          workplan_status: str = Form(...),
-                          workplan_size: str = Form(...),
+                          due_date: Optional[str] = Form(None),
+                          workplan_status: Optional[str] = Form(None),
+                          workplan_size: Optional[str] = Form(None),
                           workplan_affected_component_ids: Optional[List[str]] = Form(None),
                           workplan_affected_bike_id: Optional[str] = Form(None),
                           workplan_description: Optional[str] = Form(None),
                           completion_date: Optional[str] = Form(None),
                           completion_notes: Optional[str] = Form(None),
-                          close_linked_incidents: Optional[str] = Form(None)):
-    """Endpoint to update a workplan"""
-
-    # Convert checkbox string to boolean (HTML checkbox sends "on" if checked, None if unchecked). Claude: lets discuss a better way, also remember all logic goes in business_logic
-    close_incidents_bool = close_linked_incidents == "on"
+                          close_linked_incidents: Optional[str] = Form(None),
+                          update_mode: Optional[str] = Form(None)):
+    """Endpoint to update a workplan (supports full or partial updates)"""
 
     success, message = business_logic.update_workplan(workplan_id,
                                                       due_date,
@@ -620,7 +618,8 @@ async def update_workplan(workplan_id: str = Form(...),
                                                       workplan_description,
                                                       completion_date,
                                                       completion_notes,
-                                                      close_incidents_bool)
+                                                      close_linked_incidents,
+                                                      update_mode)
 
     response = RedirectResponse(
         url=f"/workplan_details/{workplan_id}?success={success}&message={message}",

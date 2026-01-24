@@ -160,7 +160,7 @@ class BusinessLogic():
         planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
 
         workplans_data = [get_workplan_data_tuple(workplan, database_manager)
-                          for workplan in database_manager.read_planned_workplans()]
+                          for workplan in database_manager.read_all_workplans()]
 
         component_collection_names, component_collection_data = self.get_component_collection_mapping()
 
@@ -392,7 +392,7 @@ class BusinessLogic():
         planned_workplans = self.process_workplans(database_manager.read_planned_workplans())
 
         workplans_data = [get_workplan_data_tuple(workplan, database_manager)
-                          for workplan in database_manager.read_planned_workplans()]
+                          for workplan in database_manager.read_all_workplans()]
         
         component_collection_names, component_collection_data = self.get_component_collection_mapping()
 
@@ -2729,8 +2729,16 @@ class BusinessLogic():
             workplan_id = workplan_id if workplan_id and workplan_id.strip() else None
 
             if update_mode == "partial":
-                incident_data = {"incident_id": incident_id,
-                                 "workplan_id": workplan_id}
+                incident_data = {"incident_id": incident_id}
+
+                if workplan_id is not None:
+                    incident_data["workplan_id"] = workplan_id
+                if incident_status is not None:
+                    incident_data["incident_status"] = incident_status
+                if resolution_date is not None:
+                    incident_data["resolution_date"] = resolution_date
+                if resolution_notes is not None:
+                    incident_data["resolution_notes"] = resolution_notes
 
             else:
                 incident_affected_bike_id = incident_affected_bike_id if incident_affected_bike_id else None
@@ -2802,55 +2810,66 @@ class BusinessLogic():
         except Exception as error:
             logging.error(f"Error creating workplan with id {workplan_id}: {str(error)}")
             return False, f"Error creating workplan with id {workplan_id}: {str(error)}", None
-        
+
     def update_workplan(self,
                         workplan_id,
-                        due_date,
-                        workplan_status,
-                        workplan_size,
-                        workplan_affected_component_ids,
-                        workplan_affected_bike_id,
-                        workplan_description,
-                        completion_date,
-                        completion_notes,
-                        close_linked_incidents=False):
-        """Method to update workplan"""
+                        due_date=None,
+                        workplan_status=None,
+                        workplan_size=None,
+                        workplan_affected_component_ids=None,
+                        workplan_affected_bike_id=None,
+                        workplan_description=None,
+                        completion_date=None,
+                        completion_notes=None,
+                        close_linked_incidents=None,
+                        update_mode=None):
+        """Method to update workplan (supports full or partial updates)"""
         try:
-            workplan_affected_bike_id = workplan_affected_bike_id if workplan_affected_bike_id else None
-            workplan_description = workplan_description if workplan_description else None
-            completion_date = completion_date if completion_date else None
-            completion_notes = completion_notes if completion_notes else None
+            close_linked_incidents = close_linked_incidents == "on"
 
-            workplan_data = {"workplan_id": workplan_id,
-                             "due_date": due_date,
-                             "workplan_status": workplan_status,
-                             "workplan_size": workplan_size,
-                             "workplan_affected_component_ids": json.dumps(workplan_affected_component_ids) if workplan_affected_component_ids else None,
-                             "workplan_affected_bike_id": workplan_affected_bike_id,
-                             "workplan_description": workplan_description,
-                             "completion_date": completion_date,
-                             "completion_notes": completion_notes}
+            if update_mode == "partial":
+                completion_date = completion_date if completion_date else None
+                completion_notes = completion_notes if completion_notes else None
+
+                workplan_data = {"workplan_id": workplan_id,
+                                 "workplan_status": workplan_status,
+                                 "completion_date": completion_date,
+                                 "completion_notes": completion_notes}
+
+            else:
+                workplan_affected_bike_id = workplan_affected_bike_id if workplan_affected_bike_id else None
+                workplan_description = workplan_description if workplan_description else None
+                completion_date = completion_date if completion_date else None
+                completion_notes = completion_notes if completion_notes else None
+
+                workplan_data = {"workplan_id": workplan_id,
+                                 "due_date": due_date,
+                                 "workplan_status": workplan_status,
+                                 "workplan_size": workplan_size,
+                                 "workplan_affected_component_ids": json.dumps(workplan_affected_component_ids) if workplan_affected_component_ids else None,
+                                 "workplan_affected_bike_id": workplan_affected_bike_id,
+                                 "workplan_description": workplan_description,
+                                 "completion_date": completion_date,
+                                 "completion_notes": completion_notes}
 
             success, message = database_manager.write_workplan(workplan_data)
 
             if success and workplan_status == "Done" and close_linked_incidents and completion_date:
+                workplan = database_manager.read_single_workplan(workplan_id)
+                workplan_description_transfer = workplan.workplan_description if workplan and workplan.workplan_description else "No description provided"
+                incidents_resolution_notes_auto = f"Closed from workplan with description: {workplan_description_transfer} (workplan id: {workplan_id})"
+
                 linked_incidents = database_manager.read_incidents_by_workplan(workplan_id)
 
                 incidents_closed = 0
                 for incident in linked_incidents:
                     if incident.incident_status == "Open":
-                        incident_data = {"incident_id": incident.incident_id,
-                                         "incident_date": incident.incident_date,
-                                         "incident_status": "Resolved",
-                                         "incident_severity": incident.incident_severity,
-                                         "incident_affected_component_ids": incident.incident_affected_component_ids,
-                                         "incident_affected_bike_id": incident.incident_affected_bike_id,
-                                         "incident_description": incident.incident_description,
-                                         "resolution_date": completion_date,
-                                         "resolution_notes": completion_notes,
-                                         "workplan_id": workplan_id}
-
-                        incident_success, incident_message = database_manager.write_incident_record(incident_data)
+                        incident_success, incident_message = self.update_incident_record(incident_id=incident.incident_id,
+                                                                                         incident_status="Resolved",
+                                                                                         resolution_date=completion_date,
+                                                                                         resolution_notes=incidents_resolution_notes_auto,
+                                                                                         update_mode="partial")
+                        
                         if incident_success:
                             incidents_closed += 1
                         else:

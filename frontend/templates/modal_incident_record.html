@@ -73,8 +73,11 @@
 
                     <!-- Workplan link (optional) -->
                     <div class="col-12 mb-3">
-                        <label for="incidentWorkplanId" class="form-label fw-bold">Link to workplan</label>
-                        <select class="form-select" id="incidentWorkplanId" name="workplan_id">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="incidentWorkplanId" class="form-label fw-bold mb-0">Link to workplan</label>
+                            <a href="#" id="incidentViewWorkplanLink" class="text-primary" style="display: none;" target="_blank">View workplan</a>
+                        </div>
+                        <select class="form-select mt-2" id="incidentWorkplanId" name="workplan_id">
                             <option value="">No workplan selected</option>
                             <!-- Workplan options will be populated dynamically -->
                         </select>
