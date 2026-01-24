@@ -30,13 +30,15 @@
     </button>
     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#linkIncidentsModal"
             data-workplan-id="{{ payload.workplan_data.workplan_id }}"
-            data-linkable-incidents='{{ payload.linkable_incidents_data | tojson if payload.linkable_incidents_data else "[]" }}'>
+            data-linkable-incidents='{{ payload.linkable_incidents_data | tojson if payload.linkable_incidents_data else "[]" }}'
+            {% if payload.workplan_data.workplan_status == "Done" %}disabled{% endif %}>
         <span>🚨 Link incident</span>
     </button>
     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createServicesWorkplanModal"
             data-workplan-id="{{ payload.workplan_data.workplan_id }}"
             data-workplan-affected-components='{{ payload.workplan_data.affected_component_ids|tojson if payload.workplan_data.affected_component_ids else "[]" }}'
-            data-workplan-components-info='{{ payload.workplan_components_info|tojson if payload.workplan_components_info else "[]" }}'>
+            data-workplan-components-info='{{ payload.workplan_components_info|tojson if payload.workplan_components_info else "[]" }}'
+            {% if payload.workplan_data.workplan_status == "Done" %}disabled{% endif %}>
         <span>🧑‍🔧 Create services</span>
     </button>
     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#completeWorkplanModal"
@@ -161,7 +163,7 @@
                     <div>
                         <h5 class="card-title mb-2">All components have been serviced</h5>
                         <p class="mb-1">
-                            All components associated with this workplan have services linked to the workplan.
+                            All components associated with this workplan have services linked to the workplan. Choose "Complete workplan" to mark this workplan as done and close any related incidents that are still open.
                         </p>
                     </div>
                 </div>
@@ -171,7 +173,7 @@
 
         {# Incidents table #}
         <div class="small text-secondary mb-2 ms-2">
-            Go to the incidents page to view all incidents and chooe which ones to link to a workplan
+            Go to the incidents page to view all incidents and choose which ones should be linked to this workplan
         </div>
         <div class="card shadow mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">

@@ -5722,7 +5722,7 @@ function setupWorkplanSearch() {
             componentsInfo.forEach(componentData => {
                 const hasService = componentData.has_service || false;
                 const label = hasService ?
-                    `${componentData.component_name} - ${componentData.component_type} (Already serviced in this workplan)` :
+                    `${componentData.component_name} - ${componentData.component_type} (already serviced in this workplan)` :
                     `${componentData.component_name} - ${componentData.component_type}`;
 
                 const checkboxHtml = `
