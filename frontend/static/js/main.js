@@ -1680,6 +1680,7 @@ window.forceCloseLoadingModal = function() {
 
                 newComponentTomSelect.on('change', function(value) {
                     checkComponentHealth(value);
+                    updateQuickSwapCollectionWarning();
                 });
             }
 
@@ -1707,6 +1708,7 @@ window.forceCloseLoadingModal = function() {
             document.getElementById('create_new_form').classList.add('d-none');
             document.getElementById('component_health_warnings').innerHTML = '';
             document.getElementById('swap-bike-context').classList.add('d-none');
+            document.getElementById('quick-swap-collection-warning').classList.add('d-none');
         });
 
         document.querySelectorAll('.quick-swap-btn').forEach(button => {
@@ -1766,6 +1768,8 @@ window.forceCloseLoadingModal = function() {
                         }
                     }
                 }
+                // Update collection warning when creating new component
+                updateQuickSwapCollectionWarning();
             } else {
                 // Clear form when unchecking
                 createNewForm.classList.add('d-none');
@@ -1781,6 +1785,8 @@ window.forceCloseLoadingModal = function() {
                 if (newComponentTomSelect) {
                     newComponentTomSelect.enable();
                 }
+                // Update collection warning when re-enabling component select
+                updateQuickSwapCollectionWarning();
             }
         });
 
@@ -1812,6 +1818,9 @@ window.forceCloseLoadingModal = function() {
         } else {
             bikeContextDiv.classList.add('d-none');
         }
+
+        // Check and update collection warning
+        updateQuickSwapCollectionWarning();
 
         const fateNotInstalled = document.getElementById('fate_not_installed');
 
@@ -1867,6 +1876,54 @@ window.forceCloseLoadingModal = function() {
         } else {
             warningDiv.classList.add('d-none');
             newComponentTomSelect.enable();
+        }
+    }
+
+    function updateQuickSwapCollectionWarning() {
+        const warningBanner = document.getElementById('quick-swap-collection-warning');
+        const warningMessage = document.getElementById('quick-swap-collection-message');
+        const oldComponentSelect = document.getElementById('old_component_id');
+        const newComponentSelect = document.getElementById('new_component_id');
+        const createNewCheckbox = document.getElementById('create_new_component');
+
+        if (!warningBanner || !warningMessage) return;
+
+        const oldComponentId = oldComponentSelect?.value;
+        if (!oldComponentId) {
+            warningBanner.classList.add('d-none');
+            return;
+        }
+
+        const oldOption = oldComponentSelect.querySelector(`option[value="${oldComponentId}"]`);
+        const oldCollectionName = oldOption?.dataset.collectionName || '';
+
+        // Check new component only if not creating new
+        let newCollectionName = '';
+        if (!createNewCheckbox?.checked) {
+            const newComponentId = newComponentSelect?.value;
+            if (newComponentId) {
+                const newOption = newComponentSelect.querySelector(`option[value="${newComponentId}"]`);
+                newCollectionName = newOption?.dataset.collectionName || '';
+            }
+        }
+
+        // Build warning message
+        const collections = [];
+        if (oldCollectionName) {
+            collections.push(`component being swapped out is part of collection "${oldCollectionName}"`);
+        }
+        if (newCollectionName) {
+            collections.push(`component being swapped to is part of collection "${newCollectionName}"`);
+        }
+
+        if (collections.length > 0) {
+            const message = collections.length === 1
+                ? `The ${collections[0]}. Swapping this component will bring it out of sync with the collection.`
+                : `The ${collections.join(' and the ')}. Swapping these components will bring them out of sync with their collections.`;
+            warningMessage.textContent = message;
+            warningBanner.classList.remove('d-none');
+        } else {
+            warningBanner.classList.add('d-none');
         }
     }
 

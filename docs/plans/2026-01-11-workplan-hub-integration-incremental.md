@@ -1,6 +1,6 @@
 # Workplan Hub Integration - Incremental Implementation
 
-**Date:** 2026-01-25 (CSS refactoring: Moved all inline styles to CSS classes in custom_styles.css, 22 HTML files updated)
+**Date:** 2026-01-25 (Quick swap collection warning: Added collection warning banner to quick swap modal, similar to component status modal)
 
 ---
 
@@ -232,7 +232,28 @@ But still, this is an opt-in workflow, so users must be able to work independent
 - JavaScript updates: main.js (11 elements updated to use classList: collection-warning-banner, create_new_form, no_matching_components_warning, collection_preview, serviceViewWorkplanLink, incidentViewWorkplanLink, multipleSelectionBanner, noIncidentsWarning, workplan_edit_mode, workplan_preview_mode, swap-bike-context)
 
 *Status:* Complete - all inline styles moved to CSS classes, JavaScript updated to use classList (11 elements), guideline "all styling goes in custom_styles.css" now followed
-*Testing:* TBD - need to retest: workplan description preview/edit toggle, quick swap bike context display
+*Testing:* Complete - workplan description preview/edit toggle, quick swap bike context display verified
+
+### Quick Swap Collection Warning
+[X] Add collection warning banner to quick swap modal (similar to component status modal)
+[X] Show warning when old component is part of a collection
+[X] Show warning when new component is part of a collection
+[X] Handle "Create new component" scenario (hides new component collection warning)
+[X] Update warning dynamically as user selects components
+
+**Implementation details:**
+- Added warning banner HTML to modal_quick_swap.html
+- Added data-collection-name attribute to component dropdowns in modal
+- Created updateQuickSwapCollectionWarning() function in main.js
+- Called from: handleOldComponentChange(), newComponentTomSelect onChange, create_new_component change events
+- Banner reset when modal closes
+
+**Warning message formats:**
+- Single component: "The component being swapped out is part of collection 'X'. Swapping this component will bring it out of sync with the collection."
+- Both components: "The component being swapped out is part of collection 'X' and the component being swapped to is part of collection 'Y'. Swapping these components will bring them out of sync with their collections."
+
+*Status:* Complete - collection warning banner implemented
+*Testing:* TBD - verify warning appears for collection components in quick swap
 
 ---
 
