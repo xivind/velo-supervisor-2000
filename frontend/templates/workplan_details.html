@@ -25,7 +25,9 @@
             data-workplan-affected-bike-id="{{ payload.workplan_data.affected_bike_id if payload.workplan_data.affected_bike_id else '' }}"
             data-description="{{ payload.workplan_data.description|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') if payload.workplan_data.description else '' }}"
             data-completion-date="{{ payload.workplan_data.completion_date if payload.workplan_data.completion_date else '' }}"
-            data-completion-notes="{{ payload.workplan_data.completion_notes|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') if payload.workplan_data.completion_notes else '' }}">
+            data-completion-notes="{{ payload.workplan_data.completion_notes|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') if payload.workplan_data.completion_notes else '' }}"
+            data-linked-incidents-count="{{ payload.incidents_data|length if payload.incidents_data else 0 }}"
+            data-linked-services-count="{{ payload.services_data|length if payload.services_data else 0 }}">
         <span>✍ Edit workplan</span>
     </button>
     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#linkIncidentsModal"

@@ -4968,6 +4968,12 @@ function setupIncidentSearch() {
                 document.getElementById('workplan_id').value = '';
                 document.getElementById('status_planned').checked = true;
 
+                // Hide warning banner (only shown for editing existing workplans)
+                const warningBanner = document.getElementById('workplan_edit_warning');
+                if (warningBanner) {
+                    warningBanner.classList.add('d-none');
+                }
+
                 // Clear TomSelect if it's already initialized
                 const componentSelect = document.getElementById('workplan_affected_component_ids');
                 if (componentSelect && (componentSelect.tomSelect || componentSelect.tomselect)) {
@@ -5014,6 +5020,12 @@ function setupIncidentSearch() {
                 document.getElementById('workplan_form').reset();
                 document.getElementById('workplan_id').value = '';
                 document.getElementById('status_planned').checked = true;
+
+                // Hide warning banner (only shown for editing existing workplans)
+                const warningBanner = document.getElementById('workplan_edit_warning');
+                if (warningBanner) {
+                    warningBanner.classList.add('d-none');
+                }
 
                 // Show the modal
                 const modal = new bootstrap.Modal(workplanModal);
@@ -5643,6 +5655,27 @@ function setupWorkplanSearch() {
                 // Configure modal for editing
                 document.getElementById('workplanRecordModalLabel').textContent = 'Edit workplan';
                 document.getElementById('workplan_form').action = '/update_workplan';
+
+                // Show/hide warning banner based on linked incidents/services
+                const incidentCount = parseInt(this.dataset.linkedIncidentsCount) || 0;
+                const serviceCount = parseInt(this.dataset.linkedServicesCount) || 0;
+                const warningBanner = document.getElementById('workplan_edit_warning');
+
+                if (incidentCount > 0 || serviceCount > 0) {
+                    // Build warning text
+                    const parts = [];
+                    if (incidentCount > 0) {
+                        parts.push(`${incidentCount} linked incident${incidentCount !== 1 ? 's' : ''}`);
+                    }
+                    if (serviceCount > 0) {
+                        parts.push(`${serviceCount} linked service${serviceCount !== 1 ? 's' : ''}`);
+                    }
+
+                    document.getElementById('warning_linked_items').textContent = parts.join(' and ');
+                    warningBanner.classList.remove('d-none');
+                } else {
+                    warningBanner.classList.add('d-none');
+                }
 
                 // Show the modal (form will be populated in shown.bs.modal event)
                 const modal = new bootstrap.Modal(workplanModal);
