@@ -3683,9 +3683,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const workplanId = workplan[0];
             const workplanStatus = workplan[2];
             const workplanAffectedComponentIds = workplan[4] || [];
-            const affectedComponentNames = workplan[5];
-            const affectedBikeName = workplan[7];
-            const workplanDescription = workplan[8];
+            const workplanTitle = workplan[12]; // Pre-generated title with markdown stripped
 
             // Always include the currently selected workplan (even if it's "Done")
             const isSelected = selectedWorkplanId && workplanId === selectedWorkplanId;
@@ -3703,28 +3701,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Generate workplan title
-            let title = '';
-            if (affectedComponentNames && affectedComponentNames[0] !== 'Not assigned') {
-                title = affectedComponentNames[0];
-                if (affectedComponentNames.length > 1) {
-                    title += ` (+${affectedComponentNames.length - 1} more)`;
-                }
-            }
-            if (workplanDescription && workplanDescription !== 'None') {
-                const desc = workplanDescription.length > 30 ? workplanDescription.substring(0, 30) + '...' : workplanDescription;
-                title = title ? `${title} - ${desc}` : desc;
-            }
-            if (affectedBikeName && affectedBikeName !== 'Not assigned') {
-                title += ` (${affectedBikeName})`;
-            }
-            if (!title) {
-                title = 'No workplan metadata';
-            }
-
+            // Use pre-generated title (already has markdown stripped)
             const option = document.createElement('option');
             option.value = workplanId;
-            option.textContent = title;
+            option.textContent = workplanTitle;
             if (isSelected) {
                 option.selected = true;
             }
@@ -4168,10 +4148,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const workplanId = workplan[0];
             const workplanStatus = workplan[2];
             const workplanAffectedComponentIds = workplan[4] || [];
-            const affectedComponentNames = workplan[5];
             const workplanAffectedBikeId = workplan[6];
-            const affectedBikeName = workplan[7];
-            const workplanDescription = workplan[8];
+            const workplanTitle = workplan[12]; // Pre-generated title with markdown stripped
 
             // Always include the currently selected workplan (even if it's "Done")
             const isSelected = selectedWorkplanId && workplanId === selectedWorkplanId;
@@ -4209,28 +4187,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Generate workplan title (similar to backend)
-            let title = '';
-            if (affectedComponentNames && affectedComponentNames[0] !== 'Not assigned') {
-                title = affectedComponentNames[0];
-                if (affectedComponentNames.length > 1) {
-                    title += ` (+${affectedComponentNames.length - 1} more)`;
-                }
-            }
-            if (workplanDescription && workplanDescription !== 'None') {
-                const desc = workplanDescription.length > 30 ? workplanDescription.substring(0, 30) + '...' : workplanDescription;
-                title = title ? `${title} - ${desc}` : desc;
-            }
-            if (affectedBikeName && affectedBikeName !== 'Not assigned') {
-                title += ` (${affectedBikeName})`;
-            }
-            if (!title) {
-                title = 'No workplan metadata';
-            }
-
+            // Use pre-generated title (already has markdown stripped)
             const option = document.createElement('option');
             option.value = workplanId;
-            option.textContent = title;
+            option.textContent = workplanTitle;
             if (selectedWorkplanId && workplanId === selectedWorkplanId) {
                 option.selected = true;
             }
