@@ -1775,16 +1775,32 @@ window.forceCloseLoadingModal = function() {
                 createNewForm.classList.add('d-none');
                 document.getElementById('new_component_name').value = '';
                 document.getElementById('new_component_type').value = '';
+                document.getElementById('new_expected_lifetime').value = '';
                 document.getElementById('new_service_interval').value = '';
-                document.getElementById('new_lifetime_expected').value = '';
+                document.getElementById('new_threshold_km').value = '';
+                document.getElementById('new_lifetime_expected_days').value = '';
+                document.getElementById('new_service_interval_days').value = '';
+                document.getElementById('new_threshold_days').value = '';
                 document.getElementById('new_cost').value = '';
                 document.getElementById('new_offset').value = '';
                 document.getElementById('new_notes').value = '';
 
-                newComponentSelect.disabled = false;
-                if (newComponentTomSelect) {
-                    newComponentTomSelect.enable();
+                // Re-apply correct dropdown state based on available components
+                const oldComponentSelect = document.getElementById('old_component_id');
+                const selectedValue = oldComponentSelect.value;
+                if (selectedValue) {
+                    const oldOption = oldComponentSelect.querySelector(`option[value="${selectedValue}"]`);
+                    if (oldOption && oldOption.dataset.type) {
+                        filterNewComponentsByType(oldOption.dataset.type);
+                    }
+                } else {
+                    // If no old component selected, enable by default
+                    newComponentSelect.disabled = false;
+                    if (newComponentTomSelect) {
+                        newComponentTomSelect.enable();
+                    }
                 }
+
                 // Update collection warning when re-enabling component select
                 updateQuickSwapCollectionWarning();
             }
