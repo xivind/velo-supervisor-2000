@@ -53,7 +53,7 @@
             <tbody>
                 {% if payload.workplans_data %}
                     {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, checkbox_progress in payload.workplans_data %}
-                        <tr class="clickable-row" style="cursor: pointer;" data-href="/workplan_details/{{ workplan_id }}" data-description="{{ workplan_description }}" data-notes="{{ completion_notes }}">
+                        <tr class="clickable-row clickable" data-href="/workplan_details/{{ workplan_id }}" data-description="{{ workplan_description }}" data-notes="{{ completion_notes }}">
                             <td class="text-center">
                                 {% if elapsed_days > 0 and workplan_status != "Done" %}
                                     <span class="badge rounded-pill status-attention fixed-width-badge-workplan-status">Overdue</span>

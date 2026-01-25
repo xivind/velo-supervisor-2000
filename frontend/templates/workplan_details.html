@@ -57,9 +57,9 @@
 {# Legend for workplan status colors #}
 <div class="d-flex justify-content-start align-items-center mb-2 ms-2">
     <div class="small text-secondary">
-        <span class="me-3"><span class="badge status-healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Workplan planned</span>
-        <span class="me-3"><span class="badge status-attention" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Workplan overdue</span>
-        <span class="me-3"><span class="badge status-empty" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Workplan done</span>
+        <span class="me-3"><span class="status-healthy legend-badge"></span> Workplan planned</span>
+        <span class="me-3"><span class="status-attention legend-badge"></span> Workplan overdue</span>
+        <span class="me-3"><span class="status-empty legend-badge"></span> Workplan done</span>
     </div>
 </div>
 
@@ -93,20 +93,20 @@
             </div>
             <div class="card-body">
                 <div class="d-flex flex-wrap gap-2">
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                         📅 <strong>Due date:</strong> {{ payload.workplan_data.due_date.split(' ')[0] if payload.workplan_data.due_date else 'Not set' }}
                         {% if payload.workplan_data.elapsed_days > 0 and payload.workplan_data.workplan_status != "Done" %}
                         ({{ payload.workplan_data.elapsed_days }} days overdue)
                         {% endif %}
                     </span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                         {% if payload.workplan_data.checkbox_progress %}
                         📊 <strong>Progress:</strong> {{ payload.workplan_data.checkbox_progress.checked }}/{{ payload.workplan_data.checkbox_progress.total }} tasks completed
                         {% else %}
                         📊 <strong>Progress:</strong> Explicit tasks not defined
                         {% endif %}
                     </span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                         🚴 <strong>Affected bike:</strong>
                         {% if payload.workplan_data.affected_bike_name and payload.workplan_data.affected_bike_name != "Not assigned" %}
                             <a href="/bike_details/{{ payload.workplan_data.affected_bike_id }}" class="text-decoration-none text-reset">{{ payload.workplan_data.affected_bike_name }}</a>
@@ -114,7 +114,7 @@
                             Not assigned
                         {% endif %}
                     </span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                         ⚙ <strong>Affected components:</strong>
                         {% if payload.workplan_data.affected_component_ids %}
                             {% for component_id in payload.workplan_data.affected_component_ids %}
@@ -130,17 +130,17 @@
                         {% endif %}
                     </span>
                     {% if payload.workplan_data.description %}
-                        <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                        <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                             📝 <strong>Description:</strong> {{ payload.workplan_data.description }}
                         </span>
                     {% endif %}
                     {% if payload.workplan_data.workplan_status == "Done" and payload.workplan_data.completion_date %}
-                        <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                        <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                             ✅ <strong>Completion date:</strong> {{ payload.workplan_data.completion_date.split(' ')[0] }}
                         </span>
                     {% endif %}
                     {% if payload.workplan_data.workplan_status == "Done" and payload.workplan_data.completion_notes %}
-                        <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                        <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                             📄 <strong>Completion notes:</strong> {{ payload.workplan_data.completion_notes }}
                         </span>
                     {% endif %}

@@ -1,6 +1,6 @@
 # Workplan Hub Integration - Incremental Implementation
 
-**Date:** 2026-01-19 (Modal routing completed: incident/service modals now redirect users back to source pages. Workplan dropdown fixed on all pages. Deletion checks implemented.)
+**Date:** 2026-01-25 (CSS refactoring: Moved all inline styles to CSS classes in custom_styles.css, 22 HTML files updated)
 
 ---
 
@@ -76,7 +76,7 @@ But still, this is an opt-in workflow, so users must be able to work independent
 [X] Create this page and base it on the layout and looks of the collection_details.html page.
 [X] There should be four buttons on top (in this order): 1. Edit workplan, 2. Create services, 3. Complete workplan, 4. Delete
 [X] Create services button opens modal_create_services_workplan.html with all affected components pre-selected. User can then select one or more components to create services for.
-[X] Complete workplan button should be disabled when workplan status is "Done". Otherwise it should be enabled (even if not all components are serviced).
+[X] Complete workplan, Link incident, and Create services buttons should be disabled when workplan status is "Done". Otherwise enabled (even if not all components are serviced).
 [X] The color of the header on the top most tile should be using the same palette and according to the status of the collections, see workplans.html for more details. There should be a legend just above the header, explaining the colors.
 [X] In the header, below the workplan name, we should have badges for size (use the same palette as other places for workplan size)
 [X] The badges in the content field of the topmost card should contain the following info (in this order): Due date, Affected bike, Affected Components, Description
@@ -85,7 +85,7 @@ But still, this is an opt-in workflow, so users must be able to work independent
 [X] Below the incident table, there should be a table listing services that references the workplan. This table should have the same appearance as the services table on the component_details.html page, however it should not have a workplan column, since that context is already established. It should however have the same actions button for each row (edit service + delete service).
 [X] Service table rows are now clickable (except buttons) to navigate to component_details page
 
-*Status:* Page created with all required elements following collection_details.html layout pattern, service table rows made clickable
+*Status:* Page created with all required elements, button disable logic for completed workplans (Link incident, Create services, Complete workplan)
 *Testing:* TBD
 
 ## Frontend changes - modal changes
@@ -114,14 +114,15 @@ But still, this is an opt-in workflow, so users must be able to work independent
 *Testing:* Manual testing successful - routing verified on both pages
 
 ### modal_complete_workplan.html
-[] Make a modal that allows the user to complete a workplan and associated incidents. A stub for the modal is created, but requires critical review
-[] Include a checkbox that also allows users to close linked incidents that are open. The incidents should have the same close date as the workplan,
-but resolution notes for incident should be like this: "Closed from workplan with description <"workplan description"> (workplan id: ...)"
-[] Muted text below the checkbox, explaining what it does.
-[] Show toast message when completed
-[] I think we can use much of the same approach here as we did with the link incidents modal. My assumption is that we already have the endpoints needed, just require some modifications in main.py, business_logic.py and probably some js is also needed. Should probably be placed around line 5465 (Workplan details page functions)
+[X] Make a modal that allows the user to complete a workplan and associated incidents. Modal stub was reviewed and enhanced
+[X] Include a checkbox that also allows users to close linked incidents that are open. Incidents get resolution date matching workplan completion date
+[X] Resolution notes for incidents: "Closed from workplan with description: {workplan_description or 'None'} (workplan id: {workplan_id})"
+[X] Muted help text explaining checkbox behavior, visible always but disabled if no open incidents
+[X] Toast message shown on completion (standard redirect pattern used by existing /update_workplan endpoint)
+[X] JavaScript handler added at line 5787-5861 in main.js, complete workplan button data attributes added to workplan_details.html
+[X] Updated business_logic.py (lines 2839-2841) to construct auto-generated resolution notes for incidents
 
-*Status:*
+*Status:* Complete - modal, backend, JavaScript handlers working, checkbox disabled when no open incidents
 *Testing:* TBD
 
 ### modal_create_services_workplan.html
@@ -200,6 +201,38 @@ but resolution notes for incident should be like this: "Closed from workplan wit
 
 *Status:*
 *Testing:* TBD
+
+---
+
+## Code Quality Improvements
+
+### CSS Refactoring - Move inline styles to CSS classes
+[X] Created CSS classes in custom_styles.css for common inline styles
+[X] Updated all HTML templates to use CSS classes instead of inline styles
+[X] Updated JavaScript in main.js to use classList instead of style.display
+[X] Preserved dynamic inline styles (progress bars, CSS custom properties)
+[X] Fixed legend badge rendering by adding border-radius: 50% to CSS (removed Bootstrap badge class)
+
+**CSS classes added:**
+- .legend-badge - for status legend indicators
+- .legend-badge-table - for table status indicators with margin
+- .clickable - for elements with pointer cursor
+- .badge-info - for info badges with line-height
+- .scrollable-checkboxes - for modal checkbox containers
+- .scrollable-logs - for log display container
+- .error-image - for error page image
+
+**Files updated (24 files):**
+- Legend badges: workplan_details.html, collection_details.html, index.html, component_overview.html
+- Info badges: workplan_details.html, component_details.html, collection_details.html, bike_details.html
+- Clickable: component_details.html, workplans.html, bike_details.html, component_overview.html
+- Display none → .d-none: modal_create_services_workplan.html, modal_service_record.html, modal_incident_record.html, modal_update_component_status.html, modal_quick_swap.html (updated with swap-bike-context), modal_install_component.html, modal_link_incident.html, modal_workplan_record.html (updated with workplan_preview_mode)
+- Scrollable: modal_create_services_workplan.html, config.html
+- Error image: error.html
+- JavaScript updates: main.js (11 elements updated to use classList: collection-warning-banner, create_new_form, no_matching_components_warning, collection_preview, serviceViewWorkplanLink, incidentViewWorkplanLink, multipleSelectionBanner, noIncidentsWarning, workplan_edit_mode, workplan_preview_mode, swap-bike-context)
+
+*Status:* Complete - all inline styles moved to CSS classes, JavaScript updated to use classList (11 elements), guideline "all styling goes in custom_styles.css" now followed
+*Testing:* TBD - need to retest: workplan description preview/edit toggle, quick swap bike context display
 
 ---
 

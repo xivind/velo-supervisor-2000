@@ -199,7 +199,7 @@
                     <span>🕰 {% if payload.component_history_data|length <= 1 %}Not previously installed{% else %}Previously installed at <a href="/bike_details/{{ payload.component_history_data[1][3] }}" class="text-decoration-none text-reset">{{ payload.component_history_data[1][4] }}</a>{% endif %}</span>
                     <span>📦 {% if payload.bike_component_data['component_id'] in payload.component_collection_names %}<span role="button"
                           onclick="window.location.href='/collection_details/{{ payload.component_collection_data[payload.bike_component_data['component_id']][0] }}';"
-                          style="cursor: pointer;">Part of collection {{ payload.component_collection_names[payload.bike_component_data['component_id']] }}</span>{% else %}Not part of any collection{% endif %}</span>
+                          class="clickable">Part of collection {{ payload.component_collection_names[payload.bike_component_data['component_id']] }}</span>{% else %}Not part of any collection{% endif %}</span>
                 </div>
             </div>
             <div class="card-body">
@@ -210,14 +210,14 @@
                 </div>
                 {% endif %}
                 <div class="d-flex flex-wrap gap-2">
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">🏷️ <strong>Type:</strong> {{ payload.bike_component_data['component_type'] }}</span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📍 <strong>Total mileage:</strong> {{ payload.bike_component_data['component_distance'] }} km</span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📅 {% if payload.bike_component_data['component_age_days'] is not none %}<strong>Component age:</strong> {{ payload.bike_component_data['component_age_days'] }} days{% else %}Component has never been installed{% endif %}</span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">🔧 <strong>Last service:</strong> {{ payload.days_since_service }}</span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">🔄 <strong>Last status change:</strong> {{ payload.bike_component_data['updated_date'].split(' ')[0] }}</span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">💰 <strong>Cost:</strong> {{ payload.bike_component_data['cost'] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">🏷️ <strong>Type:</strong> {{ payload.bike_component_data['component_type'] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">📍 <strong>Total mileage:</strong> {{ payload.bike_component_data['component_distance'] }} km</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">📅 {% if payload.bike_component_data['component_age_days'] is not none %}<strong>Component age:</strong> {{ payload.bike_component_data['component_age_days'] }} days{% else %}Component has never been installed{% endif %}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">🔧 <strong>Last service:</strong> {{ payload.days_since_service }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">🔄 <strong>Last status change:</strong> {{ payload.bike_component_data['updated_date'].split(' ')[0] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">💰 <strong>Cost:</strong> {{ payload.bike_component_data['cost'] }}</span>
                     {% if payload.bike_component_data['component_notes'] %}
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">📝 <strong>Notes:</strong> {{ payload.bike_component_data['component_notes'] }}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">📝 <strong>Notes:</strong> {{ payload.bike_component_data['component_notes'] }}</span>
                     {% endif %}
                 </div>
                 <hr/>

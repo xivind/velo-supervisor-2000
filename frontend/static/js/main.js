@@ -170,14 +170,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (containsMarkdown(text)) {
                     // Start in preview mode
                     renderPreview();
-                    editMode.style.display = 'none';
-                    previewMode.style.display = 'block';
+                    editMode.classList.add('d-none');
+                    previewMode.classList.remove('d-none');
                     toggleBtn.innerHTML = '✏️ Edit description';
                     isPreviewMode = true;
                 } else {
                     // Start in edit mode
-                    editMode.style.display = 'block';
-                    previewMode.style.display = 'none';
+                    editMode.classList.remove('d-none');
+                    previewMode.classList.add('d-none');
                     toggleBtn.innerHTML = '👁️ Preview';
                     isPreviewMode = false;
                     textarea.focus();
@@ -233,13 +233,13 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleBtn.addEventListener('click', function() {
                 if (!isPreviewMode) {
                     renderPreview();
-                    editMode.style.display = 'none';
-                    previewMode.style.display = 'block';
+                    editMode.classList.add('d-none');
+                    previewMode.classList.remove('d-none');
                     toggleBtn.innerHTML = '✏️ Edit description';
                     isPreviewMode = true;
                 } else {
-                    editMode.style.display = 'block';
-                    previewMode.style.display = 'none';
+                    editMode.classList.remove('d-none');
+                    previewMode.classList.add('d-none');
                     toggleBtn.innerHTML = '👁️ Preview';
                     isPreviewMode = false;
                     textarea.focus();
@@ -888,9 +888,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (collectionWarningBanner && collectionWarningCollectionName) {
                     if (collectionName) {
                         collectionWarningCollectionName.textContent = collectionName;
-                        collectionWarningBanner.style.display = 'block';
+                        collectionWarningBanner.classList.remove('d-none');
                     } else {
-                        collectionWarningBanner.style.display = 'none';
+                        collectionWarningBanner.classList.add('d-none');
                     }
                 }
 
@@ -1704,9 +1704,9 @@ window.forceCloseLoadingModal = function() {
 
             selectedOldComponent = null;
             document.getElementById('quick_swap_form').reset();
-            document.getElementById('create_new_form').style.display = 'none';
+            document.getElementById('create_new_form').classList.add('d-none');
             document.getElementById('component_health_warnings').innerHTML = '';
-            document.getElementById('swap-bike-context').style.display = 'none';
+            document.getElementById('swap-bike-context').classList.add('d-none');
         });
 
         document.querySelectorAll('.quick-swap-btn').forEach(button => {
@@ -1727,7 +1727,7 @@ window.forceCloseLoadingModal = function() {
             const newComponentSelect = document.getElementById('new_component_id');
 
             if (this.checked) {
-                createNewForm.style.display = 'block';
+                createNewForm.classList.remove('d-none');
                 newComponentSelect.disabled = true;
                 if (newComponentTomSelect) {
                     newComponentTomSelect.clear();
@@ -1768,7 +1768,7 @@ window.forceCloseLoadingModal = function() {
                 }
             } else {
                 // Clear form when unchecking
-                createNewForm.style.display = 'none';
+                createNewForm.classList.add('d-none');
                 document.getElementById('new_component_name').value = '';
                 document.getElementById('new_component_type').value = '';
                 document.getElementById('new_service_interval').value = '';
@@ -1808,9 +1808,9 @@ window.forceCloseLoadingModal = function() {
 
         if (bikeName && bikeName !== 'Not assigned') {
             bikeNameSpan.textContent = bikeName;
-            bikeContextDiv.style.display = 'block';
+            bikeContextDiv.classList.remove('d-none');
         } else {
-            bikeContextDiv.style.display = 'none';
+            bikeContextDiv.classList.add('d-none');
         }
 
         const fateNotInstalled = document.getElementById('fate_not_installed');
@@ -1862,10 +1862,10 @@ window.forceCloseLoadingModal = function() {
 
         // Show warning and disable dropdown if no matching components found
         if (matchingComponentsCount === 0) {
-            warningDiv.style.display = 'block';
+            warningDiv.classList.remove('d-none');
             newComponentTomSelect.disable();
         } else {
-            warningDiv.style.display = 'none';
+            warningDiv.classList.add('d-none');
             newComponentTomSelect.enable();
         }
     }
@@ -2983,7 +2983,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear form fields
         document.getElementById('install_component_id').value = '';
         document.getElementById('collection_select').value = '';
-        document.getElementById('collection_preview').style.display = 'none';
+        document.getElementById('collection_preview').classList.add('d-none');
 
         // Reset to component mode
         currentMode = 'component';
@@ -2999,7 +2999,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentMode = 'component';
                 // Clear collection selection
                 document.getElementById('collection_select').value = '';
-                document.getElementById('collection_preview').style.display = 'none';
+                document.getElementById('collection_preview').classList.add('d-none');
             } else if (targetTab === '#collection-mode') {
                 currentMode = 'collection';
                 // Clear component selection
@@ -3038,9 +3038,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 previewList.innerHTML = `<li>${componentCount} components will be installed</li>`;
             }
 
-            document.getElementById('collection_preview').style.display = 'block';
+            document.getElementById('collection_preview').classList.remove('d-none');
         } else {
-            document.getElementById('collection_preview').style.display = 'none';
+            document.getElementById('collection_preview').classList.add('d-none');
         }
     });
 
@@ -3416,9 +3416,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (collectionWarningBanner && collectionWarningCollectionName) {
                         if (collectionName) {
                             collectionWarningCollectionName.textContent = collectionName;
-                            collectionWarningBanner.style.display = 'block';
+                            collectionWarningBanner.classList.remove('d-none');
                         } else {
-                            collectionWarningBanner.style.display = 'none';
+                            collectionWarningBanner.classList.add('d-none');
                         }
                     }
                 }
@@ -3685,7 +3685,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide view workplan link for new services
         const viewLink = document.getElementById('serviceViewWorkplanLink');
         if (viewLink) {
-            viewLink.style.display = 'none';
+            viewLink.classList.add('d-none');
         }
 
         // Set current date/time by default
@@ -3739,9 +3739,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (viewLink && workplanId && !isOnWorkplanDetailsPage) {
                 viewLink.href = `/workplan_details/${workplanId}`;
-                viewLink.style.display = 'inline';
+                viewLink.classList.remove('d-none');
             } else if (viewLink) {
-                viewLink.style.display = 'none';
+                viewLink.classList.add('d-none');
             }
 
             serviceModal.show();
@@ -3754,7 +3754,7 @@ document.addEventListener('DOMContentLoaded', function() {
         serviceWorkplanSelect.addEventListener('change', function() {
             const viewLink = document.getElementById('serviceViewWorkplanLink');
             if (viewLink) {
-                viewLink.style.display = 'none';
+                viewLink.classList.add('d-none');
             }
         });
     }
@@ -4228,7 +4228,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 workplanSelect.addEventListener('change', function() {
                     const viewLink = document.getElementById('incidentViewWorkplanLink');
                     if (viewLink) {
-                        viewLink.style.display = 'none';
+                        viewLink.classList.add('d-none');
                     }
                 });
             }
@@ -4244,9 +4244,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (viewLink && workplanId && !isOnWorkplanDetailsPage) {
                     viewLink.href = `/workplan_details/${workplanId}`;
-                    viewLink.style.display = 'inline';
+                    viewLink.classList.remove('d-none');
                 } else if (viewLink) {
-                    viewLink.style.display = 'none';
+                    viewLink.classList.add('d-none');
                 }
             });
         });
@@ -4256,7 +4256,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.addEventListener('click', function() {
                 const viewLink = document.getElementById('incidentViewWorkplanLink');
                 if (viewLink) {
-                    viewLink.style.display = 'none';
+                    viewLink.classList.add('d-none');
                 }
             });
         });
@@ -5748,9 +5748,9 @@ function setupWorkplanSearch() {
             const checkedCount = document.querySelectorAll('.bulk-service-checkbox:checked').length;
             const banner = document.getElementById('multipleSelectionBanner');
             if (checkedCount > 1) {
-                banner.style.display = 'block';
+                banner.classList.remove('d-none');
             } else {
-                banner.style.display = 'none';
+                banner.classList.add('d-none');
             }
         }
 
@@ -5945,12 +5945,12 @@ function setupWorkplanSearch() {
 
                 if (linkableIncidents.length === 0) {
                     // No linkable incidents - show warning, disable dropdown and submit button
-                    noIncidentsWarning.style.display = 'block';
+                    noIncidentsWarning.classList.remove('d-none');
                     linkIncidentSelect.disabled = true;
                     linkIncidentSubmitBtn.disabled = true;
                 } else {
                     // Has linkable incidents - hide warning, enable dropdown and submit button
-                    noIncidentsWarning.style.display = 'none';
+                    noIncidentsWarning.classList.add('d-none');
                     linkIncidentSelect.disabled = false;
                     linkIncidentSubmitBtn.disabled = false;
 
