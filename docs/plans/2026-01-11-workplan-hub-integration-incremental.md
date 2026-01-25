@@ -197,9 +197,9 @@ But still, this is an opt-in workflow, so users must be able to work independent
 *Testing:* Manual testing successful - workplan dropdown works from component_overview page
 
 ### utils.py
-[] Improve function generate_incident_title to gracefully handle markdown syntax if detected. Fix for workplan_title_generator as well
+[X] Improve function generate_incident_title to gracefully handle markdown syntax if detected. Fix for workplan_title_generator as well
 
-*Status:*
+*Status:* Completed
 *Testing:* TBD
 
 ---
