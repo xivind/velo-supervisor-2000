@@ -312,7 +312,7 @@ def generate_incident_title(affected_component_names, affected_bike_name, incide
         title_parts.append(desc_part)
 
     if affected_bike_name and affected_bike_name != "Not assigned":
-        title_parts.append(f"({affected_bike_name})")
+        title_parts.append(affected_bike_name)
 
     title = " - ".join(title_parts) if title_parts else "No incident metadata"
 
@@ -320,7 +320,6 @@ def generate_incident_title(affected_component_names, affected_bike_name, incide
 
 def generate_workplan_title(affected_component_names, affected_bike_name, workplan_description):
     """Generate a concise title for a workplan"""
-
     title_parts = []
 
     if affected_component_names and affected_component_names != ["Not assigned"]:
@@ -330,10 +329,7 @@ def generate_workplan_title(affected_component_names, affected_bike_name, workpl
         title_parts.append(component_part)
 
     if workplan_description and workplan_description.strip():
-        clean_desc = workplan_description.replace('**', '').replace('*', '') \
-                                       .replace('##', '').replace('#', '') \
-                                       .replace('- [ ]', '').replace('- [x]', '') \
-                                       .replace('`', '')
+        clean_desc = strip_markdown_syntax(workplan_description)
         desc_words = clean_desc.split()[:4]
         desc_part = " ".join(desc_words)
         if len(clean_desc.split()) > 4:
@@ -341,7 +337,7 @@ def generate_workplan_title(affected_component_names, affected_bike_name, workpl
         title_parts.append(desc_part)
 
     if affected_bike_name and affected_bike_name != "Not assigned":
-        title_parts.append(f"({affected_bike_name})")
+        title_parts.append(affected_bike_name)
 
     title = " - ".join(title_parts) if title_parts else "No workplan metadata"
 
@@ -361,3 +357,33 @@ def parse_checkbox_progress(description):
                 'percentage': round((checked_checkboxes / total_checkboxes) * 100)}
 
     return None
+
+def strip_markdown_syntax(text):
+    """Strip markdown syntax from text to produce clean plain text"""
+    if not text:
+        return ""
+
+    clean_text = text
+
+    clean_text = re.sub(r'!\[([^\]]*)\]\([^\)]+\)', '', clean_text)
+    clean_text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', clean_text)
+    clean_text = re.sub(r'```[a-z]*\n?(.+?)\n?```', r'\1', clean_text, flags=re.DOTALL)
+    clean_text = re.sub(r'`([^`]+)`', r'\1', clean_text)
+    clean_text = re.sub(r'~~(.+?)~~', r'\1', clean_text)
+    clean_text = re.sub(r'\*\*(.+?)\*\*', r'\1', clean_text)
+    clean_text = re.sub(r'__(.+?)__', r'\1', clean_text)
+    clean_text = re.sub(r'\*([^\*]+)\*', r'\1', clean_text)
+    clean_text = re.sub(r'\b_([^_]+)_\b', r'\1', clean_text)
+    clean_text = re.sub(r'^#{1,6}\s+', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'^>\s*', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'^(\s*[-*_]\s*){3,}$', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'^[\s]*-\s*\[[x ]\]\s*', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'^[\s]*[-*+]\s+', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'^[\s]*\d+\.\s+', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'\|', ' ', clean_text)
+    clean_text = re.sub(r'\\(.)', r'\1', clean_text)
+    clean_text = re.sub(r'\s+', ' ', clean_text)
+    
+    clean_text = clean_text.strip()
+
+    return clean_text

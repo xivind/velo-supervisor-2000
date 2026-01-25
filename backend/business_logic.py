@@ -19,7 +19,8 @@ from utils import (read_config,
                    parse_json_string,
                    generate_incident_title,
                    generate_workplan_title,
-                   parse_checkbox_progress)
+                   parse_checkbox_progress,
+                   strip_markdown_syntax)
 from strava import Strava
 from database_manager import DatabaseManager
 
@@ -733,6 +734,7 @@ class BusinessLogic():
                          "affected_bike_id": workplan.workplan_affected_bike_id,
                          "affected_bike_name": database_manager.read_bike_name(workplan.workplan_affected_bike_id),
                          "description": workplan.workplan_description,
+                         "description_display": strip_markdown_syntax(workplan.workplan_description) if workplan.workplan_description else None,
                          "completion_date": workplan.completion_date,
                          "completion_notes": workplan.completion_notes,
                          "elapsed_days": calculate_elapsed_days(workplan.due_date,
