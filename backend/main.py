@@ -582,12 +582,8 @@ async def add_workplan(due_date: str = Form(...),
                                                                     workplan_affected_bike_id,
                                                                     workplan_description,
                                                                     completion_date,
-                                                                    completion_notes)
-
-    if success and source_incident_id:
-        business_logic.update_incident_record(source_incident_id,
-                                              workplan_id=workplan_id,
-                                              update_mode='partial')
+                                                                    completion_notes,
+                                                                    source_incident_id)
 
     response = RedirectResponse(
         url=f"/workplan_details/{workplan_id}?success={success}&message={message}",

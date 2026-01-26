@@ -2780,8 +2780,9 @@ class BusinessLogic():
                         workplan_affected_bike_id,
                         workplan_description,
                         completion_date,
-                        completion_notes):
-        """Method to add workplan"""
+                        completion_notes,
+                        source_incident_id=None):
+        """Method to add workplan and optionally link to source incident"""
         try:
             workplan_id = generate_unique_id()
 
@@ -2799,11 +2800,20 @@ class BusinessLogic():
                              "workplan_description": workplan_description,
                              "completion_date": completion_date,
                              "completion_notes": completion_notes}
-            
+
             success, message = database_manager.write_workplan(workplan_data)
 
             if success:
                 logging.info(f"Creation of workplan successful: {message}")
+
+                if source_incident_id:
+                    incident_success, incident_message = self.update_incident_record(source_incident_id,
+                                                                                     workplan_id=workplan_id,
+                                                                                     update_mode='partial')
+
+                    if not incident_success:
+                        logging.warning(f"Workplan {workplan_id} created but failed to link incident {source_incident_id}: {incident_message}")
+
                 return success, message, workplan_id
             else:
                 logging.error(f"Creation of workplan failed: {message}")
