@@ -15,7 +15,8 @@
 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
     <span>📝 New workplan</span>
 </button>
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal"
+        data-workplans='{{ payload.workplans_data | tojson if payload.workplans_data else "[]" }}'>
     <span>🚨 New incident</span>
 </button>
 </div>
@@ -32,9 +33,9 @@
 {# Legend for collection status colors #}
 <div class="d-flex justify-content-start align-items-center mb-2 ms-2">
     <div class="small text-secondary">
-        <span class="me-3"><span class="badge status-healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection ready for bulk changes</span>
-        <span class="me-3"><span class="badge status-attention" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has configuration issues</span>
-        <span class="me-3"><span class="badge status-empty" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has no components</span>
+        <span class="me-3"><span class="status-healthy legend-badge"></span> Collection ready for bulk changes</span>
+        <span class="me-3"><span class="status-attention legend-badge"></span> Collection has configuration issues</span>
+        <span class="me-3"><span class="status-empty legend-badge"></span> Collection has no components</span>
     </div>
 </div>
 
@@ -59,14 +60,13 @@
             <tbody>
                 {% if payload.all_collections %}
                     {% for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details, status, collection_bike_mismatch in payload.all_collections %}
-                        <tr role="button" style="cursor: pointer;" onclick="window.location='/collection_details/{{ collection_id }}';">
+                        <tr role="button" class="clickable" onclick="window.location='/collection_details/{{ collection_id }}';">
                             <td>
-                                <span class="badge
+                                <span class="legend-badge-table
                                     {% if status == 'healthy' %}status-healthy
                                     {% elif status == 'needs_attention' %}status-attention
                                     {% else %}status-empty
-                                    {% endif %}"
-                                    style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0; margin-right: 8px;"></span>
+                                    {% endif %}"></span>
                                 {{ collection_name }}
                             </td>
                             <td>
@@ -167,7 +167,7 @@
                                     {% set collection_data = payload.component_collection_data[component_id] %}
                                     <span role="button"
                                           onclick="event.stopPropagation(); window.location.href='/collection_details/{{ collection_data[0] }}';"
-                                          style="cursor: pointer;">
+                                          class="clickable">
                                         {{ payload.component_collection_names[component_id] }}
                                     </span>
                                 {% else %}

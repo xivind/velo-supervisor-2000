@@ -6,6 +6,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- Warning banner for linked incidents/services (hidden by default, shown via JS) -->
+                <div id="workplan_edit_warning" class="alert alert-warning d-none mb-3" role="alert">
+                    ⚠️ This workplan has <span id="warning_linked_items"></span>.
+                    Changing the bike or removing components may affect these links.
+                </div>
                 <form id="workplan_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
                     <!-- Hidden fields -->
                     <input type="hidden" id="workplan_id" name="workplan_id"> <!-- Should be set automatically, and is required -->
@@ -80,7 +85,7 @@
                         </div>
                         
                         <!-- Preview Mode (hidden by default) -->
-                        <div id="workplan_preview_mode" class="border rounded p-3 workplan-preview-mode">
+                        <div id="workplan_preview_mode" class="border rounded p-3 workplan-preview-mode d-none">
                             <div id="workplan_preview_content">
                                 <!-- Preview content will be dynamically inserted here -->
                             </div>
@@ -101,14 +106,6 @@
                     <div class="col-12 mb-3">
                         <label for="completion_notes" class="form-label fw-bold">Completion notes</label>
                         <textarea class="form-control" id="completion_notes" name="completion_notes" rows="2"></textarea>
-                    </div>
-                    <div class="col-12">
-                        <div class="text-end">
-                            <small class="text-muted">
-                                🔑 <strong>Workplan id:</strong> 
-                                <span id="workplan-id-display">Not created yet</span>
-                            </small>
-                        </div>
                     </div>
                 </form>
             </div>

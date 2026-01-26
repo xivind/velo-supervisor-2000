@@ -7,9 +7,10 @@
             </div>
             <form id="serviceRecordForm" method="POST">
                 <div class="modal-body">
-                    <input type="hidden" id="serviceComponentId" name="component_id" value="{{ payload.bike_component_data['component_id'] }}">
+                    <input type="hidden" id="serviceComponentId" name="component_id" value="{% if payload.bike_component_data is defined and payload.bike_component_data %}{{ payload.bike_component_data['component_id'] }}{% endif %}">
                     <input type="hidden" id="serviceId" name="service_id">
-                    
+                    <input type="hidden" id="service_redirect_url" name="redirect_url">
+
                     <div class="mb-3">
                         <label for="serviceDate" class="form-label fw-bold">Service date</label>
                         <div class="input-group date-input-group">
@@ -20,6 +21,17 @@
                     <div class="mb-3">
                         <label for="serviceDescription" class="form-label fw-bold">Description</label>
                         <textarea class="form-control" id="serviceDescription" name="service_description" rows="3" required minlength="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="serviceWorkplanId" class="form-label fw-bold mb-0">Link to workplan</label>
+                            <a href="#" id="serviceViewWorkplanLink" class="text-primary d-none" target="_blank">View workplan</a>
+                        </div>
+                        <select class="form-select mt-2" id="serviceWorkplanId" name="workplan_id">
+                            <option value="">No workplan selected</option>
+                            <!-- Workplan options will be populated dynamically -->
+                        </select>
+                        <small class="form-text text-muted">Only open (planned) workplans that reference this component can be selected.</small>
                     </div>
                     <div>
                         <div class="text-end">

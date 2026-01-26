@@ -38,9 +38,9 @@
 {# Legend for collection status colors #}
 <div class="d-flex justify-content-start align-items-center mb-2 ms-2">
     <div class="small text-secondary">
-        <span class="me-3"><span class="badge status-healthy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection ready for bulk changes</span>
-        <span class="me-3"><span class="badge status-attention" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has configuration issues</span>
-        <span class="me-3"><span class="badge status-empty" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; padding: 0;"></span> Collection has no components</span>
+        <span class="me-3"><span class="status-healthy legend-badge"></span> Collection ready for bulk changes</span>
+        <span class="me-3"><span class="status-attention legend-badge"></span> Collection has configuration issues</span>
+        <span class="me-3"><span class="status-empty legend-badge"></span> Collection has no components</span>
     </div>
 </div>
 
@@ -63,10 +63,10 @@
             </div>
             <div class="card-body">
                 <div class="d-flex flex-wrap gap-2">
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                         🔄 <strong>Last collection status change:</strong> {{ payload.collection_data.updated_date if payload.collection_data.updated_date else 'Status never changed through collection' }}
                     </span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                         🚴 <strong>Collection bike assignment:</strong>
                         {% if payload.warnings.blocks_operations %}
                             Could not be computed
@@ -76,11 +76,11 @@
                             Not assigned
                         {% endif %}
                     </span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                         ⚙ <strong>Components:</strong> {{ payload.collection_data.component_count }}
                     </span>
                     {% if payload.collection_data.comment %}
-                        <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal" style="line-height: 1.6;">
+                        <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                             📝 <strong>Description:</strong> {{ payload.collection_data.comment }}
                         </span>
                     {% endif %}

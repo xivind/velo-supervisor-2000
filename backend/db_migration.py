@@ -485,6 +485,58 @@ def recalculate_distance_based_statuses(cursor, conn):
     print("Note: Components without threshold_km or NULL values now have 'Not defined' status")
     return updated_count > 0
 
+def check_services_workplan_column(cursor):
+    """Check if Services table needs workplan_id column"""
+    cursor.execute("PRAGMA table_info(services)")
+    columns = [column[1] for column in cursor.fetchall()]
+
+    columns_to_add = []
+    if 'workplan_id' not in columns:
+        columns_to_add.append('workplan_id')
+
+    return columns_to_add
+
+def check_incidents_workplan_column(cursor):
+    """Check if Incidents table needs workplan_id column"""
+    cursor.execute("PRAGMA table_info(incidents)")
+    columns = [column[1] for column in cursor.fetchall()]
+
+    columns_to_add = []
+    if 'workplan_id' not in columns:
+        columns_to_add.append('workplan_id')
+
+    return columns_to_add
+
+def migrate_services_workplan_link(cursor, conn):
+    """Add workplan_id column to Services table for workplan hub integration"""
+    columns_to_add = check_services_workplan_column(cursor)
+
+    if not columns_to_add:
+        print("Table is compliant - workplan_id column already present.")
+        return False
+
+    print("Adding 'workplan_id' column to services table...")
+    cursor.execute("ALTER TABLE services ADD COLUMN workplan_id VARCHAR")
+    conn.commit()
+    print("Column 'workplan_id' added successfully")
+    print("Note: Existing records have NULL workplan_id (standalone services)")
+    return True
+
+def migrate_incidents_workplan_link(cursor, conn):
+    """Add workplan_id column to Incidents table for workplan hub integration"""
+    columns_to_add = check_incidents_workplan_column(cursor)
+
+    if not columns_to_add:
+        print("Table is compliant - workplan_id column already present.")
+        return False
+
+    print("Adding 'workplan_id' column to incidents table...")
+    cursor.execute("ALTER TABLE incidents ADD COLUMN workplan_id VARCHAR")
+    conn.commit()
+    print("Column 'workplan_id' added successfully")
+    print("Note: Existing records have NULL workplan_id (standalone incidents)")
+    return True
+
 def migrate_database():
     """Main function to handle the database migration."""
     print("=== Velo Supervisor 2000 Database Migration Tool ===\n")
@@ -571,12 +623,32 @@ def migrate_database():
             print("      → Already populated or no data to update")
 
         # NEW: Recalculate component statuses with new threshold logic
-        print("\n[9/9] Recalculating component statuses...")
-        statuses_recalculated = recalculate_distance_based_statuses(cursor, conn)
-        if statuses_recalculated:
-            migrations_performed.append("✓ Recalculated component statuses")
+        # Only needed if threshold and time-based fields were just added in steps 5 or 7
+        print("\n[9/11] Recalculating component statuses...")
+        if component_types_time_updated or components_time_updated:
+            statuses_recalculated = recalculate_distance_based_statuses(cursor, conn)
+            if statuses_recalculated:
+                migrations_performed.append("✓ Recalculated component statuses")
+            else:
+                print("      → No status updates needed")
         else:
-            print("      → No status updates needed")
+            print("      → Component status recalculation not necessary (threshold and time-based fields already present)")
+
+        # NEW: Add workplan_id to Services table
+        print("\n[10/11] Checking services table (workplan hub integration)...")
+        services_workplan_link = migrate_services_workplan_link(cursor, conn)
+        if services_workplan_link:
+            migrations_performed.append("✓ Added workplan_id to services table")
+        else:
+            print("      → Already exists, skipping")
+
+        # NEW: Add workplan_id to Incidents table
+        print("\n[11/11] Checking incidents table (workplan hub integration)...")
+        incidents_workplan_link = migrate_incidents_workplan_link(cursor, conn)
+        if incidents_workplan_link:
+            migrations_performed.append("✓ Added workplan_id to incidents table")
+        else:
+            print("      → Already exists, skipping")
 
         # Print summary
         print("\n" + "="*70)

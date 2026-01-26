@@ -181,8 +181,64 @@ def get_formatted_bikes_list(bikes):
     bikes_data = [(bike.bike_name + (" (Retired)" if bike.bike_retired == "True" else ""),
                   bike.bike_id)
                   for bike in bikes]
-    
+
     return sorted(bikes_data, key=lambda x: (("(Retired)" in x[0]), x[0].lower()))
+
+def get_workplan_names_dict(database_manager):
+    """Build dictionary mapping workplan_id -> workplan_name for all workplans"""
+    workplan_names = {}
+    for workplan in database_manager.read_all_workplans():
+        affected_component_names = database_manager.read_component_names(workplan.workplan_affected_component_ids)
+        affected_bike_name = database_manager.read_bike_name(workplan.workplan_affected_bike_id)
+        workplan_names[workplan.workplan_id] = generate_workplan_title(affected_component_names,
+                                                                       affected_bike_name,
+                                                                       workplan.workplan_description)
+
+    return workplan_names
+
+def get_incident_data_tuple(incident, database_manager, workplan_names):
+    """Build standard incident data tuple for display (15 fields)"""
+    return (incident.incident_id,
+            incident.incident_date,
+            incident.incident_status,
+            incident.incident_severity,
+            parse_json_string(incident.incident_affected_component_ids),
+            database_manager.read_component_names(incident.incident_affected_component_ids),
+            incident.incident_affected_bike_id,
+            database_manager.read_bike_name(incident.incident_affected_bike_id),
+            incident.incident_description,
+            incident.resolution_date,
+            incident.resolution_notes,
+            calculate_elapsed_days(incident.incident_date,
+                                   incident.resolution_date if incident.resolution_date else get_formatted_datetime_now())[1],
+            generate_incident_title(database_manager.read_component_names(incident.incident_affected_component_ids),
+                                    database_manager.read_bike_name(incident.incident_affected_bike_id),
+                                    incident.incident_description),
+            incident.workplan_id,
+            workplan_names.get(incident.workplan_id, None))
+
+def get_workplan_data_tuple(workplan, database_manager):
+    """Build standard workplan data tuple for display (14 fields)"""
+    affected_component_names = database_manager.read_component_names(workplan.workplan_affected_component_ids)
+    affected_bike_name = database_manager.read_bike_name(workplan.workplan_affected_bike_id)
+
+    return (workplan.workplan_id,
+            workplan.due_date,
+            workplan.workplan_status,
+            workplan.workplan_size,
+            parse_json_string(workplan.workplan_affected_component_ids),
+            affected_component_names,
+            workplan.workplan_affected_bike_id,
+            affected_bike_name,
+            workplan.workplan_description,
+            workplan.completion_date,
+            workplan.completion_notes,
+            calculate_elapsed_days(workplan.due_date,
+                                   workplan.completion_date if workplan.completion_date else get_formatted_datetime_now())[1],
+            generate_workplan_title(affected_component_names,
+                                    affected_bike_name,
+                                    workplan.workplan_description),
+            parse_checkbox_progress(workplan.workplan_description))
 
 def calculate_percentage_reached(total, remaining):
     """Function to calculate remaining service interval or remaining lifetime as percentage"""
@@ -256,7 +312,7 @@ def generate_incident_title(affected_component_names, affected_bike_name, incide
         title_parts.append(desc_part)
 
     if affected_bike_name and affected_bike_name != "Not assigned":
-        title_parts.append(f"({affected_bike_name})")
+        title_parts.append(affected_bike_name)
 
     title = " - ".join(title_parts) if title_parts else "No incident metadata"
 
@@ -264,7 +320,6 @@ def generate_incident_title(affected_component_names, affected_bike_name, incide
 
 def generate_workplan_title(affected_component_names, affected_bike_name, workplan_description):
     """Generate a concise title for a workplan"""
-
     title_parts = []
 
     if affected_component_names and affected_component_names != ["Not assigned"]:
@@ -274,10 +329,7 @@ def generate_workplan_title(affected_component_names, affected_bike_name, workpl
         title_parts.append(component_part)
 
     if workplan_description and workplan_description.strip():
-        clean_desc = workplan_description.replace('**', '').replace('*', '') \
-                                       .replace('##', '').replace('#', '') \
-                                       .replace('- [ ]', '').replace('- [x]', '') \
-                                       .replace('`', '')
+        clean_desc = strip_markdown_syntax(workplan_description)
         desc_words = clean_desc.split()[:4]
         desc_part = " ".join(desc_words)
         if len(clean_desc.split()) > 4:
@@ -285,7 +337,7 @@ def generate_workplan_title(affected_component_names, affected_bike_name, workpl
         title_parts.append(desc_part)
 
     if affected_bike_name and affected_bike_name != "Not assigned":
-        title_parts.append(f"({affected_bike_name})")
+        title_parts.append(affected_bike_name)
 
     title = " - ".join(title_parts) if title_parts else "No workplan metadata"
 
@@ -305,3 +357,33 @@ def parse_checkbox_progress(description):
                 'percentage': round((checked_checkboxes / total_checkboxes) * 100)}
 
     return None
+
+def strip_markdown_syntax(text):
+    """Strip markdown syntax from text to produce clean plain text"""
+    if not text:
+        return ""
+
+    clean_text = text
+
+    clean_text = re.sub(r'!\[([^\]]*)\]\([^\)]+\)', '', clean_text)
+    clean_text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', clean_text)
+    clean_text = re.sub(r'```[a-z]*\n?(.+?)\n?```', r'\1', clean_text, flags=re.DOTALL)
+    clean_text = re.sub(r'`([^`]+)`', r'\1', clean_text)
+    clean_text = re.sub(r'~~(.+?)~~', r'\1', clean_text)
+    clean_text = re.sub(r'\*\*(.+?)\*\*', r'\1', clean_text)
+    clean_text = re.sub(r'__(.+?)__', r'\1', clean_text)
+    clean_text = re.sub(r'\*([^\*]+)\*', r'\1', clean_text)
+    clean_text = re.sub(r'\b_([^_]+)_\b', r'\1', clean_text)
+    clean_text = re.sub(r'^#{1,6}\s+', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'^>\s*', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'^(\s*[-*_]\s*){3,}$', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'^[\s]*-\s*\[[x ]\]\s*', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'^[\s]*[-*+]\s+', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'^[\s]*\d+\.\s+', '', clean_text, flags=re.MULTILINE)
+    clean_text = re.sub(r'\|', ' ', clean_text)
+    clean_text = re.sub(r'\\(.)', r'\1', clean_text)
+    clean_text = re.sub(r'\s+', ' ', clean_text)
+    
+    clean_text = clean_text.strip()
+
+    return clean_text

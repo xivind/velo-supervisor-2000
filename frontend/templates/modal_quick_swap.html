@@ -6,8 +6,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-info mb-3" role="alert" id="swap-bike-context">
+                <div class="alert alert-info mb-3 d-none" role="alert" id="swap-bike-context">
                     <strong>Swapping component on:</strong> <span id="swap-bike-name"></span>
+                </div>
+                <div class="alert alert-warning mb-3 d-none" role="alert" id="quick-swap-collection-warning">
+                    ⚠️ <span id="quick-swap-collection-message"></span>
                 </div>
 
                 <form id="quick_swap_form">
@@ -22,7 +25,8 @@
                                         data-type="{{ type }}"
                                         data-status="{{ status }}"
                                         data-bike="{{ bike }}"
-                                        data-cost="{{ cost }}">
+                                        data-cost="{{ cost }}"
+                                        data-collection-name="{{ payload.component_collection_names[component_id] if component_id in payload.component_collection_names else '' }}">
                                     {{ name }} ({{ type }}) - {{ bike }}
                                 </option>
                                 {% endif %}
@@ -50,7 +54,7 @@
 
                     <div class="mb-3">
                         <label for="new_component_id" class="form-label fw-bold">Swap to existing component</label>
-                        <div class="alert alert-warning" id="no_matching_components_warning" style="display: none;">
+                        <div class="alert alert-warning d-none" id="no_matching_components_warning">
                             <strong>No matching components available.</strong> Create a new component below to continue with the swap.
                         </div>
                         <select class="form-select" id="new_component_id" name="new_component_id" placeholder="Select component...">
@@ -60,7 +64,8 @@
                                 <option value="{{ component_id }}"
                                         data-type="{{ type }}"
                                         data-status="{{ status }}"
-                                        data-cost="{{ cost }}">
+                                        data-cost="{{ cost }}"
+                                        data-collection-name="{{ payload.component_collection_names[component_id] if component_id in payload.component_collection_names else '' }}">
                                     {{ name }} ({{ type }})
                                 </option>
                                 {% endif %}
@@ -83,7 +88,7 @@
                         </label>
                     </div>
 
-                    <div id="create_new_form" style="display: none;">
+                    <div id="create_new_form" class="d-none">
                         <div class="card mb-3">
                             <div class="card-body">
                                 <h6 class="card-title mb-3">New component details</h6>

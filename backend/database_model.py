@@ -135,6 +135,7 @@ class Services(BaseModel):
     service_date = CharField()
     distance_marker = FloatField()
     description = CharField()
+    workplan_id = CharField()
 
     class Meta:
         """Extends model with extra attributes"""
@@ -152,6 +153,7 @@ class Incidents(BaseModel):
     incident_description = CharField()
     resolution_date = CharField()
     resolution_notes = CharField()
+    workplan_id = CharField()
 
     class Meta:
         """Extends model with extra attributes"""
