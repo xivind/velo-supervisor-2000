@@ -1,0 +1,41 @@
+<div class="modal fade" id="createServicesWorkplanModal" tabindex="-1" aria-labelledby="createServicesWorkplanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="createServicesWorkplanModalLabel">Create services for workplan components</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="multipleSelectionBanner" class="alert alert-warning d-none">
+                    <strong>Multiple components selected</strong><br>
+                    The same service date and description will be set for all selected components.
+                </div>
+
+                <div class="mb-3">
+                    <label for="bulkServiceDate" class="form-label fw-bold">Service date</label>
+                    <div class="input-group date-input-group">
+                        <input type="text" class="form-control datepicker-input" id="bulkServiceDate" required>
+                        <span class="input-group-text datepicker-toggle">🗓</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="bulkServiceDescription" class="form-label fw-bold">Description</label>
+                    <textarea class="form-control" id="bulkServiceDescription" rows="2" required minlength="5" placeholder="e.g., Winter maintenance, Pre-season check"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select components to service</label>
+                    <div id="bulkServiceComponentCheckboxes" class="border rounded p-3 scrollable-checkboxes">
+                        <!-- Component checkboxes will be dynamically inserted here -->
+                    </div>
+                    <small class="form-text text-muted">Only components referenced in this workplan are shown. Select which components to create services for.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="bulkCreateServicesBtn">Create services</button>
+            </div>
+        </div>
+    </div>
+</div>
