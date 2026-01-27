@@ -39,11 +39,22 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.4.9**  
+**Planned for v0.5.0**  
 
 - See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
-**v0.4.8 (CURRENT)**  
+**v0.4.9 (CURRENT)**  
+*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.8 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
+
+There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the Velo Supervisor 2000 database. Remember to backup the database first.
+
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+
+- Workplans, incident and services are now integrated. Workplans act as a hub, allowing the user to tie incidents, workplans and service together
+- Misc minor frontend and backend improvements
+- Misc minor bug fixes (none affecting data quality)
+
+**v0.4.8**  
 *THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
 
 - New feature: Install existing components or collections directly from bike details page
