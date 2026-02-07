@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**🚨 IMPORTANT**: Claude Code must ALWAYS read this repository-level CLAUDE.md file at startup. The CLAUDE.md file describes the application Velo Supervisor 2000, application architecture, design principles, learning points, and other key information that must be consulted when working on the application.
+This file is the single source of truth for project conventions. All agents inherit these rules.
 
 ---
 
@@ -14,6 +14,19 @@ Velo Supervisor 2000 is a FastAPI + Bootstrap web application for tracking bicyc
 - Frontend: Bootstrap 5, Jinja2 templates (server-side rendered), vanilla JavaScript, TomSelect for multi-select dropdowns
 - Integration: Strava API
 - Deployment: Docker (optional), local development with uvicorn
+
+---
+
+## Communication & Output Rules
+
+These rules apply to ALL agents and Claude Code itself.
+
+- **Be concise.** Short sentences, no filler, no restating what's already known.
+- **Handovers: max 100 lines.** Focus on decisions made, files changed, and what the next agent needs. No preambles, no project summaries, no repeating CLAUDE.md content.
+- **No redundant context.** Don't restate project architecture, tech stack, or patterns already documented here.
+- **Progress updates: 1-2 sentences max.** Don't narrate every step you take.
+- **Code comments only where logic isn't self-evident.** No boilerplate docstrings.
+- **Don't repeat yourself.** If something is in CLAUDE.md, reference it - don't rewrite it.
 
 ---
 
@@ -87,6 +100,15 @@ Velo Supervisor 2000 is a FastAPI + Bootstrap web application for tracking bicyc
 7. **@docs-maintainer** - Documentation and commit messages
 
 Agents will follow their defined roles and responsibilities as documented in their respective files in `.claude/agents/`
+
+### Direct Invocation
+
+Any agent can be invoked directly for a focused task without following the full workflow. Examples:
+- "Use @fullstack-developer to fix this checkbox bug"
+- "Use @code-reviewer to review the changes in main.js"
+- "Use @database-expert to optimize the component query"
+
+The full workflows below are for **formal feature development**. For ad-hoc tasks, just invoke the relevant agent directly.
 
 ---
 
@@ -205,13 +227,7 @@ Agents communicate through **handover documents** stored in `.handovers/`. These
 
 ### Naming Convention
 
-**Pattern:** `[feature-name]-[source-agent]-to-[target-agent].md`
-
-**Examples:**
-- `requirements/component-swap-requirements.md`
-- `architecture/tire-pressure-architect-to-ux-designer.md`
-- `ux/tire-pressure-ux-designer-to-fullstack.md`
-- `fullstack/tire-pressure-fullstack-to-reviewer.md`
+**Pattern:** `[subdirectory]/[feature-name]-[source-agent]-to-[target-agent].md`
 
 ### Creating Handovers
 
@@ -297,6 +313,8 @@ See `.handovers/CLAUDE.md` for comprehensive instructions on creating and using 
   - Used in: Collections, Incidents, Workplans for component selection
 - Progressive enhancement
 - Mobile-first responsive design
+- Don't use Python built-ins like `zip()` in Jinja2 templates - they're not available unless explicitly passed
+- When making UI/CSS changes, start with small incremental adjustments, not bold redesigns
 
 ### Database
 - Use SQLite best practices with Peewee ORM
@@ -304,6 +322,26 @@ See `.handovers/CLAUDE.md` for comprehensive instructions on creating and using 
 - Document schema changes
 - Never delete data without user confirmation
 - **Note**: This project uses breaking database schema changes between versions
+
+---
+
+## Debugging & Bug Fixing Rules
+
+- Always identify the root cause before implementing a fix. Don't fix symptoms.
+- Trace the bug through the full stack (route -> business logic -> database -> template -> JS) before proposing changes.
+- If the first hypothesis seems too shallow, dig deeper before editing code.
+- List top hypotheses ranked by likelihood. Show evidence for the most likely one before changing code.
+
+---
+
+## Change Management Rules
+
+- Follow existing code patterns. Use partial updates (not full updates), match existing architecture layers, keep logic simple.
+- Don't over-engineer: no unnecessary parameters, no overly defensive conditionals, no complex abstractions when simpler approaches exist.
+- Make the smallest change that solves the problem. Iterate from there.
+- When refactoring across files, enumerate ALL affected files first and get approval before editing.
+- Verify ALL occurrences across the full stack - including JS references to CSS (classList vs style.display), template references, and Python code.
+- Before editing a file, confirm the correct filename exists using Glob or Read.
 
 ---
 
@@ -323,25 +361,6 @@ See `.handovers/CLAUDE.md` for comprehensive instructions on creating and using 
 
 ---
 
-## Communication Patterns
-
-### Requesting Work
-```
-@architect - Please design the architecture for [feature]
-Based on: [context or requirements]
-Output needed: Architecture document in .handovers/architecture/
-```
-
-### Handover Format
-Each agent ends their response with:
-```
-**Handover Created:** `.handovers/[path]/[filename].md`
-**Next Agent:** @[agent-name]
-**Action Required:** [Brief description]
-```
-
----
-
 ## Development Notes
 
 ### Database Schema Changes
@@ -355,27 +374,9 @@ Application uses rotating file logs configured in `uvicorn_log_config.ini`, logs
 
 ---
 
-## Emergency Procedures
-
-### If Agent Gets Stuck
-1. Document the blocker in handover
-2. Mark status as "BLOCKED"
-3. Human investigates
-4. Provide additional context or simplify task
-
-### If Code Breaks Production
-1. Immediate rollback by human
-2. @fullstack-developer investigates
-3. @code-reviewer validates fix
-4. Fast-track commit
-
----
-
 ## Important Notes
 
-- 📁 Handovers ARE committed to git (serve as architectural decision records)
-- 🔍 Always search project knowledge before assuming
-- 💬 Clear communication in handovers is critical
-- 🧪 Test before marking work complete
-- 📝 Document decisions and rationale in handovers
-- 📋 Check recent handovers to understand current work context
+- Handovers ARE committed to git (serve as architectural decision records)
+- Always search project knowledge before assuming
+- Test before marking work complete
+- Check recent handovers to understand current work context
