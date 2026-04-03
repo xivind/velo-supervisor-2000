@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="27.1.5" pages="7">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.0.3" pages="5">
   <diagram id="NCPz26pTcdwmksfjbm1z" name="System overview">
-    <mxGraphModel dx="1232" dy="691" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
+    <mxGraphModel dx="1901" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -221,80 +221,6 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-      </root>
-    </mxGraphModel>
-  </diagram>
-  <diagram id="ddEZl8HGuWGNaKL-1OLa" name="Modules">
-    <mxGraphModel dx="1434" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-1" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;textShadow=1;" parent="1" vertex="1">
-          <mxGeometry x="660" y="318" width="10" height="10" as="geometry" />
-        </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-2" value="main.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
-          <mxGeometry x="777" y="183" width="160" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="bwmJhf_p5KY45bq_4t8g-5" target="bwmJhf_p5KY45bq_4t8g-2" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="rY95ULiClnDDJ_U-364L-2" value="Import" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];textShadow=1;" parent="ab__0eKPIvS3hXRo3g3Q-10" vertex="1" connectable="0">
-          <mxGeometry x="-0.1355" y="1" relative="1" as="geometry">
-            <mxPoint x="-5" y="-16" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-5" value="strava.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
-          <mxGeometry x="926" y="378" width="160" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="bwmJhf_p5KY45bq_4t8g-8" target="bwmJhf_p5KY45bq_4t8g-11" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="rY95ULiClnDDJ_U-364L-3" value="Import" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];textShadow=1;" parent="ab__0eKPIvS3hXRo3g3Q-11" vertex="1" connectable="0">
-          <mxGeometry x="0.1333" y="-2" relative="1" as="geometry">
-            <mxPoint x="18" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-8" value="peewee_models.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
-          <mxGeometry x="630" y="528" width="160" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" parent="1" source="bwmJhf_p5KY45bq_4t8g-11" target="bwmJhf_p5KY45bq_4t8g-2" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="rY95ULiClnDDJ_U-364L-1" value="Import" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];textShadow=1;" parent="ab__0eKPIvS3hXRo3g3Q-9" vertex="1" connectable="0">
-          <mxGeometry x="0.0802" y="3" relative="1" as="geometry">
-            <mxPoint x="-12" y="-12" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="bwmJhf_p5KY45bq_4t8g-11" value="peewee_connector.py" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;textShadow=1;shadow=1;" parent="1" vertex="1">
-          <mxGeometry x="630" y="378" width="160" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-1" value="" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;textShadow=1;shadow=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-          <mxGeometry x="1170" y="183" width="40" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-2" value="Included in MVP - Ready" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="1219" y="120" width="231" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-3" value="" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;textShadow=1;shadow=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="1170" y="122" width="40" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-4" value="Included in MVP - Not started" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="1219" y="178" width="251" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-5" value="" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;textShadow=1;shadow=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
-          <mxGeometry x="1170" y="215" width="40" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-6" value="Not included in MVP" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="1219" y="210" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-7" value="" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;textShadow=1;shadow=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
-          <mxGeometry x="1170" y="153" width="40" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="ab__0eKPIvS3hXRo3g3Q-8" value="Included in MVP - In progress" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="1219" y="148" width="200" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="FYxK8STdY-yG8dCWVJrN-1" value="Only includes user defined modules" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#AB8CFF;" vertex="1" parent="1">
-          <mxGeometry x="210" y="93" width="120" height="60" as="geometry" />
-        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
@@ -700,41 +626,6 @@
         </mxCell>
         <mxCell id="XCXxX4ETSneVbrKKwFLD-2" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=img/clipart/Gear_128x128.png;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
           <mxGeometry x="1230" y="775" width="20" height="20" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
-  <diagram id="rMwMfLDCq5QZSCOKzczj" name="Mobile GUI">
-    <mxGraphModel dx="2715" dy="1493" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="GNeNCakj51JhS9U3dKEd-1" value="" style="whiteSpace=wrap;html=1;aspect=fixed;sketch=1;curveFitting=1;jiggle=2;" parent="1" vertex="1">
-          <mxGeometry x="630" y="240" width="110" height="110" as="geometry" />
-        </mxCell>
-        <mxCell id="MxP_LlbZc-Gqff7nIHBm-1" value="" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;textShadow=1;shadow=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-          <mxGeometry x="1200" y="133" width="40" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="MxP_LlbZc-Gqff7nIHBm-2" value="Included in MVP - Ready" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="1249" y="70" width="231" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="MxP_LlbZc-Gqff7nIHBm-3" value="" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;textShadow=1;shadow=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="1200" y="72" width="40" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="MxP_LlbZc-Gqff7nIHBm-4" value="Included in MVP - Not started" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="1249" y="128" width="251" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="MxP_LlbZc-Gqff7nIHBm-5" value="" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;textShadow=1;shadow=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
-          <mxGeometry x="1200" y="165" width="40" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="MxP_LlbZc-Gqff7nIHBm-6" value="Not included in MVP" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="1249" y="160" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="MxP_LlbZc-Gqff7nIHBm-7" value="" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;textShadow=1;shadow=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
-          <mxGeometry x="1200" y="103" width="40" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="MxP_LlbZc-Gqff7nIHBm-8" value="Included in MVP - In progress" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="1249" y="98" width="200" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
