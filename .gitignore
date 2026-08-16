@@ -7,8 +7,14 @@ backend/config.json
 .venv
 .playwright-mcp/
 
-# graphify - regenerable performance cache, no value in history
-graphify-out/cache/
+# graphify - local-only cost log
+graphify-out/cost.json
+# graphify-out/cache/ intentionally tracked - small relative to repo size,
+# saves real token cost by letting --update skip re-extracting unchanged files
+
+# graphify - session-local timestamp (its mtime, not content, drives a strict-mode
+# freshness check; a fresh clone's checkout-time mtime would falsely read as fresh)
+graphify-out/cache/last_query_stamp
 
 # graphify - machine-local interpreter path pointers (wrong on other machines)
 graphify-out/.graphify_python
