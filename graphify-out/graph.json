@@ -22,20 +22,6 @@
         "source_file": "docs/plans/2026-01-11-workplan-hub-integration-incremental.md"
       },
       {
-        "id": "semantic_extraction_subagent_pipeline",
-        "label": "Semantic Extraction Subagent Pipeline",
-        "nodes": [
-          "_claude_skills_graphify_skill_graphify_skill",
-          "_claude_skills_graphify_references_extraction_spec_extraction_prompt_spec",
-          "_claude_skills_graphify_references_extraction_spec_node_id_format",
-          "_claude_skills_graphify_references_extraction_spec_confidence_rubric"
-        ],
-        "relation": "form",
-        "confidence": "EXTRACTED",
-        "confidence_score": 1.0,
-        "source_file": ".claude/skills/graphify/SKILL.md"
-      },
-      {
         "id": "standard_feature_development_workflow",
         "label": "Standard Feature Development Workflow",
         "nodes": [
@@ -583,6 +569,78 @@
       "id": "backend_db_migration_recalculate_distance_based_statuses"
     },
     {
+      "label": ".create_collection()",
+      "file_type": "code",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1927",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": ".create_collection()",
+      "id": "backend_business_logic_businesslogic_create_collection"
+    },
+    {
+      "label": ".create_incident_record()",
+      "file_type": "code",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2672",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": ".create_incident_record()",
+      "id": "backend_business_logic_businesslogic_create_incident_record"
+    },
+    {
+      "label": ".create_workplan()",
+      "file_type": "code",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2775",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": ".create_workplan()",
+      "id": "backend_business_logic_businesslogic_create_workplan"
+    },
+    {
+      "label": ".update_incident_record()",
+      "file_type": "code",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2717",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": ".update_incident_record()",
+      "id": "backend_business_logic_businesslogic_update_incident_record"
+    },
+    {
+      "label": ".update_workplan()",
+      "file_type": "code",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2826",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": ".update_workplan()",
+      "id": "backend_business_logic_businesslogic_update_workplan"
+    },
+    {
+      "label": "generate_unique_id()",
+      "file_type": "code",
+      "source_file": "backend/utils.py",
+      "source_location": "L158",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": "generate_unique_id()",
+      "id": "backend_utils_generate_unique_id"
+    },
+    {
       "label": ".compute_component_status()",
       "file_type": "code",
       "source_file": "backend/business_logic.py",
@@ -631,6 +689,54 @@
       "id": "backend_business_logic_businesslogic_update_component_lifetime_status"
     },
     {
+      "label": ".update_component_service_status()",
+      "file_type": "code",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1017",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "Component Status Updates",
+      "norm_label": ".update_component_service_status()",
+      "id": "backend_business_logic_businesslogic_update_component_service_status"
+    },
+    {
+      "label": ".update_time_based_fields()",
+      "file_type": "code",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2537",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "Component Status Updates",
+      "norm_label": ".update_time_based_fields()",
+      "id": "backend_business_logic_businesslogic_update_time_based_fields"
+    },
+    {
+      "label": "calculate_elapsed_days()",
+      "file_type": "code",
+      "source_file": "backend/utils.py",
+      "source_location": "L280",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "Component Status Updates",
+      "norm_label": "calculate_elapsed_days()",
+      "id": "backend_utils_calculate_elapsed_days"
+    },
+    {
+      "label": "get_formatted_datetime_now()",
+      "file_type": "code",
+      "source_file": "backend/utils.py",
+      "source_location": "L12",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "Component Status Updates",
+      "norm_label": "get_formatted_datetime_now()",
+      "id": "backend_utils_get_formatted_datetime_now"
+    },
+    {
       "label": ".create_component()",
       "file_type": "code",
       "source_file": "backend/business_logic.py",
@@ -653,18 +759,6 @@
       "community_name": "Creation & Validation Logic",
       "norm_label": ".create_history_record()",
       "id": "backend_business_logic_businesslogic_create_history_record"
-    },
-    {
-      "label": ".create_incident_record()",
-      "file_type": "code",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2672",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "Creation & Validation Logic",
-      "norm_label": ".create_incident_record()",
-      "id": "backend_business_logic_businesslogic_create_incident_record"
     },
     {
       "label": ".process_bike_compliance_report()",
@@ -701,18 +795,6 @@
       "community_name": "Creation & Validation Logic",
       "norm_label": ".validate_quick_swap()",
       "id": "backend_business_logic_businesslogic_validate_quick_swap"
-    },
-    {
-      "label": "generate_unique_id()",
-      "file_type": "code",
-      "source_file": "backend/utils.py",
-      "source_location": "L158",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "Creation & Validation Logic",
-      "norm_label": "generate_unique_id()",
-      "id": "backend_utils_generate_unique_id"
     },
     {
       "label": ".delete_record()",
@@ -787,18 +869,6 @@
       "id": "backend_business_logic_businesslogic_update_component_distance"
     },
     {
-      "label": ".update_component_service_status()",
-      "file_type": "code",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L1017",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "Record Update & Refresh Logic",
-      "norm_label": ".update_component_service_status()",
-      "id": "backend_business_logic_businesslogic_update_component_service_status"
-    },
-    {
       "label": ".update_component_type_count()",
       "file_type": "code",
       "source_file": "backend/business_logic.py",
@@ -809,18 +879,6 @@
       "community_name": "Record Update & Refresh Logic",
       "norm_label": ".update_component_type_count()",
       "id": "backend_business_logic_businesslogic_update_component_type_count"
-    },
-    {
-      "label": ".update_time_based_fields()",
-      "file_type": "code",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2537",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "Record Update & Refresh Logic",
-      "norm_label": ".update_time_based_fields()",
-      "id": "backend_business_logic_businesslogic_update_time_based_fields"
     },
     {
       "label": ".get_bikes()",
@@ -907,6 +965,18 @@
       "id": "backend_strava_strava_token_saver"
     },
     {
+      "label": "update_config()",
+      "file_type": "code",
+      "source_file": "backend/main.py",
+      "source_location": "L737",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "Database Models & Backend Utils",
+      "norm_label": "update_config()",
+      "id": "backend_main_update_config"
+    },
+    {
       "label": "get_current_version()",
       "file_type": "code",
       "source_file": "backend/utils.py",
@@ -941,6 +1011,18 @@
       "community_name": "Database Models & Backend Utils",
       "norm_label": "read_config()",
       "id": "backend_utils_read_config"
+    },
+    {
+      "label": "shutdown_server()",
+      "file_type": "code",
+      "source_file": "backend/utils.py",
+      "source_location": "L153",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "Database Models & Backend Utils",
+      "norm_label": "shutdown_server()",
+      "id": "backend_utils_shutdown_server"
     },
     {
       "label": "write_config()",
@@ -1207,6 +1289,18 @@
       "id": "backend_main_lifespan"
     },
     {
+      "label": "quick_swap()",
+      "file_type": "code",
+      "source_file": "backend/main.py",
+      "source_location": "L334",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "Main API Routes",
+      "norm_label": "quick_swap()",
+      "id": "backend_main_quick_swap"
+    },
+    {
       "label": "update_collection()",
       "file_type": "code",
       "source_file": "backend/main.py",
@@ -1267,6 +1361,18 @@
       "id": "backend_main_update_workplan"
     },
     {
+      "label": "performQuickSwap()",
+      "file_type": "code",
+      "source_file": "frontend/static/js/main.js",
+      "source_location": "L2034",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "Main API Routes",
+      "norm_label": "performquickswap()",
+      "id": "frontend_static_js_main_performquickswap"
+    },
+    {
       "label": ".calculate_collection_status()",
       "file_type": "code",
       "source_file": "backend/business_logic.py",
@@ -1289,18 +1395,6 @@
       "community_name": "Collection Status Logic",
       "norm_label": ".change_collection_status()",
       "id": "backend_business_logic_businesslogic_change_collection_status"
-    },
-    {
-      "label": ".create_collection()",
-      "file_type": "code",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L1927",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Collection Status Logic",
-      "norm_label": ".create_collection()",
-      "id": "backend_business_logic_businesslogic_create_collection"
     },
     {
       "label": ".get_collection_details()",
@@ -1723,42 +1817,6 @@
       "id": "backend_database_manager_databasemanager_write_component_details"
     },
     {
-      "label": "bike_details()",
-      "file_type": "code",
-      "source_file": "backend/main.py",
-      "source_location": "L83",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 29,
-      "community_name": "Details Page Endpoints",
-      "norm_label": "bike_details()",
-      "id": "backend_main_bike_details"
-    },
-    {
-      "label": "component_details()",
-      "file_type": "code",
-      "source_file": "backend/main.py",
-      "source_location": "L141",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 29,
-      "community_name": "Details Page Endpoints",
-      "norm_label": "component_details()",
-      "id": "backend_main_component_details"
-    },
-    {
-      "label": "get_button_order()",
-      "file_type": "code",
-      "source_file": "backend/utils.py",
-      "source_location": "L30",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 29,
-      "community_name": "Details Page Endpoints",
-      "norm_label": "get_button_order()",
-      "id": "backend_utils_get_button_order"
-    },
-    {
       "label": ".calculate_component_triggers()",
       "file_type": "code",
       "source_file": "backend/business_logic.py",
@@ -1951,18 +2009,6 @@
       "id": "backend_database_manager_databasemanager_read_all_components"
     },
     {
-      "label": "calculate_elapsed_days()",
-      "file_type": "code",
-      "source_file": "backend/utils.py",
-      "source_location": "L280",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "Bike & Component Queries",
-      "norm_label": "calculate_elapsed_days()",
-      "id": "backend_utils_calculate_elapsed_days"
-    },
-    {
       "label": "calculate_percentage_reached()",
       "file_type": "code",
       "source_file": "backend/utils.py",
@@ -2033,18 +2079,6 @@
       "community_name": "Bike & Component Queries",
       "norm_label": "get_formatted_bikes_list()",
       "id": "backend_utils_get_formatted_bikes_list"
-    },
-    {
-      "label": "get_formatted_datetime_now()",
-      "file_type": "code",
-      "source_file": "backend/utils.py",
-      "source_location": "L12",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "Bike & Component Queries",
-      "norm_label": "get_formatted_datetime_now()",
-      "id": "backend_utils_get_formatted_datetime_now"
     },
     {
       "label": "get_incident_data_tuple()",
@@ -2275,28 +2309,40 @@
       "id": "frontend_static_js_main_fetchlogs"
     },
     {
-      "label": "update_config()",
+      "label": "bike_details()",
       "file_type": "code",
       "source_file": "backend/main.py",
-      "source_location": "L737",
+      "source_location": "L83",
       "_callable": true,
       "_origin": "ast",
       "community": 34,
-      "community_name": "Config Update & Shutdown",
-      "norm_label": "update_config()",
-      "id": "backend_main_update_config"
+      "community_name": "Details Page Endpoints",
+      "norm_label": "bike_details()",
+      "id": "backend_main_bike_details"
     },
     {
-      "label": "shutdown_server()",
+      "label": "component_details()",
       "file_type": "code",
-      "source_file": "backend/utils.py",
-      "source_location": "L153",
+      "source_file": "backend/main.py",
+      "source_location": "L141",
       "_callable": true,
       "_origin": "ast",
       "community": 34,
-      "community_name": "Config Update & Shutdown",
-      "norm_label": "shutdown_server()",
-      "id": "backend_utils_shutdown_server"
+      "community_name": "Details Page Endpoints",
+      "norm_label": "component_details()",
+      "id": "backend_main_component_details"
+    },
+    {
+      "label": "get_button_order()",
+      "file_type": "code",
+      "source_file": "backend/utils.py",
+      "source_location": "L30",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "Details Page Endpoints",
+      "norm_label": "get_button_order()",
+      "id": "backend_utils_get_button_order"
     },
     {
       "label": "change_collection_status()",
@@ -3067,18 +3113,6 @@
       "id": "backend_database_manager_databasemanager_read_services_by_workplan"
     },
     {
-      "label": ".create_workplan()",
-      "file_type": "code",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2775",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Business Logic Core",
-      "norm_label": ".create_workplan()",
-      "id": "backend_business_logic_businesslogic_create_workplan"
-    },
-    {
       "label": ".get_component_types()",
       "file_type": "code",
       "source_file": "backend/business_logic.py",
@@ -3139,18 +3173,6 @@
       "id": "backend_business_logic_businesslogic_update_components_distance_iterator"
     },
     {
-      "label": ".update_incident_record()",
-      "file_type": "code",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2717",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Business Logic Core",
-      "norm_label": ".update_incident_record()",
-      "id": "backend_business_logic_businesslogic_update_incident_record"
-    },
-    {
       "label": ".update_rides_bulk()",
       "file_type": "code",
       "source_file": "backend/business_logic.py",
@@ -3161,18 +3183,6 @@
       "community_name": "Business Logic Core",
       "norm_label": ".update_rides_bulk()",
       "id": "backend_business_logic_businesslogic_update_rides_bulk"
-    },
-    {
-      "label": ".update_workplan()",
-      "file_type": "code",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2826",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Business Logic Core",
-      "norm_label": ".update_workplan()",
-      "id": "backend_business_logic_businesslogic_update_workplan"
     },
     {
       "label": ".read_subset_components()",
@@ -3545,291 +3555,6 @@
       "community_name": "Database Manager Core",
       "norm_label": ".write_update_rides_bulk()",
       "id": "backend_database_manager_databasemanager_write_update_rides_bulk"
-    },
-    {
-      "label": "quick_swap()",
-      "file_type": "code",
-      "source_file": "backend/main.py",
-      "source_location": "L334",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 90,
-      "community_name": "Quick Swap via AJAX",
-      "norm_label": "quick_swap()",
-      "id": "backend_main_quick_swap"
-    },
-    {
-      "label": "performQuickSwap()",
-      "file_type": "code",
-      "source_file": "frontend/static/js/main.js",
-      "source_location": "L2034",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 90,
-      "community_name": "Quick Swap via AJAX",
-      "norm_label": "performquickswap()",
-      "id": "frontend_static_js_main_performquickswap"
-    },
-    {
-      "label": "graphify Skill Trigger",
-      "file_type": "concept",
-      "source_file": ".claude/CLAUDE.md",
-      "source_location": "L1-L3",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "graphify skill trigger",
-      "_origin": "ast",
-      "id": "_claude_claude_graphify_trigger"
-    },
-    {
-      "label": "Hyperedges Rule",
-      "file_type": "concept",
-      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
-      "source_location": "L38-L42",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "hyperedges rule",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_extraction_spec_hyperedges_rule"
-    },
-    {
-      "label": "Semantic Similarity Edge Rule",
-      "file_type": "concept",
-      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
-      "source_location": "L32-L36",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "semantic similarity edge rule",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_extraction_spec_semantic_similarity_rule"
-    },
-    {
-      "label": "graphify Native CLAUDE.md Integration",
-      "file_type": "concept",
-      "source_file": ".claude/skills/graphify/references/hooks.md",
-      "source_location": "L20-L34",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "`graphify claude install` writes a persistent ## graphify section into the project's CLAUDE.md so Claude Code checks the graph before answering codebase questions and rebuilds it after code changes, without a manual /graphify invocation each session.",
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "graphify native claude.md integration",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_hooks_claude_md_integration"
-    },
-    {
-      "label": "graphify Post-Commit Hook",
-      "file_type": "concept",
-      "source_file": ".claude/skills/graphify/references/hooks.md",
-      "source_location": "L5-L18",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "Triggers once per commit instead of running a background watcher and works with any editor; only re-runs AST extraction on changed code files (no LLM cost), and leaves doc/image changes for a manual --update since those need semantic re-extraction.",
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "graphify post-commit hook",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_hooks_post_commit_hook"
-    },
-    {
-      "label": "Work Memory / Reflect Feedback Loop",
-      "file_type": "concept",
-      "source_file": ".claude/skills/graphify/references/query.md",
-      "source_location": "L176-L182",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "Tagging saved answers useful/dead_end/corrected lets `graphify reflect` build LESSONS.md so future sessions start from preferred sources and skip known dead ends instead of re-deriving them.",
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "work memory / reflect feedback loop",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_query_work_memory_reflect_loop"
-    },
-    {
-      "label": "Whisper Transcription Pipeline",
-      "file_type": "concept",
-      "source_file": ".claude/skills/graphify/references/transcribe.md",
-      "source_location": "L9-L23",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "The host LLM composes its own one-sentence domain hint from existing god-node labels to prime Whisper's initial_prompt, avoiding a separate API call solely to generate that hint.",
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "whisper transcription pipeline",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_transcribe_whisper_transcription_pipeline"
-    },
-    {
-      "label": "graphify add & --watch Reference",
-      "file_type": "document",
-      "source_file": ".claude/skills/graphify/references/add-watch.md",
-      "source_location": "L1-L57",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "graphify add & --watch reference",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_add_watch_add_watch_flow"
-    },
-    {
-      "label": "graphify Additional Exports & Benchmark",
-      "file_type": "document",
-      "source_file": ".claude/skills/graphify/references/exports.md",
-      "source_location": "L1-L88",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "graphify additional exports & benchmark",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_exports_additional_exports"
-    },
-    {
-      "label": "Extraction Subagent Prompt Spec",
-      "file_type": "document",
-      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
-      "source_location": "L1-L71",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "extraction subagent prompt spec",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_extraction_spec_extraction_prompt_spec"
-    },
-    {
-      "label": "GitHub Clone & Cross-Repo Merge",
-      "file_type": "document",
-      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
-      "source_location": "L1-L47",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "github clone & cross-repo merge",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_github_and_merge_github_clone_and_merge"
-    },
-    {
-      "label": "graphify query/path/explain Flow",
-      "file_type": "document",
-      "source_file": ".claude/skills/graphify/references/query.md",
-      "source_location": "L1-L312",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "graphify query/path/explain flow",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_query_query_path_explain_flow"
-    },
-    {
-      "label": "graphify --cluster-only Flow",
-      "file_type": "document",
-      "source_file": ".claude/skills/graphify/references/update.md",
-      "source_location": "L202-L210",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "graphify --cluster-only flow",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_update_cluster_only_flow"
-    },
-    {
-      "label": "graphify --update Incremental Flow",
-      "file_type": "document",
-      "source_file": ".claude/skills/graphify/references/update.md",
-      "source_location": "L5-L199",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "graphify --update incremental flow",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_update_incremental_update_flow"
-    },
-    {
-      "label": "graphify Skill",
-      "file_type": "document",
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L1-L714",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "graphify skill",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "label": "Confidence Score Rubric",
-      "file_type": "rationale",
-      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
-      "source_location": "L47-L59",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "Discrete confidence anchors (0.55/0.65/0.75/0.85/0.95) replace a continuous 0-1 scale because models were observed collapsing continuous guidance into a bimodal distribution (over 50% at 0.5, over 40% at 0.85+); discrete rubrics are followed more faithfully.",
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "confidence score rubric",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_extraction_spec_confidence_rubric"
-    },
-    {
-      "label": "Node ID Format Rule",
-      "file_type": "rationale",
-      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
-      "source_location": "L61",
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "IDs must match exactly what the AST extractor generates (full repo-relative path, every segment kept, joined by underscores, plus normalized entity name) so semantic and structural extraction merge onto the same node instead of creating orphan ghost-duplicates.",
-      "community": 10,
-      "community_name": "Graphify Skill Docs",
-      "norm_label": "node id format rule",
-      "_origin": "ast",
-      "id": "_claude_skills_graphify_references_extraction_spec_node_id_format"
     },
     {
       "label": "Architect Agent",
@@ -4213,6 +3938,127 @@
       "id": "backend_db_migration_rationale_96"
     },
     {
+      "label": "Method to create collection",
+      "file_type": "rationale",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1928",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": "method to create collection",
+      "id": "backend_business_logic_rationale_1928"
+    },
+    {
+      "label": "Method to add incident record",
+      "file_type": "rationale",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2682",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": "method to add incident record",
+      "id": "backend_business_logic_rationale_2682"
+    },
+    {
+      "label": "Method to update incident record (supports full or partial updates)",
+      "file_type": "rationale",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2729",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": "method to update incident record (supports full or partial updates)",
+      "id": "backend_business_logic_rationale_2729"
+    },
+    {
+      "label": "Method to add workplan and optionally link to source incident",
+      "file_type": "rationale",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2785",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": "method to add workplan and optionally link to source incident",
+      "id": "backend_business_logic_rationale_2785"
+    },
+    {
+      "label": "Method to update workplan (supports full or partial updates)",
+      "file_type": "rationale",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2838",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": "method to update workplan (supports full or partial updates)",
+      "id": "backend_business_logic_rationale_2838"
+    },
+    {
+      "label": "Function to generates a random and unique ID",
+      "file_type": "rationale",
+      "source_file": "backend/utils.py",
+      "source_location": "L159",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Entity Creation & Update Logic",
+      "norm_label": "function to generates a random and unique id",
+      "id": "backend_utils_rationale_159"
+    },
+    {
+      "label": "transcribe.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 100,
+      "community_name": "graphify Transcribe Reference",
+      "norm_label": "transcribe.md",
+      "id": "claude_skills_graphify_references_transcribe"
+    },
+    {
+      "label": "graphify reference: transcribe video and audio",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 100,
+      "community_name": "graphify Transcribe Reference",
+      "norm_label": "graphify reference: transcribe video and audio",
+      "id": "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio"
+    },
+    {
+      "label": "Step 2.5 - Transcribe video / audio files (only if video files detected)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "community": 100,
+      "community_name": "graphify Transcribe Reference",
+      "norm_label": "step 2.5 - transcribe video / audio files (only if video files detected)",
+      "id": "claude_skills_graphify_references_transcribe_step_2_5_transcribe_video_audio_files_only_if_video_files_detected"
+    },
+    {
+      "label": "extraction-spec.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 101,
+      "community_name": "graphify Extraction Spec Reference",
+      "norm_label": "extraction-spec.md",
+      "id": "claude_skills_graphify_references_extraction_spec"
+    },
+    {
+      "label": "graphify reference: extraction subagent prompt",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 101,
+      "community_name": "graphify Extraction Spec Reference",
+      "norm_label": "graphify reference: extraction subagent prompt",
+      "id": "claude_skills_graphify_references_extraction_spec_graphify_reference_extraction_subagent_prompt"
+    },
+    {
       "label": "CLAUDE.md",
       "file_type": "document",
       "source_file": "CLAUDE.md",
@@ -4301,6 +4147,17 @@
       "id": "claude_project_overview"
     },
     {
+      "label": "Method to update component table with service status",
+      "file_type": "rationale",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1018",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "Component Status Updates",
+      "norm_label": "method to update component table with service status",
+      "id": "backend_business_logic_rationale_1018"
+    },
+    {
       "label": "Method to update component lifetime and service status when no installation\u2026",
       "file_type": "rationale",
       "source_file": "backend/business_logic.py",
@@ -4334,6 +4191,17 @@
       "id": "backend_business_logic_rationale_2521"
     },
     {
+      "label": "Method to update time-based status fields for all non-retired components",
+      "file_type": "rationale",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2538",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "Component Status Updates",
+      "norm_label": "method to update time-based status fields for all non-retired components",
+      "id": "backend_business_logic_rationale_2538"
+    },
+    {
       "label": "Method to update component table with lifetime status",
       "file_type": "rationale",
       "source_file": "backend/business_logic.py",
@@ -4343,6 +4211,28 @@
       "community_name": "Component Status Updates",
       "norm_label": "method to update component table with lifetime status",
       "id": "backend_business_logic_rationale_972"
+    },
+    {
+      "label": "Function to get current datetime formatted as YYYY-MM-DD HH:MM",
+      "file_type": "rationale",
+      "source_file": "backend/utils.py",
+      "source_location": "L13",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "Component Status Updates",
+      "norm_label": "function to get current datetime formatted as yyyy-mm-dd hh:mm",
+      "id": "backend_utils_rationale_13"
+    },
+    {
+      "label": "Function to calculate the number of days between two dates",
+      "file_type": "rationale",
+      "source_file": "backend/utils.py",
+      "source_location": "L281",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "Component Status Updates",
+      "norm_label": "function to calculate the number of days between two dates",
+      "id": "backend_utils_rationale_281"
     },
     {
       "label": "Method to create component",
@@ -4400,39 +4290,6 @@
       "id": "backend_business_logic_rationale_2618"
     },
     {
-      "label": "Method to add incident record",
-      "file_type": "rationale",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2682",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "Creation & Validation Logic",
-      "norm_label": "method to add incident record",
-      "id": "backend_business_logic_rationale_2682"
-    },
-    {
-      "label": "Function to generates a random and unique ID",
-      "file_type": "rationale",
-      "source_file": "backend/utils.py",
-      "source_location": "L159",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "Creation & Validation Logic",
-      "norm_label": "function to generates a random and unique id",
-      "id": "backend_utils_rationale_159"
-    },
-    {
-      "label": "Method to update component table with service status",
-      "file_type": "rationale",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L1018",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "Record Update & Refresh Logic",
-      "norm_label": "method to update component table with service status",
-      "id": "backend_business_logic_rationale_1018"
-    },
-    {
       "label": "Method to update status for a given bike based on component service and\u2026",
       "file_type": "rationale",
       "source_file": "backend/business_logic.py",
@@ -4475,17 +4332,6 @@
       "community_name": "Record Update & Refresh Logic",
       "norm_label": "method to calculate distance and bike id for service records",
       "id": "backend_business_logic_rationale_2331"
-    },
-    {
-      "label": "Method to update time-based status fields for all non-retired components",
-      "file_type": "rationale",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2538",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "Record Update & Refresh Logic",
-      "norm_label": "method to update time-based status fields for all non-retired components",
-      "id": "backend_business_logic_rationale_2538"
     },
     {
       "label": "Method to update only the count of components for a given component type",
@@ -4884,6 +4730,28 @@
       "id": "backend_database_model_rationale_95"
     },
     {
+      "label": "Endpoint to update config file based on which form was submitted",
+      "file_type": "rationale",
+      "source_file": "backend/main.py",
+      "source_location": "L743",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "Database Models & Backend Utils",
+      "norm_label": "endpoint to update config file based on which form was submitted",
+      "id": "backend_main_rationale_743"
+    },
+    {
+      "label": "Helper function to shutdown the server after a short delay",
+      "file_type": "rationale",
+      "source_file": "backend/utils.py",
+      "source_location": "L154",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "Database Models & Backend Utils",
+      "norm_label": "helper function to shutdown the server after a short delay",
+      "id": "backend_utils_rationale_154"
+    },
+    {
       "label": "Function to get current program version",
       "file_type": "rationale",
       "source_file": "backend/utils.py",
@@ -5192,6 +5060,17 @@
       "id": "backend_main_rationale_323"
     },
     {
+      "label": "Endpoint to swap one component with another",
+      "file_type": "rationale",
+      "source_file": "backend/main.py",
+      "source_location": "L350",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "Main API Routes",
+      "norm_label": "endpoint to swap one component with another",
+      "id": "backend_main_rationale_350"
+    },
+    {
       "label": "Endpoint to add new collection",
       "file_type": "rationale",
       "source_file": "backend/main.py",
@@ -5311,17 +5190,6 @@
       "community_name": "Main API Routes",
       "norm_label": "endpoint to delete records",
       "id": "backend_main_rationale_678"
-    },
-    {
-      "label": "Method to create collection",
-      "file_type": "rationale",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L1928",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "Collection Status Logic",
-      "norm_label": "method to create collection",
-      "id": "backend_business_logic_rationale_1928"
     },
     {
       "label": "Method to update collection",
@@ -5566,37 +5434,279 @@
       "id": "backend_database_manager_rationale_393"
     },
     {
-      "label": "Endpoint for component details page",
-      "file_type": "rationale",
-      "source_file": "backend/main.py",
-      "source_location": "L143",
+      "label": "SKILL.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L1",
       "_origin": "ast",
       "community": 29,
-      "community_name": "Details Page Endpoints",
-      "norm_label": "endpoint for component details page",
-      "id": "backend_main_rationale_143"
+      "community_name": "graphify Skill Overview",
+      "norm_label": "skill.md",
+      "id": "claude_skills_graphify_skill"
     },
     {
-      "label": "Endpoint for bike details page",
-      "file_type": "rationale",
-      "source_file": "backend/main.py",
-      "source_location": "L85",
+      "label": "For /graphify add and --watch",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L695",
       "_origin": "ast",
       "community": 29,
-      "community_name": "Details Page Endpoints",
-      "norm_label": "endpoint for bike details page",
-      "id": "backend_main_rationale_85"
+      "community_name": "graphify Skill Overview",
+      "norm_label": "for /graphify add and --watch",
+      "id": "claude_skills_graphify_skill_for_graphify_add_and_watch"
     },
     {
-      "label": "Function to get button order for a specific page with defaults",
-      "file_type": "rationale",
-      "source_file": "backend/utils.py",
-      "source_location": "L31",
+      "label": "For /graphify query",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L683",
       "_origin": "ast",
       "community": 29,
-      "community_name": "Details Page Endpoints",
-      "norm_label": "function to get button order for a specific page with defaults",
-      "id": "backend_utils_rationale_31"
+      "community_name": "graphify Skill Overview",
+      "norm_label": "for /graphify query",
+      "id": "claude_skills_graphify_skill_for_graphify_query"
+    },
+    {
+      "label": "For the commit hook and native CLAUDE.md integration",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L701",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "for the commit hook and native claude.md integration",
+      "id": "claude_skills_graphify_skill_for_the_commit_hook_and_native_claude_md_integration"
+    },
+    {
+      "label": "For --update and --cluster-only",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L677",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "for --update and --cluster-only",
+      "id": "claude_skills_graphify_skill_for_update_and_cluster_only"
+    },
+    {
+      "label": "/graphify",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L6",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "/graphify",
+      "id": "claude_skills_graphify_skill_graphify"
+    },
+    {
+      "label": "Honesty Rules",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L707",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "honesty rules",
+      "id": "claude_skills_graphify_skill_honesty_rules"
+    },
+    {
+      "label": "Interpreter guard for subcommands",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L659",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "interpreter guard for subcommands",
+      "id": "claude_skills_graphify_skill_interpreter_guard_for_subcommands"
+    },
+    {
+      "label": "Part A - Structural extraction for code files",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L170",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "part a - structural extraction for code files",
+      "id": "claude_skills_graphify_skill_part_a_structural_extraction_for_code_files"
+    },
+    {
+      "label": "Part B - Semantic extraction (parallel subagents)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L196",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "part b - semantic extraction (parallel subagents)",
+      "id": "claude_skills_graphify_skill_part_b_semantic_extraction_parallel_subagents"
+    },
+    {
+      "label": "Part C - Merge AST + semantic into final extraction",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L359",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "part c - merge ast + semantic into final extraction",
+      "id": "claude_skills_graphify_skill_part_c_merge_ast_semantic_into_final_extraction"
+    },
+    {
+      "label": "Step 0 - GitHub repos and multi-path merge (only if a URL or several paths)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L61",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "step 0 - github repos and multi-path merge (only if a url or several paths)",
+      "id": "claude_skills_graphify_skill_step_0_github_repos_and_multi_path_merge_only_if_a_url_or_several_paths"
+    },
+    {
+      "label": "Step 1 - Ensure graphify is installed",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L65",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "step 1 - ensure graphify is installed",
+      "id": "claude_skills_graphify_skill_step_1_ensure_graphify_is_installed"
+    },
+    {
+      "label": "Step 2.5 - Video and audio (only if video files detected)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L147",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "step 2.5 - video and audio (only if video files detected)",
+      "id": "claude_skills_graphify_skill_step_2_5_video_and_audio_only_if_video_files_detected"
+    },
+    {
+      "label": "Step 2 - Detect files",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L107",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "step 2 - detect files",
+      "id": "claude_skills_graphify_skill_step_2_detect_files"
+    },
+    {
+      "label": "Step 3 - Extract entities and relationships",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L151",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "step 3 - extract entities and relationships",
+      "id": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships"
+    },
+    {
+      "label": "Step 4.5 - Graph health check (read-only integrity gate)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L456",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "step 4.5 - graph health check (read-only integrity gate)",
+      "id": "claude_skills_graphify_skill_step_4_5_graph_health_check_read_only_integrity_gate"
+    },
+    {
+      "label": "Step 4 - Build graph, cluster, analyze, generate outputs",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L393",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "step 4 - build graph, cluster, analyze, generate outputs",
+      "id": "claude_skills_graphify_skill_step_4_build_graph_cluster_analyze_generate_outputs"
+    },
+    {
+      "label": "Step 5 - Label communities",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L482",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "step 5 - label communities",
+      "id": "claude_skills_graphify_skill_step_5_label_communities"
+    },
+    {
+      "label": "Step 6 - Generate Obsidian vault (opt-in) + HTML",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L531",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "step 6 - generate obsidian vault (opt-in) + html",
+      "id": "claude_skills_graphify_skill_step_6_generate_obsidian_vault_opt_in_html"
+    },
+    {
+      "label": "Step 9 - Save manifest, update cost tracker, clean up, and report",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L557",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "step 9 - save manifest, update cost tracker, clean up, and report",
+      "id": "claude_skills_graphify_skill_step_9_save_manifest_update_cost_tracker_clean_up_and_report"
+    },
+    {
+      "label": "Steps 6b-8 - Wiki, Neo4j, FalkorDB, SVG, GraphML, MCP, benchmark (only on their flags)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L551",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "steps 6b-8 - wiki, neo4j, falkordb, svg, graphml, mcp, benchmark (only on their flags)",
+      "id": "claude_skills_graphify_skill_steps_6b_8_wiki_neo4j_falkordb_svg_graphml_mcp_benchmark_only_on_their_flags"
+    },
+    {
+      "label": "Usage",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L10",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "usage",
+      "id": "claude_skills_graphify_skill_usage"
+    },
+    {
+      "label": "What graphify is for",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L45",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "what graphify is for",
+      "id": "claude_skills_graphify_skill_what_graphify_is_for"
+    },
+    {
+      "label": "What You Must Do When Invoked",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L49",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "graphify Skill Overview",
+      "norm_label": "what you must do when invoked",
+      "id": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
     },
     {
       "label": "Method to produce payload for page component overview",
@@ -5775,17 +5885,6 @@
       "id": "backend_database_manager_rationale_159"
     },
     {
-      "label": "Function to get current datetime formatted as YYYY-MM-DD HH:MM",
-      "file_type": "rationale",
-      "source_file": "backend/utils.py",
-      "source_location": "L13",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "Bike & Component Queries",
-      "norm_label": "function to get current datetime formatted as yyyy-mm-dd hh:mm",
-      "id": "backend_utils_rationale_13"
-    },
-    {
       "label": "Function to display user friendly text for None values",
       "file_type": "rationale",
       "source_file": "backend/utils.py",
@@ -5861,17 +5960,6 @@
       "community_name": "Bike & Component Queries",
       "norm_label": "function to calculate remaining service interval or remaining lifetime as...",
       "id": "backend_utils_rationale_244"
-    },
-    {
-      "label": "Function to calculate the number of days between two dates",
-      "file_type": "rationale",
-      "source_file": "backend/utils.py",
-      "source_location": "L281",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "Bike & Component Queries",
-      "norm_label": "function to calculate the number of days between two dates",
-      "id": "backend_utils_rationale_281"
     },
     {
       "label": "Function to load a JSON string and return the parsed data as a python object",
@@ -5995,26 +6083,37 @@
       "id": "backend_utils_rationale_144"
     },
     {
-      "label": "Endpoint to update config file based on which form was submitted",
+      "label": "Endpoint for component details page",
       "file_type": "rationale",
       "source_file": "backend/main.py",
-      "source_location": "L743",
+      "source_location": "L143",
       "_origin": "ast",
       "community": 34,
-      "community_name": "Config Update & Shutdown",
-      "norm_label": "endpoint to update config file based on which form was submitted",
-      "id": "backend_main_rationale_743"
+      "community_name": "Details Page Endpoints",
+      "norm_label": "endpoint for component details page",
+      "id": "backend_main_rationale_143"
     },
     {
-      "label": "Helper function to shutdown the server after a short delay",
+      "label": "Endpoint for bike details page",
       "file_type": "rationale",
-      "source_file": "backend/utils.py",
-      "source_location": "L154",
+      "source_file": "backend/main.py",
+      "source_location": "L85",
       "_origin": "ast",
       "community": 34,
-      "community_name": "Config Update & Shutdown",
-      "norm_label": "helper function to shutdown the server after a short delay",
-      "id": "backend_utils_rationale_154"
+      "community_name": "Details Page Endpoints",
+      "norm_label": "endpoint for bike details page",
+      "id": "backend_main_rationale_85"
+    },
+    {
+      "label": "Function to get button order for a specific page with defaults",
+      "file_type": "rationale",
+      "source_file": "backend/utils.py",
+      "source_location": "L31",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "Details Page Endpoints",
+      "norm_label": "function to get button order for a specific page with defaults",
+      "id": "backend_utils_rationale_31"
     },
     {
       "label": "Endpoint to change the status of all components in a collection",
@@ -6477,39 +6576,6 @@
       "community_name": "Services By Workplan",
       "norm_label": "method to read all services linked to a specific workplan",
       "id": "backend_database_manager_rationale_324"
-    },
-    {
-      "label": "Method to update incident record (supports full or partial updates)",
-      "file_type": "rationale",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2729",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Business Logic Core",
-      "norm_label": "method to update incident record (supports full or partial updates)",
-      "id": "backend_business_logic_rationale_2729"
-    },
-    {
-      "label": "Method to add workplan and optionally link to source incident",
-      "file_type": "rationale",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2785",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Business Logic Core",
-      "norm_label": "method to add workplan and optionally link to source incident",
-      "id": "backend_business_logic_rationale_2785"
-    },
-    {
-      "label": "Method to update workplan (supports full or partial updates)",
-      "file_type": "rationale",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2838",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Business Logic Core",
-      "norm_label": "method to update workplan (supports full or partial updates)",
-      "id": "backend_business_logic_rationale_2838"
     },
     {
       "label": "Method to refresh all bikes from Strava",
@@ -7232,15 +7298,26 @@
       "id": "backend_database_manager_rationale_87"
     },
     {
-      "label": "Endpoint to swap one component with another",
-      "file_type": "rationale",
-      "source_file": "backend/main.py",
-      "source_location": "L350",
+      "label": ".claude/CLAUDE.md",
+      "file_type": "document",
+      "source_file": ".claude/CLAUDE.md",
+      "source_location": "L1",
       "_origin": "ast",
       "community": 90,
-      "community_name": "Quick Swap via AJAX",
-      "norm_label": "endpoint to swap one component with another",
-      "id": "backend_main_rationale_350"
+      "community_name": "Project graphify Trigger",
+      "norm_label": ".claude/claude.md",
+      "id": "claude_claude"
+    },
+    {
+      "label": "graphify",
+      "file_type": "document",
+      "source_file": ".claude/CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 90,
+      "community_name": "Project graphify Trigger",
+      "norm_label": "graphify",
+      "id": "claude_claude_graphify"
     },
     {
       "label": "Available Agents",
@@ -7307,6 +7384,347 @@
       "community_name": "Handover Testing Checklist",
       "norm_label": "testing requirements",
       "id": "claude_testing_requirements"
+    },
+    {
+      "label": "exports.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 94,
+      "community_name": "graphify Export References",
+      "norm_label": "exports.md",
+      "id": "claude_skills_graphify_references_exports"
+    },
+    {
+      "label": "graphify reference: extra exports and benchmark",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 94,
+      "community_name": "graphify Export References",
+      "norm_label": "graphify reference: extra exports and benchmark",
+      "id": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark"
+    },
+    {
+      "label": "Step 6b - Wiki (only if --wiki flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "community": 94,
+      "community_name": "graphify Export References",
+      "norm_label": "step 6b - wiki (only if --wiki flag)",
+      "id": "claude_skills_graphify_references_exports_step_6b_wiki_only_if_wiki_flag"
+    },
+    {
+      "label": "Step 7 - Neo4j export (only if --neo4j or --neo4j-push flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L15",
+      "_origin": "ast",
+      "community": 94,
+      "community_name": "graphify Export References",
+      "norm_label": "step 7 - neo4j export (only if --neo4j or --neo4j-push flag)",
+      "id": "claude_skills_graphify_references_exports_step_7_neo4j_export_only_if_neo4j_or_neo4j_push_flag"
+    },
+    {
+      "label": "Step 7a - FalkorDB export (only if --falkordb or --falkordb-push flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L31",
+      "_origin": "ast",
+      "community": 94,
+      "community_name": "graphify Export References",
+      "norm_label": "step 7a - falkordb export (only if --falkordb or --falkordb-push flag)",
+      "id": "claude_skills_graphify_references_exports_step_7a_falkordb_export_only_if_falkordb_or_falkordb_push_flag"
+    },
+    {
+      "label": "Step 7b - SVG export (only if --svg flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L47",
+      "_origin": "ast",
+      "community": 94,
+      "community_name": "graphify Export References",
+      "norm_label": "step 7b - svg export (only if --svg flag)",
+      "id": "claude_skills_graphify_references_exports_step_7b_svg_export_only_if_svg_flag"
+    },
+    {
+      "label": "Step 7c - GraphML export (only if --graphml flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L53",
+      "_origin": "ast",
+      "community": 94,
+      "community_name": "graphify Export References",
+      "norm_label": "step 7c - graphml export (only if --graphml flag)",
+      "id": "claude_skills_graphify_references_exports_step_7c_graphml_export_only_if_graphml_flag"
+    },
+    {
+      "label": "Step 7d - MCP server (only if --mcp flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L59",
+      "_origin": "ast",
+      "community": 94,
+      "community_name": "graphify Export References",
+      "norm_label": "step 7d - mcp server (only if --mcp flag)",
+      "id": "claude_skills_graphify_references_exports_step_7d_mcp_server_only_if_mcp_flag"
+    },
+    {
+      "label": "Step 8 - Token reduction benchmark (only if total_words > 5000)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L79",
+      "_origin": "ast",
+      "community": 94,
+      "community_name": "graphify Export References",
+      "norm_label": "step 8 - token reduction benchmark (only if total_words > 5000)",
+      "id": "claude_skills_graphify_references_exports_step_8_token_reduction_benchmark_only_if_total_words_5000"
+    },
+    {
+      "label": "query.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "graphify Query Reference",
+      "norm_label": "query.md",
+      "id": "claude_skills_graphify_references_query"
+    },
+    {
+      "label": "For /graphify explain",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L254",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "graphify Query Reference",
+      "norm_label": "for /graphify explain",
+      "id": "claude_skills_graphify_references_query_for_graphify_explain"
+    },
+    {
+      "label": "For /graphify path",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L186",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "graphify Query Reference",
+      "norm_label": "for /graphify path",
+      "id": "claude_skills_graphify_references_query_for_graphify_path"
+    },
+    {
+      "label": "graphify reference: query, path, explain",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "graphify Query Reference",
+      "norm_label": "graphify reference: query, path, explain",
+      "id": "claude_skills_graphify_references_query_graphify_reference_query_path_explain"
+    },
+    {
+      "label": "Step 0 \u2014 Constrained query expansion (REQUIRED before traversal)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L23",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "graphify Query Reference",
+      "norm_label": "step 0 \u2014 constrained query expansion (required before traversal)",
+      "id": "claude_skills_graphify_references_query_step_0_constrained_query_expansion_required_before_traversal"
+    },
+    {
+      "label": "Step 1 \u2014 Traversal",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L61",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "graphify Query Reference",
+      "norm_label": "step 1 \u2014 traversal",
+      "id": "claude_skills_graphify_references_query_step_1_traversal"
+    },
+    {
+      "label": "add-watch.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 96,
+      "community_name": "graphify Add & Watch Reference",
+      "norm_label": "add-watch.md",
+      "id": "claude_skills_graphify_references_add_watch"
+    },
+    {
+      "label": "For /graphify add",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "community": 96,
+      "community_name": "graphify Add & Watch Reference",
+      "norm_label": "for /graphify add",
+      "id": "claude_skills_graphify_references_add_watch_for_graphify_add"
+    },
+    {
+      "label": "For --watch",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L39",
+      "_origin": "ast",
+      "community": 96,
+      "community_name": "graphify Add & Watch Reference",
+      "norm_label": "for --watch",
+      "id": "claude_skills_graphify_references_add_watch_for_watch"
+    },
+    {
+      "label": "graphify reference: add a URL and watch a folder",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 96,
+      "community_name": "graphify Add & Watch Reference",
+      "norm_label": "graphify reference: add a url and watch a folder",
+      "id": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder"
+    },
+    {
+      "label": "hooks.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 97,
+      "community_name": "graphify Hooks Reference",
+      "norm_label": "hooks.md",
+      "id": "claude_skills_graphify_references_hooks"
+    },
+    {
+      "label": "For git commit hook",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "community": 97,
+      "community_name": "graphify Hooks Reference",
+      "norm_label": "for git commit hook",
+      "id": "claude_skills_graphify_references_hooks_for_git_commit_hook"
+    },
+    {
+      "label": "For native CLAUDE.md integration",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L21",
+      "_origin": "ast",
+      "community": 97,
+      "community_name": "graphify Hooks Reference",
+      "norm_label": "for native claude.md integration",
+      "id": "claude_skills_graphify_references_hooks_for_native_claude_md_integration"
+    },
+    {
+      "label": "graphify reference: commit hook and native CLAUDE.md integration",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 97,
+      "community_name": "graphify Hooks Reference",
+      "norm_label": "graphify reference: commit hook and native claude.md integration",
+      "id": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration"
+    },
+    {
+      "label": "update.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 98,
+      "community_name": "graphify Update Reference",
+      "norm_label": "update.md",
+      "id": "claude_skills_graphify_references_update"
+    },
+    {
+      "label": "For --cluster-only",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L202",
+      "_origin": "ast",
+      "community": 98,
+      "community_name": "graphify Update Reference",
+      "norm_label": "for --cluster-only",
+      "id": "claude_skills_graphify_references_update_for_cluster_only"
+    },
+    {
+      "label": "For --update (incremental re-extraction)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "community": 98,
+      "community_name": "graphify Update Reference",
+      "norm_label": "for --update (incremental re-extraction)",
+      "id": "claude_skills_graphify_references_update_for_update_incremental_re_extraction"
+    },
+    {
+      "label": "graphify reference: incremental update and cluster-only",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 98,
+      "community_name": "graphify Update Reference",
+      "norm_label": "graphify reference: incremental update and cluster-only",
+      "id": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only"
+    },
+    {
+      "label": "github-and-merge.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 99,
+      "community_name": "graphify GitHub Merge Reference",
+      "norm_label": "github-and-merge.md",
+      "id": "claude_skills_graphify_references_github_and_merge"
+    },
+    {
+      "label": "graphify reference: GitHub clone and cross-repo merge",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 99,
+      "community_name": "graphify GitHub Merge Reference",
+      "norm_label": "graphify reference: github clone and cross-repo merge",
+      "id": "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge"
+    },
+    {
+      "label": "Step 0 - Clone GitHub repo(s) (only if a GitHub URL was given)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "community": 99,
+      "community_name": "graphify GitHub Merge Reference",
+      "norm_label": "step 0 - clone github repo(s) (only if a github url was given)",
+      "id": "claude_skills_graphify_references_github_and_merge_step_0_clone_github_repo_s_only_if_a_github_url_was_given"
+    },
+    {
+      "label": "custom_styles.css",
+      "file_type": "code",
+      "source_file": "frontend/static/css/custom_styles.css",
+      "source_location": "L1",
+      "_origin": "manual-deterministic",
+      "community": 4,
+      "community_name": "Frontend JS Core",
+      "norm_label": "custom_styles.css",
+      "id": "frontend_static_css_custom_styles"
     },
     {
       "label": "Base Template",
@@ -8389,18 +8807,6 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1933",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "backend_business_logic_businesslogic_calculate_collection_status",
-      "target": "backend_business_logic_businesslogic_create_collection"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/business_logic.py",
       "source_location": "L1963",
       "weight": 1.0,
       "_origin": "ast",
@@ -8551,6 +8957,18 @@
       "confidence_score": 1.0,
       "source": "backend_business_logic_businesslogic_compute_component_status",
       "target": "backend_business_logic_businesslogic_update_component_lifetime_status"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1933",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "backend_business_logic_businesslogic_create_collection",
+      "target": "backend_business_logic_businesslogic_calculate_collection_status"
     },
     {
       "relation": "calls",
@@ -9121,18 +9539,6 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1775",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "backend_business_logic_businesslogic_process_history_records",
-      "target": "backend_business_logic_businesslogic_update_component_service_status"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/business_logic.py",
       "source_location": "L1782",
       "weight": 1.0,
       "_origin": "ast",
@@ -9163,18 +9569,6 @@
       "confidence_score": 1.0,
       "source": "backend_business_logic_businesslogic_process_service_records",
       "target": "backend_business_logic_businesslogic_update_service_record"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2450",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "backend_business_logic_businesslogic_process_service_records",
-      "target": "backend_business_logic_businesslogic_update_component_service_status"
     },
     {
       "relation": "calls",
@@ -9217,18 +9611,6 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2555",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "backend_business_logic_businesslogic_update_bike_status",
-      "target": "backend_business_logic_businesslogic_update_time_based_fields"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/business_logic.py",
       "source_location": "L3119",
       "weight": 1.0,
       "_origin": "ast",
@@ -9259,18 +9641,6 @@
       "confidence_score": 1.0,
       "source": "backend_business_logic_businesslogic_update_component_distance",
       "target": "backend_business_logic_businesslogic_update_components_distance_iterator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L961",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "backend_business_logic_businesslogic_update_component_distance",
-      "target": "backend_business_logic_businesslogic_update_component_service_status"
     },
     {
       "relation": "calls",
@@ -9337,12 +9707,48 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/business_logic.py",
+      "source_location": "L1775",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "backend_business_logic_businesslogic_update_component_service_status",
+      "target": "backend_business_logic_businesslogic_process_history_records"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2450",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "backend_business_logic_businesslogic_update_component_service_status",
+      "target": "backend_business_logic_businesslogic_process_service_records"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/business_logic.py",
       "source_location": "L2552",
       "weight": 1.0,
       "_origin": "ast",
       "confidence_score": 1.0,
       "source": "backend_business_logic_businesslogic_update_component_service_status",
       "target": "backend_business_logic_businesslogic_update_time_based_fields"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L961",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "backend_business_logic_businesslogic_update_component_service_status",
+      "target": "backend_business_logic_businesslogic_update_component_distance"
     },
     {
       "relation": "calls",
@@ -9391,6 +9797,18 @@
       "confidence_score": 1.0,
       "source": "backend_business_logic_businesslogic_update_service_record",
       "target": "backend_business_logic_businesslogic_validate_service_record"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2555",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "backend_business_logic_businesslogic_update_time_based_fields",
+      "target": "backend_business_logic_businesslogic_update_bike_status"
     },
     {
       "relation": "calls",
@@ -12537,6 +12955,17 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": ".claude/CLAUDE.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_claude",
+      "target": "claude_claude_graphify"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "CLAUDE.md",
       "source_location": "L115",
       "weight": 1.0,
@@ -12907,6 +13336,567 @@
       "confidence_score": 1.0,
       "source": "claude_for_new_features",
       "target": "claude_standard_development_workflow"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_add_watch",
+      "target": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_add_watch_for_graphify_add",
+      "target": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_add_watch_for_watch",
+      "target": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_exports",
+      "target": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7_neo4j_export_only_if_neo4j_or_neo4j_push_flag"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7a_falkordb_export_only_if_falkordb_or_falkordb_push_flag"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7b_svg_export_only_if_svg_flag"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_6b_wiki_only_if_wiki_flag"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7c_graphml_export_only_if_graphml_flag"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L59",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7d_mcp_server_only_if_mcp_flag"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L79",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_8_token_reduction_benchmark_only_if_total_words_5000"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_extraction_spec",
+      "target": "claude_skills_graphify_references_extraction_spec_graphify_reference_extraction_subagent_prompt"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_github_and_merge",
+      "target": "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge",
+      "target": "claude_skills_graphify_references_github_and_merge_step_0_clone_github_repo_s_only_if_a_github_url_was_given"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_hooks",
+      "target": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_hooks_for_git_commit_hook",
+      "target": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_hooks_for_native_claude_md_integration",
+      "target": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_query",
+      "target": "claude_skills_graphify_references_query_graphify_reference_query_path_explain"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L254",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_query_for_graphify_explain",
+      "target": "claude_skills_graphify_references_query_graphify_reference_query_path_explain"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L186",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_query_for_graphify_path",
+      "target": "claude_skills_graphify_references_query_graphify_reference_query_path_explain"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "target": "claude_skills_graphify_references_query_step_0_constrained_query_expansion_required_before_traversal"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L61",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "target": "claude_skills_graphify_references_query_step_1_traversal"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_transcribe",
+      "target": "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio",
+      "target": "claude_skills_graphify_references_transcribe_step_2_5_transcribe_video_audio_files_only_if_video_files_detected"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_update",
+      "target": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L202",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_update_for_cluster_only",
+      "target": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_references_update_for_update_incremental_re_extraction",
+      "target": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill",
+      "target": "claude_skills_graphify_skill_graphify"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L695",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_for_graphify_add_and_watch",
+      "target": "claude_skills_graphify_skill_graphify"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L683",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_for_graphify_query",
+      "target": "claude_skills_graphify_skill_graphify"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L701",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_for_the_commit_hook_and_native_claude_md_integration",
+      "target": "claude_skills_graphify_skill_graphify"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L677",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_for_update_and_cluster_only",
+      "target": "claude_skills_graphify_skill_graphify"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_usage"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_what_graphify_is_for"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L49",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L659",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_interpreter_guard_for_subcommands"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L707",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_honesty_rules"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L170",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_part_a_structural_extraction_for_code_files",
+      "target": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L196",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_part_b_semantic_extraction_parallel_subagents",
+      "target": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L359",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_part_c_merge_ast_semantic_into_final_extraction",
+      "target": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L61",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_step_0_github_repos_and_multi_path_merge_only_if_a_url_or_several_paths",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_step_1_ensure_graphify_is_installed",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L147",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_step_2_5_video_and_audio_only_if_video_files_detected",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L107",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_step_2_detect_files",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L151",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L456",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_step_4_5_graph_health_check_read_only_integrity_gate",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L393",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_step_4_build_graph_cluster_analyze_generate_outputs",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L482",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_step_5_label_communities",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L531",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_step_6_generate_obsidian_vault_opt_in_html",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L557",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_step_9_save_manifest_update_cost_tracker_clean_up_and_report",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L551",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "claude_skills_graphify_skill_steps_6b_8_wiki_neo4j_falkordb_svg_graphml_mcp_benchmark_only_on_their_flags",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked"
     },
     {
       "relation": "contains",
@@ -15063,28 +16053,6 @@
       "confidence_score": 1.0,
       "source": "backend_strava_strava",
       "target": "backend_strava_strava_get_bikes"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
-      "source_location": "L47-L59",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_extraction_spec_extraction_prompt_spec",
-      "target": "_claude_skills_graphify_references_extraction_spec_confidence_rubric"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
-      "source_location": "L61",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_extraction_spec_extraction_prompt_spec",
-      "target": "_claude_skills_graphify_references_extraction_spec_node_id_format"
     },
     {
       "relation": "rationale_for",
@@ -17664,160 +18632,6 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": ".claude/CLAUDE.md",
-      "source_location": "L2",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_claude_graphify_trigger",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L697",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_add_watch_add_watch_flow",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L553",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_exports_additional_exports",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L277",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_extraction_spec_extraction_prompt_spec",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
-      "source_location": "L38-L42",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_extraction_spec_hyperedges_rule",
-      "target": "_claude_skills_graphify_references_extraction_spec_extraction_prompt_spec"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
-      "source_location": "L32-L36",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_extraction_spec_semantic_similarity_rule",
-      "target": "_claude_skills_graphify_references_extraction_spec_extraction_prompt_spec"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L63",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_github_and_merge_github_clone_and_merge",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L703",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_hooks_claude_md_integration",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L703",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_hooks_post_commit_hook",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L691",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_query_query_path_explain_flow",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/references/query.md",
-      "source_location": "L176-L182",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_query_work_memory_reflect_loop",
-      "target": "_claude_skills_graphify_references_query_query_path_explain_flow"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L149",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_transcribe_whisper_transcription_pipeline",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L679",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_update_cluster_only_flow",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md",
-      "source_location": "L679",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "_claude_skills_graphify_references_update_incremental_update_flow",
-      "target": "_claude_skills_graphify_skill_graphify_skill"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
       "source_file": ".handovers/CLAUDE.md",
       "source_location": "L20",
       "weight": 1.0,
@@ -18047,22 +18861,10 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "backend/business_logic.py",
-      "source_location": "L1371",
+      "source_location": "L1930",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "backend_business_logic_businesslogic_create_component",
-      "target": "backend_utils_generate_unique_id"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "backend/business_logic.py",
-      "source_location": "L1510",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "backend_business_logic_businesslogic_create_history_record",
+      "source": "backend_business_logic_businesslogic_create_collection",
       "target": "backend_utils_generate_unique_id"
     },
     {
@@ -18083,11 +18885,11 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "backend/business_logic.py",
-      "source_location": "L3078",
+      "source_location": "L2787",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "backend_business_logic_businesslogic_delete_record",
-      "target": "backend_utils_get_formatted_datetime_now"
+      "source": "backend_business_logic_businesslogic_create_workplan",
+      "target": "backend_utils_generate_unique_id"
     },
     {
       "relation": "calls",
@@ -18172,30 +18974,6 @@
       "_origin": "ast",
       "source": "backend_business_logic_businesslogic_get_component_details",
       "target": "backend_utils_get_formatted_bikes_list"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "backend/business_logic.py",
-      "source_location": "L263",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "backend_business_logic_businesslogic_get_component_details",
-      "target": "backend_utils_get_formatted_datetime_now"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "backend/business_logic.py",
-      "source_location": "L264",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "backend_business_logic_businesslogic_get_component_details",
-      "target": "backend_utils_calculate_elapsed_days"
     },
     {
       "relation": "calls",
@@ -18412,30 +19190,6 @@
       "_origin": "ast",
       "source": "backend_business_logic_businesslogic_get_workplan_details",
       "target": "backend_utils_strip_markdown_syntax"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "backend/business_logic.py",
-      "source_location": "L740",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "backend_business_logic_businesslogic_get_workplan_details",
-      "target": "backend_utils_calculate_elapsed_days"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "backend/business_logic.py",
-      "source_location": "L741",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "backend_business_logic_businesslogic_get_workplan_details",
-      "target": "backend_utils_get_formatted_datetime_now"
     },
     {
       "relation": "calls",
@@ -18731,6 +19485,18 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "backend/main.py",
+      "source_location": "L745",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_main_update_config",
+      "target": "backend_utils_write_config"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/main.py",
       "source_location": "L757",
       "weight": 1.0,
       "_origin": "ast",
@@ -18743,11 +19509,47 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "backend/business_logic.py",
-      "source_location": "L1930",
+      "source_location": "L264",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_utils_calculate_elapsed_days",
+      "target": "backend_business_logic_businesslogic_get_component_details"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/business_logic.py",
+      "source_location": "L740",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_utils_calculate_elapsed_days",
+      "target": "backend_business_logic_businesslogic_get_workplan_details"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1371",
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_utils_generate_unique_id",
-      "target": "backend_business_logic_businesslogic_create_collection"
+      "target": "backend_business_logic_businesslogic_create_component"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1510",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_utils_generate_unique_id",
+      "target": "backend_business_logic_businesslogic_create_history_record"
     },
     {
       "relation": "calls",
@@ -18767,23 +19569,35 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "backend/business_logic.py",
-      "source_location": "L2787",
+      "source_location": "L263",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "backend_utils_generate_unique_id",
-      "target": "backend_business_logic_businesslogic_create_workplan"
+      "source": "backend_utils_get_formatted_datetime_now",
+      "target": "backend_business_logic_businesslogic_get_component_details"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
-      "source_file": "backend/main.py",
-      "source_location": "L745",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L3078",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "backend_utils_write_config",
-      "target": "backend_main_update_config"
+      "source": "backend_utils_get_formatted_datetime_now",
+      "target": "backend_business_logic_businesslogic_delete_record"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/business_logic.py",
+      "source_location": "L741",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_utils_get_formatted_datetime_now",
+      "target": "backend_business_logic_businesslogic_get_workplan_details"
     },
     {
       "relation": "calls",
@@ -18892,6 +19706,18 @@
       "_origin": "manual-deterministic",
       "source": "backend_main_update_incident_record",
       "target": "frontend_static_js_main"
+    },
+    {
+      "relation": "references",
+      "context": "dom_reference",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/templates/base.html",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "manual-deterministic",
+      "source": "frontend_static_css_custom_styles",
+      "target": "frontend_templates_base_template"
     },
     {
       "relation": "references",
@@ -19559,17 +20385,6 @@
       "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.75,
-      "source_file": ".claude/skills/graphify/references/hooks.md",
-      "source_location": null,
-      "weight": 1.0,
-      "_origin": "semantic",
-      "source": "_claude_skills_graphify_references_hooks_claude_md_integration",
-      "target": "_claude_skills_graphify_references_hooks_post_commit_hook"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.75,
       "source_file": "tests/README.md",
       "source_location": null,
       "weight": 1.0,
@@ -19928,20 +20743,6 @@
       "source_file": "docs/plans/2026-01-11-workplan-hub-integration-incremental.md"
     },
     {
-      "id": "semantic_extraction_subagent_pipeline",
-      "label": "Semantic Extraction Subagent Pipeline",
-      "nodes": [
-        "_claude_skills_graphify_skill_graphify_skill",
-        "_claude_skills_graphify_references_extraction_spec_extraction_prompt_spec",
-        "_claude_skills_graphify_references_extraction_spec_node_id_format",
-        "_claude_skills_graphify_references_extraction_spec_confidence_rubric"
-      ],
-      "relation": "form",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".claude/skills/graphify/SKILL.md"
-    },
-    {
       "id": "standard_feature_development_workflow",
       "label": "Standard Feature Development Workflow",
       "nodes": [
@@ -20051,5 +20852,5 @@
       "source_file": "frontend/templates/modal_incident_record.html"
     }
   ],
-  "built_at_commit": "5ad3d1dc9fb6559a4de56f80d145393e1ffdd164"
+  "built_at_commit": "d99ff00fb0f41be469fd914401c06c6209d68ac0"
 }

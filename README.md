@@ -22,7 +22,7 @@ The onboarding procedure is not ready yet, but you can start piloting already no
 TODO
 
 ### Knowledge graph (graphify)
-This repo tracks a [graphify](https://github.com/safishamsi/graphify) knowledge graph of the codebase in `graphify-out/` (committed to git). The git hook that keeps it auto-updated on commit is **not** included by cloning — `.git/hooks/` is never tracked by git. After cloning, run this once to get the same behavior locally:
+This repo tracks a [graphify](https://github.com/Graphify-Labs/graphify) knowledge graph of the codebase in `graphify-out/` (committed to git). The git hook that keeps it auto-updated on commit is **not** included by cloning — `.git/hooks/` is never tracked by git. After cloning, run this once to get the same behavior locally:
 
 ```bash
 graphify hook install
