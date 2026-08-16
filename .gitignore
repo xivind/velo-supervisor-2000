@@ -6,3 +6,13 @@ backend/.mypy_cache/*
 backend/config.json
 .venv
 .playwright-mcp/
+
+# graphify - regenerable performance cache, no value in history
+graphify-out/cache/
+
+# graphify - machine-local interpreter path pointers (wrong on other machines)
+graphify-out/.graphify_python
+graphify-out/.graphify_root
+
+# graphify - local Obsidian sub-vault UI state (graph view layout, not content)
+graphify-out/obsidian/.obsidian/
