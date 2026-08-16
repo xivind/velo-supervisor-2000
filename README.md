@@ -28,7 +28,7 @@ This repo tracks a [graphify](https://github.com/safishamsi/graphify) knowledge 
 graphify hook install
 ```
 
-This installs a post-commit hook that rebuilds `graph.json`/`GRAPH_REPORT.md` from changed code (AST-only, no LLM cost) and refreshes the Obsidian export in `graphify-out/obsidian/` if it exists. Doc/template/image content still needs a manual update after those change - run `graphify . --update` (or ask Claude Code to run `/graphify --update`), since that step needs either a Gemini API key or an LLM-capable session.
+This installs a post-commit hook that rebuilds `graph.json`/`GRAPH_REPORT.md` from changed code (AST-only, no LLM cost). Doc/template/image content still needs a manual update after those change - run `graphify . --update` (or ask Claude Code to run `/graphify --update`), since that step needs either a Gemini API key or an LLM-capable session.
 
 ## Bugs
 There are still some bugs scattered around. If you find any, please submit them as an <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issue</a>.
