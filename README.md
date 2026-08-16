@@ -1,5 +1,5 @@
 # velo-supervisor-2000
-Velo Supervisor 2000 is a program to keep track of lifetime and service intervals of bicycle grcomponents, based on activity data from Strava.
+Velo Supervisor 2000 is a program to keep track of lifetime and service intervals of bicycle components, based on activity data from Strava.
 
 ---
 **📡 IMPORTANT INFORMATION TO USERS PARTICIPARTING IN PILOTING Q1 2025**
