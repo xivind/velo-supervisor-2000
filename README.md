@@ -61,6 +61,7 @@ There are new features in this version that require a database migration. Use [p
 
 - Workplans, incident and services are now integrated. Workplans act as a hub, allowing the user to tie incidents, workplans and service together
 - Misc minor frontend and backend improvements
+- Fixed a bug where new bikes without any Strava rides yet did not appear, and a related bug where a newly added bike could briefly show an incorrect "all healthy" status before any components were registered
 - Misc minor bug fixes (none affecting data quality)
 
 **v0.4.8**  

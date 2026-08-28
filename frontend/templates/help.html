@@ -498,6 +498,13 @@ const helpTopics = {
                 <li>Check application logs at bottom of CONFIG page</li>
             </ul>
 
+            <h6 class="mt-3">New Bike Not Showing Up</h6>
+            <p><strong>Cause:</strong> A bike just registered in Strava has no rides yet, so a plain ride sync never discovers it.</p>
+            <p><strong>Solution:</strong> Go to <strong>🎛 CONFIG</strong> and click <strong>"Refresh all bikes"</strong> - this looks up your full Strava gear list, not just bikes with ride history, so bikes with zero rides are picked up too.</p>
+
+            <h6 class="mt-3">New Bike Shows "All Components Healthy"</h6>
+            <p>A freshly added bike correctly starts out with status "No components registered" until you add and install its first component - if you see something else briefly, click "Refresh all bikes" to recalculate.</p>
+
             <h6 class="mt-3">Component Mileage Not Increasing</h6>
             <p><strong>Possible causes:</strong></p>
             <ul>
