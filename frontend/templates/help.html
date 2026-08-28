@@ -505,6 +505,10 @@ const helpTopics = {
             <h6 class="mt-3">New Bike Shows "All Components Healthy"</h6>
             <p>A freshly added bike correctly starts out with status "No components registered" until you add and install its first component - if you see something else briefly, click "Refresh all bikes" to recalculate.</p>
 
+            <h6 class="mt-3">"Refresh All Bikes" Still Doesn't Find a New Bike</h6>
+            <p><strong>Cause:</strong> Your Strava authorization token is missing the <code>profile:read_all</code> scope, which is required to look up your gear list independent of ride history. Tokens set up using Strava's default tutorial example (<code>scope=read</code>) don't have it.</p>
+            <p><strong>Solution:</strong> Re-authorize the app with Strava using an authorization URL that includes <code>profile:read_all</code>, e.g. <code>scope=read,activity:read_all,activity:write,profile:read_all</code>, then update your <code>strava_tokens.json</code> with the newly issued tokens. See the setup steps in the README for details.</p>
+
             <h6 class="mt-3">Component Mileage Not Increasing</h6>
             <p><strong>Possible causes:</strong></p>
             <ul>
