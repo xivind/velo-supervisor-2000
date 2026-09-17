@@ -174,9 +174,9 @@
     "semantic_hash": "a5d832bab910d34d7c0163818bd39b26"
   },
   "backend/current_version.txt": {
-    "mtime": 1789638468.185976,
-    "seen": 1789640610.9960575,
-    "ast_hash": "0b988a361f301736e4e0c9280a3ab2c2",
+    "mtime": 1789640623.9379084,
+    "seen": 1789640981.877642,
+    "ast_hash": "45ae034fd64066b40d16e748513d74af",
     "semantic_hash": ""
   },
   "docs/plans/2026-01-11-workplan-hub-integration-incremental.md": {
