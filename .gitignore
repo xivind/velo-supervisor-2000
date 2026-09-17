@@ -19,3 +19,8 @@ graphify-out/cache/last_query_stamp
 # graphify - machine-local interpreter path pointers (wrong on other machines)
 graphify-out/.graphify_python
 graphify-out/.graphify_root
+
+# graphify - dated auto-backup, created automatically before overwriting a
+# graph that cost real LLM tokens or has curated labels; git history already
+# covers this, so committing it only accumulates clutter
+graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
