@@ -5,7 +5,6 @@ backend/__pycache__/*
 backend/.mypy_cache/*
 backend/config.json
 .venv
-.playwright-mcp/
 
 # graphify - local-only cost log
 graphify-out/cost.json
