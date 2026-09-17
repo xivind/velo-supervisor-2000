@@ -23,3 +23,6 @@ graphify-out/.graphify_root
 # graph that cost real LLM tokens or has curated labels; git history already
 # covers this, so committing it only accumulates clutter
 graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
+
+# graphify - install-time safety backup, not needed long-term
+.claude/settings.json.graphify-bak

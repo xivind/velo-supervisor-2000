@@ -1,15 +1,15 @@
 {
   ".claude/settings.json": {
-    "mtime": 1786836302.2611256,
-    "seen": 1789626613.2191372,
-    "ast_hash": "86d98376ea05757e119fb6854577c8f0",
-    "semantic_hash": "86d98376ea05757e119fb6854577c8f0"
+    "mtime": 1789640590.7529094,
+    "seen": 1789640610.9959724,
+    "ast_hash": "3b541b9935fcf0831355da956f897645",
+    "semantic_hash": ""
   },
   ".claude/settings.local.json": {
-    "mtime": 1765750824.1498694,
-    "seen": 1788986566.2994618,
-    "ast_hash": "23eeec35a1944fefcaf8d4d22740d1d5",
-    "semantic_hash": "23eeec35a1944fefcaf8d4d22740d1d5"
+    "mtime": 1789637854.972995,
+    "seen": 1789640610.9959786,
+    "ast_hash": "659327cf127c3ecf19cc3528fe4676ac",
+    "semantic_hash": ""
   },
   "backend/__init__.py": {
     "mtime": 1736075660.1861658,
@@ -174,10 +174,10 @@
     "semantic_hash": "a5d832bab910d34d7c0163818bd39b26"
   },
   "backend/current_version.txt": {
-    "mtime": 1789625197.201391,
-    "seen": 1789626613.2192266,
-    "ast_hash": "cbc9e304104591dfd13310204f378874",
-    "semantic_hash": "cbc9e304104591dfd13310204f378874"
+    "mtime": 1789638468.185976,
+    "seen": 1789640610.9960575,
+    "ast_hash": "0b988a361f301736e4e0c9280a3ab2c2",
+    "semantic_hash": ""
   },
   "docs/plans/2026-01-11-workplan-hub-integration-incremental.md": {
     "mtime": 1769552679.2749538,
