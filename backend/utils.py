@@ -203,7 +203,6 @@ def derive_workplan_context(services, database_manager):
             component_ids.append(service.component_id)
             component_names.append(component.component_name if component else "Deleted component")
 
-        # Completed services keep the bike they were done on, planned services follow the component
         if service.status == "Completed":
             service_bike_id = service.bike_id
         else:
