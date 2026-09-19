@@ -1768,7 +1768,8 @@ class BusinessLogic():
                     success, message = self.process_service_records(component_id,
                                                                     first_service.service_id,
                                                                     first_service.service_date,
-                                                                    first_service.description)
+                                                                    first_service.description,
+                                                                    first_service.workplan_id)
                     if not success:
                         logging.error(f"An error occured triggering update of service records for {updated_component.component_name}: {message}")
                         return False, f"An error occured triggering update of service records for {updated_component.component_name}: {message}"
@@ -2149,17 +2150,30 @@ class BusinessLogic():
                               component_id,
                               service_date,
                               service_description,
-                              workplan_id=None):
-        """Method to add service record"""
+                              workplan_id=None,
+                              status="Completed",
+                              incident_id=None,
+                              planned_date=None):
+        """Method to add service record, planned or completed"""
         try:
             service_id = generate_unique_id()
 
-            success, message = self.validate_service_record("create service", component_id, service_id, service_date)
+            workplan_id = workplan_id if workplan_id and workplan_id.strip() else None
+            incident_id = incident_id if incident_id and incident_id.strip() else None
+            planned_date = planned_date if planned_date and planned_date.strip() else None
+
+            if status == "Planned":
+                return self.create_planned_service(service_id,
+                                                   component_id,
+                                                   service_description,
+                                                   workplan_id,
+                                                   incident_id,
+                                                   planned_date)
+
+            success, message = self.validate_service_record("create service", component_id, service_id, service_date, workplan_id=workplan_id)
             if not success:
                 logging.error(f"Validation of service record failed: {message}")
                 return success, message
-
-            workplan_id = workplan_id if workplan_id and workplan_id.strip() else None
 
             service_data = {"service_id": service_id,
                             "component_id": component_id,
@@ -2168,7 +2182,10 @@ class BusinessLogic():
                             "description": service_description,
                             'bike_id': "",
                             'distance_marker': 0,
-                            'workplan_id': workplan_id}
+                            'workplan_id': workplan_id,
+                            'status': "Completed",
+                            'incident_id': incident_id,
+                            'planned_date': planned_date}
 
             success, message = database_manager.write_service_record(service_data)
             if not success:
@@ -2191,16 +2208,73 @@ class BusinessLogic():
         except Exception as error:
             logging.error(f"An error occured creating service record for component with id {component_id}: {str(error)}")
             return False, f"Error creating service record for {component_id}: {str(error)}"
-    
-    def bulk_create_service_records(self, workplan_id, component_ids, service_date, service_description):
-        """Method to bulk create service records for multiple components linked to a workplan"""
+
+    def create_planned_service(self, service_id, component_id, service_description, workplan_id, incident_id, planned_date):
+        """Method to add a planned service, which has no service date, bike or distance until completed"""
+        success, message = self.validate_service_record("plan service",
+                                                        component_id,
+                                                        service_id,
+                                                        None,
+                                                        workplan_id=workplan_id,
+                                                        service_description=service_description,
+                                                        planned_date=planned_date)
+        if not success:
+            logging.error(f"Validation of planned service failed: {message}")
+            return success, message
+
+        component = database_manager.read_component(component_id)
+
+        service_data = {"service_id": service_id,
+                        "component_id": component_id,
+                        "component_name": component.component_name,
+                        "service_date": None,
+                        "description": service_description,
+                        'bike_id': None,
+                        'distance_marker': None,
+                        'workplan_id': workplan_id,
+                        'status': "Planned",
+                        'incident_id': incident_id,
+                        'planned_date': planned_date}
+
+        success, message = database_manager.write_service_record(service_data)
+        if success:
+            logging.info(f"Creation of planned service successful: {message}")
+        else:
+            logging.error(f"Creation of planned service failed: {message}")
+
+        return success, message
+
+    def build_bulk_service_message(self, action_label, successful_components, failed_components, incident_hints):
+        """Method to build the report used by the plan services and complete services modals"""
+        total_count = len(successful_components) + len(failed_components)
+        success_count = len(successful_components)
+
+        if success_count == total_count:
+            message_type = "success"
+            summary = f"Successfully {action_label} services for all {success_count} components"
+        elif success_count > 0:
+            message_type = "partial_failure"
+            summary = f"Only {success_count} of {total_count} services were {action_label}"
+        else:
+            message_type = "complete_failure"
+            summary = f"No services were {action_label}"
+
+        return {"type": message_type,
+                "summary": summary,
+                "total_count": total_count,
+                "success_count": success_count,
+                "successful_components": successful_components,
+                "failed_components": failed_components,
+                "incident_hints": incident_hints}
+
+    def create_planned_services(self, component_ids, service_description, workplan_id=None, incident_id=None, planned_date=None):
+        """Method to create planned services for one or more components with the same description"""
         try:
-            logging.info(f"Starting bulk service creation for workplan {workplan_id}, {len(component_ids)} components")
+            logging.info(f"Starting creation of planned services for {len(component_ids)} components")
 
             if not component_ids:
                 return False, "No components selected"
 
-            success_count = 0
             successful_components = []
             failed_components = []
 
@@ -2209,102 +2283,259 @@ class BusinessLogic():
                 component_name = component.component_name if component else f"Component {component_id}"
 
                 success, message = self.create_service_record(component_id=component_id,
-                                                              service_date=service_date,
+                                                              service_date=None,
                                                               service_description=service_description,
-                                                              workplan_id=workplan_id)
+                                                              workplan_id=workplan_id,
+                                                              status="Planned",
+                                                              incident_id=incident_id,
+                                                              planned_date=planned_date)
 
                 if success:
-                    success_count += 1
                     successful_components.append(component_name)
-                    logging.info(f"Created service record for {component_name}")
+                    logging.info(f"Created planned service for {component_name}")
                 else:
                     failed_components.append({"name": component_name, "error": message})
-                    logging.error(f"Failed to create service record for {component_id}: {message}")
+                    logging.error(f"Failed to create planned service for {component_id}: {message}")
 
-            total_count = len(component_ids)
-
-            if success_count == total_count:
-                message = {"type": "success",
-                           "summary": f"Successfully created service records for all {success_count} components",
-                           "total_count": total_count,
-                           "success_count": success_count,
-                           "successful_components": successful_components,
-                           "failed_components": []}
-
-                logging.info(f"Bulk service creation: all {success_count} services created successfully")
-                return True, message
-
-            elif success_count > 0:
-                message = {"type": "partial_failure",
-                           "summary": f"Service creation partially failed - only {success_count} of {total_count} services were created",
-                           "total_count": total_count,
-                           "success_count": success_count,
-                           "successful_components": successful_components,
-                           "failed_components": failed_components}
-
-                logging.warning(f"Bulk service creation: {success_count} / {total_count} services created")
-                return False, message
-
-            else:
-                message = {"type": "complete_failure",
-                           "summary": "Failed to create any service records",
-                           "total_count": total_count,
-                           "success_count": 0,
-                           "successful_components": [],
-                           "failed_components": failed_components}
-
-                logging.error("Bulk service creation: all services failed")
-                return False, message
+            message = self.build_bulk_service_message("planned", successful_components, failed_components, [])
+            logging.info(message["summary"])
+            return message["type"] == "success", message
 
         except Exception as error:
-            logging.error(f"Error in bulk service creation for workplan {workplan_id}: {str(error)}")
-            return False, f"Error creating service records: {str(error)}"
+            logging.error(f"Error creating planned services: {str(error)}")
+            return False, f"Error creating planned services: {str(error)}"
+
+    def complete_services(self, service_ids, service_date, completion_note=None):
+        """Method to complete planned services with one service date, keeping their descriptions"""
+        try:
+            logging.info(f"Starting completion of {len(service_ids)} planned services")
+
+            if not service_ids:
+                return False, "No services selected"
+
+            completion_note = completion_note if completion_note and completion_note.strip() else None
+
+            successful_components = []
+            failed_components = []
+            touched_incident_ids = []
+
+            for service_id in service_ids:
+                service = database_manager.read_single_service_record(service_id)
+                if not service:
+                    failed_components.append({"name": f"Service {service_id}", "error": "Service record not found"})
+                    continue
+
+                component = database_manager.read_component(service.component_id)
+                component_name = component.component_name if component else f"Component {service.component_id}"
+
+                success, message = self.validate_service_record("complete service",
+                                                                service.component_id,
+                                                                service_id,
+                                                                service_date,
+                                                                workplan_id=service.workplan_id)
+                if not success:
+                    failed_components.append({"name": component_name, "error": message})
+                    logging.error(f"Failed to complete service {service_id}: {message}")
+                    continue
+
+                service_description = f"{service.description}\n{completion_note}" if completion_note else service.description
+
+                service_data = {"service_id": service_id,
+                                "component_id": service.component_id,
+                                "component_name": component_name,
+                                "service_date": service_date,
+                                "description": service_description,
+                                'status': "Completed"}
+
+                success, message = database_manager.write_service_record(service_data)
+                if not success:
+                    failed_components.append({"name": component_name, "error": message})
+                    logging.error(f"Failed to write completed service {service_id}: {message}")
+                    continue
+
+                success, message = self.process_service_records(service.component_id, service_id, service_date, service_description, service.workplan_id)
+                if not success:
+                    failed_components.append({"name": component_name, "error": message})
+                    logging.error(f"Failed to process completed service {service_id}: {message}")
+                    continue
+
+                successful_components.append(component_name)
+                if service.incident_id and service.incident_id not in touched_incident_ids:
+                    touched_incident_ids.append(service.incident_id)
+
+            incident_hints = []
+            for incident_id in touched_incident_ids:
+                incident = database_manager.read_single_incident_report(incident_id)
+                if not incident or incident.incident_status != "Open":
+                    continue
+
+                remaining_planned = [service for service in database_manager.read_services_by_incident(incident_id)
+                                     if service.status == "Planned"]
+                if not remaining_planned:
+                    incident_title = generate_incident_title(database_manager.read_component_names(incident.incident_affected_component_ids),
+                                                             database_manager.read_bike_name(incident.incident_affected_bike_id),
+                                                             incident.incident_description)
+                    incident_hints.append(f"Incident '{incident_title}' has no remaining planned services and can be closed")
+
+            message = self.build_bulk_service_message("completed", successful_components, failed_components, incident_hints)
+            logging.info(message["summary"])
+            return message["type"] == "success", message
+
+        except Exception as error:
+            logging.error(f"Error completing services: {str(error)}")
+            return False, f"Error completing services: {str(error)}"
 
     def update_service_record(self,
                               component_id,
                               service_id,
                               service_date,
                               service_description,
-                              workplan_id=None):
-        """Method to update a service record"""
+                              workplan_id=None,
+                              status="Completed",
+                              incident_id=None,
+                              planned_date=None):
+        """Method to update a service record, including status changes in both directions"""
         try:
-            success, message = self.validate_service_record("edit service", component_id, service_id, service_date)
+            workplan_id = workplan_id if workplan_id and workplan_id.strip() else None
+            incident_id = incident_id if incident_id and incident_id.strip() else None
+            planned_date = planned_date if planned_date and planned_date.strip() else None
+
+            current_service = database_manager.read_single_service_record(service_id)
+            if not current_service:
+                logging.warning(f"Service record not found: {service_id}")
+                return False, f"Service record not found: {service_id}"
+
+            if status == "Planned":
+                success, message = self.validate_service_record("plan service",
+                                                                component_id,
+                                                                service_id,
+                                                                None,
+                                                                workplan_id=workplan_id,
+                                                                service_description=service_description,
+                                                                planned_date=planned_date)
+                if not success:
+                    logging.error(f"Validation of service record failed: {message}")
+                    return success, message
+
+                service_data = {"service_id": service_id,
+                                "component_id": component_id,
+                                "component_name": current_service.component_name,
+                                "service_date": None,
+                                "description": service_description,
+                                'bike_id': None,
+                                'distance_marker': None,
+                                'workplan_id': workplan_id,
+                                'status': "Planned",
+                                'incident_id': incident_id,
+                                'planned_date': planned_date}
+
+                success, message = database_manager.write_service_record(service_data)
+                if not success:
+                    logging.error(f"Error updating service record: {message}")
+                    return success, message
+
+                if current_service.status == "Completed":
+                    success, message = self.recalculate_component_after_service_removal(component_id)
+                    if not success:
+                        return success, message
+
+                logging.info(f"Update of service record successful: {message}")
+                return success, message
+
+            validation_mode = "complete service" if current_service.status == "Planned" else "edit service"
+            success, message = self.validate_service_record(validation_mode, component_id, service_id, service_date, workplan_id=workplan_id)
             if not success:
                 logging.error(f"Validation of service record failed: {message}")
                 return success, message
 
-            workplan_id = workplan_id if workplan_id and workplan_id.strip() else None
+            service_data = {"service_id": service_id,
+                            "component_id": component_id,
+                            "component_name": current_service.component_name,
+                            'workplan_id': workplan_id,
+                            'status': "Completed",
+                            'incident_id': incident_id,
+                            'planned_date': planned_date}
+
+            success, message = database_manager.write_service_record(service_data)
+            if not success:
+                logging.error(f"Error updating service record: {message}")
+                return success, message
 
             success, message = self.process_service_records(component_id, service_id, service_date, service_description, workplan_id)
             if not success:
                 logging.error(f"Error processing service record: {message}")
                 return success, message
 
-            if success:
-                logging.info(f"Update of service record successful: {message}")
-            else:
-                logging.error(f"Update of service record failed: {message}")
-                return success, message
-
+            logging.info(f"Update of service record successful: {message}")
             return success, message
 
         except Exception as error:
             logging.error(f"An error occured updating service records for component with id {component_id}: {str(error)}")
             return False, f"Error updating service records for component with id {component_id}: {str(error)}"
 
-    def validate_service_record(self, mode, component_id, service_id, service_date):
+    def recalculate_component_after_service_removal(self, component_id):
+        """Method to recalculate a component after a completed service is deleted or reverted to planned"""
+        component = database_manager.read_component(component_id)
+        logging.debug(f"Recalculating service records for component {component.component_name} after removal of a completed service")
+
+        service_records = database_manager.read_subset_service_history(component_id)
+        if service_records:
+            first_service = service_records.first()
+            success, message = self.process_service_records(component_id,
+                                                            first_service.service_id,
+                                                            first_service.service_date,
+                                                            first_service.description,
+                                                            first_service.workplan_id)
+            if not success:
+                logging.error(f"An error occured triggering update of service records for {component.component_name}: {message}")
+                return False, f"An error occured triggering update of service records for {component.component_name}: {message}"
+
+            return True, f"Recalculated service records for {component.component_name}"
+
+        self.update_component_distance(component_id, component.component_distance - component.component_distance_offset)
+        return True, f"No completed services left for {component.component_name}, distance recalculated"
+
+    def validate_service_record(self, mode, component_id, service_id, service_date, workplan_id=None, service_description=None, planned_date=None):
         """Method to validate service records before processing and storing in database"""
         logging.debug(f"Running validation rules for service records: {service_id}.")
 
         current_service = database_manager.read_single_service_record(service_id)
-        if mode == "edit service" and not current_service:
+        if mode in ["edit service", "complete service"] and not current_service:
             logging.warning(f"Service record not found: {service_id}")
             return False, f"Service record not found: {service_id}"
 
         component = database_manager.read_component(component_id)
         if not component:
-            logging.warning(f"Associated component for service record for component {component.component_name} not found")
-            return False, f"Associated component for service record for component {component.component_name} not found"
+            logging.warning(f"Associated component for service record {service_id} not found")
+            return False, f"Associated component for service record {service_id} not found"
+
+        if component.installation_status == "Retired":
+            logging.warning(f"Services cannot be planned, completed or changed on a retired component: {component.component_name}")
+            return False, f"Services cannot be planned, completed or changed on a retired component: {component.component_name}"
+
+        if mode == "plan service":
+            if not service_description or len(service_description.strip()) < 5:
+                logging.warning(f"Description must be at least 5 characters. Component: {component.component_name}")
+                return False, f"Description must be at least 5 characters. Component: {component.component_name}"
+
+            if planned_date:
+                success, message = validate_date_format(planned_date)
+                if not success:
+                    logging.warning(message)
+                    return False, message
+
+            if workplan_id:
+                for existing_service in database_manager.read_planned_services_by_workplan(workplan_id):
+                    if existing_service.component_id == component_id and existing_service.service_id != service_id:
+                        logging.warning(f"Component {component.component_name} already has a planned service in this workplan")
+                        return False, f"Component {component.component_name} already has a planned service in this workplan"
+
+            logging.debug(f"Validation of planned service for {component.component_name} passed")
+            return True, f"Validation of planned service for {component.component_name} passed"
+
+        if mode == "complete service" and current_service.status != "Planned":
+            logging.warning(f"Only planned services can be completed. Component: {component.component_name}")
+            return False, f"Only planned services can be completed. Component: {component.component_name}"
 
         success, message = validate_date_format(service_date)
         if not success:
@@ -2326,9 +2557,15 @@ class BusinessLogic():
             logging.warning(f"Service date cannot be in the future. Component: {component.component_name}")
             return False, f"Service date cannot be in the future. Component: {component.component_name}"
 
+        if workplan_id:
+            workplan = database_manager.read_single_workplan(workplan_id)
+            if workplan and workplan.workplan_status == "Done" and workplan.completion_date and service_date > workplan.completion_date:
+                logging.warning(f"Service date cannot be after the completion date of its workplan: {workplan.completion_date}. Component: {component.component_name}")
+                return False, f"Service date cannot be after the completion date of its workplan ({workplan.completion_date}). Reopen the workplan first. Component: {component.component_name}"
+
         logging.debug(f"Validation of service record for {component.component_name} passed")
         return True, f"Validation of service record for {component.component_name} passed"
-    
+
     def process_service_records(self, component_id, service_id, service_date, service_description, workplan_id=None):
         """Method to calculate distance and bike id for service records"""
         component = database_manager.read_component(component_id)
@@ -2997,10 +3234,12 @@ class BusinessLogic():
         bike_id = None
         collection_id = None
         if table_selector == "Services":
-            component_id = database_manager.read_single_service_record(record_id).component_id
+            deleted_service = database_manager.read_single_service_record(record_id)
+            deleted_service_status = deleted_service.status
+            component_id = deleted_service.component_id
             component = database_manager.read_component(component_id)
             bike_id = component.bike_id
-        
+
         elif table_selector == "ComponentHistory":
             component_id = database_manager.read_single_history_record(record_id).component_id
             component = database_manager.read_component(component_id)
@@ -3040,35 +3279,28 @@ class BusinessLogic():
 
         elif table_selector == "Workplans":
             linked_services = database_manager.read_services_by_workplan(record_id)
-            linked_incidents = database_manager.read_incidents_by_workplan(record_id)
 
-            if linked_services or linked_incidents:
-                service_count = linked_services.count() if linked_services else 0
-                incident_count = linked_incidents.count() if linked_incidents else 0
-                logging.warning(f"Cannot delete workplan as it has linked services ({service_count}) or incidents ({incident_count})")
-                return False, f"Cannot delete workplan as it has {service_count} linked service(s) and {incident_count} linked incident(s). Remove these links before deleting.", component_id, bike_id, collection_id
+            if linked_services:
+                service_count = linked_services.count()
+                logging.warning(f"Cannot delete workplan as it has linked services ({service_count})")
+                return False, f"Cannot delete workplan as it has {service_count} linked service(s). Remove or move these services before deleting.", component_id, bike_id, collection_id
 
         success, message = database_manager.write_delete_record(table_selector, record_id)
 
         if success:
             logging.info(f"Deletion successful: {message}")
             if table_selector == "Services":
-                logging.debug(f"Recalculating service records for component {component.component_name} after deletion")
+                if deleted_service_status == "Completed":
+                    recalculation_success, recalculation_message = self.recalculate_component_after_service_removal(component_id)
+                    if not recalculation_success:
+                        return False, f"{recalculation_message} after deletion", component_id, bike_id, collection_id
 
-                service_records = database_manager.read_subset_service_history(component_id)
-                if service_records:
-                    first_service = service_records.first()
-                    success, message = self.process_service_records(component_id,
-                                                                    first_service.service_id,
-                                                                    first_service.service_date,
-                                                                    first_service.description)
-                    if not success:
-                        logging.error(f"An error occured triggering update of service records for {component.component_name} after deletion: {message}")
-                        return False, f"An error occured triggering update of service records for {component.component_name} after deletion: {message}", component_id, bike_id, collection_id
-                
-                elif not service_records:
-                    component = database_manager.read_component(component_id)
-                    self.update_component_distance(component_id, component.component_distance - component.component_distance_offset)
+            elif table_selector == "Incidents":
+                for service in database_manager.read_services_by_incident(record_id):
+                    database_manager.write_service_record({"service_id": service.service_id,
+                                                           "component_name": service.component_name,
+                                                           "incident_id": None})
+                    logging.debug(f"Removed link to deleted incident {record_id} from service {service.service_id}")
 
             elif table_selector == "ComponentHistory":
                 logging.debug(f"Recalculating installation history records for component {component.component_name} after deletion")
