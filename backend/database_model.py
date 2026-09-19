@@ -105,7 +105,7 @@ class Collections(BaseModel):
     sub_collections = CharField()
     updated_date = CharField()
     comment = CharField()
-    
+
     class Meta:
         """Extends model with extra attributes"""
         table_name = "collections"
