@@ -622,10 +622,10 @@ def read_names_for_migration(cursor, bike_id, component_ids):
     return bike_name, component_names, missing_component_ids
 
 def insert_planned_service_for_migration(cursor, component_id, description, workplan_id, incident_id):
-    """Insert a planned service with no date, bike or distance. Returns False if the component no longer exists"""
-    cursor.execute("SELECT component_name FROM components WHERE component_id = ?", (component_id,))
+    """Insert a planned service with no date, bike or distance. Returns False if the component is deleted or retired"""
+    cursor.execute("SELECT component_name, installation_status FROM components WHERE component_id = ?", (component_id,))
     row = cursor.fetchone()
-    if not row:
+    if not row or row[1] == "Retired":
         return False
 
     cursor.execute("""INSERT INTO services (service_id, component_id, component_name, bike_id,
@@ -658,8 +658,10 @@ def migrate_workplans_to_planned_services(cursor, conn):
 
         planned_count = 0
         if workplan_status == "Planned":
-            for component_id in affected_component_ids:
+            not_converted_names = []
+            for component_id, component_name in zip(affected_component_ids, component_names):
                 if component_id in missing_component_ids:
+                    not_converted_names.append(component_name)
                     continue
                 cursor.execute("SELECT 1 FROM services WHERE workplan_id = ? AND component_id = ?",
                                (workplan_id, component_id))
@@ -669,10 +671,12 @@ def migrate_workplans_to_planned_services(cursor, conn):
                                                         "Planned service (migrated from workplan)",
                                                         workplan_id, None):
                     planned_count += 1
+                else:
+                    not_converted_names.append(f"{component_name} (retired)")
 
             note_parts = []
-            if missing_component_ids:
-                note_parts.append(f"components: {', '.join(['Deleted component'] * len(missing_component_ids))}")
+            if not_converted_names:
+                note_parts.append(f"components without planned service: {', '.join(not_converted_names)}")
         else:
             note_parts = []
             if bike_name:

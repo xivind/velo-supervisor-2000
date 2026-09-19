@@ -31,8 +31,12 @@ def seed_old_data(db_path):
                           lifetime_expected, updated_date)
                           VALUES (?, 'bike-1', ?, 'Type', 0, 0, 'Installed', 1000, 3000, '2026-01-01 10:00')""",
                        (component_id, name))
+    cursor.execute("""INSERT INTO components (component_id, bike_id, component_name, component_type,
+                      component_distance, component_distance_offset, installation_status, service_interval,
+                      lifetime_expected, updated_date)
+                      VALUES ('comp-retired', NULL, 'Old chain', 'Type', 0, 0, 'Retired', 1000, 3000, '2026-01-01 10:00')""")
     cursor.execute("""INSERT INTO workplans VALUES ('wp-planned', '2026-03-01 10:00', 'Planned', 'Small',
-                      '["comp-1", "comp-2", "comp-3", "comp-gone"]', 'bike-1', 'Spring service', NULL, NULL)""")
+                      '["comp-1", "comp-2", "comp-3", "comp-gone", "comp-retired"]', 'bike-1', 'Spring service', NULL, NULL)""")
     cursor.execute("""INSERT INTO workplans VALUES ('wp-done', '2025-03-01 10:00', 'Done', 'Small',
                       '["comp-1"]', 'bike-1', 'Last year', '2025-03-02 10:00', 'All good')""")
     cursor.execute("""INSERT INTO services VALUES ('svc-1', 'comp-1', 'Chain', 'bike-1', '2026-02-01 10:00', 0,
@@ -45,6 +49,8 @@ def seed_old_data(db_path):
                       '["comp-1"]', 'bike-1', 'Chain snapped', NULL, NULL, 'wp-empty')""")
     cursor.execute("""INSERT INTO workplans VALUES ('wp-empty', '2026-04-01 10:00', 'Planned', 'Small',
                       NULL, NULL, 'Emergency fix', NULL, NULL)""")
+    cursor.execute("""INSERT INTO incidents VALUES ('inc-retired-only', '2026-02-13 10:00', 'Open', 'Monitor',
+                      '["comp-retired"]', 'bike-1', 'Old chain rusty', NULL, NULL, 'wp-empty')""")
     cursor.execute("""INSERT INTO incidents VALUES ('inc-done', '2025-02-11 10:00', 'Resolved', 'Monitor',
                       '["comp-1"]', 'bike-1', 'Old', '2025-03-02 10:00', 'Fixed', 'wp-done')""")
     conn.commit()
@@ -108,8 +114,12 @@ def test_migration_converts_old_model(app_env):
     assert "Road bike" in done_description and "Chain" in done_description
 
     planned_description = conn.execute("SELECT workplan_description FROM workplans WHERE workplan_id='wp-planned'").fetchone()[0]
-    assert "Deleted component" in planned_description
+    assert "Deleted component" in planned_description and "Old chain (retired)" in planned_description
     assert "Road bike" not in planned_description
+
+    assert conn.execute("SELECT COUNT(*) FROM services WHERE component_id='comp-retired'").fetchone()[0] == 0
+    retired_incident_description = conn.execute("SELECT incident_description FROM incidents WHERE incident_id='inc-retired-only'").fetchone()[0]
+    assert "wp-empty" in retired_incident_description
 
     bike_incident_description = conn.execute("SELECT incident_description FROM incidents WHERE incident_id='inc-bike'").fetchone()[0]
     assert bike_incident_description.startswith("Creaking") and "wp-planned" in bike_incident_description
