@@ -870,7 +870,9 @@ class BusinessLogic():
 
         if mode == "all":
             logging.info("Refreshing all bikes from Strava")
-            await strava.get_bikes(database_manager.read_unique_bikes())
+            athlete_bike_ids = await strava.get_athlete_bikes()
+            all_bike_ids = database_manager.read_unique_bikes() | athlete_bike_ids
+            await strava.get_bikes(all_bike_ids)
             success, message = database_manager.write_update_bikes(strava.payload_bikes)
 
             if success:
@@ -3109,8 +3111,9 @@ class BusinessLogic():
 
     async def refresh_all_bikes(self):
         """Method to refresh all bikes from Strava"""
-        unique_bike_ids = database_manager.read_unique_bikes()
-        
+        athlete_bike_ids = await strava.get_athlete_bikes()
+        unique_bike_ids = database_manager.read_unique_bikes() | athlete_bike_ids
+
         await strava.get_bikes(unique_bike_ids)
         success_main, message_main = database_manager.write_update_bikes(strava.payload_bikes)
 

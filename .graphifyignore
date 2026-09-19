@@ -1,0 +1,4 @@
+# graphify's own installed skill/reference docs are tool documentation,
+# not project knowledge - exclude from the graph it builds of itself.
+.claude/CLAUDE.md
+.claude/skills/

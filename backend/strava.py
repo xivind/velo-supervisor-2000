@@ -15,6 +15,7 @@ class Strava:
         self.payload_bikes = []
         self.payload_rides = []
         self.bike_ids_recent_rides = set()
+        self.athlete_bike_ids = set()
         self.oauth_file = oauth_file
 
     def token_loader(self):
@@ -93,6 +94,42 @@ class Strava:
 
         except Exception as error:
             logging.error(f'An error occured during the API call to fetch rides: {error}.')
+
+    async def get_athlete_bikes(self):
+        """Method to authenticate and get the full list of bike ids from the athlete's Strava profile, independent of ride history"""
+        raw_response = ""
+        self.athlete_bike_ids = set()
+        self.token_loader()
+        refresh_url = "https://www.strava.com/oauth/token"
+
+        if self.token["expires_at"] < datetime.now().timestamp():
+            logging.warning(f'Access token expired at {datetime.fromtimestamp(self.token["expires_at"])}. Refreshing tokens.')
+
+            try:
+                client = OAuth2Session(self.extra["client_id"], token=self.token)
+                self.token = client.refresh_token(refresh_url, refresh_token=self.token["refresh_token"], **self.extra)
+                self.token_saver()
+                self.token_loader()
+
+            except Exception as error:
+                logging.error(f'An error occured refreshing tokens: {error}.')
+
+        try:
+            logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])},in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}.')
+            client = OAuth2Session(self.extra["client_id"], token=self.token)
+
+            protected_url = "https://www.strava.com/api/v3/athlete"
+            raw_response = client.get(protected_url)
+            self.json_response = raw_response.json()
+
+            if self.json_response and "bikes" in self.json_response:
+                self.athlete_bike_ids = {str(bike["id"]) for bike in self.json_response["bikes"]}
+                logging.debug(f'Found {len(self.athlete_bike_ids)} bikes registered on athlete profile.')
+
+        except Exception as error:
+            logging.error(f'An error occured during the API call to fetch athlete profile: {error}.')
+
+        return self.athlete_bike_ids
 
     async def get_bikes(self, bike_ids):
         """Method to authenticate and get data from Stravas gear API"""

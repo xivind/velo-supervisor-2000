@@ -8,7 +8,7 @@ Velo Supervisor 2000 is a program to keep track of lifetime and service interval
 
 The onboarding procedure is not ready yet, but you can start piloting already now by setting up Velo Supervisor 2000 manually. Complete the following steps:
 - **Step 1:** Copy the file `backend/template_db.sqlite` and place it somewhere outside the repo
-- **Step 2:** Copy the file `backend/strava_tokens.example.json` and place it somewhere outside the repo. You should rename the file as well, e.g. to `strava_tokens.json`. Modify it with your own data and dont share it with anyone else. [See this tutorial](https://developers.strava.com/docs/getting-started/) on how to obtain the oauth-data from Strava
+- **Step 2:** Copy the file `backend/strava_tokens.example.json` and place it somewhere outside the repo. You should rename the file as well, e.g. to `strava_tokens.json`. Modify it with your own data and dont share it with anyone else. [See this tutorial](https://developers.strava.com/docs/getting-started/) on how to obtain the oauth-data from Strava. **Important:** the tutorial's example authorization URL uses `scope=read`, which is not enough. Replace it with `scope=read,activity:read_all,activity:write,profile:read_all` - the `profile:read_all` scope is required for the app to detect bikes that dont have any recorded rides yet
 - **Step 3:** Make a copy of `backend/config.json.example` and rename it to `config.json`. This new file should reside within the backend directory. It is in .gitignore, so it will not be synced to remote. Update it with the correct path to your database file and Strava tokens
 - **Step 4:** Create a virtual Python 3 environment and install the required packages, e.g. by using `pip install -r requirements.txt` Skip this step if you prefer to deploy the program as a Docker container. If you deploy as Docker container, you can have a look at the script `create-container-vs2000.sh` for inspiration, but surely you need to modify it to your liking
 - **Step 5:** To run the program from your terminal, instead of deploying as a Docker container, use this command from within the backed directory: `uvicorn main:app --log-config uvicorn_log_config.ini` Make sure that you actviate the newly created python 3 environment in advance
@@ -20,6 +20,15 @@ The onboarding procedure is not ready yet, but you can start piloting already no
 
 ## Setup and configuration
 TODO
+
+### Knowledge graph (graphify)
+This repo tracks a [graphify](https://github.com/Graphify-Labs/graphify) knowledge graph of the codebase in `graphify-out/` (committed to git). The git hook that keeps it auto-updated on commit is **not** included by cloning — `.git/hooks/` is never tracked by git. After cloning, run this once to get the same behavior locally:
+
+```bash
+graphify hook install
+```
+
+This installs a post-commit hook that rebuilds `graph.json`/`GRAPH_REPORT.md` from changed code (AST-only, no LLM cost). Doc/template/image content still needs a manual update after those change - run `graphify . --update` (or ask Claude Code to run `/graphify --update`), since that step needs either a Gemini API key or an LLM-capable session.
 
 ## Bugs
 There are still some bugs scattered around. If you find any, please submit them as an <a href="https://github.com/xivind/velo-supervisor-2000/issues" class="text-decoration-none">issue</a>.
@@ -39,11 +48,23 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Improved initital setup and configuration
 - ... and much more
 
-**Planned for v0.4.9**  
+**Planned for v0.5.0**  
 
 - See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
-**v0.4.8 (CURRENT)**  
+**v0.4.9 (CURRENT)**  
+*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.8 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
+
+There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the Velo Supervisor 2000 database. Remember to backup the database first.
+
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+
+- Workplans, incident and services are now integrated. Workplans act as a hub, allowing the user to tie incidents, workplans and service together
+- Misc minor frontend and backend improvements
+- Fixed a bug where new bikes without any Strava rides yet did not appear, and a related bug where a newly added bike could briefly show an incorrect "all healthy" status before any components were registered
+- Misc minor bug fixes (none affecting data quality)
+
+**v0.4.8**  
 *THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
 
 - New feature: Install existing components or collections directly from bike details page

@@ -1,0 +1,13 @@
+[project]
+name = "velo-supervisor-2000"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "apscheduler>=3.11.3",
+    "fastapi>=0.141.1",
+    "jinja2>=3.1.6",
+    "peewee>=4.5.1",
+    "python-multipart>=0.0.32",
+    "requests-oauthlib>=2.0.0",
+    "uvicorn>=0.52.4",
+]
