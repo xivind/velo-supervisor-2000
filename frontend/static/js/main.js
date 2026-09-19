@@ -1138,6 +1138,290 @@ window.forceCloseLoadingModal = function() {
     }, 200);
 };
 
+// ----- Plan and complete services modals -----
+
+// Used on workplan details, incident reports, bike details, collection details and component details pages
+
+// Function to format the report returned by /add_planned_services and /complete_services
+window.formatBulkServiceMessage = function(messageData) {
+    if (typeof messageData === 'string') {
+        return messageData;
+    }
+
+    let html = `<strong>${messageData.summary}</strong><br><br>`;
+
+    if (messageData.successful_components.length > 0) {
+        html += '<strong>Done for:</strong><br>';
+        html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
+        html += '<br><br>';
+    }
+
+    if (messageData.failed_components.length > 0) {
+        html += '<strong>Failed for:</strong><br>';
+        html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
+        html += '<br><br>';
+    }
+
+    if (messageData.incident_hints && messageData.incident_hints.length > 0) {
+        html += '<strong>Incidents:</strong><br>';
+        html += messageData.incident_hints.map(hint => `• ${hint}`).join('<br>');
+    }
+
+    return html;
+};
+
+// Function to post a bulk service action, report the result and reload the page
+window.submitBulkServiceAction = function(url, formData, loadingText, titles) {
+    document.getElementById('loadingMessage').textContent = loadingText;
+
+    setTimeout(() => {
+        loadingModal.show();
+
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            forceCloseLoadingModal();
+
+            setTimeout(() => {
+                const isPartialFailure = data.message && data.message.type === 'partial_failure';
+                const title = data.success ? titles.success : isPartialFailure ? titles.partial : titles.failure;
+
+                showReportModal(title, formatBulkServiceMessage(data.message), data.success, isPartialFailure, function() {
+                    const pageUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, pageUrl);
+                    window.location.reload();
+                });
+            }, 500);
+        })
+        .catch(error => {
+            console.error('Bulk service action error:', error);
+            forceCloseLoadingModal();
+
+            setTimeout(() => {
+                showReportModal('❌ Application error', 'An error occurred. Give it another go.', false, false, function() {
+                    const pageUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, pageUrl);
+                    window.location.reload();
+                });
+            }, 400);
+        });
+    }, 300);
+};
+
+// Function to show a validation message from the services modals
+window.showServicesValidationModal = function(message) {
+    document.getElementById('validationModalBody').textContent = message;
+    validationModal.show();
+};
+
+// Plan services modal, opened from buttons carrying data-preselect, data-workplan-id and data-incident-id
+(function() {
+    if (!document.getElementById('planServicesModal')) {
+        return;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const planServicesModal = document.getElementById('planServicesModal');
+        const componentSelect = document.getElementById('planServicesComponents');
+        const workplanSelect = document.getElementById('planServicesWorkplanId');
+        const multipleBanner = document.getElementById('planServicesMultipleBanner');
+
+        // Function to show the banner when the same values apply to several components
+        function updateMultipleBanner() {
+            const selectedCount = componentSelect.tomSelect ? componentSelect.tomSelect.getValue().length : 0;
+            if (selectedCount > 1) {
+                multipleBanner.classList.remove('d-none');
+            } else {
+                multipleBanner.classList.add('d-none');
+            }
+        }
+
+        planServicesModal.addEventListener('shown.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const preselect = JSON.parse(button.dataset.preselect || '[]');
+            const workplanId = button.dataset.workplanId || '';
+            const incidentId = button.dataset.incidentId || '';
+            const lockWorkplan = button.dataset.lockWorkplan === 'true';
+
+            initializeDatePickers(planServicesModal);
+
+            if (!componentSelect.tomSelect) {
+                const ts = new TomSelect(componentSelect, {plugins: ['remove_button'], maxItems: null});
+                componentSelect.tomSelect = ts;
+                ts.on('change', updateMultipleBanner);
+            }
+
+            componentSelect.tomSelect.clear();
+            componentSelect.tomSelect.setValue(preselect);
+            updateMultipleBanner();
+
+            document.getElementById('planServicesDescription').value = '';
+            document.getElementById('planServicesPlannedDate').value = '';
+            document.getElementById('planServicesIncidentId').value = incidentId;
+
+            workplanSelect.value = workplanId;
+            workplanSelect.disabled = lockWorkplan;
+        });
+
+        document.getElementById('planServicesSubmitBtn').addEventListener('click', function() {
+            const serviceDescription = document.getElementById('planServicesDescription').value;
+            const plannedDateInput = document.getElementById('planServicesPlannedDate');
+            const plannedDate = plannedDateInput.value;
+            const selectedComponents = componentSelect.tomSelect ? componentSelect.tomSelect.getValue() : [];
+
+            if (!serviceDescription || serviceDescription.trim().length < 5) {
+                showServicesValidationModal('Please enter a description of at least 5 characters.');
+                return;
+            }
+
+            if (selectedComponents.length === 0) {
+                showServicesValidationModal('Please select at least one component.');
+                return;
+            }
+
+            if (plannedDate && !validateDateInput(plannedDateInput)) {
+                showServicesValidationModal('Please enter a valid planned date in format YYYY-MM-DD HH:MM, or leave it blank.');
+                return;
+            }
+
+            const modalInstance = bootstrap.Modal.getInstance(planServicesModal);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+
+            const formData = new FormData();
+            formData.append('service_description', serviceDescription);
+            formData.append('planned_date', plannedDate);
+            formData.append('workplan_id', workplanSelect.value);
+            formData.append('incident_id', document.getElementById('planServicesIncidentId').value);
+            selectedComponents.forEach(componentId => {
+                formData.append('component_ids', componentId);
+            });
+
+            submitBulkServiceAction('/add_planned_services', formData, 'Planning services...', {
+                success: '✅ Services planned',
+                partial: '⚠️ Services partially planned',
+                failure: '❌ Planning services failed'
+            });
+        });
+    });
+})();
+
+// Complete services modal, opened from buttons carrying data-planned-services
+(function() {
+    if (!document.getElementById('completeServicesModal')) {
+        return;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const completeServicesModal = document.getElementById('completeServicesModal');
+        const checkboxContainer = document.getElementById('completeServicesCheckboxes');
+
+        completeServicesModal.addEventListener('shown.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const plannedServices = JSON.parse(button.dataset.plannedServices || '[]');
+
+            initializeDatePickers(completeServicesModal);
+
+            const now = new Date();
+            const formattedDate = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('completeServicesDate').value = formattedDate;
+            document.getElementById('completeServicesNote').value = '';
+
+            checkboxContainer.innerHTML = '';
+
+            if (plannedServices.length === 0) {
+                checkboxContainer.innerHTML = '<p class="text-muted">No planned services</p>';
+                return;
+            }
+
+            plannedServices.forEach(([serviceId, componentName, description, oldestHistoryDate, installationStatus, workplanCompletionDate]) => {
+                const isRetired = installationStatus === 'Retired';
+                const label = isRetired ?
+                    `${componentName}: ${description} (retired, cannot be completed)` :
+                    `${componentName}: ${description}`;
+
+                const checkboxHtml = `
+                    <div class="form-check mb-2">
+                        <input class="form-check-input complete-service-checkbox" type="checkbox"
+                               value="${serviceId}" id="complete_service_${serviceId}"
+                               data-oldest-history-date="${oldestHistoryDate || ''}"
+                               data-workplan-completion-date="${workplanCompletionDate || ''}"
+                               data-component-name="${componentName}"
+                               ${isRetired ? 'disabled' : 'checked'}>
+                        <label class="form-check-label" for="complete_service_${serviceId}">
+                            ${label}
+                        </label>
+                    </div>
+                `;
+                checkboxContainer.insertAdjacentHTML('beforeend', checkboxHtml);
+            });
+        });
+
+        document.getElementById('completeServicesSubmitBtn').addEventListener('click', function() {
+            const dateInput = document.getElementById('completeServicesDate');
+            const serviceDate = dateInput.value;
+            const completionNote = document.getElementById('completeServicesNote').value;
+            const selectedCheckboxes = Array.from(document.querySelectorAll('.complete-service-checkbox:checked'));
+
+            if (!serviceDate || !validateDateInput(dateInput)) {
+                showServicesValidationModal('Please enter a valid service date in format YYYY-MM-DD HH:MM.');
+                return;
+            }
+
+            if (new Date(serviceDate) > new Date()) {
+                showServicesValidationModal('Service date cannot be in the future.');
+                return;
+            }
+
+            if (selectedCheckboxes.length === 0) {
+                showServicesValidationModal('Please select at least one service.');
+                return;
+            }
+
+            for (const checkbox of selectedCheckboxes) {
+                const oldestHistoryDate = checkbox.dataset.oldestHistoryDate;
+                const workplanCompletionDate = checkbox.dataset.workplanCompletionDate;
+
+                if (oldestHistoryDate && serviceDate <= oldestHistoryDate) {
+                    showServicesValidationModal(`Service date cannot be at or before the creation date of ${checkbox.dataset.componentName} (${oldestHistoryDate}).`);
+                    return;
+                }
+
+                if (workplanCompletionDate && serviceDate > workplanCompletionDate) {
+                    showServicesValidationModal(`Service date cannot be after the completion date of the workplan (${workplanCompletionDate}). Reopen the workplan first.`);
+                    return;
+                }
+            }
+
+            const modalInstance = bootstrap.Modal.getInstance(completeServicesModal);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+
+            const formData = new FormData();
+            formData.append('service_date', serviceDate);
+            formData.append('completion_note', completionNote);
+            selectedCheckboxes.forEach(checkbox => {
+                formData.append('service_ids', checkbox.value);
+            });
+
+            submitBulkServiceAction('/complete_services', formData, 'Completing services...', {
+                success: '✅ Services completed',
+                partial: '⚠️ Services partially completed',
+                failure: '❌ Completing services failed'
+            });
+        });
+    });
+})();
+
 // Function to initialize collection features
 (function() {
     // Only run this code if the collection modal is present
@@ -5707,216 +5991,6 @@ function setupWorkplanSearch() {
     });
 })();
 
-// Function to handle bulk service creation for workplan
-(function() {
-    // Only run this code if we're on the workplan details page
-    if (!document.getElementById('workplan-details')) {
-        return;
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const createServicesModal = document.getElementById('createServicesWorkplanModal');
-        if (!createServicesModal) return;
-
-        let workplanId = null;
-
-        // Local helper function to format service creation response messages
-        function formatServiceCreationMessage(messageData) {
-            if (typeof messageData === 'string') {
-                return messageData;
-            }
-
-            let html = '';
-
-            if (messageData.type === 'success') {
-                html = `<strong>${messageData.summary}</strong><br><br>`;
-                html += '<strong>Services created for:</strong><br>';
-                html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
-
-            } else if (messageData.type === 'partial_failure') {
-                html = `<strong>${messageData.summary}</strong><br><br>`;
-
-                if (messageData.successful_components.length > 0) {
-                    html += '<strong>Services created for:</strong><br>';
-                    html += messageData.successful_components.map(name => `• ${name}`).join('<br>');
-                    html += '<br><br>';
-                }
-
-                if (messageData.failed_components.length > 0) {
-                    html += '<strong>Failed to create services for:</strong><br>';
-                    html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
-                }
-
-            } else if (messageData.type === 'complete_failure') {
-                html = `<strong>${messageData.summary}</strong><br><br>`;
-                html += '<strong>All services failed:</strong><br>';
-                html += messageData.failed_components.map(failed => `• ${failed.name}: ${failed.error}`).join('<br>');
-            }
-
-            return html;
-        }
-
-        // Handle modal shown event - populate checkboxes
-        createServicesModal.addEventListener('shown.bs.modal', function(event) {
-            // Get workplan ID and component info from the button that triggered the modal
-            const button = event.relatedTarget;
-            workplanId = button.dataset.workplanId;
-            const componentsInfo = JSON.parse(button.dataset.workplanComponentsInfo || '[]');
-
-            // Initialize datepicker
-            initializeDatePickers(createServicesModal);
-
-            // Set current date
-            const now = new Date();
-            const formattedDate = now.getFullYear() + '-' +
-                String(now.getMonth() + 1).padStart(2, '0') + '-' +
-                String(now.getDate()).padStart(2, '0') + ' ' +
-                String(now.getHours()).padStart(2, '0') + ':' +
-                String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('bulkServiceDate').value = formattedDate;
-
-            // Build checkbox list
-            const checkboxContainer = document.getElementById('bulkServiceComponentCheckboxes');
-            checkboxContainer.innerHTML = '';
-
-            if (componentsInfo.length === 0) {
-                checkboxContainer.innerHTML = '<p class="text-muted">No components in this workplan</p>';
-                return;
-            }
-
-            // Create checkboxes for each component
-            componentsInfo.forEach(componentData => {
-                const hasService = componentData.has_service || false;
-                const label = hasService ?
-                    `${componentData.component_name} - ${componentData.component_type} (already serviced in this workplan)` :
-                    `${componentData.component_name} - ${componentData.component_type}`;
-
-                const checkboxHtml = `
-                    <div class="form-check mb-2">
-                        <input class="form-check-input bulk-service-checkbox" type="checkbox"
-                               value="${componentData.component_id}" id="component_${componentData.component_id}">
-                        <label class="form-check-label" for="component_${componentData.component_id}">
-                            ${label}
-                        </label>
-                    </div>
-                `;
-                checkboxContainer.insertAdjacentHTML('beforeend', checkboxHtml);
-            });
-
-            // Add change event listeners to checkboxes
-            document.querySelectorAll('.bulk-service-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', updateMultipleSelectionBanner);
-            });
-        });
-
-        // Function to update the multiple selection banner
-        function updateMultipleSelectionBanner() {
-            const checkedCount = document.querySelectorAll('.bulk-service-checkbox:checked').length;
-            const banner = document.getElementById('multipleSelectionBanner');
-            if (checkedCount > 1) {
-                banner.classList.remove('d-none');
-            } else {
-                banner.classList.add('d-none');
-            }
-        }
-
-        // Handle form submission
-        document.getElementById('bulkCreateServicesBtn').addEventListener('click', function() {
-            // Validate form
-            const serviceDate = document.getElementById('bulkServiceDate').value;
-            const serviceDescription = document.getElementById('bulkServiceDescription').value;
-            const selectedComponents = Array.from(document.querySelectorAll('.bulk-service-checkbox:checked'))
-                .map(cb => cb.value);
-
-            if (!serviceDate) {
-                showValidationModal('Validation Error', 'Please enter a service date.');
-                return;
-            }
-
-            if (!serviceDescription || serviceDescription.trim().length < 5) {
-                showValidationModal('Validation Error', 'Please enter a description (minimum 5 characters).');
-                return;
-            }
-
-            if (selectedComponents.length === 0) {
-                showValidationModal('Validation Error', 'Please select at least one component.');
-                return;
-            }
-
-            // Validate date
-            const dateInput = document.getElementById('bulkServiceDate');
-            if (!validateDateInput(dateInput)) {
-                showValidationModal('Validation Error', 'Please enter a valid date in format YYYY-MM-DD HH:MM.');
-                return;
-            }
-
-            // Close the create services modal
-            const modal = bootstrap.Modal.getInstance(createServicesModal);
-            if (modal) {
-                modal.hide();
-            }
-
-            // Show loading modal
-            document.getElementById('loadingMessage').textContent = 'Creating service records...';
-            setTimeout(() => {
-                loadingModal.show();
-
-                // Prepare form data with same component_ids key for all values (FastAPI List[str] form handling)
-                const formData = new FormData();
-                formData.append('workplan_id', workplanId);
-                formData.append('service_date', serviceDate);
-                formData.append('service_description', serviceDescription);
-                selectedComponents.forEach(componentId => {
-                    formData.append('component_ids', componentId);
-                });
-
-                // Submit to backend
-                fetch('/bulk_add_service_records', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    forceCloseLoadingModal();
-
-                    setTimeout(() => {
-                        const isPartialFailure = data.message && data.message.type === 'partial_failure';
-                        const title = data.success ? '✅ Services created successfully' :
-                                     isPartialFailure ? '⚠️ Services partially created' : '❌ Service creation failed';
-                        const formattedMessage = formatServiceCreationMessage(data.message);
-
-                        showReportModal(title, formattedMessage, data.success, isPartialFailure, function() {
-                            const url = window.location.pathname;
-                            window.history.replaceState({}, document.title, url);
-                            window.location.reload();
-                        });
-                    }, 500);
-                })
-                .catch(error => {
-                    console.error('Bulk service creation error:', error);
-                    forceCloseLoadingModal();
-
-                    setTimeout(() => {
-                        showReportModal('❌ Application error', 'An error occurred while creating service records. Give it another go.', false, false, function() {
-                            const url = window.location.pathname;
-                            window.history.replaceState({}, document.title, url);
-                            window.location.reload();
-                        });
-                    }, 400);
-                });
-            }, 300);
-        });
-
-        function showValidationModal(title, message) {
-            const validationModal = bootstrap.Modal.getInstance(document.getElementById('validationModal')) ||
-                new bootstrap.Modal(document.getElementById('validationModal'));
-            document.getElementById('validationModalLabel').textContent = title;
-            document.getElementById('validationModalBody').textContent = message;
-            validationModal.show();
-        }
-    });
-})();
-
 // Function to handle completing workplan from workplan_details page
 (function() {
     // Only run this code if we're on the workplan details page
@@ -5975,95 +6049,6 @@ function setupWorkplanSearch() {
                 closeIncidentsCheckbox.checked = hasOpenIncidents; // Check by default if there are open incidents
             }
         });
-    });
-})();
-
-// Function to handle linking incidents to workplan
-(function() {
-    // Only run this code if we're on the workplan details page
-    if (!document.getElementById('workplan-details')) {
-        return;
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const linkIncidentsModal = document.getElementById('linkIncidentsModal');
-        if (!linkIncidentsModal) return;
-
-        const linkIncidentSelect = document.getElementById('linkableIncidentSelect');
-        const linkIncidentSubmitBtn = document.getElementById('linkIncidentSubmitBtn');
-        const noIncidentsWarning = document.getElementById('noIncidentsWarning');
-
-        // Populate modal when "Link incidents" button is clicked
-        const linkIncidentsBtn = document.querySelector('[data-bs-target="#linkIncidentsModal"]');
-        if (linkIncidentsBtn) {
-            linkIncidentsBtn.addEventListener('click', function() {
-                const workplanId = this.dataset.workplanId;
-
-                // Set hidden fields
-                document.getElementById('linkIncidentWorkplanId').value = workplanId;
-                document.getElementById('linkIncidentRedirectUrl').value = `/workplan_details/${workplanId}`;
-
-                // Get linkable incidents from button data attribute
-                const linkableIncidents = JSON.parse(this.dataset.linkableIncidents || '[]');
-
-                // Clear and populate dropdown
-                linkIncidentSelect.innerHTML = '<option value="">Select an incident...</option>';
-
-                if (linkableIncidents.length === 0) {
-                    // No linkable incidents - show warning, disable dropdown and submit button
-                    noIncidentsWarning.classList.remove('d-none');
-                    linkIncidentSelect.disabled = true;
-                    linkIncidentSubmitBtn.disabled = true;
-                } else {
-                    // Has linkable incidents - hide warning, enable dropdown and submit button
-                    noIncidentsWarning.classList.add('d-none');
-                    linkIncidentSelect.disabled = false;
-                    linkIncidentSubmitBtn.disabled = false;
-
-                    // Populate options
-                    linkableIncidents.forEach(([incidentId, displayText]) => {
-                        const option = document.createElement('option');
-                        option.value = incidentId;
-                        option.textContent = displayText;
-                        linkIncidentSelect.appendChild(option);
-                    });
-                }
-            });
-        }
-
-        // Handle form submission
-        if (linkIncidentSubmitBtn) {
-            linkIncidentSubmitBtn.addEventListener('click', function() {
-                const incidentId = linkIncidentSelect.value;
-
-                if (!incidentId) {
-                    alert('Please select an incident to link');
-                    return;
-                }
-
-                // Prepare form data for partial update
-                const formData = new FormData();
-                formData.append('incident_id', incidentId);
-                formData.append('workplan_id', document.getElementById('linkIncidentWorkplanId').value);
-                formData.append('redirect_url', document.getElementById('linkIncidentRedirectUrl').value);
-                formData.append('update_mode', 'partial');
-
-                // Submit to update_incident endpoint
-                fetch('/update_incident_record', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                    }
-                })
-                .catch(error => {
-                    console.error('Link incident error:', error);
-                    alert('An error occurred while linking the incident. Please try again.');
-                });
-            });
-        }
     });
 })();
 

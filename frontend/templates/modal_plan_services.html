@@ -1,0 +1,60 @@
+<div class="modal fade" id="planServicesModal" tabindex="-1" aria-labelledby="planServicesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="planServicesModalLabel">Plan services</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="planServicesMultipleBanner" class="alert alert-warning d-none">
+                    <strong>Multiple components selected</strong><br>
+                    The same description, planned date, workplan and incident will be set for all selected components.
+                </div>
+                <input type="hidden" id="planServicesIncidentId" value="">
+
+                <div class="mb-3">
+                    <label for="planServicesDescription" class="form-label fw-bold">Description</label>
+                    <textarea class="form-control" id="planServicesDescription" rows="2" required minlength="5" placeholder="e.g., Replace chain, Bleed brakes"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="planServicesComponents" class="form-label fw-bold">Components</label>
+                    <select class="form-select" id="planServicesComponents" multiple placeholder="Search to add components...">
+                        {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days, bike_id, updated_date in payload.all_components_data %}
+                            {% if status != "Retired" %}
+                            <option value="{{ component_id }}">{{ name }} ({{ type }}) - {{ bike }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">Retired components cannot be serviced and are not listed.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="planServicesPlannedDate" class="form-label fw-bold">Planned date</label>
+                    <div class="input-group date-input-group">
+                        <input type="text" class="form-control datepicker-input" id="planServicesPlannedDate">
+                        <span class="input-group-text datepicker-toggle">🗓</span>
+                    </div>
+                    <small class="form-text text-muted">Optional. Leave blank to use the due date of the workplan.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="planServicesWorkplanId" class="form-label fw-bold">Workplan</label>
+                    <select class="form-select" id="planServicesWorkplanId">
+                        <option value="">No workplan</option>
+                        {% for workplan_id, due_date, workplan_status, workplan_size, component_ids, component_names, bike_ids, bike_names, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, service_progress in payload.workplans_data %}
+                            {% if workplan_status == "Planned" %}
+                            <option value="{{ workplan_id }}">{{ workplan_title }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">Optional. Only planned workplans can be selected.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="planServicesSubmitBtn">Plan services</button>
+            </div>
+        </div>
+    </div>
+</div>
