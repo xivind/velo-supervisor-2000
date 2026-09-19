@@ -1,5 +1,7 @@
 # Workplan Hub Integration - Incremental Implementation
 
+> **Status: COMPLETED and HISTORICAL (2026-09-18).** All items below are implemented. Do not use this file as guidance for new work. The model described here (incidents linked directly to workplans, workplans holding bike and component ids) is superseded by `docs/superpowers/specs/2026-09-18-service-integration-design.md` (issue #351).
+
 **Date:** 2026-01-25 (Quick swap collection warning: Added collection warning banner to quick swap modal, similar to component status modal)
 
 ---

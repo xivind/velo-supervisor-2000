@@ -2,6 +2,7 @@
 .vscode/launch.json
 .mypy_cache/*
 backend/__pycache__/*
+tests/__pycache__/*
 backend/.mypy_cache/*
 backend/config.json
 .venv
