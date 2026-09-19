@@ -233,10 +233,11 @@ class DatabaseManager:
                 .get_or_none(Services.service_id == service_id))
 
     def read_subset_service_history(self, component_id):
-        """Method to read a subset of receords from the component history table"""
+        """Method to read completed services for a component, used by health computation"""
         return (Services.
                 select()
-                .where(Services.component_id == component_id)
+                .where((Services.component_id == component_id) &
+                       (Services.status == "Completed"))
                 .order_by(Services.service_date.desc()))
 
     def read_subset_service_record(self, service_id):
@@ -245,18 +246,20 @@ class DatabaseManager:
                 .get_or_none(Services.service_id == service_id))
 
     def read_latest_service_record(self, component_id):
-        """Method to retrieve the most recent record from the service log of a given component"""
+        """Method to retrieve the most recent completed service of a given component"""
         return (Services
                 .select()
-                .where(Services.component_id == component_id)
+                .where((Services.component_id == component_id) &
+                       (Services.status == "Completed"))
                 .order_by(Services.service_date.desc())
                 .first())
 
     def read_oldest_service_record(self, component_id):
-        """Method to retrieve the oldest record from the service log of a given component"""
+        """Method to retrieve the oldest completed service of a given component"""
         return (Services
                 .select()
-                .where(Services.component_id == component_id)
+                .where((Services.component_id == component_id) &
+                       (Services.status == "Completed"))
                 .order_by(Services.service_date.asc())
                 .first())
 
@@ -314,18 +317,78 @@ class DatabaseManager:
                 .order_by(Workplans.due_date.desc()))
 
     def read_incidents_by_workplan(self, workplan_id):
-        """Method to read all incidents linked to a specific workplan"""
+        """Method to read incidents that have at least one service in a given workplan"""
+        incident_ids = (Services
+                        .select(Services.incident_id)
+                        .where((Services.workplan_id == workplan_id) &
+                               (Services.incident_id.is_null(False))))
         return (Incidents
                 .select()
-                .where(Incidents.workplan_id == workplan_id)
+                .where(Incidents.incident_id.in_(incident_ids))
                 .order_by(Incidents.incident_date.desc()))
 
+    def read_workplans_by_incident(self, incident_id):
+        """Method to read workplans reached through the services of a given incident"""
+        workplan_ids = (Services
+                        .select(Services.workplan_id)
+                        .where((Services.incident_id == incident_id) &
+                               (Services.workplan_id.is_null(False))))
+        return (Workplans
+                .select()
+                .where(Workplans.workplan_id.in_(workplan_ids))
+                .order_by(Workplans.due_date.desc()))
+
     def read_services_by_workplan(self, workplan_id):
-        """Method to read all services linked to a specific workplan"""
+        """Method to read all services linked to a specific workplan, planned first"""
         return (Services
                 .select()
                 .where(Services.workplan_id == workplan_id)
-                .order_by(Services.service_date.desc()))
+                .order_by(Services.status.desc(), Services.service_date.desc()))
+
+    def read_planned_services_by_workplan(self, workplan_id):
+        """Method to read planned services linked to a specific workplan"""
+        return (Services
+                .select()
+                .where((Services.workplan_id == workplan_id) &
+                       (Services.status == "Planned")))
+
+    def read_services_by_incident(self, incident_id):
+        """Method to read all services linked to a specific incident, planned first"""
+        return (Services
+                .select()
+                .where(Services.incident_id == incident_id)
+                .order_by(Services.status.desc(), Services.service_date.desc()))
+
+    def read_all_services_by_component(self, component_id):
+        """Method to read all services for a component regardless of status, planned first"""
+        return (Services
+                .select()
+                .where(Services.component_id == component_id)
+                .order_by(Services.status.desc(), Services.service_date.desc()))
+
+    def read_planned_services_by_component(self, component_id):
+        """Method to read planned services for a component"""
+        return (Services
+                .select()
+                .where((Services.component_id == component_id) &
+                       (Services.status == "Planned")))
+
+    def read_planned_services_by_bike(self, bike_id):
+        """Method to read planned services for components installed on a bike"""
+        component_ids = (Components
+                         .select(Components.component_id)
+                         .where((Components.bike_id == bike_id) &
+                                (Components.installation_status == "Installed")))
+        return (Services
+                .select()
+                .where((Services.component_id.in_(component_ids)) &
+                       (Services.status == "Planned")))
+
+    def read_all_planned_services(self):
+        """Method to read all planned services"""
+        return (Services
+                .select()
+                .where(Services.status == "Planned"))
 
     def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk in database"""
