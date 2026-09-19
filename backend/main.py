@@ -75,7 +75,8 @@ async def root(request: Request):
     payload = business_logic.get_bike_overview()
     template_path = "index.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -87,7 +88,8 @@ async def bike_details(request: Request,
     payload = business_logic.get_bike_details(bike_id)
     template_path = "bike_details.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload,
                                        "button_order": get_button_order(CONFIG, 'bike_details')})
@@ -99,7 +101,8 @@ async def component_overview(request: Request):
     payload = business_logic.get_component_overview()
     template_path = "component_overview.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -110,7 +113,8 @@ async def incident_reports(request: Request):
     payload = business_logic.get_incident_reports()
     template_path = "incident_reports.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -121,7 +125,8 @@ async def workplans(request: Request):
     payload = business_logic.get_workplans()
     template_path = "workplans.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -133,7 +138,8 @@ async def workplan_details(request: Request,
     payload = business_logic.get_workplan_details(workplan_id)
     template_path = "workplan_details.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -145,7 +151,8 @@ async def component_details(request: Request,
     payload = business_logic.get_component_details(component_id)
     template_path = "component_details.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload,
                                        "button_order": get_button_order(CONFIG, 'component_details')})
@@ -158,7 +165,8 @@ async def collection_details(request: Request,
     payload = business_logic.get_collection_details(collection_id)
     template_path = "collection_details.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -169,7 +177,8 @@ async def component_types_overview(request: Request):
     payload = business_logic.get_component_types()
     template_path = "component_types.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -183,7 +192,8 @@ async def config_overview(request: Request):
                "button_sorting": get_button_sorting_config(CONFIG)}
     template_path = "config.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -193,7 +203,8 @@ async def help_page(request: Request):
 
     template_path = "help.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request})
 
 @app.post("/create_component", response_class=HTMLResponse)
@@ -202,7 +213,7 @@ async def create_component(component_id: Optional[str] = Form(None),
                            component_updated_date: str = Form(...),
                            component_name: str = Form(...),
                            component_type: str = Form(...),
-                           component_bike_id: str = Form(...),
+                           component_bike_id: Optional[str] = Form(None),
                            expected_lifetime: Optional[str] = Form(None),
                            service_interval: Optional[str] = Form(None),
                            threshold_km: Optional[str] = Form(None),
@@ -243,7 +254,7 @@ async def component_modify(component_id: Optional[str] = Form(None),
                            component_updated_date: str = Form(...),
                            component_name: str = Form(...),
                            component_type: str = Form(...),
-                           component_bike_id: str = Form(...),
+                           component_bike_id: Optional[str] = Form(None),
                            expected_lifetime: Optional[str] = Form(None),
                            service_interval: Optional[str] = Form(None),
                            threshold_km: Optional[str] = Form(None),
@@ -282,7 +293,7 @@ async def component_modify(component_id: Optional[str] = Form(None),
 async def add_history_record(request: Request,
                              component_id: str = Form(...),
                              component_installation_status: str = Form(...),
-                             component_bike_id: str = Form(...),
+                             component_bike_id: Optional[str] = Form(None),
                              component_updated_date: str = Form(...),
                              notes: Optional[str] = Form(None),
                              redirect_to: Optional[str] = Form(None)):
@@ -446,7 +457,7 @@ async def add_service(component_id: str = Form(...),
                       service_description: str = Form(...),
                       service_date: Optional[str] = Form(None),
                       workplan_id: Optional[str] = Form(None),
-                      status: Optional[str] = Form("Completed"),
+                      status: str = Form("Completed"),
                       incident_id: Optional[str] = Form(None),
                       planned_date: Optional[str] = Form(None)):
     """Endpoint to add service, planned or completed"""
@@ -501,7 +512,7 @@ async def update_service_record(component_id: str = Form(...),
                                 service_description: str = Form(...),
                                 service_date: Optional[str] = Form(None),
                                 workplan_id: Optional[str] = Form(None),
-                                status: Optional[str] = Form("Completed"),
+                                status: str = Form("Completed"),
                                 incident_id: Optional[str] = Form(None),
                                 planned_date: Optional[str] = Form(None),
                                 redirect_url: Optional[str] = Form(None)):
