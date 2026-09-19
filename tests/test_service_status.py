@@ -37,3 +37,61 @@ def test_completed_only_reads_skip_planned(modules):
     assert [service.service_id for service in database_manager.read_subset_service_history("comp-1")] == ["svc-done"]
     assert [service.service_id for service in database_manager.read_planned_services_by_component("comp-1")] == ["svc-planned"]
     assert [service.service_id for service in database_manager.read_all_services_by_component("comp-1")] == ["svc-planned", "svc-done"]
+
+
+def test_effective_planned_date_prefers_service(modules):
+    from types import SimpleNamespace
+    utils = modules.utils
+    workplan = SimpleNamespace(due_date="2026-05-01 10:00")
+    assert utils.get_effective_planned_date(SimpleNamespace(planned_date="2026-04-01 10:00"), workplan) == "2026-04-01 10:00"
+    assert utils.get_effective_planned_date(SimpleNamespace(planned_date=None), workplan) == "2026-05-01 10:00"
+    assert utils.get_effective_planned_date(SimpleNamespace(planned_date=None), None) is None
+
+
+def test_workplan_and_incident_tuples_derive_from_services(modules):
+    database_manager = seed_component(modules)
+    utils = modules.utils
+    model = modules.database_model
+    model.Bikes.create(bike_id="bike-2", bike_name="Winter bike", bike_retired="False",
+                       service_status=None, total_distance=0, notes=None)
+    model.Workplans.create(workplan_id="wp-1", due_date="2026-03-01 10:00", workplan_status="Planned",
+                           workplan_size="Small", workplan_description="Spring service",
+                           completion_date=None, completion_notes=None)
+    model.Workplans.create(workplan_id="wp-empty", due_date="2026-03-01 10:00", workplan_status="Planned",
+                           workplan_size="Small", workplan_description="Nothing yet",
+                           completion_date=None, completion_notes=None)
+    model.Incidents.create(incident_id="inc-1", incident_date="2026-02-10 10:00", incident_status="Open",
+                           incident_severity="Monitor", incident_affected_component_ids='["comp-1"]',
+                           incident_affected_bike_id=None, incident_description="Chain skips",
+                           resolution_date=None, resolution_notes=None)
+    model.Services.create(service_id="svc-done", component_id="comp-1", component_name="Chain",
+                          bike_id="bike-2", service_date="2026-02-01 10:00", distance_marker=0,
+                          description="Waxed on winter bike", workplan_id="wp-1", status="Completed",
+                          incident_id=None, planned_date=None)
+    model.Services.create(service_id="svc-planned", component_id="comp-1", component_name="Chain",
+                          bike_id=None, service_date=None, distance_marker=None, description="Replace chain",
+                          workplan_id="wp-1", status="Planned", incident_id="inc-1", planned_date=None)
+
+    workplan_tuple = utils.get_workplan_data_tuple(database_manager.read_single_workplan("wp-1"), database_manager)
+    assert len(workplan_tuple) == 14
+    assert workplan_tuple[4] == ["comp-1"] and workplan_tuple[5] == ["Chain"]
+    assert workplan_tuple[6] == ["bike-1", "bike-2"] and workplan_tuple[7] == ["Test bike", "Winter bike"]
+    assert workplan_tuple[12] == "Chain - Spring service - Test bike"
+    assert workplan_tuple[13] == {"completed": 1, "total": 2}
+
+    empty_tuple = utils.get_workplan_data_tuple(database_manager.read_single_workplan("wp-empty"), database_manager)
+    assert empty_tuple[4] == [] and empty_tuple[6] == [] and empty_tuple[13] is None
+    assert empty_tuple[12] == "Nothing yet"
+
+    workplan_names = utils.get_workplan_names_dict(database_manager)
+    incident_tuple = utils.get_incident_data_tuple(database_manager.read_single_incident_report("inc-1"),
+                                                   database_manager, workplan_names)
+    assert len(incident_tuple) == 16
+    assert incident_tuple[13] == [("wp-1", "Chain - Spring service - Test bike")]
+    assert incident_tuple[14:] == (1, 0)
+
+    planned_tuple = utils.get_planned_service_data_tuple(database_manager.read_single_service_record("svc-planned"),
+                                                         database_manager, workplan_names)
+    assert planned_tuple == ("svc-planned", "comp-1", "Chain", "Replace chain", "wp-1",
+                             "Chain - Spring service - Test bike", "inc-1", "2026-03-01 10:00", None,
+                             "Installed", "2026-01-01 10:00")
