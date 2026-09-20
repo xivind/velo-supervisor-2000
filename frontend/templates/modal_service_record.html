@@ -5,34 +5,77 @@
                 <h5 class="modal-title input-modal-title" id="serviceRecordModalLabel">Service record</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="serviceRecordForm" method="POST">
+            <form id="serviceRecordForm" method="POST" data-oldest-history-date="{{ payload.oldest_history_date if payload.oldest_history_date is defined and payload.oldest_history_date else '' }}">
                 <div class="modal-body">
                     <input type="hidden" id="serviceComponentId" name="component_id" value="{% if payload.bike_component_data is defined and payload.bike_component_data %}{{ payload.bike_component_data['component_id'] }}{% endif %}">
                     <input type="hidden" id="serviceId" name="service_id">
                     <input type="hidden" id="service_redirect_url" name="redirect_url">
 
                     <div class="mb-3">
+                        <div class="form-label fw-bold d-block">Status</div>
+                        <div class="form-check form-check-inline mt-2">
+                            <input class="form-check-input" type="radio" name="status" id="service_status_completed" value="Completed" checked>
+                            <label class="form-check-label" for="service_status_completed">Completed</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="status" id="service_status_planned" value="Planned">
+                            <label class="form-check-label" for="service_status_planned">Planned</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="serviceDateGroup">
                         <label for="serviceDate" class="form-label fw-bold">Service date</label>
                         <div class="input-group date-input-group">
-                            <input type="text" class="form-control datepicker-input" id="serviceDate" name="service_date" required>
+                            <input type="text" class="form-control datepicker-input" id="serviceDate" name="service_date">
                             <span class="input-group-text datepicker-toggle">🗓</span>
                         </div>
                     </div>
+
+                    <div class="mb-3 d-none" id="servicePlannedDateGroup">
+                        <label for="servicePlannedDate" class="form-label fw-bold">Planned date</label>
+                        <div class="input-group date-input-group">
+                            <input type="text" class="form-control datepicker-input" id="servicePlannedDate" name="planned_date">
+                            <span class="input-group-text datepicker-toggle">🗓</span>
+                        </div>
+                        <small class="form-text text-muted">Optional. Leave blank to use the due date of the workplan.</small>
+                    </div>
+
                     <div class="mb-3">
                         <label for="serviceDescription" class="form-label fw-bold">Description</label>
                         <textarea class="form-control" id="serviceDescription" name="service_description" rows="3" required minlength="5"></textarea>
                     </div>
+
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center">
-                            <label for="serviceWorkplanId" class="form-label fw-bold mb-0">Link to workplan</label>
+                            <label for="serviceWorkplanId" class="form-label fw-bold mb-0">Workplan</label>
                             <a href="#" id="serviceViewWorkplanLink" class="text-primary d-none" target="_blank">View workplan</a>
                         </div>
                         <select class="form-select mt-2" id="serviceWorkplanId" name="workplan_id">
-                            <option value="">No workplan selected</option>
-                            <!-- Workplan options will be populated dynamically -->
+                            <option value="">No workplan</option>
+                            {% if payload.workplans_data is defined and payload.workplans_data %}
+                                {% for workplan_id, due_date, workplan_status, workplan_size, component_ids, component_names, bike_ids, bike_names, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, service_progress in payload.workplans_data %}
+                                    {% if workplan_status == "Planned" %}
+                                    <option value="{{ workplan_id }}">{{ workplan_title }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
                         </select>
-                        <small class="form-text text-muted">Only open (planned) workplans that reference this component can be selected.</small>
+                        <small class="form-text text-muted">Optional. Only planned workplans can be selected.</small>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="serviceIncidentId" class="form-label fw-bold">Incident</label>
+                        <select class="form-select" id="serviceIncidentId" name="incident_id">
+                            <option value="">No incident</option>
+                            {% if payload.open_incidents_for_component is defined and payload.open_incidents_for_component %}
+                                {% for incident_id, incident_title in payload.open_incidents_for_component %}
+                                    <option value="{{ incident_id }}">{{ incident_title }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        <small class="form-text text-muted">Optional. Open incidents that reference this component.</small>
+                    </div>
+
                     <div>
                         <div class="text-end">
                             <small class="text-muted">

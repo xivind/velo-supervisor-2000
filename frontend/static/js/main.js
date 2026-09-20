@@ -765,6 +765,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ----- Service and history record edit buttons -----
 
+// Function to show either the service date or the planned date, depending on status
+window.setServiceModalStatus = function(status) {
+    const isPlanned = status === 'Planned';
+    document.getElementById('service_status_planned').checked = isPlanned;
+    document.getElementById('service_status_completed').checked = !isPlanned;
+    document.getElementById('serviceDateGroup').classList.toggle('d-none', isPlanned);
+    document.getElementById('servicePlannedDateGroup').classList.toggle('d-none', !isPlanned);
+};
+
+// Function to select a value in a service modal dropdown, adding the option when it is missing
+window.setServiceModalSelect = function(selectId, value) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    if (value && !Array.from(select.options).some(option => option.value === value)) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = `Linked (${value})`;
+        select.appendChild(option);
+    }
+
+    select.value = value || '';
+};
+
 // Add event listeners for your modal buttons
 document.addEventListener('DOMContentLoaded', function() {
     // Service record edit button
@@ -774,25 +798,87 @@ document.addEventListener('DOMContentLoaded', function() {
             const serviceDate = this.dataset.serviceDate;
             const serviceDescription = this.dataset.serviceDescription;
             const componentId = this.dataset.componentId;
-            
+            const status = this.dataset.status || 'Completed';
+            const plannedDate = this.dataset.plannedDate || '';
+            const workplanId = this.dataset.workplanId || '';
+            const incidentId = this.dataset.incidentId || '';
+            const redirectUrl = this.dataset.redirectUrl || '';
+
             // Populate the service modal
+            document.getElementById('serviceRecordModalLabel').textContent = 'Edit service record';
+            document.getElementById('serviceRecordForm').action = '/update_service_record';
             document.getElementById('serviceId').value = serviceId;
             document.getElementById('serviceComponentId').value = componentId || '';
             document.getElementById('serviceDescription').value = serviceDescription;
-
-            // Update ID display with actual service ID
+            document.getElementById('service_redirect_url').value = redirectUrl;
             document.getElementById('service-id-display').textContent = serviceId || 'Not created yet';
+
+            setServiceModalStatus(status);
+            setServiceModalSelect('serviceWorkplanId', workplanId);
+            setServiceModalSelect('serviceIncidentId', incidentId);
+
+            // Manage the link that opens the workplan in a new tab
+            const isOnWorkplanDetailsPage = document.getElementById('workplan-details') !== null;
+            const viewLink = document.getElementById('serviceViewWorkplanLink');
+            if (viewLink && workplanId && !isOnWorkplanDetailsPage) {
+                viewLink.href = `/workplan_details/${workplanId}`;
+                viewLink.classList.remove('d-none');
+            } else if (viewLink) {
+                viewLink.classList.add('d-none');
+            }
 
             // Show the modal FIRST
             const serviceModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
             serviceModal.show();
             
-            // THEN set the date value AFTER the modal is shown
+            // THEN set the date values AFTER the modal is shown
             setTimeout(() => {
-                document.getElementById('serviceDate').value = serviceDate;
+                document.getElementById('serviceDate').value = serviceDate || '';
+                document.getElementById('servicePlannedDate').value = plannedDate;
             }, 100);
         });
     });
+
+    // Show the right date field when the status changes
+    document.querySelectorAll('input[name="status"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            setServiceModalStatus(this.value);
+        });
+    });
+
+    // Validate the service modal before it posts
+    const serviceRecordForm = document.getElementById('serviceRecordForm');
+    if (serviceRecordForm) {
+        serviceRecordForm.addEventListener('submit', function(event) {
+            const status = document.querySelector('input[name="status"]:checked').value;
+            const serviceDateInput = document.getElementById('serviceDate');
+            const plannedDateInput = document.getElementById('servicePlannedDate');
+            const oldestHistoryDate = serviceRecordForm.dataset.oldestHistoryDate || '';
+
+            if (status === 'Completed') {
+                if (!serviceDateInput.value || !validateDateInput(serviceDateInput)) {
+                    event.preventDefault();
+                    showServicesValidationModal('Please enter a valid service date in format YYYY-MM-DD HH:MM.');
+                    return;
+                }
+
+                if (new Date(serviceDateInput.value) > new Date()) {
+                    event.preventDefault();
+                    showServicesValidationModal('Service date cannot be in the future.');
+                    return;
+                }
+
+                if (oldestHistoryDate && serviceDateInput.value <= oldestHistoryDate) {
+                    event.preventDefault();
+                    showServicesValidationModal(`Service date cannot be at or before the creation date of the component (${oldestHistoryDate}).`);
+                    return;
+                }
+            } else if (plannedDateInput.value && !validateDateInput(plannedDateInput)) {
+                event.preventDefault();
+                showServicesValidationModal('Please enter a valid planned date in format YYYY-MM-DD HH:MM, or leave it blank.');
+            }
+        });
+    }
     
     // History record edit button
     document.querySelectorAll('.edit-history-btn').forEach(button => {
@@ -858,6 +944,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (statusSelect) statusSelect.value = installationStatus;
                 if (bikeSelect) bikeSelect.value = bikeId;
                 if (dateInput) dateInput.value = updatedDate;
+
+                const notesInput = modal.querySelector('#component_status_notes');
+                if (notesInput) notesInput.value = '';
 
                 // Set redirect destination based on context
                 if (redirectInput) {
@@ -2330,6 +2419,7 @@ window.showServicesValidationModal = function(message) {
             formData.append('old_component_id', document.getElementById('old_component_id').value);
             formData.append('fate', document.querySelector('input[name="fate"]:checked').value);
             formData.append('swap_date', document.getElementById('swap_date').value);
+            formData.append('notes', document.getElementById('swap_notes').value);
 
             const createNew = document.getElementById('create_new_component').checked;
 
@@ -3948,62 +4038,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get component ID from the page context
     const currentComponentId = document.getElementById('serviceComponentId')?.value;
 
-    // ----- Workplan Dropdown Population for Service Modal -----
-
-    // Function to populate workplan dropdown in service modal
-    function populateServiceWorkplanDropdown(workplansData, selectedWorkplanId = null, componentId = null) {
-        // Use provided componentId or fall back to currentComponentId
-        const targetComponentId = componentId || currentComponentId;
-        const workplanSelect = document.getElementById('serviceWorkplanId');
-        if (!workplanSelect) return;
-
-        // Clear existing options
-        workplanSelect.innerHTML = '<option value="">No workplan selected</option>';
-
-        if (!workplansData || workplansData.length === 0) return;
-
-        // Filter and add workplan options
-        workplansData.forEach(workplan => {
-            const workplanId = workplan[0];
-            const workplanStatus = workplan[2];
-            const workplanAffectedComponentIds = workplan[4] || [];
-            const workplanTitle = workplan[12]; // Pre-generated title with markdown stripped
-
-            // Always include the currently selected workplan (even if it's "Done")
-            const isSelected = selectedWorkplanId && workplanId === selectedWorkplanId;
-
-            // Only show "Planned" workplans (not "Done"), unless it's the currently selected one
-            if (workplanStatus !== 'Planned' && !isSelected) {
-                return;
-            }
-
-            // Filter: Only show workplans that include this component
-            const includesComponent = targetComponentId && workplanAffectedComponentIds.includes(targetComponentId);
-
-            // Skip if not relevant
-            if (!includesComponent && !isSelected) {
-                return;
-            }
-
-            // Use pre-generated title (already has markdown stripped)
-            const option = document.createElement('option');
-            option.value = workplanId;
-            option.textContent = workplanTitle;
-            if (isSelected) {
-                option.selected = true;
-            }
-            workplanSelect.appendChild(option);
-        });
-    }
-
     // Handle "New Service" button click
     document.querySelector('[data-bs-target="#serviceRecordModal"]')?.addEventListener('click', function() {
-        const workplansData = JSON.parse(this.dataset.workplans || '[]');
-
-        // Populate workplan dropdown for new service (no selected workplan)
-        setTimeout(() => {
-            populateServiceWorkplanDropdown(workplansData, null);
-        }, 100);
         // Set up modal for creating new service
         document.getElementById('serviceRecordModalLabel').textContent = 'New service record';
         document.getElementById('serviceRecordForm').action = '/add_service_record';
@@ -4015,6 +4051,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('serviceId').value = '';
         document.getElementById('serviceDescription').value = '';
         document.getElementById('service_redirect_url').value = '';
+        document.getElementById('servicePlannedDate').value = '';
+        setServiceModalStatus('Completed');
+        setServiceModalSelect('serviceWorkplanId', '');
+        setServiceModalSelect('serviceIncidentId', '');
 
         // Reset ID display to placeholder text
         document.getElementById('service-id-display').textContent = 'Not created yet';
@@ -4039,50 +4079,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
 
         serviceModal.show();
-    });
-
-    // Handle service record edit button clicks
-    document.querySelectorAll('.edit-service-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const workplansData = JSON.parse(this.dataset.workplans || '[]');
-            const workplanId = this.dataset.workplanId || null;
-            const componentId = this.dataset.componentId;
-            const redirectUrl = this.dataset.redirectUrl || '';
-
-            // Populate workplan dropdown after a short delay to ensure modal is ready
-            setTimeout(() => {
-                populateServiceWorkplanDropdown(workplansData, workplanId, componentId);
-            }, 100);
-
-            // Set up modal for editing service
-            document.getElementById('serviceRecordModalLabel').textContent = 'Edit service record';
-            document.getElementById('serviceRecordForm').action = '/update_service_record';
-
-            // Fill in the form with existing data
-            document.getElementById('serviceComponentId').value = this.dataset.componentId;
-            document.getElementById('serviceId').value = this.dataset.serviceId;
-            document.getElementById('serviceDescription').value = this.dataset.serviceDescription;
-            document.getElementById('service_redirect_url').value = redirectUrl;
-
-            // Update ID display with actual service ID
-            document.getElementById('service-id-display').textContent = this.dataset.serviceId || 'Not created yet';
-
-            // Simply set the input value directly and avoid using the API
-            document.getElementById('serviceDate').value = this.dataset.serviceDate;
-
-            // Manage "View workplan" link for service modal
-            const isOnWorkplanDetailsPage = document.getElementById('workplan-details') !== null;
-            const viewLink = document.getElementById('serviceViewWorkplanLink');
-
-            if (viewLink && workplanId && !isOnWorkplanDetailsPage) {
-                viewLink.href = `/workplan_details/${workplanId}`;
-                viewLink.classList.remove('d-none');
-            } else if (viewLink) {
-                viewLink.classList.add('d-none');
-            }
-
-            serviceModal.show();
-        });
     });
 
     // Listen for service workplan dropdown changes to hide view workplan link

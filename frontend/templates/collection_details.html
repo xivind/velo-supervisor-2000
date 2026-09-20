@@ -8,6 +8,7 @@
 {% include "modal_collection.html" %}
 {% include "modal_update_component_status.html" %}
 {% include "modal_update_collection_status.html" %}
+{% include "modal_plan_services.html" %}
 
 <h1 id="collection-details" class="display-5 mt-5 text-center mb-4">Collection details</h1>
 
@@ -26,6 +27,11 @@
             data-collection-status="{% if payload.warnings.installed_count > 0 and payload.warnings.not_installed_count == 0 and payload.warnings.retired_count == 0 %}Installed{% elif payload.warnings.retired_count > 0 and payload.warnings.installed_count == 0 and payload.warnings.not_installed_count == 0 %}Retired{% elif payload.warnings.not_installed_count > 0 and payload.warnings.installed_count == 0 and payload.warnings.retired_count == 0 %}Not installed{% else %}Mixed{% endif %}"
             {% if payload.warnings.blocks_operations %}disabled title="Fix collection problems before changing status"{% endif %}>
         <span>🔄 Update collection status</span>
+    </button>
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#planServicesModal"
+            data-preselect='{{ payload.plan_services_preselect | tojson }}'
+            {% if not payload.plan_services_preselect %}disabled{% endif %}>
+        <span>🧑‍🔧 Plan services</span>
     </button>
     <button type="button" class="btn btn-outline-danger delete-record"
             data-collection-id="{{ payload.collection_data.collection_id }}">

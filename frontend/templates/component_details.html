@@ -25,6 +25,8 @@
 
 {% include "modal_update_component_details.html" %}
 {% include "modal_service_record.html" %}
+{% include "modal_plan_services.html" %}
+{% include "modal_complete_services.html" %}
 {% include "modal_edit_installation_record.html" %}
 
 {% with duplicate_data = {
@@ -96,9 +98,16 @@
 
 {% macro btn_new_service() %}
 <button type="button" id="btn-new-service" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceRecordModal"
-        data-workplans='{{ payload.workplans_data | tojson if payload.workplans_data else "[]" }}'
         {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>🧑‍🔧 New service</span>
+</button>
+{% endmacro %}
+
+{% macro btn_plan_services() %}
+<button type="button" id="btn-plan-services" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#planServicesModal"
+        data-preselect='{{ payload.plan_services_preselect | tojson }}'
+        {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+    <span>📋 Plan services</span>
 </button>
 {% endmacro %}
 
@@ -110,7 +119,6 @@
 
 {% macro btn_new_incident() %}
 <button type="button" id="btn-new-incident" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal"
-        data-workplans='{{ payload.workplans_data | tojson if payload.workplans_data else "[]" }}'
         {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
     <span>🚨 New incident</span>
 </button>
@@ -121,6 +129,14 @@
     <span>🗑 Delete</span>
 </button>
 {% endmacro %}
+
+{# Rows for the complete services modal: service id, component, description, first installation, status, workplan completion date #}
+{% set complete_rows = [] %}
+{% if payload.planned_services_data %}
+    {% for service_id, component_id, component_name, description, workplan_id, workplan_name, incident_id, effective_planned_date, planned_date, installation_status, oldest_history_date in payload.planned_services_data %}
+        {% set _ = complete_rows.append([service_id, component_name, description, oldest_history_date, installation_status, none]) %}
+    {% endfor %}
+{% endif %}
 
 <h1 id="component-details" class="display-5 mt-5 mb-4 text-center">Component details</h1>
 <div class="d-flex flex-wrap gap-2 mb-3" id="component-details-buttons">
@@ -133,6 +149,7 @@
     'quick-swap': btn_quick_swap,
     'duplicate': btn_duplicate,
     'new-service': btn_new_service,
+    'plan-services': btn_plan_services,
     'new-workplan': btn_new_workplan,
     'new-incident': btn_new_incident,
     'delete': btn_delete
@@ -328,7 +345,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, workplan_id, workplan_name in payload.incident_reports_data %}
+                    {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, incident_workplans, planned_service_count, completed_service_count in payload.incident_reports_data %}
                         {% if incident_affected_component_ids and payload.bike_component_data['component_id'] in incident_affected_component_ids %}
                             <tr>
                                 <td class="text-center">
@@ -350,8 +367,11 @@
                                     {{ elapsed_days }}
                                 </td>
                                 <td>
-                                    {% if workplan_id %}
-                                        <a href="/workplan_details/{{ workplan_id }}" class="text-decoration-none text-reset">{{ workplan_name if workplan_name else 'Workplan ' ~ workplan_id }}</a>
+                                    {% if incident_workplans %}
+                                        {% for linked_workplan_id, linked_workplan_name in incident_workplans %}
+                                            <a href="/workplan_details/{{ linked_workplan_id }}" class="text-decoration-none text-reset">{{ linked_workplan_name if linked_workplan_name else 'Workplan ' ~ linked_workplan_id }}</a>{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                        <br><small class="text-muted">{{ completed_service_count }}/{{ planned_service_count + completed_service_count }} services completed</small>
                                     {% else %}
                                         -
                                     {% endif %}
@@ -367,8 +387,6 @@
                                         data-description="{{ incident_description|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') }}"
                                         data-resolution-date="{{ resolution_date }}"
                                         data-resolution-notes="{{ resolution_notes|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                        data-workplan-id="{{ workplan_id if workplan_id else '' }}"
-                                        data-workplans='{{ payload.workplans_data | tojson if payload.workplans_data else "[]" }}'
                                         data-redirect-url="/component_details/{{ payload.bike_component_data['component_id'] }}"
                                         onclick="event.stopPropagation();">✍
                                     </button>
@@ -399,8 +417,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, checkbox_progress in payload.workplans_data %}
-                        {% if workplan_status == "Planned" and workplan_affected_component_ids and payload.bike_component_data['component_id'] in workplan_affected_component_ids %}
+                    {% for workplan_id, due_date, workplan_status, workplan_size, component_ids, component_names, bike_ids, bike_names, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, service_progress in payload.workplans_data %}
+                        {% if workplan_status == "Planned" and component_ids and payload.bike_component_data['component_id'] in component_ids %}
                             <tr role="button" onclick="window.location='/workplan_details/{{ workplan_id }}';">
                                 <td class="text-center">
                                     <div>
@@ -412,14 +430,15 @@
                                             <span class="badge color-workplan-size-small fixed-width-badge-workplan-size">Small</span>
                                         {% endif %}
                                     </div>
-                                    {% if checkbox_progress %}
+                                    {% if service_progress %}
+                                        {% set service_percentage = (service_progress.completed / service_progress.total * 100) | round | int %}
                                         <div class="checkbox-progress-container">
-                                            <span class="checkbox-progress-donut {% if checkbox_progress.percentage == 100 %}complete{% endif %}"
-                                                style="--progress: {{ checkbox_progress.percentage }}"
-                                                title="Task progress: {{ checkbox_progress.checked }} of {{ checkbox_progress.total }} completed">
+                                            <span class="checkbox-progress-donut {% if service_percentage == 100 %}complete{% endif %}"
+                                                style="--progress: {{ service_percentage }}"
+                                                title="Services: {{ service_progress.completed }} of {{ service_progress.total }} completed">
                                             </span>
-                                            <span class="checkbox-progress-text {% if checkbox_progress.percentage == 100 %}complete{% endif %}">
-                                                {{ checkbox_progress.checked }}/{{ checkbox_progress.total }}
+                                            <span class="checkbox-progress-text {% if service_percentage == 100 %}complete{% endif %}">
+                                                {{ service_progress.completed }}/{{ service_progress.total }}
                                             </span>
                                         </div>
                                     {% endif %}
@@ -447,6 +466,78 @@
     </div>
     {% endif %}
     <div class="card shadow mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Planned services</span>
+            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#completeServicesModal"
+                    data-planned-services='{{ complete_rows | tojson }}'
+                    {% if not payload.planned_services_data or payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
+                ✅ Complete services
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Planned for</th>
+                        <th>Description</th>
+                        <th>Workplan</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if payload.planned_services_data %}
+                        {% for service_id, component_id, component_name, description, workplan_id, workplan_name, incident_id, effective_planned_date, planned_date, installation_status, oldest_history_date in payload.planned_services_data %}
+                            <tr>
+                                <td>
+                                    {{ effective_planned_date.split(' ')[0] if effective_planned_date else "-" }}
+                                    {% if not planned_date and effective_planned_date %}<small class="text-muted">(due date)</small>{% endif %}
+                                </td>
+                                <td>{{ description }}</td>
+                                <td>
+                                    {% if workplan_id %}
+                                        <a href="/workplan_details/{{ workplan_id }}" class="text-decoration-none text-reset">{{ workplan_name if workplan_name else 'Workplan ' ~ workplan_id }}</a>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <button type="button" class="mb-1 btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#completeServicesModal"
+                                            data-planned-services='{{ [[service_id, component_name, description, oldest_history_date, installation_status, none]] | tojson }}'
+                                            {% if installation_status == "Retired" %}disabled{% endif %}>
+                                            ✅
+                                    </button>
+                                    <button class="mb-1 btn btn-outline-primary btn-sm edit-service-btn"
+                                            data-service-id="{{ service_id }}"
+                                            data-service-date=""
+                                            data-service-description="{{ description }}"
+                                            data-component-id="{{ component_id }}"
+                                            data-workplan-id="{{ workplan_id if workplan_id else '' }}"
+                                            data-incident-id="{{ incident_id if incident_id else '' }}"
+                                            data-planned-date="{{ planned_date if planned_date else '' }}"
+                                            data-status="Planned"
+                                            data-redirect-url="/component_details/{{ component_id }}"
+                                            {% if installation_status == "Retired" %}disabled{% endif %}>
+                                            ✍
+                                    </button>
+                                    <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
+                                            data-service-id="{{ service_id }}">
+                                            🗑
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No planned services for this component</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow mb-4">
         <div class="card-header fw-bold">Service history</div>
         <div class="card-body">
             <div class="table-responsive">
@@ -463,7 +554,7 @@
                 </thead>
                 <tbody>
                     {% if payload.service_history_data %}
-                        {% for service_id, service_date, description, bike_name, bike_total_distance, distance_marker, running_total, workplan_id in payload.service_history_data %}
+                        {% for service_id, service_date, description, bike_name, bike_total_distance, distance_marker, running_total, workplan_id, incident_id, planned_date in payload.service_history_data %}
                             <tr>
                                 <td>{{ service_date }}</td>
                                 <td>{{ description }}</td>
@@ -472,9 +563,9 @@
                                 <td>
                                     {% if workplan_id %}
                                         {% set workplan_name = namespace(value=None) %}
-                                        {% for workplan_item_id, workplan_due_date, workplan_status, workplan_size, workplan_comp_ids, workplan_comp_names, workplan_bike_id, workplan_bike_name, workplan_desc, workplan_completion_date, workplan_completion_notes, workplan_days, workplan_title, workplan_progress in payload.workplans_data %}
+                                        {% for workplan_item_id, workplan_due_date, workplan_item_status, workplan_size, workplan_comp_ids, workplan_comp_names, workplan_bike_ids, workplan_bike_names, workplan_desc, workplan_completion_date, workplan_completion_notes, workplan_days, workplan_item_title, workplan_progress in payload.workplans_data %}
                                             {% if workplan_item_id == workplan_id %}
-                                                {% set workplan_name.value = workplan_title %}
+                                                {% set workplan_name.value = workplan_item_title %}
                                             {% endif %}
                                         {% endfor %}
                                         {% if workplan_name.value %}
@@ -493,7 +584,9 @@
                                             data-service-description="{{ description }}"
                                             data-component-id="{{ payload.bike_component_data['component_id'] }}"
                                             data-workplan-id="{{ workplan_id if workplan_id else '' }}"
-                                            data-workplans='{{ payload.workplans_data | tojson if payload.workplans_data else "[]" }}'
+                                            data-incident-id="{{ incident_id if incident_id else '' }}"
+                                            data-planned-date="{{ planned_date if planned_date else '' }}"
+                                            data-status="Completed"
                                             data-redirect-url="/component_details/{{ payload.bike_component_data['component_id'] }}"
                                             {% if payload.bike_component_data['installation_status'] == "Retired" %}disabled{% endif %}>
                                             ✍
@@ -526,17 +619,19 @@
                         <th>Reason</th>
                         <th>Bike</th>
                         <th>Mileage</th>
+                        <th>Notes</th>
                         <th class="text-end"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if payload.component_history_data %}
-                        {% for history_id, updated_date, update_reason, bike_id, bike_name, bike_total_distance, mileage in payload.component_history_data %}
+                        {% for history_id, updated_date, update_reason, bike_id, bike_name, bike_total_distance, mileage, notes in payload.component_history_data %}
                         <tr {% if bike_name != "Not assigned" %} role="button" onclick="window.location='/bike_details/{{ bike_id }}';"{% endif %}>
                             <td>{{ updated_date }}</td>
                             <td>{% if update_reason == "Not installed" %}Uninstalled{% else %}{{ update_reason }}{% endif %}</td>
                             <td>{{ bike_name }}{% if bike_name != "Not assigned" %} ({{ bike_total_distance }} km){% endif %}</td>
                             <td>{{ mileage }} km</td>
+                            <td>{{ notes if notes else "-" }}</td>
                             <td class="text-end">
                                 <button class="mb-1 btn btn-outline-primary btn-sm edit-history-btn"
                                         data-history-id="{{ history_id }}"
@@ -557,7 +652,7 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="5" class="text-center">No installation history data available</td>
+                            <td colspan="6" class="text-center">No installation history data available</td>
                         </tr>
                     {% endif %}
                 </tbody>

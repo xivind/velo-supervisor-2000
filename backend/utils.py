@@ -32,6 +32,7 @@ def get_button_order(config, page_name):
     defaults = {'bike_details': ['new-collection',
                                  'new-component',
                                  'install-existing',
+                                 'plan-services',
                                  'new-workplan',
                                  'new-incident'],
                 'component_details': ['view-bike',
@@ -41,17 +42,24 @@ def get_button_order(config, page_name):
                                       'quick-swap',
                                       'duplicate',
                                       'new-service',
+                                      'plan-services',
                                       'new-workplan',
                                       'new-incident',
                                       'delete']}
 
-    return config.get('button_sorting', {}).get(page_name, defaults.get(page_name, []))
+    default_order = defaults.get(page_name, [])
+    configured_order = config.get('button_sorting', {}).get(page_name, default_order)
+
+    missing_buttons = [button_id for button_id in default_order if button_id not in configured_order]
+
+    return configured_order + missing_buttons
 
 def get_button_sorting_config(config):
     """Function to get button sorting configuration for config page"""
     default_button_sorting = {'bike_details': ['new-collection',
                                                'new-component',
                                                'install-existing',
+                                               'plan-services',
                                                'new-workplan',
                                                'new-incident'],
                             'component_details': ['view-bike',
@@ -61,6 +69,7 @@ def get_button_sorting_config(config):
                                                   'quick-swap',
                                                   'duplicate',
                                                   'new-service',
+                                                  'plan-services',
                                                   'new-workplan',
                                                   'new-incident',
                                                   'delete']}
@@ -119,6 +128,7 @@ def write_config(form_type, db_path=None, strava_tokens=None, verbose_logging=No
             updated_config["button_sorting"] = {"bike_details": ["new-collection",
                                                                  "new-component",
                                                                  "install-existing",
+                                                                 "plan-services",
                                                                  "new-workplan",
                                                                  "new-incident"],
                                                 "component_details": ["view-bike",
@@ -128,6 +138,7 @@ def write_config(form_type, db_path=None, strava_tokens=None, verbose_logging=No
                                                                       "quick-swap",
                                                                       "duplicate",
                                                                       "new-service",
+                                                                      "plan-services",
                                                                       "new-workplan",
                                                                       "new-incident",
                                                                       "delete"]}
