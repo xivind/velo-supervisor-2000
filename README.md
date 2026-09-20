@@ -50,6 +50,20 @@ As a principle, development is to be done in the dev-branch. When changes are re
 
 **Planned for v0.5.0**  
 
+*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). REMEMBER TO BACKUP THE DATABASE FIRST*
+
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+
+- Services are now the unit of work, and can be either planned or completed. Planned services have no date and do not affect component status until they are completed
+- Workplans group planned services, and get their bike and components from those services. Workplans can only be completed once all their services are completed
+- Incidents are linked to workplans through services. Plan services directly from an incident, with or without a workplan, so the same description is not typed twice
+- Complete several services at once with a single date, and close related incidents when completing a workplan
+- New feature: Optional planned date per service, which falls back to the due date of its workplan
+- New feature: Plan services from bike details and collection details pages
+- New feature: Notes when installing, uninstalling or retiring a component, shown in the installation history
+- Components with planned services can no longer be retired before those services are completed or deleted
+- Fixed a bug where a component status change or a service deletion silently removed the workplan link from the newest service
+- Fixed page rendering and form handling on current versions of FastAPI and Starlette
 - See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
 **v0.4.9 (CURRENT)**  
