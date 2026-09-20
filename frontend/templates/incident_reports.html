@@ -5,13 +5,13 @@
 {% block content %}
 <h1 id="incident-reports" class="display-5 mt-5 text-center">Incident reports</h1>
   
-<button type="button" class="btn btn-outline-primary mt-4" data-bs-toggle="modal" data-bs-target="#incidentRecordModal"
-        data-workplans='{{ payload.workplans_data | tojson if payload.workplans_data else "[]" }}'>
+<button type="button" class="btn btn-outline-primary mt-4" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
     <span>🚨 New incident</span>
 </button>
 
 {% include "modal_incident_record.html" %}
 {% include "modal_workplan_record.html" %}
+{% include "modal_plan_services.html" %}
 <hr/>
 
 <div class="card shadow mb-3">
@@ -55,7 +55,7 @@
             </thead>
             <tbody>
                 {% if payload.incident_reports_data %}
-                    {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, workplan_id, workplan_name in payload.incident_reports_data %}
+                    {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, incident_workplans, planned_service_count, completed_service_count in payload.incident_reports_data %}
                         <tr data-description="{{ incident_description }}" data-notes="{{ resolution_notes }}">
                             <td class="text-center">
                                 {% if incident_status == "Open" %}
@@ -104,8 +104,11 @@
                                 {{ elapsed_days }}
                             </td>
                             <td>
-                                {% if workplan_name %}
-                                    <a href="/workplan_details/{{ workplan_id }}" class="text-decoration-none text-reset">{{ workplan_name }}</a>
+                                {% if incident_workplans %}
+                                    {% for linked_workplan_id, linked_workplan_name in incident_workplans %}
+                                        <a href="/workplan_details/{{ linked_workplan_id }}" class="text-decoration-none text-reset">{{ linked_workplan_name if linked_workplan_name else 'Workplan ' ~ linked_workplan_id }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                    <br><small class="text-muted">{{ completed_service_count }}/{{ planned_service_count + completed_service_count }} services completed</small>
                                 {% else %}
                                     -
                                 {% endif %}
@@ -113,13 +116,17 @@
                             <td class="text-end">
                                 <button type="button" class="mb-1 btn btn-outline-secondary btn-sm create-workplan-from-incident-btn"
                                     data-incident-id="{{ incident_id }}"
-                                    data-incident-date="{{ incident_date }}"
-                                    data-incident-severity="{{ incident_severity }}"
-                                    data-incident-affected-components='{{ incident_affected_component_ids|tojson if incident_affected_component_ids else "[]" }}'
-                                    data-incident-affected-bike-id="{% if affected_bike_name != 'Not assigned' %}{{ incident_affected_bike_id }}{% endif %}"
                                     data-description="{{ incident_description|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                    {% if workplan_id %}disabled{% endif %}
+                                    title="New workplan with planned services for this incident"
+                                    {% if incident_status == "Resolved" or not incident_affected_component_ids %}disabled{% endif %}
                                     onclick="event.stopPropagation();">📝
+                                </button>
+                                <button type="button" class="mb-1 btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#planServicesModal"
+                                    data-incident-id="{{ incident_id }}"
+                                    data-preselect='{{ incident_affected_component_ids|tojson if incident_affected_component_ids else "[]" }}'
+                                    title="Plan services for this incident"
+                                    {% if incident_status == "Resolved" or not incident_affected_component_ids %}disabled{% endif %}
+                                    onclick="event.stopPropagation();">🧑‍🔧
                                 </button>
                                 <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn"
                                     data-incident-id="{{ incident_id }}"
@@ -131,8 +138,6 @@
                                     data-description="{{ incident_description|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') }}"
                                     data-resolution-date="{{ resolution_date }}"
                                     data-resolution-notes="{{ resolution_notes|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') }}"
-                                    data-workplan-id="{{ workplan_id if workplan_id else '' }}"
-                                    data-workplans='{{ payload.workplans_data | tojson if payload.workplans_data else "[]" }}'
                                     data-redirect-url="/incident_reports"
                                     onclick="event.stopPropagation();">✍
                                 </button>

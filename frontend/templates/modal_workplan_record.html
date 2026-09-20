@@ -9,12 +9,10 @@
                 <!-- Warning banner for linked incidents/services (hidden by default, shown via JS) -->
                 <div id="workplan_edit_warning" class="alert alert-warning d-none mb-3" role="alert">
                     ⚠️ This workplan has <span id="warning_linked_items"></span>.
-                    Changing the bike or removing components may affect these links.
                 </div>
                 <form id="workplan_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
                     <!-- Hidden fields -->
                     <input type="hidden" id="workplan_id" name="workplan_id"> <!-- Should be set automatically, and is required -->
-                    <input type="hidden" id="initial_workplan_component_id" name="initial_workplan_component_id" value="{{ duplicate_data.component_id if duplicate_data }}">
                     
                     <!-- First row: Date, Status (as radio), Severity -->
                     <div class="col-md-4 mb-3">
@@ -42,31 +40,6 @@
                             <option value="Medium">Medium</option>
                             <option value="Large">Large</option>
                         </select>
-                    </div>
-                    
-                    <!-- Second row: Multiple component selection and Bike selection -->
-                    <div class="col-md-6 mb-3">
-                        <label for="workplan_affected_bike_id" class="form-label fw-bold">Affected bike</label>
-                        <select class="form-select" id="workplan_affected_bike_id" name="workplan_affected_bike_id">
-                            <option value="" selected></option>
-                            {% for bike_name, bike_id in payload.bikes_data %}
-                                <option value="{{ bike_id }}"
-                                    {% if duplicate_data and bike_id == duplicate_data.bike_id %}selected{% endif %}>
-                                {{ bike_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="workplan_affected_component_ids" class="form-label fw-bold">Affected components</label>
-                        <select class="form-select" id="workplan_affected_component_ids" name="workplan_affected_component_ids" multiple placeholder="Search to add more components...">
-                            {% for component_id, type, name, distance, status, lifetime_status, service_status, bike, cost, lifetime_remaining, lifetime_remaining_days, service_next, service_next_days, threshold_km, threshold_days, bike_id, updated_date in payload.all_components_data %}
-                                <option value="{{ component_id }}" data-status="{{ status }}">
-                                    {{ name }} ({{ type }}) - {{ bike }}{% if status == "Retired" %} (Retired){% endif %}
-                                </option>
-                            {% endfor %}
-                        </select>
-                        <small class="form-text text-muted">Select 0..* components</small>
                     </div>
                     
                     <!-- Description row (full width) -->
