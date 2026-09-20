@@ -3266,7 +3266,6 @@ class BusinessLogic():
         elif table_selector == "Collections":
             collection = database_manager.read_single_collection(record_id)
             collection_component_ids = json.loads(collection.components) if collection.components else None
-            print(table_selector)
             if collection_component_ids:
                 logging.warning(f"Cannot delete collection {collection.collection_name} as it still contains components.")
                 return False, f"Cannot delete collection {collection.collection_name} as it still contains components. Remove all components from collection before deleting.", None, None, None
