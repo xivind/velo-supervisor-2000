@@ -22,7 +22,7 @@ Assessed 2026-09-20, after the service integration work for issue #351.
 
 ## 3. Two very large files
 
-**What:** `frontend/static/js/main.js` is 6215 lines and `backend/business_logic.py` is 3376 lines.
+**What:** `frontend/static/js/main.js` is 6189 lines and `backend/business_logic.py` is 3376 lines.
 
 **Risk:** both are internally consistent, but a change requires locating code by line number rather than reading the file. That raises the chance of editing the wrong block.
 
@@ -38,11 +38,11 @@ Assessed 2026-09-20, after the service integration work for issue #351.
 
 ## 5. Duplication in templates and JavaScript
 
-**What:** the block that formats the current date as `YYYY-MM-DD HH:MM` appears about eight times in main.js. The progress wheel markup is repeated in four templates. The incident table markup exists in four templates with small variations.
+**What:** the block that formats the current date as `YYYY-MM-DD HH:MM` appears 13 times in main.js, three of them added with #351. The progress wheel markup is repeated in four templates. The incident table markup exists in four templates with small variations. Two TODO markers in main.js, at the quick swap and install component validation, ask for the not-in-future date check to be standardised, and #351 added three more copies of that check.
 
 **Risk:** changes get applied to some copies and not others.
 
-**Fix:** one helper in main.js for the formatted current date. A Jinja macro for the progress wheel and for the incident row.
+**Fix:** one helper in main.js for the formatted current date, and one for the not-in-future check the TODOs refer to. A Jinja macro for the progress wheel and for the incident row.
 
 ## 6. Unpinned dependencies
 
@@ -57,3 +57,7 @@ Assessed 2026-09-20, after the service integration work for issue #351.
 - Spelling in user-facing messages and docstrings, for example "occured" and "receords"
 - Lint noise: trailing whitespace, lines over 100 characters, missing final newlines
 - `validate_service_record` now takes seven parameters, which is at the edge of readable
+
+## Cleared
+
+- Debug leftovers, removed 2026-09-20: a `print` of the table selector in `delete_record`, two stored but unused submit handlers in the incident and workplan form initialisers, three `console.log` calls on the configuration page, and nine commented-out `console.log` lines. Found by sweeping for `print(`, `console.log(`, `TODO` and orphaned variables, which is worth repeating occasionally

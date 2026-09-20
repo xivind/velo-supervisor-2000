@@ -262,15 +262,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // If we have a message, show the toast
     if (message) {
-        // console.log('Showing toast:', message, success);  // Debug log
-        // console.log("Success parameter:", success, typeof success);
         showToast(message, success);
     }
 });
 
 // Toast behaviour
 function showToast(message, success = true) {
-    // console.log("Success value:", success, typeof success); // Debug log
     
     const toast = document.getElementById('messageToast');
     const toastHeader = toast.querySelector('.toast-header');
@@ -4135,7 +4132,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (incidentModal) {
             // Setup modal shown event
             incidentModal.addEventListener('shown.bs.modal', function() {
-                // console.log("Incident modal shown, isNewIncident:", isNewIncident);
                 initializeDatePickers(incidentModal);
                 
                 // If it's a new incident, we need special handling
@@ -4164,7 +4160,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Clean up when modal is hidden
             incidentModal.addEventListener('hidden.bs.modal', function() {
-                // console.log("Incident modal hidden - resetting flags");
                 pendingComponentData = null;
                 isNewIncident = false; // This should reset the flag
                 
@@ -4360,7 +4355,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update form fields with data
     function updateFormFields(data) {
-        // console.log("Form data received:", data);
         
         // Set basic form fields
         document.getElementById('incident_id').value = data.incidentId || '';
@@ -4460,9 +4454,6 @@ function initializeIncidentForm() {
 
     // Set up form validation that works with the global validation
     if (incidentForm.getAttribute('data-incident-validation-initialized') !== 'true') {
-        // Store original submit handler
-        const originalSubmit = incidentForm.onsubmit;
-        
         // Add our enhanced submit handler
         incidentForm.onsubmit = function(e) {
             // Always prevent default submission first
@@ -4936,7 +4927,6 @@ function setupIncidentSearch() {
         if (workplanModal) {
             // Setup modal shown event
             workplanModal.addEventListener('shown.bs.modal', function() {
-                // console.log("Workplan modal shown, isNewWorkplan:", isNewWorkplan);
                 initializeDatePickers(workplanModal);
 
                 // If it's a new workplan from incident, handle specially
@@ -4979,7 +4969,6 @@ function setupIncidentSearch() {
             
             // Clean up when modal is hidden
             workplanModal.addEventListener('hidden.bs.modal', function() {
-                // console.log("Workplan modal hidden - resetting flags");
                 pendingComponentData = null;
                 isNewWorkplan = false;
                 isNewWorkplanFromIncident = false;
@@ -5075,7 +5064,6 @@ function setupIncidentSearch() {
     
     // Update form fields with data
     function updateFormFields(data) {
-        // console.log("Form data received:", data);
         
         // Set basic form fields
         document.getElementById('workplan_id').value = data.workplanId || '';
@@ -5141,9 +5129,6 @@ function initializeWorkplanForm() {
 
     // Set up form validation that works with the global validation
     if (workplanForm.getAttribute('data-workplan-validation-initialized') !== 'true') {
-        // Store original submit handler
-        const originalSubmit = workplanForm.onsubmit; // Can this be delete?
-        
         // Add our enhanced submit handler
         workplanForm.onsubmit = function(e) {
             // Always prevent default submission first
@@ -6048,10 +6033,7 @@ document.addEventListener('DOMContentLoaded', function() {
         animation: 150,
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
-        handle: '.drag-handle',
-        onEnd: function() {
-            console.log('Bike details button order changed');
-        }
+        handle: '.drag-handle'
     });
 
     // Initialize Sortable for component details buttons
@@ -6059,10 +6041,7 @@ document.addEventListener('DOMContentLoaded', function() {
         animation: 150,
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
-        handle: '.drag-handle',
-        onEnd: function() {
-            console.log('Component details button order changed');
-        }
+        handle: '.drag-handle'
     });
 
     // Before form submission, populate hidden fields with current order
@@ -6078,11 +6057,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set hidden field values as JSON strings
         document.getElementById('button_sorting_bike_details').value = JSON.stringify(bikeDetailsOrder);
         document.getElementById('button_sorting_component_details').value = JSON.stringify(componentDetailsOrder);
-
-        console.log('Saving button order:', {
-            bike_details: bikeDetailsOrder,
-            component_details: componentDetailsOrder
-        });
     });
 });
 
