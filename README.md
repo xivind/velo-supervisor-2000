@@ -60,10 +60,19 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - Complete several services at once with a single date, and close related incidents when completing a workplan
 - New feature: Optional planned date per service, which falls back to the due date of its workplan
 - New feature: Plan services from bike details and collection details pages
-- New feature: Notes when installing, uninstalling or retiring a component, shown in the installation history
+- New feature: Notes when installing, uninstalling or retiring a component, shown in the installation history. Notes can also be added when changing a collection's status, applied to every component's installation record, and edited afterwards on any installation record
+- New feature: Optional name for a workplan, which replaces the generated title everywhere it is shown
+- New feature: The incident modal lists its linked services, with links to each component and its workplan. The incidents list shows the number of linked workplans with a progress wheel
+- New feature: A warning shows when resolving an incident that still has planned services, without blocking it
+- New feature: Choose which components come along when creating a workplan from an incident
 - Components with planned services can no longer be retired before those services are completed or deleted
+- "Complete services" moved from inside the planned services table to the button row on bike details and component details
+- Planned services tables show a due date, marked when it has passed
+- Workplan details shows service progress with the same wheel used on the workplans list, and the bike each component is currently installed on
 - Fixed a bug where a component status change or a service deletion silently removed the workplan link from the newest service
 - Fixed page rendering and form handling on current versions of FastAPI and Starlette
+- Fixed a bug where the date picker refused future dates for planned dates and due dates
+- Fixed a bug where a service could be submitted without a completion date
 - See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
 
 **v0.4.9 (CURRENT)**  
