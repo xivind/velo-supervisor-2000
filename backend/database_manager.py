@@ -359,13 +359,6 @@ class DatabaseManager:
                 .where(Services.incident_id == incident_id)
                 .order_by(Services.status.desc(), Services.service_date.desc()))
 
-    def read_all_services_by_component(self, component_id):
-        """Method to read all services for a component regardless of status, planned first"""
-        return (Services
-                .select()
-                .where(Services.component_id == component_id)
-                .order_by(Services.status.desc(), Services.service_date.desc()))
-
     def read_planned_services_by_component(self, component_id):
         """Method to read planned services for a component"""
         return (Services
@@ -383,12 +376,6 @@ class DatabaseManager:
                 .select()
                 .where((Services.component_id.in_(component_ids)) &
                        (Services.status == "Planned")))
-
-    def read_all_planned_services(self):
-        """Method to read all planned services"""
-        return (Services
-                .select()
-                .where(Services.status == "Planned"))
 
     def write_update_rides_bulk(self, ride_list):
         """Method to create or update ride data in bulk in database"""

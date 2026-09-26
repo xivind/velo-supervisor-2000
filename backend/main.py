@@ -332,10 +332,11 @@ async def add_history_record(request: Request,
 @app.post("/update_history_record", response_class=HTMLResponse)
 async def update_history_record(component_id: str = Form(...),
                                 history_id: str = Form(...),
-                                updated_date: str = Form(...)):
+                                updated_date: str = Form(...),
+                                notes: Optional[str] = Form(None)):
     """Endpoint to update an existing component history record"""
 
-    success, message = business_logic.update_history_record(history_id, updated_date)
+    success, message = business_logic.update_history_record(history_id, updated_date, notes)
 
     response = RedirectResponse(
         url=f"/component_details/{component_id}?success={success}&message={message}",
@@ -442,13 +443,15 @@ async def update_collection(collection_id: str = Form(...),
 async def change_collection_status(collection_id: str = Form(...),
                                    new_status: str = Form(...),
                                    updated_date: str = Form(...),
-                                   bike_id: Optional[str] = Form(None)):
+                                   bike_id: Optional[str] = Form(None),
+                                   notes: Optional[str] = Form(None)):
     """Endpoint to change the status of all components in a collection"""
 
     success, message = business_logic.change_collection_status(collection_id,
                                                                new_status,
                                                                updated_date,
-                                                               bike_id)
+                                                               bike_id,
+                                                               notes)
 
     return JSONResponse({"success": success, "message": message})
 
@@ -599,13 +602,15 @@ async def update_incident_record(incident_id: str = Form(...),
     return response
 
 @app.post("/add_workplan", response_class=HTMLResponse)
-async def add_workplan(due_date: str = Form(...),
+async def add_workplan(workplan_name: Optional[str] = Form(None),
+                       due_date: str = Form(...),
                        workplan_status: str = Form(...),
                        workplan_size: str = Form(...),
                        workplan_description: Optional[str] = Form(None),
                        completion_date: Optional[str] = Form(None),
                        completion_notes: Optional[str] = Form(None),
-                       source_incident_id: Optional[str] = Form(None)):
+                       source_incident_id: Optional[str] = Form(None),
+                       component_ids: Optional[List[str]] = Form(None)):
     """Endpoint to create a workplan (optionally linked to an incident)"""
 
     success, message, workplan_id = business_logic.create_workplan(due_date,
@@ -614,7 +619,9 @@ async def add_workplan(due_date: str = Form(...),
                                                                     workplan_description,
                                                                     completion_date,
                                                                     completion_notes,
-                                                                    source_incident_id)
+                                                                    workplan_name,
+                                                                    source_incident_id,
+                                                                    component_ids)
 
     response = RedirectResponse(
         url=f"/workplan_details/{workplan_id}?success={success}&message={message}",
@@ -624,6 +631,7 @@ async def add_workplan(due_date: str = Form(...),
 
 @app.post("/update_workplan", response_class=HTMLResponse)
 async def update_workplan(workplan_id: str = Form(...),
+                          workplan_name: Optional[str] = Form(None),
                           due_date: Optional[str] = Form(None),
                           workplan_status: Optional[str] = Form(None),
                           workplan_size: Optional[str] = Form(None),
@@ -642,7 +650,8 @@ async def update_workplan(workplan_id: str = Form(...),
                                                       completion_date,
                                                       completion_notes,
                                                       close_linked_incidents,
-                                                      update_mode)
+                                                      update_mode,
+                                                      workplan_name)
 
     response = RedirectResponse(
         url=f"/workplan_details/{workplan_id}?success={success}&message={message}",

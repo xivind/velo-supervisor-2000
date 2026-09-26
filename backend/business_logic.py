@@ -20,8 +20,7 @@ from utils import (read_config,
                    derive_workplan_context,
                    parse_json_string,
                    generate_incident_title,
-                   generate_workplan_title,
-                   parse_checkbox_progress,
+                   resolve_workplan_title,
                    strip_markdown_syntax)
 from strava import Strava
 from database_manager import DatabaseManager
@@ -189,6 +188,7 @@ class BusinessLogic():
                    "planned_workplans": planned_workplans,
                    "workplans_data": workplans_data,
                    "planned_services_data": planned_services_data if planned_services_data else None,
+                   "today": get_formatted_datetime_now(),
                    "plan_services_preselect": plan_services_preselect,
                    "component_collection_names": component_collection_names,
                    "component_collection_data": component_collection_data}
@@ -431,6 +431,7 @@ class BusinessLogic():
                    "planned_workplans": planned_workplans,
                    "workplans_data": workplans_data,
                    "planned_services_data": planned_services_data if planned_services_data else None,
+                   "today": get_formatted_datetime_now(),
                    "open_incidents_for_component": open_incidents_for_component,
                    "plan_services_preselect": plan_services_preselect,
                    "oldest_history_date": oldest_history_record.updated_date if oldest_history_record else None,
@@ -739,9 +740,10 @@ class BusinessLogic():
         context = derive_workplan_context(services, database_manager)
 
         workplan_data = {"workplan_id": workplan.workplan_id,
-                         "workplan_name": generate_workplan_title(context["component_names"],
-                                                                  context["bike_names"][0] if context["bike_names"] else None,
-                                                                  workplan.workplan_description),
+                         "workplan_name": resolve_workplan_title(workplan,
+                                                                context["component_names"],
+                                                                context["bike_names"][0] if context["bike_names"] else None),
+                         "workplan_name_given": workplan.workplan_name,
                          "due_date": workplan.due_date,
                          "workplan_status": workplan.workplan_status,
                          "workplan_size": workplan.workplan_size,
@@ -756,8 +758,14 @@ class BusinessLogic():
                          "completion_date": workplan.completion_date,
                          "completion_notes": workplan.completion_notes,
                          "elapsed_days": calculate_elapsed_days(workplan.due_date,
-                                                                workplan.completion_date if workplan.completion_date else get_formatted_datetime_now())[1],
-                         "checkbox_progress": parse_checkbox_progress(workplan.workplan_description)}
+                                                                workplan.completion_date if workplan.completion_date else get_formatted_datetime_now())[1]}
+
+        component_bike_names = {}
+        for service in services:
+            if service.component_id not in component_bike_names:
+                component = database_manager.read_component(service.component_id)
+                installed = component and component.bike_id and component.installation_status != "Not installed"
+                component_bike_names[service.component_id] = database_manager.read_bike_name(component.bike_id) if installed else None
 
         all_services_completed = context["total_count"] > 0 and context["completed_count"] == context["total_count"]
 
@@ -800,6 +808,8 @@ class BusinessLogic():
                    "planned_services_data": planned_services_data if planned_services_data else None,
                    "bikes_data": bikes_data,
                    "all_components_data": all_components_data,
+                   "component_bike_names": component_bike_names,
+                   "today": get_formatted_datetime_now(),
                    "workplans_data": workplans_data}
 
         return payload
@@ -1516,7 +1526,7 @@ class BusinessLogic():
             logging.error(f"An error occured creating history record for component {component.component_name}: {str(error)}")
             return False, f"An error occured creating history record for {component.component_name}: {str(error)}"
         
-    def update_history_record(self, history_id, updated_date):
+    def update_history_record(self, history_id, updated_date, notes=None):
         """Method to update a component history record with validation"""
         try:
             current_history = database_manager.read_single_history_record(history_id)
@@ -1533,7 +1543,8 @@ class BusinessLogic():
                             "component_name": component.component_name,
                             "updated_date": updated_date,
                             "update_reason": current_history.update_reason,
-                            'distance_marker': 0}
+                            'distance_marker': 0,
+                            "notes": notes if notes and notes.strip() else None}
             
             success, message = database_manager.write_history_record(history_data)
             if not success:
@@ -2027,7 +2038,7 @@ class BusinessLogic():
         logging.debug(f"Validation of collection {collection_id} passed")
         return True, f"Validation of collection {collection_id} passed"
     
-    def change_collection_status(self, collection_id, new_status, updated_date, bike_id):
+    def change_collection_status(self, collection_id, new_status, updated_date, bike_id, notes=None):
         """Method to change status of all components in a collection"""
         try:
             logging.info(f"Starting collection status change for collection {collection_id} to '{new_status}'")
@@ -2057,7 +2068,8 @@ class BusinessLogic():
                 success, message = self.create_history_record(component_id=component_id,
                                                               installation_status=new_status,
                                                               component_bike_id=bike_id,
-                                                              component_updated_date=updated_date)
+                                                              component_updated_date=updated_date,
+                                                              notes=notes)
 
                 if success:
                     success_count += 1
@@ -2987,17 +2999,21 @@ class BusinessLogic():
                         workplan_description,
                         completion_date,
                         completion_notes,
-                        source_incident_id=None):
-        """Method to add workplan, optionally with planned services for the components of a source incident"""
+                        workplan_name=None,
+                        source_incident_id=None,
+                        component_ids=None):
+        """Method to add workplan, optionally with planned services for components of a source incident"""
         try:
             workplan_id = generate_unique_id()
 
             workplan_description = workplan_description if workplan_description else None
             completion_date = completion_date if completion_date else None
             completion_notes = completion_notes if completion_notes else None
+            workplan_name = workplan_name if workplan_name and workplan_name.strip() else None
             source_incident_id = source_incident_id if source_incident_id and source_incident_id.strip() else None
 
             workplan_data = {"workplan_id": workplan_id,
+                             "workplan_name": workplan_name,
                              "due_date": due_date,
                              "workplan_status": workplan_status,
                              "workplan_size": workplan_size,
@@ -3017,6 +3033,10 @@ class BusinessLogic():
                 incident = database_manager.read_single_incident_report(source_incident_id)
                 incident_component_ids = parse_json_string(incident.incident_affected_component_ids) if incident else None
 
+                if incident_component_ids and component_ids:
+                    incident_component_ids = [component_id for component_id in incident_component_ids
+                                              if component_id in component_ids]
+
                 if incident_component_ids:
                     planned_description = incident.incident_description if incident.incident_description else "Planned service from incident"
                     planned_success, planned_message = self.create_planned_services(incident_component_ids,
@@ -3029,7 +3049,7 @@ class BusinessLogic():
                         logging.warning(f"Workplan {workplan_id} created but not all planned services from incident {source_incident_id} were created: {planned_message}")
                         message += ". Not all planned services from the incident could be created, check the planned services on the workplan"
                 else:
-                    message += ". The incident has no components, so no services were planned"
+                    message += ". No components were selected, so no services were planned"
 
             return success, message, workplan_id
 
@@ -3046,7 +3066,8 @@ class BusinessLogic():
                         completion_date=None,
                         completion_notes=None,
                         close_linked_incidents=None,
-                        update_mode=None):
+                        update_mode=None,
+                        workplan_name=None):
         """Method to update workplan (supports full or partial updates)"""
         try:
             close_linked_incidents = close_linked_incidents == "on"
@@ -3074,6 +3095,7 @@ class BusinessLogic():
                 workplan_description = workplan_description if workplan_description else None
 
                 workplan_data = {"workplan_id": workplan_id,
+                                 "workplan_name": workplan_name if workplan_name and workplan_name.strip() else None,
                                  "due_date": due_date,
                                  "workplan_status": workplan_status,
                                  "workplan_size": workplan_size,

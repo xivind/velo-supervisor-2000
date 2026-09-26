@@ -33,6 +33,7 @@ def get_button_order(config, page_name):
                                  'new-component',
                                  'install-existing',
                                  'plan-services',
+                                 'complete-services',
                                  'new-workplan',
                                  'new-incident'],
                 'component_details': ['view-bike',
@@ -43,6 +44,7 @@ def get_button_order(config, page_name):
                                       'duplicate',
                                       'new-service',
                                       'plan-services',
+                                      'complete-services',
                                       'new-workplan',
                                       'new-incident',
                                       'delete']}
@@ -60,6 +62,7 @@ def get_button_sorting_config(config):
                                                'new-component',
                                                'install-existing',
                                                'plan-services',
+                                               'complete-services',
                                                'new-workplan',
                                                'new-incident'],
                             'component_details': ['view-bike',
@@ -70,6 +73,7 @@ def get_button_sorting_config(config):
                                                   'duplicate',
                                                   'new-service',
                                                   'plan-services',
+                                                  'complete-services',
                                                   'new-workplan',
                                                   'new-incident',
                                                   'delete']}
@@ -240,20 +244,44 @@ def get_effective_planned_date(service, workplan):
 
     return None
 
+def resolve_workplan_title(workplan, component_names, bike_name):
+    """Return the name the user gave the workplan, or a generated title when there is none"""
+    if workplan.workplan_name and workplan.workplan_name.strip():
+        return workplan.workplan_name
+
+    return generate_workplan_title(component_names, bike_name, workplan.workplan_description)
+
 def get_workplan_names_dict(database_manager):
     """Build dictionary mapping workplan_id -> workplan_name for all workplans"""
     workplan_names = {}
     for workplan in database_manager.read_all_workplans():
         context = derive_workplan_context(database_manager.read_services_by_workplan(workplan.workplan_id),
                                           database_manager)
-        workplan_names[workplan.workplan_id] = generate_workplan_title(context["component_names"],
-                                                                       context["bike_names"][0] if context["bike_names"] else None,
-                                                                       workplan.workplan_description)
+        workplan_names[workplan.workplan_id] = resolve_workplan_title(workplan,
+                                                                      context["component_names"],
+                                                                      context["bike_names"][0] if context["bike_names"] else None)
 
     return workplan_names
 
+def build_incident_service_entry(service, database_manager, workplan_names):
+    """Describe one service linked to an incident, for the read only list in the incident modal"""
+    component = database_manager.read_component(service.component_id)
+    workplan = database_manager.read_single_workplan(service.workplan_id) if service.workplan_id else None
+
+    return {"service_id": service.service_id,
+            "component_id": service.component_id,
+            "component_name": component.component_name if component else "Deleted component",
+            "status": service.status,
+            "description": service.description,
+            "service_date": service.service_date,
+            "planned_date": service.planned_date,
+            "date": service.service_date if service.status == "Completed" else get_effective_planned_date(service, workplan),
+            "workplan_id": service.workplan_id,
+            "workplan_name": workplan_names.get(service.workplan_id) if service.workplan_id else None,
+            "workplan_status": workplan.workplan_status if workplan else None}
+
 def get_incident_data_tuple(incident, database_manager, workplan_names):
-    """Build standard incident data tuple for display (16 fields)"""
+    """Build standard incident data tuple for display (17 fields)"""
     incident_services = list(database_manager.read_services_by_incident(incident.incident_id))
     incident_workplans = []
     for service in incident_services:
@@ -278,7 +306,9 @@ def get_incident_data_tuple(incident, database_manager, workplan_names):
                                     incident.incident_description),
             incident_workplans,
             sum(1 for service in incident_services if service.status == "Planned"),
-            sum(1 for service in incident_services if service.status == "Completed"))
+            sum(1 for service in incident_services if service.status == "Completed"),
+            [build_incident_service_entry(service, database_manager, workplan_names)
+             for service in incident_services])
 
 def get_workplan_data_tuple(workplan, database_manager):
     """Build standard workplan data tuple for display (14 fields)"""
@@ -300,9 +330,9 @@ def get_workplan_data_tuple(workplan, database_manager):
             workplan.completion_notes,
             calculate_elapsed_days(workplan.due_date,
                                    workplan.completion_date if workplan.completion_date else get_formatted_datetime_now())[1],
-            generate_workplan_title(context["component_names"],
-                                    context["bike_names"][0] if context["bike_names"] else None,
-                                    workplan.workplan_description),
+            resolve_workplan_title(workplan,
+                                   context["component_names"],
+                                   context["bike_names"][0] if context["bike_names"] else None),
             service_progress)
 
 def get_planned_service_data_tuple(service, database_manager, workplan_names):
@@ -425,21 +455,6 @@ def generate_workplan_title(affected_component_names, affected_bike_name, workpl
     title = " - ".join(title_parts) if title_parts else "No workplan metadata"
 
     return title[:60] + "..." if len(title) > 80 else title
-
-def parse_checkbox_progress(description):
-    """Parse checkbox progress from markdown description"""
-    if not description:
-        return None
-
-    total_checkboxes = len(re.findall(r'- \[[x ]\]', description))
-    checked_checkboxes = len(re.findall(r'- \[x\]', description))
-
-    if total_checkboxes > 0:
-        return {'total': total_checkboxes,
-                'checked': checked_checkboxes,
-                'percentage': round((checked_checkboxes / total_checkboxes) * 100)}
-
-    return None
 
 def strip_markdown_syntax(text):
     """Strip markdown syntax from text to produce clean plain text"""
