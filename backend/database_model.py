@@ -166,6 +166,7 @@ class Incidents(BaseModel):
 class Workplans(BaseModel):
     """Model for table: workplans"""
     workplan_id = CharField(primary_key=True, unique=True)
+    workplan_name = CharField()
     due_date = CharField()
     workplan_status = CharField()
     workplan_size = CharField()

@@ -134,6 +134,7 @@ def create_workplans_table(cursor):
         cursor.execute("""
             CREATE TABLE workplans (
                 workplan_id TEXT PRIMARY KEY UNIQUE,
+                workplan_name TEXT,
                 due_date TEXT,
                 workplan_status TEXT,
                 workplan_size TEXT,
@@ -518,6 +519,7 @@ def migrate_services_workplan_link(cursor, conn):
 
 def migrate_incidents_workplan_link(cursor, conn):
     """Add workplan_id column to Incidents table for workplan hub integration"""
+    # An empty list means no service integration columns are missing, so step 12 has already run
     if not check_services_integration_columns(cursor):
         print("      → Skipping, superseded by service integration (links are derived through services)")
         return False
@@ -746,6 +748,24 @@ def migrate_incident_links_to_services(cursor, conn):
     print(f"      → Converted {converted} incident(s)")
     return converted > 0
 
+def check_workplans_name_column(cursor):
+    """Check if workplans table needs the workplan_name column"""
+    cursor.execute("PRAGMA table_info(workplans)")
+    columns = [column[1] for column in cursor.fetchall()]
+
+    return 'workplan_name' not in columns
+
+def migrate_workplans_name_column(cursor, conn):
+    """Add the optional user given name to the workplans table, existing workplans keep the generated title"""
+    if not check_workplans_name_column(cursor):
+        print("      → Table is compliant, workplan_name column already present")
+        return False
+
+    cursor.execute("ALTER TABLE workplans ADD COLUMN workplan_name TEXT")
+    conn.commit()
+    print("      → Added workplan_name column to workplans table")
+    return True
+
 def migrate_drop_workplan_affected_columns(cursor, conn):
     """Rebuild workplans table without the affected bike/component columns"""
     if not check_workplans_affected_columns(cursor):
@@ -812,56 +832,56 @@ def run_all_migrations(cursor, conn):
     print("="*70)
 
     # Create the 'incidents' table if it doesn't exist
-    print("\n[1/16] Checking incidents table...")
+    print("\n[1/17] Checking incidents table...")
     incidents_created = create_incidents_table(cursor)
     if incidents_created:
         migrations_performed.append("✓ Created incidents table")
 
     # Create the 'workplans' table if it doesn't exist
-    print("\n[2/16] Checking workplans table...")
+    print("\n[2/17] Checking workplans table...")
     workplans_created = create_workplans_table(cursor)
     if workplans_created:
         migrations_performed.append("✓ Created workplans table")
 
     # Create the 'collections' table if it doesn't exist
-    print("\n[3/16] Checking collections table...")
+    print("\n[3/17] Checking collections table...")
     collections_created = create_collections_table(cursor)
     if collections_created:
         migrations_performed.append("✓ Created collections table")
 
     # Migrate component_types table if needed
-    print("\n[4/16] Checking component_types table (mandatory/max_quantity fields)...")
+    print("\n[4/17] Checking component_types table (mandatory/max_quantity fields)...")
     component_types_updated = migrate_component_types(cursor, conn)
     if component_types_updated:
         migrations_performed.append("✓ Updated component_types table (mandatory/max_quantity)")
 
     # Migrate ComponentTypes with time-based fields
-    print("\n[5/16] Checking component_types table (time-based fields)...")
+    print("\n[5/17] Checking component_types table (time-based fields)...")
     component_types_time_updated = migrate_component_types_time_fields(cursor, conn)
     if component_types_time_updated:
         migrations_performed.append("✓ Added time-based fields to component_types")
 
     # Populate threshold_km for ComponentTypes
-    print("\n[6/16] Populating threshold_km for component types...")
+    print("\n[6/17] Populating threshold_km for component types...")
     component_types_thresholds_populated = populate_component_types_thresholds(cursor, conn)
     if component_types_thresholds_populated:
         migrations_performed.append("✓ Populated threshold_km for component_types")
 
     # Migrate Components with time-based fields
-    print("\n[7/16] Checking components table (time-based fields)...")
+    print("\n[7/17] Checking components table (time-based fields)...")
     components_time_updated = migrate_components_time_fields(cursor, conn)
     if components_time_updated:
         migrations_performed.append("✓ Added time-based fields to components")
 
     # Populate threshold_km for Components
-    print("\n[8/16] Populating threshold_km for components...")
+    print("\n[8/17] Populating threshold_km for components...")
     components_thresholds_populated = populate_components_thresholds(cursor, conn)
     if components_thresholds_populated:
         migrations_performed.append("✓ Populated threshold_km for components")
 
     # Recalculate component statuses with new threshold logic
     # Only needed if threshold and time-based fields were just added in steps 5 or 7
-    print("\n[9/16] Recalculating component statuses...")
+    print("\n[9/17] Recalculating component statuses...")
     if component_types_time_updated or components_time_updated:
         statuses_recalculated = recalculate_distance_based_statuses(cursor, conn)
         if statuses_recalculated:
@@ -872,39 +892,44 @@ def run_all_migrations(cursor, conn):
         print("      → Skipping, time-based fields already present")
 
     # Add workplan_id to Services table
-    print("\n[10/16] Checking services table (workplan hub integration)...")
+    print("\n[10/17] Checking services table (workplan hub integration)...")
     services_workplan_link = migrate_services_workplan_link(cursor, conn)
     if services_workplan_link:
         migrations_performed.append("✓ Added workplan_id to services table")
 
     # Add workplan_id to Incidents table (skipped once service integration is applied)
-    print("\n[11/16] Checking incidents table (workplan hub integration)...")
+    print("\n[11/17] Checking incidents table (workplan hub integration)...")
     incidents_workplan_link = migrate_incidents_workplan_link(cursor, conn)
     if incidents_workplan_link:
         migrations_performed.append("✓ Added workplan_id to incidents table")
 
     # NEW: Service integration (issue #351). Steps 14 and 15 must run before 16 drops the columns they read
-    print("\n[12/16] Checking services table (service integration columns)...")
+    print("\n[12/17] Checking services table (service integration columns)...")
     if migrate_services_integration_columns(cursor, conn):
         migrations_performed.append("✓ Added status, incident_id and planned_date to services (service integration)")
 
-    print("\n[13/16] Checking component_history table (notes column)...")
+    print("\n[13/17] Checking component_history table (notes column)...")
     if migrate_component_history_notes(cursor, conn):
         migrations_performed.append("✓ Added notes to component_history (service integration)")
 
-    print("\n[14/16] Converting workplan affected components to planned services...")
+    print("\n[14/17] Converting workplan affected components to planned services...")
     if migrate_workplans_to_planned_services(cursor, conn):
         migrations_performed.append("✓ Converted workplans to planned services (service integration)")
 
-    print("\n[15/16] Rebuilding incident links through services...")
+    print("\n[15/17] Rebuilding incident links through services...")
     if migrate_incident_links_to_services(cursor, conn):
         migrations_performed.append("✓ Rebuilt incident links through services (service integration)")
 
-    print("\n[16/16] Dropping superseded workplan and incident columns...")
+    print("\n[16/17] Dropping superseded workplan and incident columns...")
     workplans_columns_dropped = migrate_drop_workplan_affected_columns(cursor, conn)
     incidents_column_dropped = migrate_drop_incident_workplan_column(cursor, conn)
     if workplans_columns_dropped or incidents_column_dropped:
         migrations_performed.append("✓ Dropped superseded workplan and incident columns (service integration)")
+
+    # Runs after the rebuild above, which recreates the workplans table from a fixed column list
+    print("\n[17/17] Checking workplans table (workplan name)...")
+    if migrate_workplans_name_column(cursor, conn):
+        migrations_performed.append("✓ Added workplan_name to workplans table (service integration)")
 
     return migrations_performed
 
