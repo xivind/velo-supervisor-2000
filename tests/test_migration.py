@@ -90,6 +90,7 @@ def test_migration_converts_old_model(app_env):
 
     assert {"status", "incident_id", "planned_date", "workplan_id"} <= set(columns(db_path, "services"))
     assert "notes" in columns(db_path, "component_history")
+    assert "workplan_name" in columns(db_path, "workplans")
     assert "workplan_affected_component_ids" not in columns(db_path, "workplans")
     assert "workplan_affected_bike_id" not in columns(db_path, "workplans")
     assert "workplan_id" not in columns(db_path, "incidents")

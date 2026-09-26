@@ -118,6 +118,44 @@ def test_workplan_from_incident_plans_services_once(modules):
     assert [incident.incident_id for incident in database_manager.read_incidents_by_workplan(workplan_id)] == ["inc-1"]
 
 
+def test_workplan_from_incident_plans_only_selected_components(modules):
+    seed_component(modules)
+    seed_rides(modules)
+    add_twin_component(modules, "comp-2")
+    add_incident(modules, "inc-1", ["comp-1", "comp-2"])
+    business_logic = modules.business_logic
+    database_manager = modules.database_manager
+
+    success, message, workplan_id = business_logic.create_workplan("2026-04-01 10:00", "Planned", "Small",
+                                                                   "Fix skipping", None, None,
+                                                                   source_incident_id="inc-1",
+                                                                   component_ids=["comp-2"])
+    assert success, message
+
+    planned = list(database_manager.read_planned_services_by_workplan(workplan_id))
+    assert [service.component_id for service in planned] == ["comp-2"]
+
+
+def test_workplan_name_replaces_generated_title(modules):
+    seed_component(modules)
+    seed_rides(modules)
+    business_logic = modules.business_logic
+    database_manager = modules.database_manager
+    utils = modules.utils
+
+    success, message, workplan_id = business_logic.create_workplan("2026-04-01 10:00", "Planned", "Small",
+                                                                   "Spring service", None, None,
+                                                                   workplan_name="Sesongstart landeveissykkel")
+    assert success, message
+    assert utils.get_workplan_names_dict(database_manager)[workplan_id] == "Sesongstart landeveissykkel"
+
+    success, message = business_logic.update_workplan(workplan_id, "2026-04-01 10:00", "Planned", "Small",
+                                                      "Spring service", None, None, None, None, "")
+    assert success, message
+    assert database_manager.read_single_workplan(workplan_id).workplan_name is None
+    assert utils.get_workplan_names_dict(database_manager)[workplan_id] == "Spring service"
+
+
 def test_workplan_completion_rules(modules):
     seed_component(modules)
     seed_rides(modules)

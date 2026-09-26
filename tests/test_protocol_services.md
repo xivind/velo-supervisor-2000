@@ -76,10 +76,10 @@ Services are either planned or completed. Planned services have no date and do n
 | S4 | Revert to planned | Edit a completed service, set status to Planned | Date, bike and distance cleared, component status recalculates as if deleted |OK, solid. |
 | S5 | Workplan list | Open the workplan dropdown | Only planned workplans listed, plus any workplan already linked |OK |
 | **Regression** |
-| R1 | Component health | Compare a component's distance and status before and after the upgrade | Unchanged |Claude verifies against baseline db |
-| R2 | Service history | Open a component with several services | Distances and running totals unchanged |Claude verifies against baseline db |
+| R1 | Component health | Compare a component's distance and status before and after the upgrade | Unchanged |Claude verifies against baseline db | **Verified 2026-09-26:** identical on all 636 components after the same recalculation with master and branch code on the baseline database
+| R2 | Service history | Open a component with several services | Distances and running totals unchanged |Claude verifies against baseline db | **Verified 2026-09-26:** all 201 service records and 1032 history records identical, the only new rows are the 15 planned services from the migration
 | R3 | Pages load | Visit every page: index, components, bikes, collections, workplans, incidents, component types, config, help | All load without errors |OK |
-| R4 | Strava sync | Run a manual sync from the configuration page | Rides and distances update as before |Claude verifies against baseline db
+| R4 | Strava sync | Run a manual sync from the configuration page | Rides and distances update as before |Claude verifies against baseline db **Verified 2026-09-26 by replay, not live:** the ingestion path is identical to master and a replayed sync of the same rides gives identical results. A live sync still needs the Strava token file, which is not on this machine
 
 ## Addtional notes
 - Planned services on page Bike details now has a button to complete services, in the table. This breaks with our conventions. I think it should be placed on top of the page, with the other buttons. Next to Plan services. Should be disabled if there are no services to complete.

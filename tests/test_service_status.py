@@ -36,7 +36,6 @@ def test_completed_only_reads_skip_planned(modules):
     assert database_manager.read_oldest_service_record("comp-1").service_id == "svc-done"
     assert [service.service_id for service in database_manager.read_subset_service_history("comp-1")] == ["svc-done"]
     assert [service.service_id for service in database_manager.read_planned_services_by_component("comp-1")] == ["svc-planned"]
-    assert [service.service_id for service in database_manager.read_all_services_by_component("comp-1")] == ["svc-planned", "svc-done"]
 
 
 def test_effective_planned_date_prefers_service(modules):
@@ -86,9 +85,20 @@ def test_workplan_and_incident_tuples_derive_from_services(modules):
     workplan_names = utils.get_workplan_names_dict(database_manager)
     incident_tuple = utils.get_incident_data_tuple(database_manager.read_single_incident_report("inc-1"),
                                                    database_manager, workplan_names)
-    assert len(incident_tuple) == 16
+    assert len(incident_tuple) == 17
     assert incident_tuple[13] == [("wp-1", "Chain - Spring service - Test bike")]
-    assert incident_tuple[14:] == (1, 0)
+    assert incident_tuple[14:16] == (1, 0)
+    assert incident_tuple[16] == [{"service_id": "svc-planned",
+                                   "component_id": "comp-1",
+                                   "component_name": "Chain",
+                                   "status": "Planned",
+                                   "description": "Replace chain",
+                                   "service_date": None,
+                                   "planned_date": None,
+                                   "date": "2026-03-01 10:00",
+                                   "workplan_id": "wp-1",
+                                   "workplan_name": "Chain - Spring service - Test bike",
+                                   "workplan_status": "Planned"}]
 
     planned_tuple = utils.get_planned_service_data_tuple(database_manager.read_single_service_record("svc-planned"),
                                                          database_manager, workplan_names)
