@@ -6,6 +6,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div id="incident_resolve_warning" class="alert alert-warning d-none mb-3" role="alert">
+                    ⚠️ This incident has <span id="incident_open_services"></span> that stay planned on their workplans after the incident is set to resolved.
+                </div>
                 <form id="incident_form" class="row" method="POST" enctype="application/x-www-form-urlencoded"><!-- Endpoint set with JS -->
                     <!-- Hidden fields -->
                     <input type="hidden" id="incident_id" name="incident_id"> <!-- Should be set automatically, and is required -->
@@ -86,6 +89,24 @@
                         <label for="resolution_notes" class="form-label fw-bold">Resolution notes</label>
                         <textarea class="form-control" id="resolution_notes" name="resolution_notes" rows="2"></textarea>
                     </div>
+                    <div class="col-12 mb-3 d-none" id="incident_services_section">
+                        <div class="form-label fw-bold">Linked services</div>
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-1">
+                                <thead>
+                                    <tr>
+                                        <th>Component</th>
+                                        <th>Service status</th>
+                                        <th>Date</th>
+                                        <th>Workplan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="incident_services_body"></tbody>
+                            </table>
+                        </div>
+                        <small class="form-text text-muted">Read only. An incident is linked to workplans through its services, plan services to add more.</small>
+                    </div>
+
                     <div class="col-12">
                         <div class="text-end">
                             <small class="text-muted">

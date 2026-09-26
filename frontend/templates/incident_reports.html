@@ -11,6 +11,7 @@
 
 {% include "modal_incident_record.html" %}
 {% include "modal_workplan_record.html" %}
+{% include "modal_service_record.html" %}
 {% include "modal_plan_services.html" %}
 <hr/>
 
@@ -49,14 +50,14 @@
                     <th data-sort="incident_date">Incident date <span class="sort-indicator"></span></th>
                     <th data-sort="resolution_date">Resolution date<span class="sort-indicator"></span></th>
                     <th class="text-center" data-sort="days_open">Days open<span class="sort-indicator"></span></th>
-                    <th data-sort="workplan">Workplan <span class="sort-indicator"></span></th>
+                    <th class="text-center" data-sort="workplan">Workplan <span class="sort-indicator"></span></th>
                     <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
                 {% if payload.incident_reports_data %}
-                    {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, incident_workplans, planned_service_count, completed_service_count in payload.incident_reports_data %}
-                        <tr data-description="{{ incident_description }}" data-notes="{{ resolution_notes }}">
+                    {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, incident_workplans, planned_service_count, completed_service_count, incident_services in payload.incident_reports_data %}
+                        <tr id="incident-{{ incident_id }}" data-description="{{ incident_description }}" data-notes="{{ resolution_notes }}">
                             <td class="text-center">
                                 {% if incident_status == "Open" %}
                                 <span class="badge rounded-pill status-attention fixed-width-badge-incident-status">Open</span>
@@ -103,19 +104,39 @@
                             <td class="text-center">
                                 {{ elapsed_days }}
                             </td>
-                            <td>
-                                {% if incident_workplans %}
-                                    {% for linked_workplan_id, linked_workplan_name in incident_workplans %}
-                                        <a href="/workplan_details/{{ linked_workplan_id }}" class="text-decoration-none text-reset">{{ linked_workplan_name if linked_workplan_name else 'Workplan ' ~ linked_workplan_id }}</a>{% if not loop.last %}, {% endif %}
-                                    {% endfor %}
-                                    <br><small class="text-muted">{{ completed_service_count }}/{{ planned_service_count + completed_service_count }} services completed</small>
-                                {% else %}
-                                    -
+                            <td class="text-center">
+                                {% set service_total = planned_service_count + completed_service_count %}
+                                <div>
+                                    {% if incident_workplans %}
+                                        {{ incident_workplans|length }} workplan{{ "" if incident_workplans|length == 1 else "s" }}
+                                    {% else %}
+                                        No workplan
+                                    {% endif %}
+                                </div>
+                                {% if service_total > 0 %}
+                                    {% set service_percentage = (completed_service_count / service_total * 100) | round | int %}
+                                    <div class="checkbox-progress-container">
+                                        <span class="checkbox-progress-donut {% if service_percentage == 100 %}complete{% endif %}"
+                                            style="--progress: {{ service_percentage }}"
+                                            title="Services: {{ completed_service_count }} of {{ service_total }} completed">
+                                        </span>
+                                        <span class="checkbox-progress-text {% if service_percentage == 100 %}complete{% endif %}">
+                                            {{ completed_service_count }}/{{ service_total }}
+                                        </span>
+                                    </div>
                                 {% endif %}
                             </td>
                             <td class="text-end">
+                                {# Component id and name pairs for the checkboxes in the workplan modal #}
+                                {% set incident_component_rows = [] %}
+                                {% if incident_affected_component_ids %}
+                                    {% for affected_component_id in incident_affected_component_ids %}
+                                        {% set _ = incident_component_rows.append([affected_component_id, affected_component_names[loop.index0] if affected_component_names|length > loop.index0 else "Deleted component"]) %}
+                                    {% endfor %}
+                                {% endif %}
                                 <button type="button" class="mb-1 btn btn-outline-secondary btn-sm create-workplan-from-incident-btn"
                                     data-incident-id="{{ incident_id }}"
+                                    data-incident-components='{{ incident_component_rows|tojson }}'
                                     data-description="{{ incident_description|replace('\r\n', '&#10;')|replace('\n', '&#10;')|replace('"', '&quot;') }}"
                                     title="New workplan with planned services for this incident"
                                     {% if incident_status == "Resolved" or not incident_affected_component_ids %}disabled{% endif %}
@@ -130,6 +151,7 @@
                                 </button>
                                 <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn"
                                     data-incident-id="{{ incident_id }}"
+                                    data-incident-services='{{ incident_services|tojson }}'
                                     data-incident-date="{{ incident_date }}"
                                     data-incident-status="{{ incident_status }}"
                                     data-incident-severity="{{ incident_severity }}"

@@ -26,6 +26,7 @@
 <div class="d-flex flex-wrap gap-2 mb-3">
     <button type="button" class="btn btn-outline-primary edit-workplan-btn"
             data-workplan-id="{{ payload.workplan_data.workplan_id }}"
+            data-workplan-name="{{ payload.workplan_data.workplan_name_given if payload.workplan_data.workplan_name_given else '' }}"
             data-due-date="{{ payload.workplan_data.due_date }}"
             data-workplan-status="{{ payload.workplan_data.workplan_status }}"
             data-workplan-size="{{ payload.workplan_data.workplan_size }}"
@@ -36,7 +37,7 @@
             data-linked-services-count="{{ payload.workplan_data.total_count }}"
             data-planned-services-count="{{ payload.workplan_data.total_count - payload.workplan_data.completed_count }}"
             data-latest-service-date="{{ payload.latest_service_date if payload.latest_service_date else '' }}">
-        <span>✍ Edit workplan</span>
+        <span>✍ Edit details</span>
     </button>
     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#planServicesModal"
             data-workplan-id="{{ payload.workplan_data.workplan_id }}"
@@ -110,13 +111,22 @@
                         {% endif %}
                     </span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
-                        🧑‍🔧 <strong>Services:</strong> {{ payload.workplan_data.completed_count }} of {{ payload.workplan_data.total_count }} completed
+                        🧑‍🔧 <strong>Services:</strong>
+                        {% if payload.workplan_data.total_count > 0 %}
+                            {% set service_percentage = (payload.workplan_data.completed_count / payload.workplan_data.total_count * 100) | round | int %}
+                            <span class="checkbox-progress-container">
+                                <span class="checkbox-progress-donut {% if service_percentage == 100 %}complete{% endif %}"
+                                    style="--progress: {{ service_percentage }}"
+                                    title="Services: {{ payload.workplan_data.completed_count }} of {{ payload.workplan_data.total_count }} completed">
+                                </span>
+                                <span class="checkbox-progress-text {% if service_percentage == 100 %}complete{% endif %}">
+                                    {{ payload.workplan_data.completed_count }}/{{ payload.workplan_data.total_count }}
+                                </span>
+                            </span>
+                        {% else %}
+                            None
+                        {% endif %}
                     </span>
-                    {% if payload.workplan_data.checkbox_progress %}
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
-                        📊 <strong>Tasks:</strong> {{ payload.workplan_data.checkbox_progress.checked }}/{{ payload.workplan_data.checkbox_progress.total }} completed
-                    </span>
-                    {% endif %}
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">
                         🚴 <strong>Bikes:</strong>
                         {% if payload.workplan_data.bike_ids %}
@@ -176,7 +186,7 @@
                     <div>
                         <h5 class="card-title mb-2">Workplan completed</h5>
                         <p class="mb-1">
-                            This workplan was completed {{ payload.workplan_data.completion_date.split(' ')[0] if payload.workplan_data.completion_date else 'on an unknown date' }}. Choose "Edit workplan" to reopen it.
+                            This workplan was completed {{ payload.workplan_data.completion_date.split(' ')[0] if payload.workplan_data.completion_date else 'on an unknown date' }}. Choose "Edit details" to reopen it.
                         </p>
                     </div>
                 </div>
@@ -237,7 +247,7 @@
                     </thead>
                     <tbody>
                         {% if payload.incidents_data %}
-                            {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, incident_workplans, planned_service_count, completed_service_count in payload.incidents_data %}
+                            {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, incident_workplans, planned_service_count, completed_service_count, incident_services in payload.incidents_data %}
                             <tr>
                                 <td class="text-center">
                                     {% if incident_status == "Open" %}
@@ -293,6 +303,7 @@
                                 <td class="text-end">
                                     <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn"
                                         data-incident-id="{{ incident_id }}"
+                                        data-incident-services='{{ incident_services|tojson }}'
                                         data-incident-date="{{ incident_date }}"
                                         data-incident-status="{{ incident_status }}"
                                         data-incident-severity="{{ incident_severity }}"
@@ -322,7 +333,7 @@
 
         {# Planned services table #}
         <div class="small text-secondary mb-2 ms-2">
-            Planned services have no date until they are completed, and do not affect component status
+            Planned services do not affect component status. A due date that has passed is marked with ❗
         </div>
         <div class="card shadow mb-4">
             <div class="card-header fw-bold">Planned services</div>
@@ -331,7 +342,7 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Planned for</th>
+                            <th>Due date</th>
                             <th>Description</th>
                             <th>Component</th>
                             <th class="text-end"></th>
@@ -343,10 +354,10 @@
                                 <tr {% if component_name != "Deleted component" %}role="button" onclick="window.location='/component_details/{{ component_id }}';"{% endif %}>
                                     <td>
                                         {{ effective_planned_date.split(' ')[0] if effective_planned_date else "-" }}
-                                        {% if not planned_date and effective_planned_date %}<small class="text-muted">(due date)</small>{% endif %}
+                                        {% if effective_planned_date and effective_planned_date < payload.today %}<span title="Due date has passed">❗</span>{% endif %}
                                     </td>
                                     <td>{{ description }}</td>
-                                    <td>{{ component_name }}</td>
+                                    <td>{{ component_name }} <span class="text-muted">({{ payload.component_bike_names[component_id] if payload.component_bike_names[component_id] else "Not assigned" }})</span></td>
                                     <td class="text-end">
                                         <button type="button" class="mb-1 btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#completeServicesModal"
                                                 data-planned-services='{{ [[service_id, component_name, description, oldest_history_date, installation_status, payload.workplan_data.completion_date]] | tojson }}'
@@ -410,7 +421,7 @@
                                 <tr {% if component_name != "Deleted component" %}role="button" onclick="window.location='/component_details/{{ component_id }}';"{% endif %}>
                                     <td>{{ service_date }}</td>
                                     <td>{{ description }}</td>
-                                    <td>{{ component_name }}</td>
+                                    <td>{{ component_name }} <span class="text-muted">({{ payload.component_bike_names[component_id] if payload.component_bike_names[component_id] else "Not assigned" }})</span></td>
                                     <td class="text-end">
                                         <button class="mb-1 btn btn-outline-primary btn-sm edit-service-btn"
                                                 data-service-id="{{ service_id }}"

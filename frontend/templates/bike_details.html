@@ -19,6 +19,9 @@
     {% include "modal_workplan_record.html" %}
 {% endwith %}
 
+{# Needed by the service links in the incident modal #}
+{% include "modal_service_record.html" %}
+
 {% with duplicate_data = {
     'bike_id': payload.bike_data['bike_id']} %}
     {% include "modal_collection.html" %}
@@ -34,6 +37,14 @@
 {% endwith %}
 
 {# Define button macros #}
+{# Rows for the complete services modal: service id, component, description, first installation, status, workplan completion date #}
+{% set complete_rows = [] %}
+{% if payload.planned_services_data %}
+    {% for service_id, component_id, component_name, description, workplan_id, workplan_name, incident_id, effective_planned_date, planned_date, installation_status, oldest_history_date in payload.planned_services_data %}
+        {% set _ = complete_rows.append([service_id, component_name, description, oldest_history_date, installation_status, none]) %}
+    {% endfor %}
+{% endif %}
+
 {% macro btn_new_collection() %}
 <button type="button" id="btn-new-collection" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#collectionModal">
     <span>📦 New collection</span>
@@ -71,13 +82,13 @@
 </button>
 {% endmacro %}
 
-{# Rows for the complete services modal: service id, component, description, first installation, status, workplan completion date #}
-{% set complete_rows = [] %}
-{% if payload.planned_services_data %}
-    {% for service_id, component_id, component_name, description, workplan_id, workplan_name, incident_id, effective_planned_date, planned_date, installation_status, oldest_history_date in payload.planned_services_data %}
-        {% set _ = complete_rows.append([service_id, component_name, description, oldest_history_date, installation_status, none]) %}
-    {% endfor %}
-{% endif %}
+{% macro btn_complete_services() %}
+<button type="button" id="btn-complete-services" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#completeServicesModal"
+        data-planned-services='{{ complete_rows | tojson }}'
+        {% if not payload.planned_services_data %}disabled{% endif %}>
+    <span>✅ Complete services</span>
+</button>
+{% endmacro %}
 
 <h1 id="bike-details" class="display-5 mt-5 text-center mb-4">Bike details</h1>
 <div class="d-flex flex-wrap gap-2 mb-3" id="bike-details-buttons">
@@ -88,7 +99,8 @@
     'install-existing': btn_install_existing,
     'new-workplan': btn_new_workplan,
     'new-incident': btn_new_incident,
-    'plan-services': btn_plan_services
+    'plan-services': btn_plan_services,
+    'complete-services': btn_complete_services
 } %}
 {# Render buttons in configured order #}
 {% for button_id in button_order %}
@@ -363,7 +375,7 @@
                     </thead>
                     <tbody>
                         {% if payload.incident_reports_data and payload.bike_data['bike_id'] in payload.open_incidents["bike_incidents"] %}
-                            {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, incident_workplans, planned_service_count, completed_service_count in payload.incident_reports_data %}
+                            {% for incident_id, incident_date, incident_status, incident_severity, incident_affected_component_ids, affected_component_names, incident_affected_bike_id, affected_bike_name, incident_description, resolution_date, resolution_notes, elapsed_days, incident_title, incident_workplans, planned_service_count, completed_service_count, incident_services in payload.incident_reports_data %}
                                 {% if payload.bike_data['bike_id'] in payload.open_incidents["bike_incidents"] and incident_id in payload.open_incidents["bike_incidents"][payload.bike_data['bike_id']]["incident_ids"] %}
                                     <tr>
                                         <td class="text-center">
@@ -397,6 +409,7 @@
                                         <td class="text-end">
                                             <button type="button" class="mb-1 btn btn-outline-primary btn-sm edit-incident-btn"
                                                 data-incident-id="{{ incident_id }}"
+                                                data-incident-services='{{ incident_services|tojson }}'
                                                 data-incident-date="{{ incident_date }}"
                                                 data-incident-status="{{ incident_status }}"
                                                 data-incident-severity="{{ incident_severity }}"
@@ -433,7 +446,7 @@
                         <tr>
                             <th class="text-center">Size</th>
                             <th>Due date</th>
-                            <th>Description</th>
+                            <th>Workplan name</th>
                             <th class="text-center">Days overdue</th>
                         </tr>
                     </thead>
@@ -492,23 +505,19 @@
             </div>
         </div>
         <div class="card shadow mb-4 mt-2">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <span class="fw-bold">Planned services</span>
-                <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#completeServicesModal"
-                        data-planned-services='{{ complete_rows | tojson }}'
-                        {% if not payload.planned_services_data %}disabled{% endif %}>
-                    ✅ Complete services
-                </button>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Planned for</th>
+                            <th>Due date</th>
                             <th>Description</th>
                             <th>Component</th>
                             <th>Workplan</th>
+                            <th class="text-end"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -517,7 +526,7 @@
                                 <tr role="button" onclick="window.location='/component_details/{{ component_id }}';">
                                     <td>
                                         {{ effective_planned_date.split(' ')[0] if effective_planned_date else "-" }}
-                                        {% if not planned_date and effective_planned_date %}<small class="text-muted">(due date)</small>{% endif %}
+                                        {% if effective_planned_date and effective_planned_date < payload.today %}<span title="Due date has passed">❗</span>{% endif %}
                                     </td>
                                     <td>{{ description }}</td>
                                     <td>{{ component_name }}</td>
@@ -528,11 +537,38 @@
                                             -
                                         {% endif %}
                                     </td>
+                                    <td class="text-end">
+                                        <button type="button" class="mb-1 btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#completeServicesModal"
+                                                data-planned-services='{{ [[service_id, component_name, description, oldest_history_date, installation_status, none]] | tojson }}'
+                                                onclick="event.stopPropagation();"
+                                                {% if installation_status == "Retired" %}disabled{% endif %}>
+                                                ✅
+                                        </button>
+                                        <button class="mb-1 btn btn-outline-primary btn-sm edit-service-btn"
+                                                data-service-id="{{ service_id }}"
+                                                data-service-date=""
+                                                data-service-description="{{ description }}"
+                                                data-component-id="{{ component_id }}"
+                                                data-workplan-id="{{ workplan_id if workplan_id else '' }}"
+                                                data-incident-id="{{ incident_id if incident_id else '' }}"
+                                                data-planned-date="{{ planned_date if planned_date else '' }}"
+                                                data-status="Planned"
+                                                data-redirect-url="/bike_details/{{ payload.bike_data['bike_id'] }}"
+                                                onclick="event.stopPropagation();"
+                                                {% if installation_status == "Retired" %}disabled{% endif %}>
+                                                ✍
+                                        </button>
+                                        <button type="button" class="mb-1 btn btn-outline-danger btn-sm delete-record"
+                                                data-service-id="{{ service_id }}"
+                                                onclick="event.stopPropagation();">
+                                                🗑
+                                        </button>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="4" class="text-center">No planned services for components on this bike</td>
+                                <td colspan="5" class="text-center">No planned services for components on this bike</td>
                             </tr>
                         {% endif %}
                     </tbody>

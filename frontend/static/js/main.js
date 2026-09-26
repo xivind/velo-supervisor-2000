@@ -529,8 +529,8 @@ function initializeDatePickers(container = document) {
             dateInput.value = formattedDate;
         }
 
-        // Determine if this is a due date field (which should allow future dates)
-        const isDueDateField = dateInput.id === 'due_date';
+        // Due dates and planned service dates describe future work and must allow future dates
+        const allowsFutureDate = ['due_date', 'planServicesPlannedDate', 'servicePlannedDate'].includes(dateInput.id);
         
         // Initialize Tempus Dominus with improved configuration
         const picker = new tempusDominus.TempusDominus(dateInput, {
@@ -570,7 +570,7 @@ function initializeDatePickers(container = document) {
             restrictions: {
                 minDate: new Date('1970-01-01 00:00'),
                 // Only set maxDate for non-due date fields
-                ...(isDueDateField ? {} : { maxDate: new Date() })
+                ...(allowsFutureDate ? {} : { maxDate: new Date() })
             },
             // Allow viewing the calendar without selecting anything
             useCurrent: false
@@ -651,12 +651,8 @@ function initializeDatePickers(container = document) {
             
             // Replace with our enhanced submit handler
             form.onsubmit = function(e) {
-                // First, prevent default and stop propagation immediately
-                e.preventDefault();
-                e.stopPropagation();
-                
                 let isValid = true;
-                
+
                 // Validate all date inputs in this form
                 form.querySelectorAll('.datepicker-input').forEach(input => {
                     if (!validateDateInput(input)) {
@@ -674,6 +670,9 @@ function initializeDatePickers(container = document) {
                 
                 // Prevent submission if invalid
                 if (!isValid) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     // Show validation modal with message
                     const validationModal = document.getElementById('validationModal');
                     if (validationModal) {
@@ -685,20 +684,12 @@ function initializeDatePickers(container = document) {
                     return false;
                 }
                 
-                // If we're valid, submit the form manually
+                // Dates are valid, hand over to any handler that was already on the form.
+                // Submission is left to the browser or to that handler, so validation
+                // listeners added with addEventListener can still block it
                 if (originalSubmit && typeof originalSubmit === 'function') {
-                    // Call original handler
-                    const result = originalSubmit.call(this, e);
-                    if (result !== false) {
-                        form.submit();
-                    }
-                } else {
-                    // No original handler, just submit
-                    form.submit();
+                    return originalSubmit.call(this, e);
                 }
-                
-                // Always return false to prevent default form submission
-                return false;
             };
             
             form.dataset.dateValidationAdded = 'true';
@@ -786,20 +777,17 @@ window.setServiceModalSelect = function(selectId, value) {
     select.value = value || '';
 };
 
-// Add event listeners for your modal buttons
-document.addEventListener('DOMContentLoaded', function() {
-    // Service record edit button
-    document.querySelectorAll('.edit-service-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            const serviceId = this.dataset.serviceId;
-            const serviceDate = this.dataset.serviceDate;
-            const serviceDescription = this.dataset.serviceDescription;
-            const componentId = this.dataset.componentId;
-            const status = this.dataset.status || 'Completed';
-            const plannedDate = this.dataset.plannedDate || '';
-            const workplanId = this.dataset.workplanId || '';
-            const incidentId = this.dataset.incidentId || '';
-            const redirectUrl = this.dataset.redirectUrl || '';
+// Function to fill the service record modal in edit mode and show it, data uses the same keys as the edit buttons
+window.openServiceRecordModal = function(data) {
+            const serviceId = data.serviceId;
+            const serviceDate = data.serviceDate;
+            const serviceDescription = data.serviceDescription;
+            const componentId = data.componentId;
+            const status = data.status || 'Completed';
+            const plannedDate = data.plannedDate || '';
+            const workplanId = data.workplanId || '';
+            const incidentId = data.incidentId || '';
+            const redirectUrl = data.redirectUrl || '';
 
             // Populate the service modal
             document.getElementById('serviceRecordModalLabel').textContent = 'Edit service record';
@@ -824,6 +812,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 viewLink.classList.add('d-none');
             }
 
+            // Manage the link that opens the incident in a new tab
+            const isOnIncidentReportsPage = document.getElementById('incident-reports') !== null;
+            const viewIncidentLink = document.getElementById('serviceViewIncidentLink');
+            if (viewIncidentLink && incidentId && !isOnIncidentReportsPage) {
+                viewIncidentLink.href = `/incident_reports#incident-${incidentId}`;
+                viewIncidentLink.classList.remove('d-none');
+            } else if (viewIncidentLink) {
+                viewIncidentLink.classList.add('d-none');
+            }
+
             // Show the modal FIRST
             const serviceModal = new bootstrap.Modal(document.getElementById('serviceRecordModal'));
             serviceModal.show();
@@ -833,6 +831,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('serviceDate').value = serviceDate || '';
                 document.getElementById('servicePlannedDate').value = plannedDate;
             }, 100);
+};
+
+// Add event listeners for your modal buttons
+document.addEventListener('DOMContentLoaded', function() {
+    // Service record edit button
+    document.querySelectorAll('.edit-service-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            window.openServiceRecordModal(this.dataset);
         });
     });
 
@@ -890,6 +896,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Update ID display with actual installation record ID
             document.getElementById('installation-id-display').textContent = historyId || 'Not created yet';
+
+            document.getElementById('editHistoryNotes').value = this.dataset.notes || '';
 
             // Show the modal FIRST
             const historyModal = new bootstrap.Modal(document.getElementById('editHistoryModal'));
@@ -1177,6 +1185,15 @@ function editCollection(element, options = {}) {
     modal.show();
 }
 
+// ----- Global helper function to render user entered text inside generated markup -----
+
+// Function to turn text into markup safe text, so names and descriptions cannot inject html
+window.escapeHtml = function(text) {
+    const holder = document.createElement('div');
+    holder.textContent = text === null || text === undefined ? '' : text;
+    return holder.innerHTML;
+};
+
 // ----- Global helper function to forcefully close loading modal -----
 window.forceCloseLoadingModal = function() {
     const loadingElement = document.getElementById('loadingModal');
@@ -1318,11 +1335,7 @@ window.showServicesValidationModal = function(message) {
         // Function to show the banner when the same values apply to several components
         function updateMultipleBanner() {
             const selectedCount = componentSelect.tomSelect ? componentSelect.tomSelect.getValue().length : 0;
-            if (selectedCount > 1) {
-                multipleBanner.classList.remove('d-none');
-            } else {
-                multipleBanner.classList.add('d-none');
-            }
+            multipleBanner.classList.toggle('d-none', selectedCount <= 1);
         }
 
         planServicesModal.addEventListener('shown.bs.modal', function(event) {
@@ -1899,6 +1912,7 @@ window.showServicesValidationModal = function(message) {
                 const newStatus = document.getElementById('new_status').value;
                 const collectionId = document.getElementById('collection_id').value;
                 const updatedDate = document.getElementById('updated_date').value;
+                const notes = document.getElementById('collection_status_notes').value;
 
                 const modalBody = document.getElementById('confirmModalBody');
                 modalBody.innerHTML = `Are you sure you want to change the status of all components in this collection to "${newStatus}"?`;
@@ -1921,7 +1935,7 @@ window.showServicesValidationModal = function(message) {
 
                     // Use timeout instead of Bootstrap events for more reliable modal transitions
                     setTimeout(() => {
-                        performBulkStatusChange(collectionId, newStatus, updatedDate);
+                        performBulkStatusChange(collectionId, newStatus, updatedDate, notes);
                     }, 300);
                 }
 
@@ -1936,7 +1950,7 @@ window.showServicesValidationModal = function(message) {
     });
 
     // Perform bulk status change via API
-    function performBulkStatusChange(collectionId, newStatus, updatedDate) {
+    function performBulkStatusChange(collectionId, newStatus, updatedDate, notes) {
         document.getElementById('loadingMessage').textContent = 'Updating component statuses...';
 
         const collectionModal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
@@ -1971,7 +1985,8 @@ window.showServicesValidationModal = function(message) {
                 collection_id: collectionId,
                 new_status: newStatus,
                 updated_date: updatedDate,
-                bike_id: bikeIdToSend
+                bike_id: bikeIdToSend,
+                notes: notes
             })
         })
         .then(response => response.json())
@@ -4056,10 +4071,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset ID display to placeholder text
         document.getElementById('service-id-display').textContent = 'Not created yet';
 
-        // Hide view workplan link for new services
+        // Hide view workplan and view incident links for new services
         const viewLink = document.getElementById('serviceViewWorkplanLink');
         if (viewLink) {
             viewLink.classList.add('d-none');
+        }
+        const viewIncidentLink = document.getElementById('serviceViewIncidentLink');
+        if (viewIncidentLink) {
+            viewIncidentLink.classList.add('d-none');
         }
 
         // Set current date/time by default
@@ -4089,6 +4108,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    const serviceIncidentSelect = document.getElementById('serviceIncidentId');
+    if (serviceIncidentSelect) {
+        serviceIncidentSelect.addEventListener('change', function() {
+            const viewIncidentLink = document.getElementById('serviceViewIncidentLink');
+            if (viewIncidentLink) {
+                viewIncidentLink.classList.add('d-none');
+            }
+        });
+    }
+
     // Handle history record edit button clicks (only on component details page)
     document.querySelectorAll('.edit-history-btn').forEach(button => {
         button.addEventListener('click', function() {
@@ -4104,6 +4133,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Simply set the input value directly and avoid using the API
             document.getElementById('editUpdatedDate').value = updatedDate;
+            document.getElementById('editHistoryNotes').value = this.dataset.notes || '';
             
             editHistoryModal.show();
         });
@@ -4116,6 +4146,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to initialize incident features
 (function() {
+    let incidentPlannedServiceCount = 0;
+
     // Only run this code if the incident modal is present
     if (!document.getElementById('incidentRecordModal')) {
         return;
@@ -4125,6 +4157,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let pendingComponentData = null;
     let isNewIncident = false;
     let originalIncidentOptions = null;
+
+    // Delegated so it also works the first time the modal is opened
+    document.getElementById('incidentRecordModal').addEventListener('change', function(event) {
+        if (event.target.name === 'incident_status') {
+            window.updateIncidentResolveWarning();
+        }
+    });
     
     // Initialize when the DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
@@ -4230,12 +4269,81 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 };
                 
+                renderIncidentServices(JSON.parse(this.dataset.incidentServices || '[]'));
+
                 // Show the modal (which will trigger the shown.bs.modal event)
                 const modal = new bootstrap.Modal(incidentModal);
                 modal.show();
             });
         });
         
+        // Function to warn when an incident is resolved while services are still planned
+        window.updateIncidentResolveWarning = function() {
+            const warning = document.getElementById('incident_resolve_warning');
+            const resolved = document.getElementById('status_resolved');
+            if (!warning || !resolved) {
+                return;
+            }
+
+            if (resolved.checked && incidentPlannedServiceCount > 0) {
+                document.getElementById('incident_open_services').textContent =
+                    `${incidentPlannedServiceCount} planned service${incidentPlannedServiceCount === 1 ? '' : 's'}`;
+                warning.classList.remove('d-none');
+            } else {
+                warning.classList.add('d-none');
+            }
+        };
+
+        // Function to fill the read only list of services linked to an incident
+        function renderIncidentServices(services) {
+            incidentPlannedServiceCount = (services || []).filter(service => service.status === 'Planned').length;
+            window.updateIncidentResolveWarning();
+            const section = document.getElementById('incident_services_section');
+            const body = document.getElementById('incident_services_body');
+            if (!section || !body) {
+                return;
+            }
+
+            body.innerHTML = '';
+            if (!services || services.length === 0) {
+                section.classList.add('d-none');
+                return;
+            }
+
+            services.forEach(service => {
+                const row = document.createElement('tr');
+                const workplanLink = service.workplan_id
+                    ? `<a href="/workplan_details/${service.workplan_id}" target="_blank" class="text-decoration-none text-reset">${window.escapeHtml(service.workplan_name || 'Workplan ' + service.workplan_id)}</a>` +
+                      `<br><small class="text-muted">${service.workplan_status === 'Done' ? 'Completed' : 'Open'}</small>`
+                    : 'No workplan';
+                row.innerHTML = `<td><a href="/component_details/${service.component_id}" class="text-decoration-none text-reset">${window.escapeHtml(service.component_name)}</a>` +
+                                `<br><small><a href="#" class="text-muted text-decoration-none incident-service-link">Linked service</a></small></td>` +
+                                `<td>${window.escapeHtml(service.status)}</td>` +
+                                `<td>${service.date ? service.date.split(' ')[0] : '-'}</td>` +
+                                `<td>${workplanLink}</td>`;
+
+                // The service link closes the incident modal and opens the service in edit mode
+                row.querySelector('.incident-service-link').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    bootstrap.Modal.getInstance(document.getElementById('incidentRecordModal'))?.hide();
+                    setTimeout(() => {
+                        window.openServiceRecordModal({serviceId: service.service_id,
+                                                       serviceDate: service.service_date || '',
+                                                       serviceDescription: service.description || '',
+                                                       componentId: service.component_id,
+                                                       status: service.status,
+                                                       plannedDate: service.planned_date || '',
+                                                       workplanId: service.workplan_id || '',
+                                                       incidentId: document.getElementById('incident_id').value,
+                                                       redirectUrl: window.location.pathname});
+                    }, 400);
+                });
+
+                body.appendChild(row);
+            });
+            section.classList.remove('d-none');
+        }
+
         // Initialize incident table functionality (sorting, filtering, searching and more)
         initializeIncidentTable();
         
@@ -4248,6 +4356,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Reset the form
                 document.getElementById('incidentRecordModalLabel').textContent = 'New incident report';
+                renderIncidentServices([]);
                 document.getElementById('incident_form').action = '/add_incident_record';
                 document.getElementById('incident_form').reset();
                 document.getElementById('incident_id').value = '';
@@ -4367,6 +4476,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             document.getElementById('status_open').checked = true;
         }
+
+        // Setting checked in code fires no change event, so refresh the warning here
+        window.updateIncidentResolveWarning();
         
         // Set other fields, checking for any variation of 'none' (case-insensitive)
         document.getElementById('incident_severity').value = data.incidentSeverity || 'Monitor';
@@ -4485,41 +4597,44 @@ function initializeIncidentForm() {
         incidentForm.setAttribute('data-incident-validation-initialized', 'true');
     }
 
-    // Add listener for status change to handle resolution date
-    const statusRadios = incidentForm.querySelectorAll('input[name="incident_status"]');
-    statusRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === 'Resolved') {
-                // If status is resolved, make resolution date required
-                resolutionDateInput.setAttribute('required', '');
+    // Add listener for status change to handle resolution date, attached once since this runs on every modal open
+    if (incidentForm.getAttribute('data-incident-status-listener') !== 'true') {
+        const statusRadios = incidentForm.querySelectorAll('input[name="incident_status"]');
+        statusRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'Resolved') {
+                    // If status is resolved, make resolution date required
+                    resolutionDateInput.setAttribute('required', '');
                 
-                // Only set current date if the field is empty
-                if (!resolutionDateInput.value) {
-                    const now = new Date();
-                    const formattedDate = now.getFullYear() + '-' + 
-                        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                        String(now.getDate()).padStart(2, '0') + ' ' + 
-                        String(now.getHours()).padStart(2, '0') + ':' + 
-                        String(now.getMinutes()).padStart(2, '0');
+                    // Only set current date if the field is empty
+                    if (!resolutionDateInput.value) {
+                        const now = new Date();
+                        const formattedDate = now.getFullYear() + '-' + 
+                            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(now.getDate()).padStart(2, '0') + ' ' + 
+                            String(now.getHours()).padStart(2, '0') + ':' + 
+                            String(now.getMinutes()).padStart(2, '0');
                     
-                    resolutionDateInput.value = formattedDate;
-                }
-            } else {
-                // If status is Open, resolution date is not required AND should be cleared
-                resolutionDateInput.removeAttribute('required');
-                resolutionDateInput.value = '';
+                        resolutionDateInput.value = formattedDate;
+                    }
+                } else {
+                    // If status is Open, resolution date is not required AND should be cleared
+                    resolutionDateInput.removeAttribute('required');
+                    resolutionDateInput.value = '';
                 
-                // If date picker is initialized, clear it too
-                if (resolutionDateInput._tempusDominus) {
-                    try {
-                        resolutionDateInput._tempusDominus.clear();
-                    } catch (e) {
-                        console.warn('Error clearing date picker:', e);
+                    // If date picker is initialized, clear it too
+                    if (resolutionDateInput._tempusDominus) {
+                        try {
+                            resolutionDateInput._tempusDominus.clear();
+                        } catch (e) {
+                            console.warn('Error clearing date picker:', e);
+                        }
                     }
                 }
-            }
+            });
         });
-    });
+        incidentForm.setAttribute('data-incident-status-listener', 'true');
+    }
 
     // Add handler for bike select validation
     const bikeSelect = document.getElementById('incident_affected_bike_id');
@@ -5001,6 +5116,7 @@ function setupIncidentSearch() {
 
                 // Reset the form
                 document.getElementById('workplanRecordModalLabel').textContent = 'New workplan';
+                renderWorkplanComponents([]);
                 document.getElementById('workplan_form').action = '/add_workplan';
                 document.getElementById('workplan_form').reset();
                 document.getElementById('workplan_id').value = '';
@@ -5019,6 +5135,30 @@ function setupIncidentSearch() {
         });
 
         // Setup create workplan from incident button
+        // Function to list the incident's components as ticked checkboxes, the user can untick before saving
+        window.renderWorkplanComponents = function(components) {
+            const section = document.getElementById('workplan_components_section');
+            const list = document.getElementById('workplan_components_list');
+            if (!section || !list) {
+                return;
+            }
+
+            list.innerHTML = '';
+            if (!components || components.length === 0) {
+                section.classList.add('d-none');
+                return;
+            }
+
+            components.forEach(([componentId, componentName]) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'form-check';
+                wrapper.innerHTML = `<input class="form-check-input" type="checkbox" name="component_ids" value="${componentId}" id="workplan_component_${componentId}" checked>` +
+                                    `<label class="form-check-label" for="workplan_component_${componentId}">${componentName}</label>`;
+                list.appendChild(wrapper);
+            });
+            section.classList.remove('d-none');
+        };
+
         document.querySelectorAll('.create-workplan-from-incident-btn').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -5037,10 +5177,12 @@ function setupIncidentSearch() {
                 isNewWorkplanFromIncident = true;
                 isNewWorkplan = false;
 
-                // Services for the incident's components are planned by the backend on submit
+                // Services are planned by the backend on submit, for the components left ticked below
                 pendingIncidentData = {
                     description: 'Transferred from incident description: ' + incidentDescription
                 };
+
+                renderWorkplanComponents(JSON.parse(this.dataset.incidentComponents || '[]'));
 
                 // Configure modal for new workplan
                 document.getElementById('workplanRecordModalLabel').textContent = 'New workplan from incident';
@@ -5437,15 +5579,16 @@ function updateWorkplansVisibility() {
         let matchesSearch = true;
         if (searchTerm) {
             const bikeText = row.cells[1].textContent.toLowerCase();
-            const componentsText = row.cells[2].textContent.toLowerCase();
+            const workplanNameText = row.cells[2].textContent.toLowerCase();
             const severityText = row.cells[3].textContent.toLowerCase();
             
-            // Get hidden content from data attributes
+            // Get hidden content from data attributes, components are no longer a column
             const descriptionText = (row.dataset.description || '').toLowerCase();
             const notesText = (row.dataset.notes || '').toLowerCase();
+            const componentsText = (row.dataset.components || '').toLowerCase();
             
             // Include all text fields in the search
-            const rowText = `${bikeText} ${componentsText} ${severityText} ${descriptionText} ${notesText}`;
+            const rowText = `${bikeText} ${workplanNameText} ${severityText} ${descriptionText} ${notesText} ${componentsText}`;
             matchesSearch = rowText.includes(searchTerm);
         }
         
@@ -5536,6 +5679,7 @@ function setupWorkplanSearch() {
                 // Get data from the button and store for use after modal is shown
                 pendingFormData = {
                     workplanId: this.dataset.workplanId,
+                    workplanName: this.dataset.workplanName || '',
                     dueDate: this.dataset.dueDate,
                     workplanStatus: this.dataset.workplanStatus,
                     workplanSize: this.dataset.workplanSize,
@@ -5546,6 +5690,9 @@ function setupWorkplanSearch() {
 
                 // Configure modal for editing
                 document.getElementById('workplanRecordModalLabel').textContent = 'Edit workplan';
+                if (window.renderWorkplanComponents) {
+                    window.renderWorkplanComponents([]);
+                }
                 const workplanForm = document.getElementById('workplan_form');
                 workplanForm.action = '/update_workplan';
 
@@ -5589,6 +5736,7 @@ function setupWorkplanSearch() {
             if (pendingFormData) {
                 // Set basic form values
                 document.getElementById('workplan_id').value = pendingFormData.workplanId;
+                document.getElementById('workplan_name').value = pendingFormData.workplanName;
                 document.getElementById('due_date').value = pendingFormData.dueDate;
 
                 // Set status radio buttons

@@ -14,6 +14,18 @@
                     <!-- Hidden fields -->
                     <input type="hidden" id="workplan_id" name="workplan_id"> <!-- Should be set automatically, and is required -->
                     
+                    <div class="col-12 mb-3 d-none" id="workplan_components_section">
+                        <div class="form-label fw-bold">Components transferred from incident</div>
+                        <div id="workplan_components_list"></div>
+                        <small class="form-text text-muted">A planned service is created for each component that stays ticked.</small>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="workplan_name" class="form-label fw-bold">Workplan name</label>
+                        <input type="text" class="form-control" id="workplan_name" name="workplan_name" maxlength="60">
+                        <small class="form-text text-muted">Optional. Leave blank to use a title generated from the components and the description.</small>
+                    </div>
+
                     <!-- First row: Date, Status (as radio), Severity -->
                     <div class="col-md-4 mb-3">
                         <label for="due_date" class="form-label fw-bold">Due date</label>

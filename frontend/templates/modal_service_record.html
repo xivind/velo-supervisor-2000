@@ -64,8 +64,11 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="serviceIncidentId" class="form-label fw-bold">Incident</label>
-                        <select class="form-select" id="serviceIncidentId" name="incident_id">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="serviceIncidentId" class="form-label fw-bold mb-0">Incident</label>
+                            <a href="#" id="serviceViewIncidentLink" class="text-primary d-none" target="_blank">View incident</a>
+                        </div>
+                        <select class="form-select mt-2" id="serviceIncidentId" name="incident_id">
                             <option value="">No incident</option>
                             {% if payload.open_incidents_for_component is defined and payload.open_incidents_for_component %}
                                 {% for incident_id, incident_title in payload.open_incidents_for_component %}
@@ -73,7 +76,7 @@
                                 {% endfor %}
                             {% endif %}
                         </select>
-                        <small class="form-text text-muted">Optional. Open incidents that reference this component.</small>
+                        <small class="form-text text-muted">Optional. A service can be linked to one open incident that references this component.</small>
                     </div>
 
                     <div>
