@@ -12,9 +12,9 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "backend/business_logic.py": {
-    "mtime": 1790440781.4895124,
-    "seen": 1790462790.3852754,
-    "ast_hash": "a457070cfca508fb65de6d25ee93eb71",
+    "mtime": 1790500136.6555164,
+    "seen": 1790500170.8046646,
+    "ast_hash": "a5126c1d47e83152f84fef7f05f0a6e4",
     "semantic_hash": ""
   },
   "backend/database_manager.py": {
@@ -54,10 +54,10 @@
     "semantic_hash": "50a4cbad94f5807448067691d70df749"
   },
   "backend/strava.py": {
-    "mtime": 1789687200.3291614,
-    "seen": 1789687201.6988091,
-    "ast_hash": "b12146d8b26c3c495a9fa7d455f42979",
-    "semantic_hash": "b12146d8b26c3c495a9fa7d455f42979"
+    "mtime": 1790500136.6555164,
+    "seen": 1790500170.804677,
+    "ast_hash": "07d8a44b6805b9df13262ef0b75e0b1d",
+    "semantic_hash": ""
   },
   "backend/strava_tokens.example.json": {
     "mtime": 1763204673.0148363,
@@ -66,9 +66,9 @@
     "semantic_hash": "7e00b6c5e6cfca64325502b1a27b6083"
   },
   "backend/utils.py": {
-    "mtime": 1790410359.594629,
-    "seen": 1790410541.315663,
-    "ast_hash": "ad5f6996182c9fe1e42b276f69804489",
+    "mtime": 1790500136.6555164,
+    "seen": 1790500170.8046799,
+    "ast_hash": "207c3bf02bf7ff72aafb69f7edc5f0d2",
     "semantic_hash": ""
   },
   "backend/version.py": {
@@ -156,10 +156,10 @@
     "semantic_hash": "5343c82b134fc54bf2ab7481ba4fa899"
   },
   "CLAUDE.md": {
-    "mtime": 1789687200.3231614,
-    "seen": 1789687201.6988275,
-    "ast_hash": "186674309227d3225922e77e0952a8b5",
-    "semantic_hash": "186674309227d3225922e77e0952a8b5"
+    "mtime": 1790500745.3685143,
+    "seen": 1790500746.6022806,
+    "ast_hash": "6b50a6bc342d583de0a544f5a8892049",
+    "semantic_hash": ""
   },
   "README.md": {
     "mtime": 1790462491.2447388,
@@ -171,12 +171,6 @@
     "mtime": 1789687200.3271613,
     "seen": 1789687201.69883,
     "ast_hash": "a5c3d479b7c5a20e2702b3c2e965ce0c",
-    "semantic_hash": ""
-  },
-  "docs/plans/2026-01-11-workplan-hub-integration-incremental.md": {
-    "mtime": 1789713915.6138172,
-    "seen": 1789816552.1058629,
-    "ast_hash": "d25c48ba1a3d4ca0565cf3420e177463",
     "semantic_hash": ""
   },
   "frontend/templates/base.html": {
@@ -413,12 +407,6 @@
     "ast_hash": "e2225c5c700d8777be378912876f1a02",
     "semantic_hash": ""
   },
-  "docs/superpowers/plans/2026-09-18-service-integration.md": {
-    "mtime": 1789714649.0448143,
-    "seen": 1789816552.1058636,
-    "ast_hash": "ba99dd4670879b13f9002c97d7ab1a9e",
-    "semantic_hash": ""
-  },
   "docs/superpowers/specs/2026-09-18-service-integration-design.md": {
     "mtime": 1789713635.4388182,
     "seen": 1789816552.1058643,
@@ -456,21 +444,15 @@
     "semantic_hash": ""
   },
   "tests/test_protocol_services.md": {
-    "mtime": 1790413502.562617,
-    "seen": 1790462790.3853233,
-    "ast_hash": "365e11ce088abc1434e648ded3d7be83",
+    "mtime": 1790501114.3045127,
+    "seen": 1790501130.249738,
+    "ast_hash": "2f76a9f7a719de309131ac0077b95cde",
     "semantic_hash": ""
   },
   ".handovers/fullstack/service-integration-fullstack-to-reviewer.md": {
-    "mtime": 1790439543.337517,
-    "seen": 1790462790.3852947,
-    "ast_hash": "3ed23c98e33d1bb4c3b09425e42519f0",
-    "semantic_hash": ""
-  },
-  "TECHNICAL_DEBT.md": {
-    "mtime": 1790462690.8427384,
-    "seen": 1790462790.3852973,
-    "ast_hash": "ae28b9750172dbfc2bc6b13a35ede130",
+    "mtime": 1790501129.1055129,
+    "seen": 1790501130.2497087,
+    "ast_hash": "6fcd627ac0d2274e6459530c486dd95a",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-09-25-service-integration-test-findings.md": {
