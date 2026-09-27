@@ -289,18 +289,6 @@
       "source_location": "L9"
     },
     {
-      "id": "backend_business_logic_businesslogic_get_all_collections",
-      "label": ".get_all_collections()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".get_bike_details",
-      "file_type": "code",
-      "norm_label": ".get_all_collections()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L543"
-    },
-    {
       "id": "backend_business_logic_businesslogic_get_bike_details",
       "label": ".get_bike_details()",
       "_callable": true,
@@ -337,18 +325,6 @@
       "source_location": "L524"
     },
     {
-      "id": "backend_business_logic_businesslogic_get_component_details",
-      "label": ".get_component_details()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".get_bike_details",
-      "file_type": "code",
-      "norm_label": ".get_component_details()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L256"
-    },
-    {
       "id": "backend_business_logic_businesslogic_get_component_overview",
       "label": ".get_component_overview()",
       "_callable": true,
@@ -359,6 +335,18 @@
       "norm_label": ".get_component_overview()",
       "source_file": "backend/business_logic.py",
       "source_location": "L198"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_process_bike_compliance_report",
+      "label": ".process_bike_compliance_report()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": ".get_bike_details",
+      "file_type": "code",
+      "norm_label": ".process_bike_compliance_report()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2847"
     },
     {
       "id": "backend_business_logic_businesslogic_process_incidents",
@@ -395,18 +383,6 @@
       "norm_label": ".read_all_components()",
       "source_file": "backend/database_manager.py",
       "source_location": "L158"
-    },
-    {
-      "id": "backend_utils_calculate_percentage_reached",
-      "label": "calculate_percentage_reached()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".get_bike_details",
-      "file_type": "code",
-      "norm_label": "calculate_percentage_reached()",
-      "source_file": "backend/utils.py",
-      "source_location": "L356"
     },
     {
       "id": "backend_utils_format_component_status",
@@ -481,136 +457,76 @@
       "source_location": "L575"
     },
     {
-      "id": "backend_business_logic_businesslogic_create_component",
-      "label": ".create_component()",
+      "id": "backend_business_logic_businesslogic_calculate_collection_status",
+      "label": ".calculate_collection_status()",
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "code",
-      "norm_label": ".create_component()",
+      "norm_label": ".calculate_collection_status()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1285"
+      "source_location": "L443"
     },
     {
-      "id": "backend_business_logic_businesslogic_create_history_record",
-      "label": ".create_history_record()",
+      "id": "backend_business_logic_businesslogic_change_collection_status",
+      "label": ".change_collection_status()",
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "code",
-      "norm_label": ".create_history_record()",
+      "norm_label": ".change_collection_status()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1470"
+      "source_location": "L2041"
     },
     {
-      "id": "backend_business_logic_businesslogic_delete_record",
-      "label": ".delete_record()",
+      "id": "backend_business_logic_businesslogic_get_all_collections",
+      "label": ".get_all_collections()",
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "code",
-      "norm_label": ".delete_record()",
+      "norm_label": ".get_all_collections()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L3252"
+      "source_location": "L543"
     },
     {
-      "id": "backend_business_logic_businesslogic_modify_component_details",
-      "label": ".modify_component_details()",
+      "id": "backend_business_logic_businesslogic_get_collection_details",
+      "label": ".get_collection_details()",
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "code",
-      "norm_label": ".modify_component_details()",
+      "norm_label": ".get_collection_details()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1381"
+      "source_location": "L580"
     },
     {
-      "id": "backend_business_logic_businesslogic_modify_component_type",
-      "label": ".modify_component_type()",
+      "id": "backend_business_logic_businesslogic_update_collection",
+      "label": ".update_collection()",
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "code",
-      "norm_label": ".modify_component_type()",
+      "norm_label": ".update_collection()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L3167"
+      "source_location": "L1944"
     },
     {
-      "id": "backend_business_logic_businesslogic_process_bike_compliance_report",
-      "label": ".process_bike_compliance_report()",
+      "id": "backend_business_logic_businesslogic_validate_collection",
+      "label": ".validate_collection()",
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "code",
-      "norm_label": ".process_bike_compliance_report()",
+      "norm_label": ".validate_collection()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2847"
-    },
-    {
-      "id": "backend_business_logic_businesslogic_quick_swap_orchestrator",
-      "label": ".quick_swap_orchestrator()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": ".create_history_record",
-      "file_type": "code",
-      "norm_label": ".quick_swap_orchestrator()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L1768"
-    },
-    {
-      "id": "backend_business_logic_businesslogic_update_component_type_count",
-      "label": ".update_component_type_count()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": ".create_history_record",
-      "file_type": "code",
-      "norm_label": ".update_component_type_count()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L3227"
-    },
-    {
-      "id": "backend_business_logic_businesslogic_validate_quick_swap",
-      "label": ".validate_quick_swap()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": ".create_history_record",
-      "file_type": "code",
-      "norm_label": ".validate_quick_swap()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L1874"
-    },
-    {
-      "id": "backend_business_logic_businesslogic_validate_threshold_configuration",
-      "label": ".validate_threshold_configuration()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": ".create_history_record",
-      "file_type": "code",
-      "norm_label": ".validate_threshold_configuration()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2803"
-    },
-    {
-      "id": "backend_main_http_exception_handler",
-      "label": "http_exception_handler()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 104,
-      "community_name": "Middleware",
-      "file_type": "code",
-      "norm_label": "http_exception_handler()",
-      "source_file": "backend/main.py",
-      "source_location": "L66"
+      "source_location": "L1972"
     },
     {
       "id": "backend_middleware_middleware_dispatch",
@@ -661,30 +577,6 @@
       "source_location": "L52"
     },
     {
-      "id": "backend_database_manager_databasemanager_write_component_lifetime_status",
-      "label": ".write_component_lifetime_status()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 106,
-      "community_name": ".write_component_lifetime_status",
-      "file_type": "code",
-      "norm_label": ".write_component_lifetime_status()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L462"
-    },
-    {
-      "id": "backend_business_logic_businesslogic_calculate_collection_status",
-      "label": ".calculate_collection_status()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "BusinessLogic",
-      "file_type": "code",
-      "norm_label": ".calculate_collection_status()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L443"
-    },
-    {
       "id": "backend_business_logic_businesslogic_calculate_component_triggers",
       "label": ".calculate_component_triggers()",
       "_callable": true,
@@ -697,28 +589,28 @@
       "source_location": "L2727"
     },
     {
-      "id": "backend_business_logic_businesslogic_change_collection_status",
-      "label": ".change_collection_status()",
+      "id": "backend_business_logic_businesslogic_compute_component_status",
+      "label": ".compute_component_status()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "BusinessLogic",
       "file_type": "code",
-      "norm_label": ".change_collection_status()",
+      "norm_label": ".compute_component_status()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2041"
+      "source_location": "L2686"
     },
     {
-      "id": "backend_business_logic_businesslogic_create_collection",
-      "label": ".create_collection()",
+      "id": "backend_business_logic_businesslogic_create_component",
+      "label": ".create_component()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "BusinessLogic",
       "file_type": "code",
-      "norm_label": ".create_collection()",
+      "norm_label": ".create_component()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1913"
+      "source_location": "L1285"
     },
     {
       "id": "backend_business_logic_businesslogic_determine_trigger",
@@ -731,18 +623,6 @@
       "norm_label": ".determine_trigger()",
       "source_file": "backend/business_logic.py",
       "source_location": "L2708"
-    },
-    {
-      "id": "backend_business_logic_businesslogic_get_collection_details",
-      "label": ".get_collection_details()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "BusinessLogic",
-      "file_type": "code",
-      "norm_label": ".get_collection_details()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L580"
     },
     {
       "id": "backend_business_logic_businesslogic_get_component_types",
@@ -769,6 +649,42 @@
       "source_location": "L39"
     },
     {
+      "id": "backend_business_logic_businesslogic_modify_component_details",
+      "label": ".modify_component_details()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "BusinessLogic",
+      "file_type": "code",
+      "norm_label": ".modify_component_details()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1381"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_modify_component_type",
+      "label": ".modify_component_type()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "BusinessLogic",
+      "file_type": "code",
+      "norm_label": ".modify_component_type()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L3167"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_quick_swap_orchestrator",
+      "label": ".quick_swap_orchestrator()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "BusinessLogic",
+      "file_type": "code",
+      "norm_label": ".quick_swap_orchestrator()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1768"
+    },
+    {
       "id": "backend_business_logic_businesslogic_refresh_all_bikes",
       "label": ".refresh_all_bikes()",
       "_callable": true,
@@ -793,16 +709,28 @@
       "source_location": "L3384"
     },
     {
-      "id": "backend_business_logic_businesslogic_update_collection",
-      "label": ".update_collection()",
+      "id": "backend_business_logic_businesslogic_update_component_lifetime_service_alternate",
+      "label": ".update_component_lifetime_service_alternate()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "BusinessLogic",
       "file_type": "code",
-      "norm_label": ".update_collection()",
+      "norm_label": ".update_component_lifetime_service_alternate()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1944"
+      "source_location": "L1144"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_update_component_type_count",
+      "label": ".update_component_type_count()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "BusinessLogic",
+      "file_type": "code",
+      "norm_label": ".update_component_type_count()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L3227"
     },
     {
       "id": "backend_business_logic_businesslogic_update_rides_bulk",
@@ -817,16 +745,28 @@
       "source_location": "L823"
     },
     {
-      "id": "backend_business_logic_businesslogic_validate_collection",
-      "label": ".validate_collection()",
+      "id": "backend_business_logic_businesslogic_validate_quick_swap",
+      "label": ".validate_quick_swap()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "BusinessLogic",
       "file_type": "code",
-      "norm_label": ".validate_collection()",
+      "norm_label": ".validate_quick_swap()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1972"
+      "source_location": "L1874"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_validate_threshold_configuration",
+      "label": ".validate_threshold_configuration()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "BusinessLogic",
+      "file_type": "code",
+      "norm_label": ".validate_threshold_configuration()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2803"
     },
     {
       "id": "backend_database_manager_databasemanager_write_incident_record",
@@ -889,18 +829,6 @@
       "source_location": "L330"
     },
     {
-      "id": "backend_database_manager_databasemanager_write_collection",
-      "label": ".write_collection()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 118,
-      "community_name": ".write_collection",
-      "file_type": "code",
-      "norm_label": ".write_collection()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L538"
-    },
-    {
       "id": "frontend_static_js_main_initializedatepickers",
       "label": "initializeDatePickers()",
       "_callable": true,
@@ -961,28 +889,28 @@
       "source_location": "L109"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_all_incidents",
-      "label": ".read_all_incidents()",
+      "id": "backend_database_manager_databasemanager_read_all_workplans",
+      "label": ".read_all_workplans()",
       "_callable": true,
       "_origin": "ast",
       "community": 12,
       "community_name": "DatabaseManager",
       "file_type": "code",
-      "norm_label": ".read_all_incidents()",
+      "norm_label": ".read_all_workplans()",
       "source_file": "backend/database_manager.py",
-      "source_location": "L292"
+      "source_location": "L308"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_collection_by_component",
-      "label": ".read_collection_by_component()",
+      "id": "backend_database_manager_databasemanager_read_bike_id_recent_component_history",
+      "label": ".read_bike_id_recent_component_history()",
       "_callable": true,
       "_origin": "ast",
       "community": 12,
       "community_name": "DatabaseManager",
       "file_type": "code",
-      "norm_label": ".read_collection_by_component()",
+      "norm_label": ".read_bike_id_recent_component_history()",
       "source_file": "backend/database_manager.py",
-      "source_location": "L275"
+      "source_location": "L43"
     },
     {
       "id": "backend_database_manager_databasemanager_read_latest_history_record",
@@ -997,16 +925,16 @@
       "source_location": "L216"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_latest_ride_record",
-      "label": ".read_latest_ride_record()",
+      "id": "backend_database_manager_databasemanager_read_matching_rides",
+      "label": ".read_matching_rides()",
       "_callable": true,
       "_origin": "ast",
       "community": 12,
       "community_name": "DatabaseManager",
       "file_type": "code",
-      "norm_label": ".read_latest_ride_record()",
+      "norm_label": ".read_matching_rides()",
       "source_file": "backend/database_manager.py",
-      "source_location": "L79"
+      "source_location": "L72"
     },
     {
       "id": "backend_database_manager_databasemanager_read_oldest_history_record",
@@ -1021,18 +949,6 @@
       "source_location": "L223"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_subset_components",
-      "label": ".read_subset_components()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "DatabaseManager",
-      "file_type": "code",
-      "norm_label": ".read_subset_components()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L186"
-    },
-    {
       "id": "backend_database_manager_databasemanager_read_subset_installed_components",
       "label": ".read_subset_installed_components()",
       "_callable": true,
@@ -1043,30 +959,6 @@
       "norm_label": ".read_subset_installed_components()",
       "source_file": "backend/database_manager.py",
       "source_location": "L192"
-    },
-    {
-      "id": "backend_database_manager_databasemanager_read_subset_service_record",
-      "label": ".read_subset_service_record()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "DatabaseManager",
-      "file_type": "code",
-      "norm_label": ".read_subset_service_record()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L243"
-    },
-    {
-      "id": "backend_database_manager_databasemanager_read_sum_distance_subset_rides",
-      "label": ".read_sum_distance_subset_rides()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "DatabaseManager",
-      "file_type": "code",
-      "norm_label": ".read_sum_distance_subset_rides()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L98"
     },
     {
       "id": "backend_database_manager_databasemanager_write_bike_service_status",
@@ -1081,16 +973,28 @@
       "source_location": "L490"
     },
     {
-      "id": "backend_database_manager_databasemanager_write_workplan",
-      "label": ".write_workplan()",
+      "id": "backend_database_manager_databasemanager_write_collection",
+      "label": ".write_collection()",
       "_callable": true,
       "_origin": "ast",
       "community": 12,
       "community_name": "DatabaseManager",
       "file_type": "code",
-      "norm_label": ".write_workplan()",
+      "norm_label": ".write_collection()",
       "source_file": "backend/database_manager.py",
-      "source_location": "L574"
+      "source_location": "L538"
+    },
+    {
+      "id": "backend_database_manager_databasemanager_write_component_lifetime_status",
+      "label": ".write_component_lifetime_status()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "DatabaseManager",
+      "file_type": "code",
+      "norm_label": ".write_component_lifetime_status()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L462"
     },
     {
       "id": "backend_database_manager_databasemanager_write_component_service_status",
@@ -1105,6 +1009,30 @@
       "source_location": "L476"
     },
     {
+      "id": "backend_business_logic_businesslogic_build_bulk_service_message",
+      "label": ".build_bulk_service_message()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "code",
+      "norm_label": ".build_bulk_service_message()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2238"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_complete_services",
+      "label": ".complete_services()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "code",
+      "norm_label": ".complete_services()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2299"
+    },
+    {
       "id": "backend_business_logic_businesslogic_create_planned_service",
       "label": ".create_planned_service()",
       "_callable": true,
@@ -1117,28 +1045,28 @@
       "source_location": "L2203"
     },
     {
-      "id": "backend_business_logic_businesslogic_recalculate_component_after_service_removal",
-      "label": ".recalculate_component_after_service_removal()",
+      "id": "backend_business_logic_businesslogic_create_planned_services",
+      "label": ".create_planned_services()",
       "_callable": true,
       "_origin": "ast",
       "community": 14,
       "community_name": "Service integration (#351) - fullstack to code-reviewer",
       "file_type": "code",
-      "norm_label": ".recalculate_component_after_service_removal()",
+      "norm_label": ".create_planned_services()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2467"
+      "source_location": "L2261"
     },
     {
-      "id": "backend_business_logic_businesslogic_update_service_record",
-      "label": ".update_service_record()",
+      "id": "backend_business_logic_businesslogic_create_service_record",
+      "label": ".create_service_record()",
       "_callable": true,
       "_origin": "ast",
       "community": 14,
       "community_name": "Service integration (#351) - fullstack to code-reviewer",
       "file_type": "code",
-      "norm_label": ".update_service_record()",
+      "norm_label": ".create_service_record()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2379"
+      "source_location": "L2140"
     },
     {
       "id": "backend_business_logic_businesslogic_validate_service_record",
@@ -1151,6 +1079,42 @@
       "norm_label": ".validate_service_record()",
       "source_file": "backend/business_logic.py",
       "source_location": "L2489"
+    },
+    {
+      "id": "backend_utils_generate_incident_title",
+      "label": "generate_incident_title()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "code",
+      "norm_label": "generate_incident_title()",
+      "source_file": "backend/utils.py",
+      "source_location": "L409"
+    },
+    {
+      "id": "backend_utils_get_effective_planned_date",
+      "label": "get_effective_planned_date()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "code",
+      "norm_label": "get_effective_planned_date()",
+      "source_file": "backend/utils.py",
+      "source_location": "L237"
+    },
+    {
+      "id": "backend_utils_get_planned_service_data_tuple",
+      "label": "get_planned_service_data_tuple()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "code",
+      "norm_label": "get_planned_service_data_tuple()",
+      "source_file": "backend/utils.py",
+      "source_location": "L338"
     },
     {
       "id": "frontend_static_js_main_initializeworkplanform",
@@ -1249,40 +1213,16 @@
       "source_location": "L3018"
     },
     {
-      "id": "frontend_static_js_main_initializeincidenttable",
-      "label": "initializeIncidentTable()",
+      "id": "frontend_static_js_main_initializeworkplantable",
+      "label": "initializeWorkplanTable()",
       "_callable": true,
       "_origin": "ast",
       "community": 16,
       "community_name": "sortColumn",
       "file_type": "code",
-      "norm_label": "initializeincidenttable()",
+      "norm_label": "initializeworkplantable()",
       "source_file": "frontend/static/js/main.js",
-      "source_location": "L4781"
-    },
-    {
-      "id": "frontend_static_js_main_setupincidentsearch",
-      "label": "setupIncidentSearch()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "sortColumn",
-      "file_type": "code",
-      "norm_label": "setupincidentsearch()",
-      "source_file": "frontend/static/js/main.js",
-      "source_location": "L5004"
-    },
-    {
-      "id": "frontend_static_js_main_setupincidentstatusfiltering",
-      "label": "setupIncidentStatusFiltering()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "sortColumn",
-      "file_type": "code",
-      "norm_label": "setupincidentstatusfiltering()",
-      "source_file": "frontend/static/js/main.js",
-      "source_location": "L4987"
+      "source_location": "L5426"
     },
     {
       "id": "frontend_static_js_main_setupincidenttablesorting",
@@ -1297,6 +1237,30 @@
       "source_location": "L4806"
     },
     {
+      "id": "frontend_static_js_main_setupworkplansearch",
+      "label": "setupWorkplanSearch()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "sortColumn",
+      "file_type": "code",
+      "norm_label": "setupworkplansearch()",
+      "source_file": "frontend/static/js/main.js",
+      "source_location": "L5636"
+    },
+    {
+      "id": "frontend_static_js_main_setupworkplanstatusfiltering",
+      "label": "setupWorkplanStatusFiltering()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "sortColumn",
+      "file_type": "code",
+      "norm_label": "setupworkplanstatusfiltering()",
+      "source_file": "frontend/static/js/main.js",
+      "source_location": "L5619"
+    },
+    {
       "id": "frontend_static_js_main_setupworkplantablesorting",
       "label": "setupWorkplanTableSorting()",
       "_callable": true,
@@ -1309,16 +1273,16 @@
       "source_location": "L5451"
     },
     {
-      "id": "frontend_static_js_main_updateincidentvisibility",
-      "label": "updateIncidentVisibility()",
+      "id": "frontend_static_js_main_updateworkplansvisibility",
+      "label": "updateWorkplansVisibility()",
       "_callable": true,
       "_origin": "ast",
       "community": 16,
       "community_name": "sortColumn",
       "file_type": "code",
-      "norm_label": "updateincidentvisibility()",
+      "norm_label": "updateworkplansvisibility()",
       "source_file": "frontend/static/js/main.js",
-      "source_location": "L4917"
+      "source_location": "L5548"
     },
     {
       "id": "backend_main_add_collection",
@@ -1537,18 +1501,6 @@
       "source_location": "L266"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_single_component_type",
-      "label": ".read_single_component_type()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": ".write_delete_record",
-      "file_type": "code",
-      "norm_label": ".read_single_component_type()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L128"
-    },
-    {
       "id": "backend_database_manager_databasemanager_read_single_history_record",
       "label": ".read_single_history_record()",
       "_callable": true,
@@ -1597,18 +1549,6 @@
       "source_location": "L303"
     },
     {
-      "id": "backend_database_manager_databasemanager_write_component_type",
-      "label": ".write_component_type()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": ".write_delete_record",
-      "file_type": "code",
-      "norm_label": ".write_component_type()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L592"
-    },
-    {
       "id": "backend_database_manager_databasemanager_write_delete_record",
       "label": ".write_delete_record()",
       "_callable": true,
@@ -1619,6 +1559,30 @@
       "norm_label": ".write_delete_record()",
       "source_file": "backend/database_manager.py",
       "source_location": "L612"
+    },
+    {
+      "id": "backend_database_manager_databasemanager_read_single_component_type",
+      "label": ".read_single_component_type()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": ".read_single_component_type",
+      "file_type": "code",
+      "norm_label": ".read_single_component_type()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L128"
+    },
+    {
+      "id": "backend_database_manager_databasemanager_write_component_type",
+      "label": ".write_component_type()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": ".read_single_component_type",
+      "file_type": "code",
+      "norm_label": ".write_component_type()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L592"
     },
     {
       "id": "backend_main_get_filtered_log",
@@ -1705,136 +1669,172 @@
       "source_location": "L442"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_latest_service_record",
-      "label": ".read_latest_service_record()",
+      "id": "backend_database_manager_databasemanager_read_bike_name",
+      "label": ".read_bike_name()",
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "code",
-      "norm_label": ".read_latest_service_record()",
+      "norm_label": ".read_bike_name()",
       "source_file": "backend/database_manager.py",
-      "source_location": "L248"
+      "source_location": "L33"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_oldest_service_record",
-      "label": ".read_oldest_service_record()",
+      "id": "backend_main_bike_details",
+      "label": "bike_details()",
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "code",
-      "norm_label": ".read_oldest_service_record()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L257"
+      "norm_label": "bike_details()",
+      "source_file": "backend/main.py",
+      "source_location": "L84"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_subset_service_history",
-      "label": ".read_subset_service_history()",
+      "id": "backend_main_component_details",
+      "label": "component_details()",
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "code",
-      "norm_label": ".read_subset_service_history()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L235"
+      "norm_label": "component_details()",
+      "source_file": "backend/main.py",
+      "source_location": "L147"
     },
     {
-      "id": "backend_utils_get_current_version",
-      "label": "get_current_version()",
+      "id": "backend_main_incident_reports",
+      "label": "incident_reports()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "Issues found (none blocking)",
+      "file_type": "code",
+      "norm_label": "incident_reports()",
+      "source_file": "backend/main.py",
+      "source_location": "L110"
+    },
+    {
+      "id": "backend_main_workplan_details",
+      "label": "workplan_details()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "Issues found (none blocking)",
+      "file_type": "code",
+      "norm_label": "workplan_details()",
+      "source_file": "backend/main.py",
+      "source_location": "L134"
+    },
+    {
+      "id": "backend_utils_get_button_order",
+      "label": "get_button_order()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "Issues found (none blocking)",
+      "file_type": "code",
+      "norm_label": "get_button_order()",
+      "source_file": "backend/utils.py",
+      "source_location": "L30"
+    },
+    {
+      "id": "frontend_static_js_main_cleanup",
+      "label": "cleanup()",
       "_callable": true,
       "_origin": "ast",
       "community": 26,
-      "community_name": "utils.py",
+      "community_name": "cleanup",
       "file_type": "code",
-      "norm_label": "get_current_version()",
-      "source_file": "backend/utils.py",
-      "source_location": "L16"
+      "norm_label": "cleanup()",
+      "source_file": "frontend/static/js/main.js",
+      "source_location": "L1921"
     },
     {
-      "id": "backend_utils_parse_button_sorting",
-      "label": "parse_button_sorting()",
+      "id": "frontend_static_js_main_handlecancel",
+      "label": "handleCancel()",
       "_callable": true,
       "_origin": "ast",
       "community": 26,
-      "community_name": "utils.py",
+      "community_name": "cleanup",
       "file_type": "code",
-      "norm_label": "parse_button_sorting()",
-      "source_file": "backend/utils.py",
-      "source_location": "L83"
+      "norm_label": "handlecancel()",
+      "source_file": "frontend/static/js/main.js",
+      "source_location": "L1942"
     },
     {
-      "id": "backend_utils_read_config",
-      "label": "read_config()",
+      "id": "frontend_static_js_main_handleconfirm",
+      "label": "handleConfirm()",
       "_callable": true,
       "_origin": "ast",
       "community": 26,
-      "community_name": "utils.py",
+      "community_name": "cleanup",
       "file_type": "code",
-      "norm_label": "read_config()",
-      "source_file": "backend/utils.py",
-      "source_location": "L24"
+      "norm_label": "handleconfirm()",
+      "source_file": "frontend/static/js/main.js",
+      "source_location": "L1928"
     },
     {
-      "id": "backend_utils_write_config",
-      "label": "write_config()",
+      "id": "frontend_static_js_main_performbulkstatuschange",
+      "label": "performBulkStatusChange()",
       "_callable": true,
       "_origin": "ast",
       "community": 26,
-      "community_name": "utils.py",
+      "community_name": "cleanup",
       "file_type": "code",
-      "norm_label": "write_config()",
-      "source_file": "backend/utils.py",
-      "source_location": "L96"
+      "norm_label": "performbulkstatuschange()",
+      "source_file": "frontend/static/js/main.js",
+      "source_location": "L1953"
     },
     {
-      "id": "frontend_static_js_main_initializeworkplantable",
-      "label": "initializeWorkplanTable()",
+      "id": "frontend_static_js_main_initializeincidenttable",
+      "label": "initializeIncidentTable()",
       "_callable": true,
       "_origin": "ast",
       "community": 27,
-      "community_name": "initializeWorkplanTable",
+      "community_name": "initializeIncidentTable",
       "file_type": "code",
-      "norm_label": "initializeworkplantable()",
+      "norm_label": "initializeincidenttable()",
       "source_file": "frontend/static/js/main.js",
-      "source_location": "L5426"
+      "source_location": "L4781"
     },
     {
-      "id": "frontend_static_js_main_setupworkplansearch",
-      "label": "setupWorkplanSearch()",
+      "id": "frontend_static_js_main_setupincidentsearch",
+      "label": "setupIncidentSearch()",
       "_callable": true,
       "_origin": "ast",
       "community": 27,
-      "community_name": "initializeWorkplanTable",
+      "community_name": "initializeIncidentTable",
       "file_type": "code",
-      "norm_label": "setupworkplansearch()",
+      "norm_label": "setupincidentsearch()",
       "source_file": "frontend/static/js/main.js",
-      "source_location": "L5636"
+      "source_location": "L5004"
     },
     {
-      "id": "frontend_static_js_main_setupworkplanstatusfiltering",
-      "label": "setupWorkplanStatusFiltering()",
+      "id": "frontend_static_js_main_setupincidentstatusfiltering",
+      "label": "setupIncidentStatusFiltering()",
       "_callable": true,
       "_origin": "ast",
       "community": 27,
-      "community_name": "initializeWorkplanTable",
+      "community_name": "initializeIncidentTable",
       "file_type": "code",
-      "norm_label": "setupworkplanstatusfiltering()",
+      "norm_label": "setupincidentstatusfiltering()",
       "source_file": "frontend/static/js/main.js",
-      "source_location": "L5619"
+      "source_location": "L4987"
     },
     {
-      "id": "frontend_static_js_main_updateworkplansvisibility",
-      "label": "updateWorkplansVisibility()",
+      "id": "frontend_static_js_main_updateincidentvisibility",
+      "label": "updateIncidentVisibility()",
       "_callable": true,
       "_origin": "ast",
       "community": 27,
-      "community_name": "initializeWorkplanTable",
+      "community_name": "initializeIncidentTable",
       "file_type": "code",
-      "norm_label": "updateworkplansvisibility()",
+      "norm_label": "updateincidentvisibility()",
       "source_file": "frontend/static/js/main.js",
-      "source_location": "L5548"
+      "source_location": "L4917"
     },
     {
       "id": "backend_version_get_git_info",
@@ -1854,11 +1854,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "code",
       "norm_label": "lifespan()",
       "source_file": "backend/main.py",
       "source_location": "L29"
+    },
+    {
+      "id": "backend_main_update_config",
+      "label": "update_config()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "update_config()",
+      "source_file": "backend/main.py",
+      "source_location": "L773"
     },
     {
       "id": "backend_scheduler_start_scheduler",
@@ -1866,7 +1878,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "code",
       "norm_label": "start_scheduler()",
       "source_file": "backend/scheduler.py",
@@ -1878,7 +1890,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "code",
       "norm_label": "stop_scheduler()",
       "source_file": "backend/scheduler.py",
@@ -1890,7 +1902,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "code",
       "norm_label": "strava_sync_job()",
       "source_file": "backend/scheduler.py",
@@ -1902,11 +1914,95 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "code",
       "norm_label": "update_time_based_fields_job()",
       "source_file": "backend/scheduler.py",
       "source_location": "L66"
+    },
+    {
+      "id": "backend_utils_calculate_percentage_reached",
+      "label": "calculate_percentage_reached()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "calculate_percentage_reached()",
+      "source_file": "backend/utils.py",
+      "source_location": "L356"
+    },
+    {
+      "id": "backend_utils_get_current_version",
+      "label": "get_current_version()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "get_current_version()",
+      "source_file": "backend/utils.py",
+      "source_location": "L16"
+    },
+    {
+      "id": "backend_utils_parse_button_sorting",
+      "label": "parse_button_sorting()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "parse_button_sorting()",
+      "source_file": "backend/utils.py",
+      "source_location": "L83"
+    },
+    {
+      "id": "backend_utils_read_config",
+      "label": "read_config()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "read_config()",
+      "source_file": "backend/utils.py",
+      "source_location": "L24"
+    },
+    {
+      "id": "backend_utils_shutdown_server",
+      "label": "shutdown_server()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "shutdown_server()",
+      "source_file": "backend/utils.py",
+      "source_location": "L168"
+    },
+    {
+      "id": "backend_utils_write_config",
+      "label": "write_config()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "write_config()",
+      "source_file": "backend/utils.py",
+      "source_location": "L96"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_get_component_details",
+      "label": ".get_component_details()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "code",
+      "norm_label": ".get_component_details()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L256"
     },
     {
       "id": "backend_business_logic_businesslogic_get_incident_reports",
@@ -1914,7 +2010,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "code",
       "norm_label": ".get_incident_reports()",
       "source_file": "backend/business_logic.py",
@@ -1926,11 +2022,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "code",
       "norm_label": ".get_workplan_details()",
       "source_file": "backend/business_logic.py",
       "source_location": "L732"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_get_workplans",
+      "label": ".get_workplans()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "code",
+      "norm_label": ".get_workplans()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L682"
     },
     {
       "id": "backend_utils_calculate_elapsed_days",
@@ -1938,7 +2046,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "code",
       "norm_label": "calculate_elapsed_days()",
       "source_file": "backend/utils.py",
@@ -1950,7 +2058,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "code",
       "norm_label": "derive_workplan_context()",
       "source_file": "backend/utils.py",
@@ -1962,11 +2070,47 @@
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "code",
       "norm_label": "generate_workplan_title()",
       "source_file": "backend/utils.py",
       "source_location": "L434"
+    },
+    {
+      "id": "backend_utils_get_formatted_bikes_list",
+      "label": "get_formatted_bikes_list()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "code",
+      "norm_label": "get_formatted_bikes_list()",
+      "source_file": "backend/utils.py",
+      "source_location": "L194"
+    },
+    {
+      "id": "backend_utils_get_formatted_datetime_now",
+      "label": "get_formatted_datetime_now()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "code",
+      "norm_label": "get_formatted_datetime_now()",
+      "source_file": "backend/utils.py",
+      "source_location": "L12"
+    },
+    {
+      "id": "backend_utils_get_incident_data_tuple",
+      "label": "get_incident_data_tuple()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "code",
+      "norm_label": "get_incident_data_tuple()",
+      "source_file": "backend/utils.py",
+      "source_location": "L283"
     },
     {
       "id": "backend_utils_get_workplan_data_tuple",
@@ -1974,7 +2118,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "code",
       "norm_label": "get_workplan_data_tuple()",
       "source_file": "backend/utils.py",
@@ -1986,7 +2130,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "code",
       "norm_label": "get_workplan_names_dict()",
       "source_file": "backend/utils.py",
@@ -1998,7 +2142,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "code",
       "norm_label": "resolve_workplan_title()",
       "source_file": "backend/utils.py",
@@ -2010,7 +2154,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "code",
       "norm_label": "strip_markdown_syntax()",
       "source_file": "backend/utils.py",
@@ -2149,40 +2293,16 @@
       "source_location": "L41"
     },
     {
-      "id": "backend_utils_build_incident_service_entry",
-      "label": "build_incident_service_entry()",
+      "id": "backend_database_manager_databasemanager_read_all_incidents",
+      "label": ".read_all_incidents()",
       "_callable": true,
       "_origin": "ast",
       "community": 35,
-      "community_name": "get_planned_service_data_tuple",
+      "community_name": ".read_all_incidents",
       "file_type": "code",
-      "norm_label": "build_incident_service_entry()",
-      "source_file": "backend/utils.py",
-      "source_location": "L266"
-    },
-    {
-      "id": "backend_utils_get_effective_planned_date",
-      "label": "get_effective_planned_date()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "get_planned_service_data_tuple",
-      "file_type": "code",
-      "norm_label": "get_effective_planned_date()",
-      "source_file": "backend/utils.py",
-      "source_location": "L237"
-    },
-    {
-      "id": "backend_utils_get_planned_service_data_tuple",
-      "label": "get_planned_service_data_tuple()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "get_planned_service_data_tuple",
-      "file_type": "code",
-      "norm_label": "get_planned_service_data_tuple()",
-      "source_file": "backend/utils.py",
-      "source_location": "L338"
+      "norm_label": ".read_all_incidents()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L292"
     },
     {
       "id": "backend_db_migration_check_incidents_workplan_column_present",
@@ -2677,6 +2797,18 @@
       "source_location": "L264"
     },
     {
+      "id": "backend_business_logic_businesslogic_create_collection",
+      "label": ".create_collection()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 40,
+      "community_name": "generate_unique_id",
+      "file_type": "code",
+      "norm_label": ".create_collection()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1913"
+    },
+    {
       "id": "backend_business_logic_businesslogic_create_incident_record",
       "label": ".create_incident_record()",
       "_callable": true,
@@ -2687,30 +2819,6 @@
       "norm_label": ".create_incident_record()",
       "source_file": "backend/business_logic.py",
       "source_location": "L2902"
-    },
-    {
-      "id": "backend_business_logic_businesslogic_create_planned_services",
-      "label": ".create_planned_services()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 40,
-      "community_name": "generate_unique_id",
-      "file_type": "code",
-      "norm_label": ".create_planned_services()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2261"
-    },
-    {
-      "id": "backend_business_logic_businesslogic_create_service_record",
-      "label": ".create_service_record()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 40,
-      "community_name": "generate_unique_id",
-      "file_type": "code",
-      "norm_label": ".create_service_record()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2140"
     },
     {
       "id": "backend_business_logic_businesslogic_create_workplan",
@@ -2725,6 +2833,18 @@
       "source_location": "L2995"
     },
     {
+      "id": "backend_utils_build_incident_service_entry",
+      "label": "build_incident_service_entry()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 40,
+      "community_name": "generate_unique_id",
+      "file_type": "code",
+      "norm_label": "build_incident_service_entry()",
+      "source_file": "backend/utils.py",
+      "source_location": "L266"
+    },
+    {
       "id": "backend_utils_generate_unique_id",
       "label": "generate_unique_id()",
       "_callable": true,
@@ -2735,6 +2855,18 @@
       "norm_label": "generate_unique_id()",
       "source_file": "backend/utils.py",
       "source_location": "L173"
+    },
+    {
+      "id": "backend_utils_parse_json_string",
+      "label": "parse_json_string()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 40,
+      "community_name": "generate_unique_id",
+      "file_type": "code",
+      "norm_label": "parse_json_string()",
+      "source_file": "backend/utils.py",
+      "source_location": "L402"
     },
     {
       "id": "backend_business_logic_businesslogic_update_history_record",
@@ -2845,52 +2977,16 @@
       "source_location": "L4662"
     },
     {
-      "id": "backend_utils_generate_incident_title",
-      "label": "generate_incident_title()",
+      "id": "backend_database_manager_databasemanager_read_collection_by_component",
+      "label": ".read_collection_by_component()",
       "_callable": true,
       "_origin": "ast",
       "community": 43,
-      "community_name": "get_incident_data_tuple",
+      "community_name": ".read_collection_by_component",
       "file_type": "code",
-      "norm_label": "generate_incident_title()",
-      "source_file": "backend/utils.py",
-      "source_location": "L409"
-    },
-    {
-      "id": "backend_utils_get_formatted_datetime_now",
-      "label": "get_formatted_datetime_now()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "get_incident_data_tuple",
-      "file_type": "code",
-      "norm_label": "get_formatted_datetime_now()",
-      "source_file": "backend/utils.py",
-      "source_location": "L12"
-    },
-    {
-      "id": "backend_utils_get_incident_data_tuple",
-      "label": "get_incident_data_tuple()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "get_incident_data_tuple",
-      "file_type": "code",
-      "norm_label": "get_incident_data_tuple()",
-      "source_file": "backend/utils.py",
-      "source_location": "L283"
-    },
-    {
-      "id": "backend_utils_parse_json_string",
-      "label": "parse_json_string()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "get_incident_data_tuple",
-      "file_type": "code",
-      "norm_label": "parse_json_string()",
-      "source_file": "backend/utils.py",
-      "source_location": "L402"
+      "norm_label": ".read_collection_by_component()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L275"
     },
     {
       "id": "backend_database_manager_databasemanager_read_incidents_by_workplan",
@@ -2953,28 +3049,28 @@
       "source_location": "L605"
     },
     {
-      "id": "backend_business_logic_businesslogic_build_bulk_service_message",
-      "label": ".build_bulk_service_message()",
+      "id": "backend_database_manager_databasemanager_read_latest_ride_record",
+      "label": ".read_latest_ride_record()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
-      "community_name": ".complete_services",
+      "community_name": ".read_latest_ride_record",
       "file_type": "code",
-      "norm_label": ".build_bulk_service_message()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2238"
+      "norm_label": ".read_latest_ride_record()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L79"
     },
     {
-      "id": "backend_business_logic_businesslogic_complete_services",
-      "label": ".complete_services()",
+      "id": "backend_database_manager_databasemanager_read_oldest_service_record",
+      "label": ".read_oldest_service_record()",
       "_callable": true,
       "_origin": "ast",
-      "community": 46,
-      "community_name": ".complete_services",
+      "community": 47,
+      "community_name": "database_manager.py",
       "file_type": "code",
-      "norm_label": ".complete_services()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2299"
+      "norm_label": ".read_oldest_service_record()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L257"
     },
     {
       "id": "backend_database_manager_databasemanager_read_open_incidents",
@@ -3059,6 +3155,18 @@
       "norm_label": ".read_services_by_workplan()",
       "source_file": "backend/database_manager.py",
       "source_location": "L341"
+    },
+    {
+      "id": "backend_database_manager_databasemanager_read_subset_service_history",
+      "label": ".read_subset_service_history()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "database_manager.py",
+      "file_type": "code",
+      "norm_label": ".read_subset_service_history()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L235"
     },
     {
       "id": "backend_database_manager_databasemanager_write_history_record",
@@ -3349,52 +3457,28 @@
       "source_location": "L826"
     },
     {
-      "id": "backend_main_update_config",
-      "label": "update_config()",
+      "id": "backend_database_manager_databasemanager_read_subset_components",
+      "label": ".read_subset_components()",
       "_callable": true,
       "_origin": "ast",
       "community": 51,
-      "community_name": "update_config",
+      "community_name": ".read_subset_components",
       "file_type": "code",
-      "norm_label": "update_config()",
-      "source_file": "backend/main.py",
-      "source_location": "L773"
+      "norm_label": ".read_subset_components()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L186"
     },
     {
-      "id": "backend_utils_shutdown_server",
-      "label": "shutdown_server()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": "update_config",
-      "file_type": "code",
-      "norm_label": "shutdown_server()",
-      "source_file": "backend/utils.py",
-      "source_location": "L168"
-    },
-    {
-      "id": "backend_business_logic_businesslogic_get_workplans",
-      "label": ".get_workplans()",
+      "id": "backend_database_manager_databasemanager_read_subset_service_record",
+      "label": ".read_subset_service_record()",
       "_callable": true,
       "_origin": "ast",
       "community": 53,
-      "community_name": "get_formatted_bikes_list",
+      "community_name": ".read_subset_service_record",
       "file_type": "code",
-      "norm_label": ".get_workplans()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L682"
-    },
-    {
-      "id": "backend_utils_get_formatted_bikes_list",
-      "label": "get_formatted_bikes_list()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "get_formatted_bikes_list",
-      "file_type": "code",
-      "norm_label": "get_formatted_bikes_list()",
-      "source_file": "backend/utils.py",
-      "source_location": "L194"
+      "norm_label": ".read_subset_service_record()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L243"
     },
     {
       "id": "backend_db_migration_find_database_file",
@@ -3433,16 +3517,16 @@
       "source_location": "L53"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_all_workplans",
-      "label": ".read_all_workplans()",
+      "id": "backend_database_manager_databasemanager_read_sum_distance_subset_rides",
+      "label": ".read_sum_distance_subset_rides()",
       "_callable": true,
       "_origin": "ast",
       "community": 55,
-      "community_name": ".read_all_workplans",
+      "community_name": ".read_sum_distance_subset_rides",
       "file_type": "code",
-      "norm_label": ".read_all_workplans()",
+      "norm_label": ".read_sum_distance_subset_rides()",
       "source_file": "backend/database_manager.py",
-      "source_location": "L308"
+      "source_location": "L98"
     },
     {
       "id": "frontend_static_js_main_containsmarkdown",
@@ -3517,16 +3601,16 @@
       "source_location": "L507"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_bike_id_recent_component_history",
-      "label": ".read_bike_id_recent_component_history()",
+      "id": "backend_database_manager_databasemanager_write_workplan",
+      "label": ".write_workplan()",
       "_callable": true,
       "_origin": "ast",
       "community": 58,
-      "community_name": ".read_bike_id_recent_component_history",
+      "community_name": ".write_workplan",
       "file_type": "code",
-      "norm_label": ".read_bike_id_recent_component_history()",
+      "norm_label": ".write_workplan()",
       "source_file": "backend/database_manager.py",
-      "source_location": "L43"
+      "source_location": "L574"
     },
     {
       "id": "backend_database_manager_databasemanager_read_bikes",
@@ -3541,16 +3625,28 @@
       "source_location": "L24"
     },
     {
-      "id": "backend_business_logic_businesslogic_compute_component_status",
-      "label": ".compute_component_status()",
+      "id": "backend_business_logic_businesslogic_create_history_record",
+      "label": ".create_history_record()",
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
-      "norm_label": ".compute_component_status()",
+      "norm_label": ".create_history_record()",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2686"
+      "source_location": "L1470"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_delete_record",
+      "label": ".delete_record()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "code",
+      "norm_label": ".delete_record()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L3252"
     },
     {
       "id": "backend_business_logic_businesslogic_determine_worst_status",
@@ -3558,7 +3654,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
       "norm_label": ".determine_worst_status()",
       "source_file": "backend/business_logic.py",
@@ -3570,7 +3666,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
       "norm_label": ".process_history_records()",
       "source_file": "backend/business_logic.py",
@@ -3582,11 +3678,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
       "norm_label": ".process_service_records()",
       "source_file": "backend/business_logic.py",
       "source_location": "L2560"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_recalculate_component_after_service_removal",
+      "label": ".recalculate_component_after_service_removal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "code",
+      "norm_label": ".recalculate_component_after_service_removal()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2467"
     },
     {
       "id": "backend_business_logic_businesslogic_update_bike_status",
@@ -3594,7 +3702,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
       "norm_label": ".update_bike_status()",
       "source_file": "backend/business_logic.py",
@@ -3606,23 +3714,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
       "norm_label": ".update_component_distance()",
       "source_file": "backend/business_logic.py",
       "source_location": "L895"
-    },
-    {
-      "id": "backend_business_logic_businesslogic_update_component_lifetime_service_alternate",
-      "label": ".update_component_lifetime_service_alternate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": ".process_service_records",
-      "file_type": "code",
-      "norm_label": ".update_component_lifetime_service_alternate()",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L1144"
     },
     {
       "id": "backend_business_logic_businesslogic_update_component_lifetime_status",
@@ -3630,7 +3726,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
       "norm_label": ".update_component_lifetime_status()",
       "source_file": "backend/business_logic.py",
@@ -3642,7 +3738,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
       "norm_label": ".update_component_service_status()",
       "source_file": "backend/business_logic.py",
@@ -3654,11 +3750,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
       "norm_label": ".update_components_distance_iterator()",
       "source_file": "backend/business_logic.py",
       "source_location": "L878"
+    },
+    {
+      "id": "backend_business_logic_businesslogic_update_service_record",
+      "label": ".update_service_record()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "code",
+      "norm_label": ".update_service_record()",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2379"
     },
     {
       "id": "backend_business_logic_businesslogic_update_time_based_fields",
@@ -3666,11 +3774,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
       "norm_label": ".update_time_based_fields()",
       "source_file": "backend/business_logic.py",
       "source_location": "L2767"
+    },
+    {
+      "id": "backend_database_manager_databasemanager_read_latest_service_record",
+      "label": ".read_latest_service_record()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "code",
+      "norm_label": ".read_latest_service_record()",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L248"
     },
     {
       "id": "backend_database_manager_databasemanager_write_update_rides_bulk",
@@ -3678,7 +3798,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "code",
       "norm_label": ".write_update_rides_bulk()",
       "source_file": "backend/database_manager.py",
@@ -3721,18 +3841,6 @@
       "source_location": "L204"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_matching_rides",
-      "label": ".read_matching_rides()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 63,
-      "community_name": ".read_matching_rides",
-      "file_type": "code",
-      "norm_label": ".read_matching_rides()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L72"
-    },
-    {
       "id": "backend_database_manager_databasemanager_read_all_components_objects",
       "label": ".read_all_components_objects()",
       "_callable": true,
@@ -3743,42 +3851,6 @@
       "norm_label": ".read_all_components_objects()",
       "source_file": "backend/database_manager.py",
       "source_location": "L182"
-    },
-    {
-      "id": "frontend_static_js_main_editcollection",
-      "label": "editCollection()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 66,
-      "community_name": "initializeComponentSelector",
-      "file_type": "code",
-      "norm_label": "editcollection()",
-      "source_file": "frontend/static/js/main.js",
-      "source_location": "L1102"
-    },
-    {
-      "id": "frontend_static_js_main_initializecomponentselector",
-      "label": "initializeComponentSelector()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 66,
-      "community_name": "initializeComponentSelector",
-      "file_type": "code",
-      "norm_label": "initializecomponentselector()",
-      "source_file": "frontend/static/js/main.js",
-      "source_location": "L4384"
-    },
-    {
-      "id": "frontend_static_js_main_updateformfields",
-      "label": "updateFormFields()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 66,
-      "community_name": "initializeComponentSelector",
-      "file_type": "code",
-      "norm_label": "updateformfields()",
-      "source_file": "frontend/static/js/main.js",
-      "source_location": "L4466"
     },
     {
       "id": "frontend_static_js_main_checkcomponenthealth",
@@ -3805,16 +3877,16 @@
       "source_location": "L3749"
     },
     {
-      "id": "frontend_static_js_main_cleanup",
-      "label": "cleanup()",
+      "id": "frontend_static_js_main_editcollection",
+      "label": "editCollection()",
       "_callable": true,
       "_origin": "ast",
       "community": 7,
       "community_name": "main.js",
       "file_type": "code",
-      "norm_label": "cleanup()",
+      "norm_label": "editcollection()",
       "source_file": "frontend/static/js/main.js",
-      "source_location": "L1921"
+      "source_location": "L1102"
     },
     {
       "id": "frontend_static_js_main_fetchlogs",
@@ -3863,30 +3935,6 @@
       "norm_label": "getdetailedtiming()",
       "source_file": "frontend/static/js/main.js",
       "source_location": "L6288"
-    },
-    {
-      "id": "frontend_static_js_main_handlecancel",
-      "label": "handleCancel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "main.js",
-      "file_type": "code",
-      "norm_label": "handlecancel()",
-      "source_file": "frontend/static/js/main.js",
-      "source_location": "L1942"
-    },
-    {
-      "id": "frontend_static_js_main_handleconfirm",
-      "label": "handleConfirm()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "main.js",
-      "file_type": "code",
-      "norm_label": "handleconfirm()",
-      "source_file": "frontend/static/js/main.js",
-      "source_location": "L1928"
     },
     {
       "id": "frontend_static_js_main_handleoldcomponentchange",
@@ -3961,6 +4009,18 @@
       "source_location": "L3786"
     },
     {
+      "id": "frontend_static_js_main_initializecomponentselector",
+      "label": "initializeComponentSelector()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "main.js",
+      "file_type": "code",
+      "norm_label": "initializecomponentselector()",
+      "source_file": "frontend/static/js/main.js",
+      "source_location": "L4384"
+    },
+    {
       "id": "frontend_static_js_main_modifyrecord",
       "label": "modifyRecord()",
       "_callable": true,
@@ -3983,18 +4043,6 @@
       "norm_label": "parsedateforpicker()",
       "source_file": "frontend/static/js/main.js",
       "source_location": "L391"
-    },
-    {
-      "id": "frontend_static_js_main_performbulkstatuschange",
-      "label": "performBulkStatusChange()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "main.js",
-      "file_type": "code",
-      "norm_label": "performbulkstatuschange()",
-      "source_file": "frontend/static/js/main.js",
-      "source_location": "L1953"
     },
     {
       "id": "frontend_static_js_main_performquickswap",
@@ -4057,6 +4105,18 @@
       "source_location": "L2798"
     },
     {
+      "id": "frontend_static_js_main_updateformfields",
+      "label": "updateFormFields()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "main.js",
+      "file_type": "code",
+      "norm_label": "updateformfields()",
+      "source_file": "frontend/static/js/main.js",
+      "source_location": "L4466"
+    },
+    {
       "id": "frontend_static_js_main_updatemultiplebanner",
       "label": "updateMultipleBanner()",
       "_callable": true,
@@ -4105,18 +4165,6 @@
       "source_location": "L3739"
     },
     {
-      "id": "backend_database_manager_databasemanager_read_bike_name",
-      "label": ".read_bike_name()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "code",
-      "norm_label": ".read_bike_name()",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L33"
-    },
-    {
       "id": "backend_main_add_history_record",
       "label": "add_history_record()",
       "_callable": true,
@@ -4129,18 +4177,6 @@
       "source_location": "L293"
     },
     {
-      "id": "backend_main_bike_details",
-      "label": "bike_details()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "code",
-      "norm_label": "bike_details()",
-      "source_file": "backend/main.py",
-      "source_location": "L84"
-    },
-    {
       "id": "backend_main_collection_details",
       "label": "collection_details()",
       "_callable": true,
@@ -4151,18 +4187,6 @@
       "norm_label": "collection_details()",
       "source_file": "backend/main.py",
       "source_location": "L161"
-    },
-    {
-      "id": "backend_main_component_details",
-      "label": "component_details()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "code",
-      "norm_label": "component_details()",
-      "source_file": "backend/main.py",
-      "source_location": "L147"
     },
     {
       "id": "backend_main_component_overview",
@@ -4201,16 +4225,16 @@
       "source_location": "L201"
     },
     {
-      "id": "backend_main_incident_reports",
-      "label": "incident_reports()",
+      "id": "backend_main_http_exception_handler",
+      "label": "http_exception_handler()",
       "_callable": true,
       "_origin": "ast",
       "community": 8,
       "community_name": "get",
       "file_type": "code",
-      "norm_label": "incident_reports()",
+      "norm_label": "http_exception_handler()",
       "source_file": "backend/main.py",
-      "source_location": "L110"
+      "source_location": "L66"
     },
     {
       "id": "backend_main_refresh_all_bikes",
@@ -4249,18 +4273,6 @@
       "source_location": "L72"
     },
     {
-      "id": "backend_main_workplan_details",
-      "label": "workplan_details()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "code",
-      "norm_label": "workplan_details()",
-      "source_file": "backend/main.py",
-      "source_location": "L134"
-    },
-    {
       "id": "backend_main_workplans",
       "label": "workplans()",
       "_callable": true,
@@ -4271,18 +4283,6 @@
       "norm_label": "workplans()",
       "source_file": "backend/main.py",
       "source_location": "L122"
-    },
-    {
-      "id": "backend_utils_get_button_order",
-      "label": "get_button_order()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "code",
-      "norm_label": "get_button_order()",
-      "source_file": "backend/utils.py",
-      "source_location": "L30"
     },
     {
       "id": "backend_database_manager_databasemanager_read_recent_rides",
@@ -4963,15 +4963,15 @@
       "source_location": "L199"
     },
     {
-      "id": "backend_business_logic_rationale_257",
-      "label": "Method to produce payload for page component details",
+      "id": "backend_business_logic_rationale_2848",
+      "label": "Method to check if a bike has all mandatory components and respects max\u2026",
       "_origin": "ast",
       "community": 0,
       "community_name": ".get_bike_details",
       "file_type": "rationale",
-      "norm_label": "method to produce payload for page component details",
+      "norm_label": "method to check if a bike has all mandatory components and respects max...",
       "source_file": "backend/business_logic.py",
-      "source_location": "L257"
+      "source_location": "L2848"
     },
     {
       "id": "backend_business_logic_rationale_43",
@@ -4994,17 +4994,6 @@
       "norm_label": "method to create component-to-collection mapping dictionaries",
       "source_file": "backend/business_logic.py",
       "source_location": "L525"
-    },
-    {
-      "id": "backend_business_logic_rationale_544",
-      "label": "Method to produce payload for displaying table of all collections",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".get_bike_details",
-      "file_type": "rationale",
-      "norm_label": "method to produce payload for displaying table of all collections",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L544"
     },
     {
       "id": "backend_business_logic_rationale_637",
@@ -5073,17 +5062,6 @@
       "source_location": "L188"
     },
     {
-      "id": "backend_utils_rationale_357",
-      "label": "Function to calculate remaining service interval or remaining lifetime as\u2026",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": ".get_bike_details",
-      "file_type": "rationale",
-      "norm_label": "function to calculate remaining service interval or remaining lifetime as...",
-      "source_file": "backend/utils.py",
-      "source_location": "L357"
-    },
-    {
       "id": "backend_db_migration_rationale_497",
       "label": "Check if Incidents table needs workplan_id column",
       "_origin": "ast",
@@ -5128,114 +5106,70 @@
       "source_location": "L576"
     },
     {
-      "id": "backend_business_logic_rationale_1301",
-      "label": "Method to create component",
+      "id": "backend_business_logic_rationale_1945",
+      "label": "Method to update collection",
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "rationale",
-      "norm_label": "method to create component",
+      "norm_label": "method to update collection",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1301"
+      "source_location": "L1945"
     },
     {
-      "id": "backend_business_logic_rationale_1397",
-      "label": "Method to update component details",
+      "id": "backend_business_logic_rationale_1973",
+      "label": "Method to validate collections before allowing bulk operations",
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "rationale",
-      "norm_label": "method to update component details",
+      "norm_label": "method to validate collections before allowing bulk operations",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1397"
+      "source_location": "L1973"
     },
     {
-      "id": "backend_business_logic_rationale_1476",
-      "label": "Method to create installation history record",
+      "id": "backend_business_logic_rationale_2042",
+      "label": "Method to change status of all components in a collection",
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "rationale",
-      "norm_label": "method to create installation history record",
+      "norm_label": "method to change status of all components in a collection",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1476"
+      "source_location": "L2042"
     },
     {
-      "id": "backend_business_logic_rationale_1775",
-      "label": "Method to orchestrate swap of one component with another",
+      "id": "backend_business_logic_rationale_444",
+      "label": "Calculate status flags for a collection based on its components.",
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "rationale",
-      "norm_label": "method to orchestrate swap of one component with another",
+      "norm_label": "calculate status flags for a collection based on its components.",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1775"
+      "source_location": "L444"
     },
     {
-      "id": "backend_business_logic_rationale_1875",
-      "label": "Method to validate quick swap operation",
+      "id": "backend_business_logic_rationale_544",
+      "label": "Method to produce payload for displaying table of all collections",
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "rationale",
-      "norm_label": "method to validate quick swap operation",
+      "norm_label": "method to produce payload for displaying table of all collections",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1875"
+      "source_location": "L544"
     },
     {
-      "id": "backend_business_logic_rationale_2810",
-      "label": "Validate threshold configuration rules for component intervals",
+      "id": "backend_business_logic_rationale_581",
+      "label": "Method to produce payload for collection details page",
       "_origin": "ast",
       "community": 10,
-      "community_name": ".create_history_record",
+      "community_name": ".calculate_collection_status",
       "file_type": "rationale",
-      "norm_label": "validate threshold configuration rules for component intervals",
+      "norm_label": "method to produce payload for collection details page",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2810"
-    },
-    {
-      "id": "backend_business_logic_rationale_2848",
-      "label": "Method to check if a bike has all mandatory components and respects max\u2026",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": ".create_history_record",
-      "file_type": "rationale",
-      "norm_label": "method to check if a bike has all mandatory components and respects max...",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2848"
-    },
-    {
-      "id": "backend_business_logic_rationale_3178",
-      "label": "Method to create or update component types",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": ".create_history_record",
-      "file_type": "rationale",
-      "norm_label": "method to create or update component types",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L3178"
-    },
-    {
-      "id": "backend_business_logic_rationale_3228",
-      "label": "Method to update only the count of components for a given component type",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": ".create_history_record",
-      "file_type": "rationale",
-      "norm_label": "method to update only the count of components for a given component type",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L3228"
-    },
-    {
-      "id": "backend_business_logic_rationale_3253",
-      "label": "Method to delete a given record and associated records",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": ".create_history_record",
-      "file_type": "rationale",
-      "norm_label": "method to delete a given record and associated records",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L3253"
+      "source_location": "L581"
     },
     {
       "id": "handovers_claude",
@@ -5530,39 +5464,6 @@
       "source_location": ""
     },
     {
-      "id": "exception_handler",
-      "label": "exception_handler",
-      "_origin": "ast",
-      "community": 104,
-      "community_name": "Middleware",
-      "file_type": "code",
-      "norm_label": "exception_handler",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "starlettehttpexception",
-      "label": "StarletteHTTPException",
-      "_origin": "ast",
-      "community": 104,
-      "community_name": "Middleware",
-      "file_type": "code",
-      "norm_label": "starlettehttpexception",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_main_rationale_67",
-      "label": "Function to catch http errors from Uvicorn and return them to the middleware",
-      "_origin": "ast",
-      "community": 104,
-      "community_name": "Middleware",
-      "file_type": "rationale",
-      "norm_label": "function to catch http errors from uvicorn and return them to the middleware",
-      "source_file": "backend/main.py",
-      "source_location": "L67"
-    },
-    {
       "id": "backend_middleware_rationale_12",
       "label": "Class to handle exceptions that breaks the program and should be shown to the\u2026",
       "_origin": "ast",
@@ -5605,17 +5506,6 @@
       "norm_label": "method to query database and create list of unique bike ids",
       "source_file": "backend/database_manager.py",
       "source_location": "L53"
-    },
-    {
-      "id": "backend_database_manager_rationale_463",
-      "label": "Method to update component lifetime status in database",
-      "_origin": "ast",
-      "community": 106,
-      "community_name": ".write_component_lifetime_status",
-      "file_type": "rationale",
-      "norm_label": "method to update component lifetime status in database",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L463"
     },
     {
       "id": "claude_agents_docs_maintainer",
@@ -5781,48 +5671,70 @@
       "source_location": "L366"
     },
     {
-      "id": "backend_business_logic_rationale_1914",
-      "label": "Method to create collection",
+      "id": "backend_business_logic_rationale_1145",
+      "label": "Method to update component lifetime and service status when no installation\u2026",
       "_origin": "ast",
       "community": 11,
       "community_name": "BusinessLogic",
       "file_type": "rationale",
-      "norm_label": "method to create collection",
+      "norm_label": "method to update component lifetime and service status when no installation...",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1914"
+      "source_location": "L1145"
     },
     {
-      "id": "backend_business_logic_rationale_1945",
-      "label": "Method to update collection",
+      "id": "backend_business_logic_rationale_1301",
+      "label": "Method to create component",
       "_origin": "ast",
       "community": 11,
       "community_name": "BusinessLogic",
       "file_type": "rationale",
-      "norm_label": "method to update collection",
+      "norm_label": "method to create component",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1945"
+      "source_location": "L1301"
     },
     {
-      "id": "backend_business_logic_rationale_1973",
-      "label": "Method to validate collections before allowing bulk operations",
+      "id": "backend_business_logic_rationale_1397",
+      "label": "Method to update component details",
       "_origin": "ast",
       "community": 11,
       "community_name": "BusinessLogic",
       "file_type": "rationale",
-      "norm_label": "method to validate collections before allowing bulk operations",
+      "norm_label": "method to update component details",
       "source_file": "backend/business_logic.py",
-      "source_location": "L1973"
+      "source_location": "L1397"
     },
     {
-      "id": "backend_business_logic_rationale_2042",
-      "label": "Method to change status of all components in a collection",
+      "id": "backend_business_logic_rationale_1775",
+      "label": "Method to orchestrate swap of one component with another",
       "_origin": "ast",
       "community": 11,
       "community_name": "BusinessLogic",
       "file_type": "rationale",
-      "norm_label": "method to change status of all components in a collection",
+      "norm_label": "method to orchestrate swap of one component with another",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2042"
+      "source_location": "L1775"
+    },
+    {
+      "id": "backend_business_logic_rationale_1875",
+      "label": "Method to validate quick swap operation",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "BusinessLogic",
+      "file_type": "rationale",
+      "norm_label": "method to validate quick swap operation",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1875"
+    },
+    {
+      "id": "backend_business_logic_rationale_2687",
+      "label": "Method to compute component status using threshold logic",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "BusinessLogic",
+      "file_type": "rationale",
+      "norm_label": "method to compute component status using threshold logic",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2687"
     },
     {
       "id": "backend_business_logic_rationale_2709",
@@ -5845,6 +5757,39 @@
       "norm_label": "calculate lifetime and service triggers for a component",
       "source_file": "backend/business_logic.py",
       "source_location": "L2728"
+    },
+    {
+      "id": "backend_business_logic_rationale_2810",
+      "label": "Validate threshold configuration rules for component intervals",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "BusinessLogic",
+      "file_type": "rationale",
+      "norm_label": "validate threshold configuration rules for component intervals",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2810"
+    },
+    {
+      "id": "backend_business_logic_rationale_3178",
+      "label": "Method to create or update component types",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "BusinessLogic",
+      "file_type": "rationale",
+      "norm_label": "method to create or update component types",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L3178"
+    },
+    {
+      "id": "backend_business_logic_rationale_3228",
+      "label": "Method to update only the count of components for a given component type",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "BusinessLogic",
+      "file_type": "rationale",
+      "norm_label": "method to update only the count of components for a given component type",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L3228"
     },
     {
       "id": "backend_business_logic_rationale_3367",
@@ -5878,28 +5823,6 @@
       "norm_label": "class that contains business logic",
       "source_file": "backend/business_logic.py",
       "source_location": "L38"
-    },
-    {
-      "id": "backend_business_logic_rationale_444",
-      "label": "Calculate status flags for a collection based on its components.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "BusinessLogic",
-      "file_type": "rationale",
-      "norm_label": "calculate status flags for a collection based on its components.",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L444"
-    },
-    {
-      "id": "backend_business_logic_rationale_581",
-      "label": "Method to produce payload for collection details page",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "BusinessLogic",
-      "file_type": "rationale",
-      "norm_label": "method to produce payload for collection details page",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L581"
     },
     {
       "id": "backend_business_logic_rationale_818",
@@ -6099,17 +6022,6 @@
       "source_location": "L331"
     },
     {
-      "id": "backend_database_manager_rationale_539",
-      "label": "Method to create or update collection record in database",
-      "_origin": "ast",
-      "community": 118,
-      "community_name": ".write_collection",
-      "file_type": "rationale",
-      "norm_label": "method to create or update collection record in database",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L539"
-    },
-    {
       "id": "docs_superpowers_plans_2026_09_25_service_integration_test_findings",
       "label": "2026-09-25-service-integration-test-findings.md",
       "_origin": "ast",
@@ -6120,18 +6032,6 @@
       "norm_label": "2026-09-25-service-integration-test-findings.md",
       "source_file": "docs/superpowers/plans/2026-09-25-service-integration-test-findings.md",
       "source_location": "L1"
-    },
-    {
-      "id": "docs_superpowers_plans_2026_09_25_service_integration_test_findings_a_questions_to_answer_from_the_code_no_change_expected",
-      "label": "A. Questions to answer from the code, no change expected",
-      "_origin": "ast",
-      "community": 119,
-      "community_name": "Service integration (#351): findings from the manual test walkthrough",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "a. questions to answer from the code, no change expected",
-      "source_file": "docs/superpowers/plans/2026-09-25-service-integration-test-findings.md",
-      "source_location": "L7"
     },
     {
       "id": "docs_superpowers_plans_2026_09_25_service_integration_test_findings_b_bugs_to_fix",
@@ -6241,17 +6141,6 @@
       "source_location": "L110"
     },
     {
-      "id": "backend_database_manager_rationale_187",
-      "label": "Method to read components for a specific bike",
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "DatabaseManager",
-      "file_type": "rationale",
-      "norm_label": "method to read components for a specific bike",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L187"
-    },
-    {
       "id": "backend_database_manager_rationale_193",
       "label": "Method to read installed components for a specific bike",
       "_origin": "ast",
@@ -6296,17 +6185,6 @@
       "source_location": "L224"
     },
     {
-      "id": "backend_database_manager_rationale_244",
-      "label": "Method to retrieve record for a specific entry in the service log",
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "DatabaseManager",
-      "file_type": "rationale",
-      "norm_label": "method to retrieve record for a specific entry in the service log",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L244"
-    },
-    {
       "id": "backend_database_manager_rationale_272",
       "label": "Method to read all collections",
       "_origin": "ast",
@@ -6318,26 +6196,37 @@
       "source_location": "L272"
     },
     {
-      "id": "backend_database_manager_rationale_276",
-      "label": "Method to find collection containing a specific component",
+      "id": "backend_database_manager_rationale_309",
+      "label": "Method to read all workplans",
       "_origin": "ast",
       "community": 12,
       "community_name": "DatabaseManager",
       "file_type": "rationale",
-      "norm_label": "method to find collection containing a specific component",
+      "norm_label": "method to read all workplans",
       "source_file": "backend/database_manager.py",
-      "source_location": "L276"
+      "source_location": "L309"
     },
     {
-      "id": "backend_database_manager_rationale_293",
-      "label": "Method to read all incident records",
+      "id": "backend_database_manager_rationale_44",
+      "label": "Method to get bike id from most recent component history",
       "_origin": "ast",
       "community": 12,
       "community_name": "DatabaseManager",
       "file_type": "rationale",
-      "norm_label": "method to read all incident records",
+      "norm_label": "method to get bike id from most recent component history",
       "source_file": "backend/database_manager.py",
-      "source_location": "L293"
+      "source_location": "L44"
+    },
+    {
+      "id": "backend_database_manager_rationale_463",
+      "label": "Method to update component lifetime status in database",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "DatabaseManager",
+      "file_type": "rationale",
+      "norm_label": "method to update component lifetime status in database",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L463"
     },
     {
       "id": "backend_database_manager_rationale_491",
@@ -6351,37 +6240,26 @@
       "source_location": "L491"
     },
     {
-      "id": "backend_database_manager_rationale_575",
-      "label": "Method to create or update workplan record in database",
+      "id": "backend_database_manager_rationale_539",
+      "label": "Method to create or update collection record in database",
       "_origin": "ast",
       "community": 12,
       "community_name": "DatabaseManager",
       "file_type": "rationale",
-      "norm_label": "method to create or update workplan record in database",
+      "norm_label": "method to create or update collection record in database",
       "source_file": "backend/database_manager.py",
-      "source_location": "L575"
+      "source_location": "L539"
     },
     {
-      "id": "backend_database_manager_rationale_80",
-      "label": "Method to retrieve the most recent ride",
+      "id": "backend_database_manager_rationale_73",
+      "label": "Method to read rides associated with a given component aftere a given date",
       "_origin": "ast",
       "community": 12,
       "community_name": "DatabaseManager",
       "file_type": "rationale",
-      "norm_label": "method to retrieve the most recent ride",
+      "norm_label": "method to read rides associated with a given component aftere a given date",
       "source_file": "backend/database_manager.py",
-      "source_location": "L80"
-    },
-    {
-      "id": "backend_database_manager_rationale_99",
-      "label": "Method to sum distance for a given set of rides",
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "DatabaseManager",
-      "file_type": "rationale",
-      "norm_label": "method to sum distance for a given set of rides",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L99"
+      "source_location": "L73"
     },
     {
       "id": "backend_database_manager_rationale_477",
@@ -6441,6 +6319,18 @@
       "norm_label": "files",
       "source_file": ".handovers/fullstack/service-integration-fullstack-to-reviewer.md",
       "source_location": "L21"
+    },
+    {
+      "id": "handovers_fullstack_service_integration_fullstack_to_reviewer_key_decisions",
+      "label": "Key decisions",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "key decisions",
+      "source_file": ".handovers/fullstack/service-integration-fullstack-to-reviewer.md",
+      "source_location": "L13"
     },
     {
       "id": "handovers_fullstack_service_integration_fullstack_to_reviewer_known_limitations",
@@ -6515,6 +6405,17 @@
       "source_location": "L9"
     },
     {
+      "id": "backend_business_logic_rationale_2148",
+      "label": "Method to add service record, planned or completed",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "rationale",
+      "norm_label": "method to add service record, planned or completed",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2148"
+    },
+    {
       "id": "backend_business_logic_rationale_2204",
       "label": "Method to add a planned service, which has no service date, bike or distance\u2026",
       "_origin": "ast",
@@ -6526,26 +6427,37 @@
       "source_location": "L2204"
     },
     {
-      "id": "backend_business_logic_rationale_2388",
-      "label": "Method to update a service record, including status changes in both directions",
+      "id": "backend_business_logic_rationale_2239",
+      "label": "Method to build the report used by the plan services and complete services\u2026",
       "_origin": "ast",
       "community": 14,
       "community_name": "Service integration (#351) - fullstack to code-reviewer",
       "file_type": "rationale",
-      "norm_label": "method to update a service record, including status changes in both directions",
+      "norm_label": "method to build the report used by the plan services and complete services...",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2388"
+      "source_location": "L2239"
     },
     {
-      "id": "backend_business_logic_rationale_2468",
-      "label": "Method to recalculate a component after a completed service is deleted or\u2026",
+      "id": "backend_business_logic_rationale_2262",
+      "label": "Method to create planned services for one or more components with the same\u2026",
       "_origin": "ast",
       "community": 14,
       "community_name": "Service integration (#351) - fullstack to code-reviewer",
       "file_type": "rationale",
-      "norm_label": "method to recalculate a component after a completed service is deleted or...",
+      "norm_label": "method to create planned services for one or more components with the same...",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2468"
+      "source_location": "L2262"
+    },
+    {
+      "id": "backend_business_logic_rationale_2300",
+      "label": "Method to complete planned services with one service date, keeping their\u2026",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "rationale",
+      "norm_label": "method to complete planned services with one service date, keeping their...",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2300"
     },
     {
       "id": "backend_business_logic_rationale_2490",
@@ -6557,6 +6469,39 @@
       "norm_label": "method to validate service records before processing and storing in database",
       "source_file": "backend/business_logic.py",
       "source_location": "L2490"
+    },
+    {
+      "id": "backend_utils_rationale_238",
+      "label": "Return the service's own planned date, else the workplan due date, else None",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "rationale",
+      "norm_label": "return the service's own planned date, else the workplan due date, else none",
+      "source_file": "backend/utils.py",
+      "source_location": "L238"
+    },
+    {
+      "id": "backend_utils_rationale_339",
+      "label": "Build standard planned service tuple for display (11 fields)",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "rationale",
+      "norm_label": "build standard planned service tuple for display (11 fields)",
+      "source_file": "backend/utils.py",
+      "source_location": "L339"
+    },
+    {
+      "id": "backend_utils_rationale_410",
+      "label": "Generate a concise title for an incident",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Service integration (#351) - fullstack to code-reviewer",
+      "file_type": "rationale",
+      "norm_label": "generate a concise title for an incident",
+      "source_file": "backend/utils.py",
+      "source_location": "L410"
     },
     {
       "id": "backend_main",
@@ -6911,17 +6856,6 @@
       "source_location": "L117"
     },
     {
-      "id": "backend_database_manager_rationale_129",
-      "label": "Method to retrieve record for a single component type",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": ".write_delete_record",
-      "file_type": "rationale",
-      "norm_label": "method to retrieve record for a single component type",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L129"
-    },
-    {
       "id": "backend_database_manager_rationale_212",
       "label": "Method to retrieve record for a specific entry in the installation log",
       "_origin": "ast",
@@ -6977,17 +6911,6 @@
       "source_location": "L304"
     },
     {
-      "id": "backend_database_manager_rationale_593",
-      "label": "Method to write component type record in database",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": ".write_delete_record",
-      "file_type": "rationale",
-      "norm_label": "method to write component type record in database",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L593"
-    },
-    {
       "id": "backend_database_manager_rationale_613",
       "label": "Method to delete a given record and associated records",
       "_origin": "ast",
@@ -6999,92 +6922,26 @@
       "source_location": "L613"
     },
     {
-      "id": "backend_business_logic",
-      "label": "business_logic.py",
+      "id": "backend_database_manager_rationale_129",
+      "label": "Method to retrieve record for a single component type",
       "_origin": "ast",
       "community": 20,
-      "community_name": "business_logic.py",
-      "file_type": "code",
-      "norm_label": "business_logic.py",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_database_manager",
-      "label": "database_manager.py",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "file_type": "code",
-      "norm_label": "database_manager.py",
+      "community_name": ".read_single_component_type",
+      "file_type": "rationale",
+      "norm_label": "method to retrieve record for a single component type",
       "source_file": "backend/database_manager.py",
-      "source_location": "L1"
+      "source_location": "L129"
     },
     {
-      "id": "backend_middleware",
-      "label": "middleware.py",
+      "id": "backend_database_manager_rationale_593",
+      "label": "Method to write component type record in database",
       "_origin": "ast",
       "community": 20,
-      "community_name": "business_logic.py",
-      "file_type": "code",
-      "norm_label": "middleware.py",
-      "source_file": "backend/middleware.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_strava",
-      "label": "strava.py",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "file_type": "code",
-      "norm_label": "strava.py",
-      "source_file": "backend/strava.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_business_logic_rationale_2",
-      "label": "Module to handle business logic",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "business_logic.py",
+      "community_name": ".read_single_component_type",
       "file_type": "rationale",
-      "norm_label": "module to handle business logic",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2"
-    },
-    {
-      "id": "backend_database_manager_rationale_2",
-      "label": "Module for interaction with a Sqlite database",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "file_type": "rationale",
-      "norm_label": "module for interaction with a sqlite database",
+      "norm_label": "method to write component type record in database",
       "source_file": "backend/database_manager.py",
-      "source_location": "L2"
-    },
-    {
-      "id": "backend_middleware_rationale_2",
-      "label": "Module for middleware",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "file_type": "rationale",
-      "norm_label": "module for middleware",
-      "source_file": "backend/middleware.py",
-      "source_location": "L2"
-    },
-    {
-      "id": "backend_strava_rationale_2",
-      "label": "Module to interact with Strava APIs",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "file_type": "rationale",
-      "norm_label": "module to interact with strava apis",
-      "source_file": "backend/strava.py",
-      "source_location": "L2"
+      "source_location": "L593"
     },
     {
       "id": "backend_main_rationale_799",
@@ -7168,7 +7025,7 @@
       "label": "service-integration-reviewer-to-docs-maintainer.md",
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "document",
       "node_kind": "page",
       "norm_label": "service-integration-reviewer-to-docs-maintainer.md",
@@ -7180,7 +7037,7 @@
       "label": "Code review -> docs-maintainer Handover",
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "code review -> docs-maintainer handover",
@@ -7192,7 +7049,7 @@
       "label": "Context",
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "context",
@@ -7200,11 +7057,23 @@
       "source_location": "L8"
     },
     {
+      "id": "handovers_review_service_integration_reviewer_to_docs_maintainer_issues_found_none_blocking",
+      "label": "Issues found (none blocking)",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "Issues found (none blocking)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "issues found (none blocking)",
+      "source_file": ".handovers/review/service-integration-reviewer-to-docs-maintainer.md",
+      "source_location": "L28"
+    },
+    {
       "id": "handovers_review_service_integration_reviewer_to_docs_maintainer_recommendations",
       "label": "Recommendations",
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "recommendations",
@@ -7216,7 +7085,7 @@
       "label": "References",
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "references",
@@ -7224,115 +7093,70 @@
       "source_location": "L41"
     },
     {
-      "id": "handovers_review_service_integration_reviewer_to_docs_maintainer_what_was_checked_and_held_up",
-      "label": "What was checked and held up",
+      "id": "backend_database_manager_rationale_34",
+      "label": "Method to get the name of a bike based on bike id",
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "what was checked and held up",
-      "source_file": ".handovers/review/service-integration-reviewer-to-docs-maintainer.md",
-      "source_location": "L12"
-    },
-    {
-      "id": "backend_database_manager_rationale_236",
-      "label": "Method to read completed services for a component, used by health computation",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "rationale",
-      "norm_label": "method to read completed services for a component, used by health computation",
+      "norm_label": "method to get the name of a bike based on bike id",
       "source_file": "backend/database_manager.py",
-      "source_location": "L236"
+      "source_location": "L34"
     },
     {
-      "id": "backend_database_manager_rationale_249",
-      "label": "Method to retrieve the most recent completed service of a given component",
+      "id": "backend_main_rationale_111",
+      "label": "Endpoint for incident reports page",
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "rationale",
-      "norm_label": "method to retrieve the most recent completed service of a given component",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L249"
+      "norm_label": "endpoint for incident reports page",
+      "source_file": "backend/main.py",
+      "source_location": "L111"
     },
     {
-      "id": "backend_database_manager_rationale_258",
-      "label": "Method to retrieve the oldest completed service of a given component",
+      "id": "backend_main_rationale_136",
+      "label": "Endpoint for workplan details page",
       "_origin": "ast",
       "community": 25,
-      "community_name": "What was checked and held up",
+      "community_name": "Issues found (none blocking)",
       "file_type": "rationale",
-      "norm_label": "method to retrieve the oldest completed service of a given component",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L258"
+      "norm_label": "endpoint for workplan details page",
+      "source_file": "backend/main.py",
+      "source_location": "L136"
     },
     {
-      "id": "backend_utils",
-      "label": "utils.py",
+      "id": "backend_main_rationale_149",
+      "label": "Endpoint for component details page",
       "_origin": "ast",
-      "community": 26,
-      "community_name": "utils.py",
-      "file_type": "code",
-      "norm_label": "utils.py",
-      "source_file": "backend/utils.py",
-      "source_location": "L1"
+      "community": 25,
+      "community_name": "Issues found (none blocking)",
+      "file_type": "rationale",
+      "norm_label": "endpoint for component details page",
+      "source_file": "backend/main.py",
+      "source_location": "L149"
     },
     {
-      "id": "backend_utils_rationale_17",
-      "label": "Function to get current program version",
+      "id": "backend_main_rationale_86",
+      "label": "Endpoint for bike details page",
       "_origin": "ast",
-      "community": 26,
-      "community_name": "utils.py",
+      "community": 25,
+      "community_name": "Issues found (none blocking)",
       "file_type": "rationale",
-      "norm_label": "function to get current program version",
-      "source_file": "backend/utils.py",
-      "source_location": "L17"
+      "norm_label": "endpoint for bike details page",
+      "source_file": "backend/main.py",
+      "source_location": "L86"
     },
     {
-      "id": "backend_utils_rationale_2",
-      "label": "Module for auxiliary functions",
+      "id": "backend_utils_rationale_31",
+      "label": "Function to get button order for a specific page with defaults",
       "_origin": "ast",
-      "community": 26,
-      "community_name": "utils.py",
+      "community": 25,
+      "community_name": "Issues found (none blocking)",
       "file_type": "rationale",
-      "norm_label": "module for auxiliary functions",
+      "norm_label": "function to get button order for a specific page with defaults",
       "source_file": "backend/utils.py",
-      "source_location": "L2"
-    },
-    {
-      "id": "backend_utils_rationale_25",
-      "label": "Function to read configuration file",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "utils.py",
-      "file_type": "rationale",
-      "norm_label": "function to read configuration file",
-      "source_file": "backend/utils.py",
-      "source_location": "L25"
-    },
-    {
-      "id": "backend_utils_rationale_84",
-      "label": "Function to parse button sorting data from form submission",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "utils.py",
-      "file_type": "rationale",
-      "norm_label": "function to parse button sorting data from form submission",
-      "source_file": "backend/utils.py",
-      "source_location": "L84"
-    },
-    {
-      "id": "backend_utils_rationale_98",
-      "label": "Function to update configuration file based on which form was submitted",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "utils.py",
-      "file_type": "rationale",
-      "norm_label": "function to update configuration file based on which form was submitted",
-      "source_file": "backend/utils.py",
-      "source_location": "L98"
+      "source_location": "L31"
     },
     {
       "id": "backend_version",
@@ -7368,14 +7192,69 @@
       "source_location": "L7"
     },
     {
+      "id": "backend_business_logic",
+      "label": "business_logic.py",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "business_logic.py",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_database_manager",
+      "label": "database_manager.py",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "database_manager.py",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_middleware",
+      "label": "middleware.py",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "middleware.py",
+      "source_file": "backend/middleware.py",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_scheduler",
       "label": "scheduler.py",
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "code",
       "norm_label": "scheduler.py",
       "source_file": "backend/scheduler.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_strava",
+      "label": "strava.py",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "strava.py",
+      "source_file": "backend/strava.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_utils",
+      "label": "utils.py",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "code",
+      "norm_label": "utils.py",
+      "source_file": "backend/utils.py",
       "source_location": "L1"
     },
     {
@@ -7383,29 +7262,73 @@
       "label": "FastAPI",
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "code",
       "norm_label": "fastapi",
       "source_file": "",
       "source_location": ""
     },
     {
+      "id": "backend_business_logic_rationale_2",
+      "label": "Module to handle business logic",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "module to handle business logic",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2"
+    },
+    {
+      "id": "backend_database_manager_rationale_2",
+      "label": "Module for interaction with a Sqlite database",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "module for interaction with a sqlite database",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L2"
+    },
+    {
       "id": "backend_main_rationale_30",
       "label": "Manage application startup and shutdown",
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "rationale",
       "norm_label": "manage application startup and shutdown",
       "source_file": "backend/main.py",
       "source_location": "L30"
     },
     {
+      "id": "backend_main_rationale_779",
+      "label": "Endpoint to update config file based on which form was submitted",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "endpoint to update config file based on which form was submitted",
+      "source_file": "backend/main.py",
+      "source_location": "L779"
+    },
+    {
+      "id": "backend_middleware_rationale_2",
+      "label": "Module for middleware",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "module for middleware",
+      "source_file": "backend/middleware.py",
+      "source_location": "L2"
+    },
+    {
       "id": "backend_scheduler_rationale_14",
       "label": "Initialize and start the APScheduler instance",
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "rationale",
       "norm_label": "initialize and start the apscheduler instance",
       "source_file": "backend/scheduler.py",
@@ -7416,7 +7339,7 @@
       "label": "Scheduler for automated maintenance tasks",
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "rationale",
       "norm_label": "scheduler for automated maintenance tasks",
       "source_file": "backend/scheduler.py",
@@ -7427,7 +7350,7 @@
       "label": "Gracefully shutdown the APScheduler instance",
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "rationale",
       "norm_label": "gracefully shutdown the apscheduler instance",
       "source_file": "backend/scheduler.py",
@@ -7438,7 +7361,7 @@
       "label": "Scheduled job to update time-based status fields for all non-retired components",
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "rationale",
       "norm_label": "scheduled job to update time-based status fields for all non-retired components",
       "source_file": "backend/scheduler.py",
@@ -7449,18 +7372,130 @@
       "label": "Scheduled job to sync Strava activities",
       "_origin": "ast",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "file_type": "rationale",
       "norm_label": "scheduled job to sync strava activities",
       "source_file": "backend/scheduler.py",
       "source_location": "L85"
     },
     {
+      "id": "backend_strava_rationale_2",
+      "label": "Module to interact with Strava APIs",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "module to interact with strava apis",
+      "source_file": "backend/strava.py",
+      "source_location": "L2"
+    },
+    {
+      "id": "backend_utils_rationale_169",
+      "label": "Helper function to shutdown the server after a short delay",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "helper function to shutdown the server after a short delay",
+      "source_file": "backend/utils.py",
+      "source_location": "L169"
+    },
+    {
+      "id": "backend_utils_rationale_17",
+      "label": "Function to get current program version",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "function to get current program version",
+      "source_file": "backend/utils.py",
+      "source_location": "L17"
+    },
+    {
+      "id": "backend_utils_rationale_2",
+      "label": "Module for auxiliary functions",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "module for auxiliary functions",
+      "source_file": "backend/utils.py",
+      "source_location": "L2"
+    },
+    {
+      "id": "backend_utils_rationale_25",
+      "label": "Function to read configuration file",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "function to read configuration file",
+      "source_file": "backend/utils.py",
+      "source_location": "L25"
+    },
+    {
+      "id": "backend_utils_rationale_357",
+      "label": "Function to calculate remaining service interval or remaining lifetime as\u2026",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "function to calculate remaining service interval or remaining lifetime as...",
+      "source_file": "backend/utils.py",
+      "source_location": "L357"
+    },
+    {
+      "id": "backend_utils_rationale_84",
+      "label": "Function to parse button sorting data from form submission",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "function to parse button sorting data from form submission",
+      "source_file": "backend/utils.py",
+      "source_location": "L84"
+    },
+    {
+      "id": "backend_utils_rationale_98",
+      "label": "Function to update configuration file based on which form was submitted",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "utils.py",
+      "file_type": "rationale",
+      "norm_label": "function to update configuration file based on which form was submitted",
+      "source_file": "backend/utils.py",
+      "source_location": "L98"
+    },
+    {
+      "id": "docs_superpowers_specs_2026_09_18_service_integration_design_backend",
+      "label": "Backend",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "backend",
+      "source_file": "docs/superpowers/specs/2026-09-18-service-integration-design.md",
+      "source_location": "L57"
+    },
+    {
+      "id": "docs_superpowers_specs_2026_09_18_service_integration_design_main_py",
+      "label": "main.py",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "main.py",
+      "source_file": "docs/superpowers/specs/2026-09-18-service-integration-design.md",
+      "source_location": "L89"
+    },
+    {
       "id": "docs_superpowers_specs_2026_09_18_service_integration_design_utils_py",
       "label": "utils.py",
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "utils.py",
@@ -7468,33 +7503,77 @@
       "source_location": "L81"
     },
     {
+      "id": "backend_business_logic_rationale_257",
+      "label": "Method to produce payload for page component details",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "rationale",
+      "norm_label": "method to produce payload for page component details",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L257"
+    },
+    {
       "id": "backend_business_logic_rationale_616",
       "label": "Method to produce payload for page incident reports",
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "rationale",
       "norm_label": "method to produce payload for page incident reports",
       "source_file": "backend/business_logic.py",
       "source_location": "L616"
     },
     {
+      "id": "backend_business_logic_rationale_683",
+      "label": "Method to produce payload for page of all workplans",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "rationale",
+      "norm_label": "method to produce payload for page of all workplans",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L683"
+    },
+    {
       "id": "backend_business_logic_rationale_733",
       "label": "Method to produce payload for workplan details page",
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "rationale",
       "norm_label": "method to produce payload for workplan details page",
       "source_file": "backend/business_logic.py",
       "source_location": "L733"
     },
     {
+      "id": "backend_utils_rationale_13",
+      "label": "Function to get current datetime formatted as YYYY-MM-DD HH:MM",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "rationale",
+      "norm_label": "function to get current datetime formatted as yyyy-mm-dd hh:mm",
+      "source_file": "backend/utils.py",
+      "source_location": "L13"
+    },
+    {
+      "id": "backend_utils_rationale_195",
+      "label": "Function to get list of all bikes, with prefix for retired bikes",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "rationale",
+      "norm_label": "function to get list of all bikes, with prefix for retired bikes",
+      "source_file": "backend/utils.py",
+      "source_location": "L195"
+    },
+    {
       "id": "backend_utils_rationale_203",
       "label": "Derive bike, component and progress information for a workplan from its services",
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "rationale",
       "norm_label": "derive bike, component and progress information for a workplan from its services",
       "source_file": "backend/utils.py",
@@ -7505,7 +7584,7 @@
       "label": "Return the name the user gave the workplan, or a generated title when there is\u2026",
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "rationale",
       "norm_label": "return the name the user gave the workplan, or a generated title when there is...",
       "source_file": "backend/utils.py",
@@ -7516,18 +7595,29 @@
       "label": "Build dictionary mapping workplan_id -> workplan_name for all workplans",
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "rationale",
       "norm_label": "build dictionary mapping workplan_id -> workplan_name for all workplans",
       "source_file": "backend/utils.py",
       "source_location": "L255"
     },
     {
+      "id": "backend_utils_rationale_284",
+      "label": "Build standard incident data tuple for display (17 fields)",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": ".get_component_details",
+      "file_type": "rationale",
+      "norm_label": "build standard incident data tuple for display (17 fields)",
+      "source_file": "backend/utils.py",
+      "source_location": "L284"
+    },
+    {
       "id": "backend_utils_rationale_314",
       "label": "Build standard workplan data tuple for display (14 fields)",
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "rationale",
       "norm_label": "build standard workplan data tuple for display (14 fields)",
       "source_file": "backend/utils.py",
@@ -7538,7 +7628,7 @@
       "label": "Function to calculate the number of days between two dates",
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "rationale",
       "norm_label": "function to calculate the number of days between two dates",
       "source_file": "backend/utils.py",
@@ -7549,7 +7639,7 @@
       "label": "Generate a concise title for a workplan",
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "rationale",
       "norm_label": "generate a concise title for a workplan",
       "source_file": "backend/utils.py",
@@ -7560,7 +7650,7 @@
       "label": "Strip markdown syntax from text to produce clean plain text",
       "_origin": "ast",
       "community": 30,
-      "community_name": "get_workplan_data_tuple",
+      "community_name": ".get_component_details",
       "file_type": "rationale",
       "norm_label": "strip markdown syntax from text to produce clean plain text",
       "source_file": "backend/utils.py",
@@ -7655,61 +7745,15 @@
       "source_location": "L42"
     },
     {
-      "id": "docs_superpowers_plans_2026_09_25_service_integration_test_findings_status_2026_09_26_84",
-      "label": "Status (2026-09-26)",
+      "id": "backend_database_manager_rationale_293",
+      "label": "Method to read all incident records",
       "_origin": "ast",
       "community": 35,
-      "community_name": "get_planned_service_data_tuple",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "status (2026-09-26)",
-      "source_file": "docs/superpowers/plans/2026-09-25-service-integration-test-findings.md",
-      "source_location": "L84"
-    },
-    {
-      "id": "handovers_fullstack_service_integration_fullstack_to_reviewer_key_decisions",
-      "label": "Key decisions",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "get_planned_service_data_tuple",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "key decisions",
-      "source_file": ".handovers/fullstack/service-integration-fullstack-to-reviewer.md",
-      "source_location": "L13"
-    },
-    {
-      "id": "backend_utils_rationale_238",
-      "label": "Return the service's own planned date, else the workplan due date, else None",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "get_planned_service_data_tuple",
+      "community_name": ".read_all_incidents",
       "file_type": "rationale",
-      "norm_label": "return the service's own planned date, else the workplan due date, else none",
-      "source_file": "backend/utils.py",
-      "source_location": "L238"
-    },
-    {
-      "id": "backend_utils_rationale_267",
-      "label": "Describe one service linked to an incident, for the read only list in the\u2026",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "get_planned_service_data_tuple",
-      "file_type": "rationale",
-      "norm_label": "describe one service linked to an incident, for the read only list in the...",
-      "source_file": "backend/utils.py",
-      "source_location": "L267"
-    },
-    {
-      "id": "backend_utils_rationale_339",
-      "label": "Build standard planned service tuple for display (11 fields)",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "get_planned_service_data_tuple",
-      "file_type": "rationale",
-      "norm_label": "build standard planned service tuple for display (11 fields)",
-      "source_file": "backend/utils.py",
-      "source_location": "L339"
+      "norm_label": "method to read all incident records",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L293"
     },
     {
       "id": "backend_db_migration_rationale_569",
@@ -8152,40 +8196,16 @@
       "source_location": "L95"
     },
     {
-      "id": "docs_superpowers_specs_2026_09_18_service_integration_design_backend",
-      "label": "Backend",
+      "id": "docs_superpowers_plans_2026_09_25_service_integration_test_findings_status_2026_09_26_84",
+      "label": "Status (2026-09-26)",
       "_origin": "ast",
       "community": 40,
       "community_name": "generate_unique_id",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "backend",
-      "source_file": "docs/superpowers/specs/2026-09-18-service-integration-design.md",
-      "source_location": "L57"
-    },
-    {
-      "id": "docs_superpowers_specs_2026_09_18_service_integration_design_business_logic_py",
-      "label": "business_logic.py",
-      "_origin": "ast",
-      "community": 40,
-      "community_name": "generate_unique_id",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "business_logic.py",
-      "source_file": "docs/superpowers/specs/2026-09-18-service-integration-design.md",
-      "source_location": "L66"
-    },
-    {
-      "id": "docs_superpowers_specs_2026_09_18_service_integration_design_main_py",
-      "label": "main.py",
-      "_origin": "ast",
-      "community": 40,
-      "community_name": "generate_unique_id",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "main.py",
-      "source_file": "docs/superpowers/specs/2026-09-18-service-integration-design.md",
-      "source_location": "L89"
+      "norm_label": "status (2026-09-26)",
+      "source_file": "docs/superpowers/plans/2026-09-25-service-integration-test-findings.md",
+      "source_location": "L84"
     },
     {
       "id": "docs_superpowers_specs_2026_09_18_service_integration_design_migration",
@@ -8200,26 +8220,15 @@
       "source_location": "L44"
     },
     {
-      "id": "backend_business_logic_rationale_2148",
-      "label": "Method to add service record, planned or completed",
+      "id": "backend_business_logic_rationale_1914",
+      "label": "Method to create collection",
       "_origin": "ast",
       "community": 40,
       "community_name": "generate_unique_id",
       "file_type": "rationale",
-      "norm_label": "method to add service record, planned or completed",
+      "norm_label": "method to create collection",
       "source_file": "backend/business_logic.py",
-      "source_location": "L2148"
-    },
-    {
-      "id": "backend_business_logic_rationale_2262",
-      "label": "Method to create planned services for one or more components with the same\u2026",
-      "_origin": "ast",
-      "community": 40,
-      "community_name": "generate_unique_id",
-      "file_type": "rationale",
-      "norm_label": "method to create planned services for one or more components with the same...",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2262"
+      "source_location": "L1914"
     },
     {
       "id": "backend_business_logic_rationale_2911",
@@ -8253,6 +8262,28 @@
       "norm_label": "function to generates a random and unique id",
       "source_file": "backend/utils.py",
       "source_location": "L174"
+    },
+    {
+      "id": "backend_utils_rationale_267",
+      "label": "Describe one service linked to an incident, for the read only list in the\u2026",
+      "_origin": "ast",
+      "community": 40,
+      "community_name": "generate_unique_id",
+      "file_type": "rationale",
+      "norm_label": "describe one service linked to an incident, for the read only list in the...",
+      "source_file": "backend/utils.py",
+      "source_location": "L267"
+    },
+    {
+      "id": "backend_utils_rationale_403",
+      "label": "Function to load a JSON string and return the parsed data as a python object",
+      "_origin": "ast",
+      "community": 40,
+      "community_name": "generate_unique_id",
+      "file_type": "rationale",
+      "norm_label": "function to load a json string and return the parsed data as a python object",
+      "source_file": "backend/utils.py",
+      "source_location": "L403"
     },
     {
       "id": "backend_business_logic_rationale_1530",
@@ -8417,48 +8448,15 @@
       "source_location": "L56"
     },
     {
-      "id": "backend_utils_rationale_13",
-      "label": "Function to get current datetime formatted as YYYY-MM-DD HH:MM",
+      "id": "backend_database_manager_rationale_276",
+      "label": "Method to find collection containing a specific component",
       "_origin": "ast",
       "community": 43,
-      "community_name": "get_incident_data_tuple",
+      "community_name": ".read_collection_by_component",
       "file_type": "rationale",
-      "norm_label": "function to get current datetime formatted as yyyy-mm-dd hh:mm",
-      "source_file": "backend/utils.py",
-      "source_location": "L13"
-    },
-    {
-      "id": "backend_utils_rationale_284",
-      "label": "Build standard incident data tuple for display (17 fields)",
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "get_incident_data_tuple",
-      "file_type": "rationale",
-      "norm_label": "build standard incident data tuple for display (17 fields)",
-      "source_file": "backend/utils.py",
-      "source_location": "L284"
-    },
-    {
-      "id": "backend_utils_rationale_403",
-      "label": "Function to load a JSON string and return the parsed data as a python object",
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "get_incident_data_tuple",
-      "file_type": "rationale",
-      "norm_label": "function to load a json string and return the parsed data as a python object",
-      "source_file": "backend/utils.py",
-      "source_location": "L403"
-    },
-    {
-      "id": "backend_utils_rationale_410",
-      "label": "Generate a concise title for an incident",
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "get_incident_data_tuple",
-      "file_type": "rationale",
-      "norm_label": "generate a concise title for an incident",
-      "source_file": "backend/utils.py",
-      "source_location": "L410"
+      "norm_label": "method to find collection containing a specific component",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L276"
     },
     {
       "id": "backend_database_manager_rationale_320",
@@ -8516,26 +8514,15 @@
       "source_location": "L770"
     },
     {
-      "id": "backend_business_logic_rationale_2239",
-      "label": "Method to build the report used by the plan services and complete services\u2026",
+      "id": "backend_database_manager_rationale_80",
+      "label": "Method to retrieve the most recent ride",
       "_origin": "ast",
       "community": 46,
-      "community_name": ".complete_services",
+      "community_name": ".read_latest_ride_record",
       "file_type": "rationale",
-      "norm_label": "method to build the report used by the plan services and complete services...",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2239"
-    },
-    {
-      "id": "backend_business_logic_rationale_2300",
-      "label": "Method to complete planned services with one service date, keeping their\u2026",
-      "_origin": "ast",
-      "community": 46,
-      "community_name": ".complete_services",
-      "file_type": "rationale",
-      "norm_label": "method to complete planned services with one service date, keeping their...",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2300"
+      "norm_label": "method to retrieve the most recent ride",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L80"
     },
     {
       "id": "docs_superpowers_specs_2026_09_18_service_integration_design_database_manager_py",
@@ -8548,6 +8535,28 @@
       "norm_label": "database_manager.py",
       "source_file": "docs/superpowers/specs/2026-09-18-service-integration-design.md",
       "source_location": "L59"
+    },
+    {
+      "id": "backend_database_manager_rationale_236",
+      "label": "Method to read completed services for a component, used by health computation",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "database_manager.py",
+      "file_type": "rationale",
+      "norm_label": "method to read completed services for a component, used by health computation",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L236"
+    },
+    {
+      "id": "backend_database_manager_rationale_258",
+      "label": "Method to retrieve the oldest completed service of a given component",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "database_manager.py",
+      "file_type": "rationale",
+      "norm_label": "method to retrieve the oldest completed service of a given component",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L258"
     },
     {
       "id": "backend_database_manager_rationale_297",
@@ -8913,26 +8922,15 @@
       "source_location": "L827"
     },
     {
-      "id": "backend_main_rationale_779",
-      "label": "Endpoint to update config file based on which form was submitted",
+      "id": "backend_database_manager_rationale_187",
+      "label": "Method to read components for a specific bike",
       "_origin": "ast",
       "community": 51,
-      "community_name": "update_config",
+      "community_name": ".read_subset_components",
       "file_type": "rationale",
-      "norm_label": "endpoint to update config file based on which form was submitted",
-      "source_file": "backend/main.py",
-      "source_location": "L779"
-    },
-    {
-      "id": "backend_utils_rationale_169",
-      "label": "Helper function to shutdown the server after a short delay",
-      "_origin": "ast",
-      "community": 51,
-      "community_name": "update_config",
-      "file_type": "rationale",
-      "norm_label": "helper function to shutdown the server after a short delay",
-      "source_file": "backend/utils.py",
-      "source_location": "L169"
+      "norm_label": "method to read components for a specific bike",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L187"
     },
     {
       "id": "tests_test_protocol_services",
@@ -9031,26 +9029,15 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_business_logic_rationale_683",
-      "label": "Method to produce payload for page of all workplans",
+      "id": "backend_database_manager_rationale_244",
+      "label": "Method to retrieve record for a specific entry in the service log",
       "_origin": "ast",
       "community": 53,
-      "community_name": "get_formatted_bikes_list",
+      "community_name": ".read_subset_service_record",
       "file_type": "rationale",
-      "norm_label": "method to produce payload for page of all workplans",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L683"
-    },
-    {
-      "id": "backend_utils_rationale_195",
-      "label": "Function to get list of all bikes, with prefix for retired bikes",
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "get_formatted_bikes_list",
-      "file_type": "rationale",
-      "norm_label": "function to get list of all bikes, with prefix for retired bikes",
-      "source_file": "backend/utils.py",
-      "source_location": "L195"
+      "norm_label": "method to retrieve record for a specific entry in the service log",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L244"
     },
     {
       "id": "backend_db_migration_rationale_13",
@@ -9086,15 +9073,15 @@
       "source_location": "L937"
     },
     {
-      "id": "backend_database_manager_rationale_309",
-      "label": "Method to read all workplans",
+      "id": "backend_database_manager_rationale_99",
+      "label": "Method to sum distance for a given set of rides",
       "_origin": "ast",
       "community": 55,
-      "community_name": ".read_all_workplans",
+      "community_name": ".read_sum_distance_subset_rides",
       "file_type": "rationale",
-      "norm_label": "method to read all workplans",
+      "norm_label": "method to sum distance for a given set of rides",
       "source_file": "backend/database_manager.py",
-      "source_location": "L309"
+      "source_location": "L99"
     },
     {
       "id": "backend_db_migration_rationale_486",
@@ -9119,15 +9106,15 @@
       "source_location": "L508"
     },
     {
-      "id": "backend_database_manager_rationale_44",
-      "label": "Method to get bike id from most recent component history",
+      "id": "backend_database_manager_rationale_575",
+      "label": "Method to create or update workplan record in database",
       "_origin": "ast",
       "community": 58,
-      "community_name": ".read_bike_id_recent_component_history",
+      "community_name": ".write_workplan",
       "file_type": "rationale",
-      "norm_label": "method to get bike id from most recent component history",
+      "norm_label": "method to create or update workplan record in database",
       "source_file": "backend/database_manager.py",
-      "source_location": "L44"
+      "source_location": "L575"
     },
     {
       "id": "backend_database_manager_rationale_25",
@@ -9141,11 +9128,23 @@
       "source_location": "L25"
     },
     {
+      "id": "docs_superpowers_plans_2026_09_25_service_integration_test_findings_a_questions_to_answer_from_the_code_no_change_expected",
+      "label": "A. Questions to answer from the code, no change expected",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "a. questions to answer from the code, no change expected",
+      "source_file": "docs/superpowers/plans/2026-09-25-service-integration-test-findings.md",
+      "source_location": "L7"
+    },
+    {
       "id": "docs_superpowers_plans_2026_09_25_service_integration_test_findings_answers_read_from_the_code_2026_09_25",
       "label": "Answers (read from the code 2026-09-25)",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "answers (read from the code 2026-09-25)",
@@ -9153,11 +9152,23 @@
       "source_location": "L16"
     },
     {
+      "id": "docs_superpowers_specs_2026_09_18_service_integration_design_business_logic_py",
+      "label": "business_logic.py",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "business_logic.py",
+      "source_file": "docs/superpowers/specs/2026-09-18-service-integration-design.md",
+      "source_location": "L66"
+    },
+    {
       "id": "docs_superpowers_specs_2026_09_18_service_integration_design_decisions",
       "label": "Decisions",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "decisions",
@@ -9169,7 +9180,7 @@
       "label": "Reuse",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "document",
       "node_kind": "heading",
       "norm_label": "reuse",
@@ -9177,66 +9188,89 @@
       "source_location": "L32"
     },
     {
-      "id": "backend_business_logic_rationale_1145",
-      "label": "Method to update component lifetime and service status when no installation\u2026",
+      "id": "handovers_review_service_integration_reviewer_to_docs_maintainer_what_was_checked_and_held_up",
+      "label": "What was checked and held up",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
-      "file_type": "rationale",
-      "norm_label": "method to update component lifetime and service status when no installation...",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L1145"
+      "community_name": "What was checked and held up",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "what was checked and held up",
+      "source_file": ".handovers/review/service-integration-reviewer-to-docs-maintainer.md",
+      "source_location": "L12"
     },
     {
       "id": "backend_business_logic_rationale_1231",
       "label": "Method to update status for a given bike based on component service and\u2026",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "rationale",
       "norm_label": "method to update status for a given bike based on component service and...",
       "source_file": "backend/business_logic.py",
       "source_location": "L1231"
     },
     {
+      "id": "backend_business_logic_rationale_1476",
+      "label": "Method to create installation history record",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "rationale",
+      "norm_label": "method to create installation history record",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L1476"
+    },
+    {
       "id": "backend_business_logic_rationale_1668",
       "label": "Method to calculate distance and bike id for history records",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "rationale",
       "norm_label": "method to calculate distance and bike id for history records",
       "source_file": "backend/business_logic.py",
       "source_location": "L1668"
     },
     {
+      "id": "backend_business_logic_rationale_2388",
+      "label": "Method to update a service record, including status changes in both directions",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "rationale",
+      "norm_label": "method to update a service record, including status changes in both directions",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2388"
+    },
+    {
+      "id": "backend_business_logic_rationale_2468",
+      "label": "Method to recalculate a component after a completed service is deleted or\u2026",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "rationale",
+      "norm_label": "method to recalculate a component after a completed service is deleted or...",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L2468"
+    },
+    {
       "id": "backend_business_logic_rationale_2561",
       "label": "Method to calculate distance and bike id for service records",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "rationale",
       "norm_label": "method to calculate distance and bike id for service records",
       "source_file": "backend/business_logic.py",
       "source_location": "L2561"
     },
     {
-      "id": "backend_business_logic_rationale_2687",
-      "label": "Method to compute component status using threshold logic",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": ".process_service_records",
-      "file_type": "rationale",
-      "norm_label": "method to compute component status using threshold logic",
-      "source_file": "backend/business_logic.py",
-      "source_location": "L2687"
-    },
-    {
       "id": "backend_business_logic_rationale_2751",
       "label": "Method to determine worst-case status between distance and days-based\u2026",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "rationale",
       "norm_label": "method to determine worst-case status between distance and days-based...",
       "source_file": "backend/business_logic.py",
@@ -9247,18 +9281,29 @@
       "label": "Method to update time-based status fields for all non-retired components",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "rationale",
       "norm_label": "method to update time-based status fields for all non-retired components",
       "source_file": "backend/business_logic.py",
       "source_location": "L2768"
     },
     {
+      "id": "backend_business_logic_rationale_3253",
+      "label": "Method to delete a given record and associated records",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "rationale",
+      "norm_label": "method to delete a given record and associated records",
+      "source_file": "backend/business_logic.py",
+      "source_location": "L3253"
+    },
+    {
       "id": "backend_business_logic_rationale_879",
       "label": "Method to determine which selection of components to update",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "rationale",
       "norm_label": "method to determine which selection of components to update",
       "source_file": "backend/business_logic.py",
@@ -9269,7 +9314,7 @@
       "label": "Method to update component table with distance from ride table",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "rationale",
       "norm_label": "method to update component table with distance from ride table",
       "source_file": "backend/business_logic.py",
@@ -9280,7 +9325,7 @@
       "label": "Method to update component table with lifetime status",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "rationale",
       "norm_label": "method to update component table with lifetime status",
       "source_file": "backend/business_logic.py",
@@ -9291,33 +9336,33 @@
       "label": "Method to update component table with service status",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "rationale",
       "norm_label": "method to update component table with service status",
       "source_file": "backend/business_logic.py",
       "source_location": "L985"
     },
     {
+      "id": "backend_database_manager_rationale_249",
+      "label": "Method to retrieve the most recent completed service of a given component",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "What was checked and held up",
+      "file_type": "rationale",
+      "norm_label": "method to retrieve the most recent completed service of a given component",
+      "source_file": "backend/database_manager.py",
+      "source_location": "L249"
+    },
+    {
       "id": "backend_database_manager_rationale_381",
       "label": "Method to create or update ride data in bulk in database",
       "_origin": "ast",
       "community": 6,
-      "community_name": ".process_service_records",
+      "community_name": "What was checked and held up",
       "file_type": "rationale",
       "norm_label": "method to create or update ride data in bulk in database",
       "source_file": "backend/database_manager.py",
       "source_location": "L381"
-    },
-    {
-      "id": "backend_main_py_request",
-      "label": "Request",
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "Request",
-      "file_type": "code",
-      "norm_label": "request",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "backend_main_rationale_187",
@@ -9351,17 +9396,6 @@
       "norm_label": "method to read a subset of records from the component history table",
       "source_file": "backend/database_manager.py",
       "source_location": "L205"
-    },
-    {
-      "id": "backend_database_manager_rationale_73",
-      "label": "Method to read rides associated with a given component aftere a given date",
-      "_origin": "ast",
-      "community": 63,
-      "community_name": ".read_matching_rides",
-      "file_type": "rationale",
-      "norm_label": "method to read rides associated with a given component aftere a given date",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L73"
     },
     {
       "id": "backend_database_manager_rationale_183",
@@ -9762,6 +9796,28 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_main_py_request",
+      "label": "Request",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "get",
+      "file_type": "code",
+      "norm_label": "request",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "exception_handler",
+      "label": "exception_handler",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "get",
+      "file_type": "code",
+      "norm_label": "exception_handler",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "get",
       "label": "get",
       "_origin": "ast",
@@ -9773,49 +9829,15 @@
       "source_location": ""
     },
     {
-      "id": "request",
-      "label": "Request",
+      "id": "starlettehttpexception",
+      "label": "StarletteHTTPException",
       "_origin": "ast",
       "community": 8,
       "community_name": "get",
       "file_type": "code",
-      "norm_label": "request",
+      "norm_label": "starlettehttpexception",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "handovers_review_service_integration_reviewer_to_docs_maintainer_issues_found_none_blocking",
-      "label": "Issues found (none blocking)",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "issues found (none blocking)",
-      "source_file": ".handovers/review/service-integration-reviewer-to-docs-maintainer.md",
-      "source_location": "L28"
-    },
-    {
-      "id": "backend_database_manager_rationale_34",
-      "label": "Method to get the name of a bike based on bike id",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "rationale",
-      "norm_label": "method to get the name of a bike based on bike id",
-      "source_file": "backend/database_manager.py",
-      "source_location": "L34"
-    },
-    {
-      "id": "backend_main_rationale_111",
-      "label": "Endpoint for incident reports page",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "rationale",
-      "norm_label": "endpoint for incident reports page",
-      "source_file": "backend/main.py",
-      "source_location": "L111"
     },
     {
       "id": "backend_main_rationale_123",
@@ -9827,28 +9849,6 @@
       "norm_label": "endpoint for workplans page",
       "source_file": "backend/main.py",
       "source_location": "L123"
-    },
-    {
-      "id": "backend_main_rationale_136",
-      "label": "Endpoint for workplan details page",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "rationale",
-      "norm_label": "endpoint for workplan details page",
-      "source_file": "backend/main.py",
-      "source_location": "L136"
-    },
-    {
-      "id": "backend_main_rationale_149",
-      "label": "Endpoint for component details page",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "rationale",
-      "norm_label": "endpoint for component details page",
-      "source_file": "backend/main.py",
-      "source_location": "L149"
     },
     {
       "id": "backend_main_rationale_163",
@@ -9906,6 +9906,17 @@
       "source_location": "L664"
     },
     {
+      "id": "backend_main_rationale_67",
+      "label": "Function to catch http errors from Uvicorn and return them to the middleware",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "get",
+      "file_type": "rationale",
+      "norm_label": "function to catch http errors from uvicorn and return them to the middleware",
+      "source_file": "backend/main.py",
+      "source_location": "L67"
+    },
+    {
       "id": "backend_main_rationale_703",
       "label": "Endpoint to refresh data for a subset or all rides",
       "_origin": "ast",
@@ -9928,17 +9939,6 @@
       "source_location": "L73"
     },
     {
-      "id": "backend_main_rationale_86",
-      "label": "Endpoint for bike details page",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "rationale",
-      "norm_label": "endpoint for bike details page",
-      "source_file": "backend/main.py",
-      "source_location": "L86"
-    },
-    {
       "id": "backend_main_rationale_99",
       "label": "Endpoint for components overview page",
       "_origin": "ast",
@@ -9948,17 +9948,6 @@
       "norm_label": "endpoint for components overview page",
       "source_file": "backend/main.py",
       "source_location": "L99"
-    },
-    {
-      "id": "backend_utils_rationale_31",
-      "label": "Function to get button order for a specific page with defaults",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "get",
-      "file_type": "rationale",
-      "norm_label": "function to get button order for a specific page with defaults",
-      "source_file": "backend/utils.py",
-      "source_location": "L31"
     },
     {
       "id": "pkg_velo_supervisor_2000",
@@ -11289,6 +11278,18 @@
       "source_url": null
     },
     {
+      "id": "asyncio",
+      "label": "asyncio",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "main.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "asyncio",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "contextlib",
       "label": "contextlib",
       "_origin": "semantic",
@@ -11349,138 +11350,6 @@
       "type": "external"
     },
     {
-      "id": "datetime",
-      "label": "datetime",
-      "_origin": "semantic",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "datetime",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "json",
-      "label": "json",
-      "_origin": "semantic",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "json",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "logging",
-      "label": "logging",
-      "_origin": "semantic",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "logging",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "requests_oauthlib",
-      "label": "requests_oauthlib",
-      "_origin": "semantic",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "requests_oauthlib",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "starlette_exceptions",
-      "label": "starlette_exceptions",
-      "_origin": "semantic",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "starlette_exceptions",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "starlette_middleware_base",
-      "label": "starlette_middleware_base",
-      "_origin": "semantic",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "starlette_middleware_base",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "traceback",
-      "label": "traceback",
-      "_origin": "semantic",
-      "community": 20,
-      "community_name": "business_logic.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "traceback",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "asyncio",
-      "label": "asyncio",
-      "_origin": "semantic",
-      "community": 26,
-      "community_name": "utils.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "asyncio",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "re",
-      "label": "re",
-      "_origin": "semantic",
-      "community": 26,
-      "community_name": "utils.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "re",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "time",
-      "label": "time",
-      "_origin": "semantic",
-      "community": 26,
-      "community_name": "utils.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "time",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "uuid",
-      "label": "uuid",
-      "_origin": "semantic",
-      "community": 26,
-      "community_name": "utils.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "uuid",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "subprocess",
       "label": "subprocess",
       "_origin": "semantic",
@@ -11497,7 +11366,7 @@
       "label": "apscheduler_schedulers_asyncio",
       "_origin": "semantic",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "apscheduler_schedulers_asyncio",
@@ -11509,7 +11378,7 @@
       "label": "apscheduler_triggers_cron",
       "_origin": "semantic",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "apscheduler_triggers_cron",
@@ -11521,10 +11390,130 @@
       "label": "apscheduler_triggers_interval",
       "_origin": "semantic",
       "community": 3,
-      "community_name": "scheduler.py",
+      "community_name": "utils.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "apscheduler_triggers_interval",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "datetime",
+      "label": "datetime",
+      "_origin": "semantic",
+      "community": 3,
+      "community_name": "utils.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "datetime",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "json",
+      "label": "json",
+      "_origin": "semantic",
+      "community": 3,
+      "community_name": "utils.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "json",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "logging",
+      "label": "logging",
+      "_origin": "semantic",
+      "community": 3,
+      "community_name": "utils.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "logging",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "re",
+      "label": "re",
+      "_origin": "semantic",
+      "community": 3,
+      "community_name": "utils.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "re",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "requests_oauthlib",
+      "label": "requests_oauthlib",
+      "_origin": "semantic",
+      "community": 3,
+      "community_name": "utils.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "requests_oauthlib",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "starlette_exceptions",
+      "label": "starlette_exceptions",
+      "_origin": "semantic",
+      "community": 3,
+      "community_name": "utils.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "starlette_exceptions",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "starlette_middleware_base",
+      "label": "starlette_middleware_base",
+      "_origin": "semantic",
+      "community": 3,
+      "community_name": "utils.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "starlette_middleware_base",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "time",
+      "label": "time",
+      "_origin": "semantic",
+      "community": 3,
+      "community_name": "utils.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "time",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "traceback",
+      "label": "traceback",
+      "_origin": "semantic",
+      "community": 3,
+      "community_name": "utils.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "traceback",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "uuid",
+      "label": "uuid",
+      "_origin": "semantic",
+      "community": 3,
+      "community_name": "utils.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "uuid",
       "source_file": "",
       "type": "external"
     },
@@ -16427,7 +16416,7 @@
     },
     {
       "source": "backend_main_add_history_record",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16439,7 +16428,7 @@
     },
     {
       "source": "backend_main_bike_details",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16451,7 +16440,7 @@
     },
     {
       "source": "backend_main_collection_details",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16463,7 +16452,7 @@
     },
     {
       "source": "backend_main_component_details",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16475,7 +16464,7 @@
     },
     {
       "source": "backend_main_component_overview",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16487,7 +16476,7 @@
     },
     {
       "source": "backend_main_component_types_overview",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16499,7 +16488,7 @@
     },
     {
       "source": "backend_main_config_overview",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16511,7 +16500,7 @@
     },
     {
       "source": "backend_main_help_page",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16523,7 +16512,7 @@
     },
     {
       "source": "backend_main_http_exception_handler",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16547,7 +16536,7 @@
     },
     {
       "source": "backend_main_incident_reports",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16571,7 +16560,7 @@
     },
     {
       "source": "backend_main_root",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16583,7 +16572,7 @@
     },
     {
       "source": "backend_main_workplan_details",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16595,7 +16584,7 @@
     },
     {
       "source": "backend_main_workplans",
-      "target": "request",
+      "target": "backend_main_py_request",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -26100,18 +26089,6 @@
       "weight": 1.0
     },
     {
-      "source": "backend_main_http_exception_handler",
-      "target": "backend_middleware_middleware",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "backend/main.py",
-      "source_location": "L68",
-      "weight": 1.0
-    },
-    {
       "source": "backend_main_lifespan",
       "target": "backend_scheduler_start_scheduler",
       "relation": "calls",
@@ -27204,6 +27181,116 @@
       "weight": 1.0
     },
     {
+      "source": "backend_database_manager_databasemanager",
+      "target": "backend_database_model_componenttypes",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/database_manager.py",
+      "source_location": "L111",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_database_manager_databasemanager",
+      "target": "backend_database_model_components",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/database_manager.py",
+      "source_location": "L153",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_database_manager_databasemanager",
+      "target": "backend_database_model_services",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/database_manager.py",
+      "source_location": "L232",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_database_manager_databasemanager",
+      "target": "backend_database_model_bikes",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/database_manager.py",
+      "source_location": "L26",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_database_manager_databasemanager",
+      "target": "backend_database_model_collections",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/database_manager.py",
+      "source_location": "L268",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_database_manager_databasemanager",
+      "target": "backend_database_model_incidents",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/database_manager.py",
+      "source_location": "L289",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_database_manager_databasemanager",
+      "target": "backend_database_model_workplans",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/database_manager.py",
+      "source_location": "L305",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_database_manager_databasemanager",
+      "target": "backend_database_model_componenthistory",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/database_manager.py",
+      "source_location": "L45",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_database_manager_databasemanager",
+      "target": "backend_database_model_rides",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/database_manager.py",
+      "source_location": "L54",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_main_http_exception_handler",
+      "target": "backend_middleware_middleware",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/main.py",
+      "source_location": "L68",
+      "weight": 0.8
+    },
+    {
       "source": "backend_scheduler_strava_sync_job",
       "target": "backend_business_logic_businesslogic",
       "relation": "uses",
@@ -28261,5 +28348,5 @@
       "source_file": "frontend/templates/modal_incident_record.html"
     }
   ],
-  "built_at_commit": "18ec65fe7da0b3535824476cbad1d0d3aa7c7425"
+  "built_at_commit": "06b70d4b7341ec3b1b18f617444abedd297b6e73"
 }
