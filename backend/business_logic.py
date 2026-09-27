@@ -1523,8 +1523,8 @@ class BusinessLogic():
             return success, message
 
         except Exception as error:
-            logging.error(f"An error occured creating history record for component {component.component_name}: {str(error)}")
-            return False, f"An error occured creating history record for {component.component_name}: {str(error)}"
+            logging.error(f"An error occurred creating history record for component {component.component_name}: {str(error)}")
+            return False, f"An error occurred creating history record for {component.component_name}: {str(error)}"
         
     def update_history_record(self, history_id, updated_date, notes=None):
         """Method to update a component history record with validation"""
@@ -1565,8 +1565,8 @@ class BusinessLogic():
             return success, message 
         
         except Exception as error:
-            logging.error(f"An error occured updating history record for component {component.component_name}: {str(error)}")
-            return False, f"An error occured updating history record for {component.component_name}: {str(error)}"
+            logging.error(f"An error occurred updating history record for component {component.component_name}: {str(error)}")
+            return False, f"An error occurred updating history record for {component.component_name}: {str(error)}"
 
     def validate_history_record(self, mode, component_id, history_id, updated_date, installation_status, component_bike_id):
         """Method to validate history records before processing and storing in database"""
@@ -1732,8 +1732,8 @@ class BusinessLogic():
 
                 success, message = database_manager.write_component_details(component_id, component_data)
                 if not success:
-                    logging.error(f"An error occured updating component installation status for {component.component_name}: {message}")
-                    return False, f"An error occured updating component installation status for {component.component_name}: {message}"
+                    logging.error(f"An error occurred updating component installation status for {component.component_name}: {message}")
+                    return False, f"An error occurred updating component installation status for {component.component_name}: {message}"
                 
                 updated_component = database_manager.read_component(component_id)
 
@@ -1746,8 +1746,8 @@ class BusinessLogic():
                                                                     first_service.description,
                                                                     first_service.workplan_id)
                     if not success:
-                        logging.error(f"An error occured triggering update of service records for {updated_component.component_name}: {message}")
-                        return False, f"An error occured triggering update of service records for {updated_component.component_name}: {message}"
+                        logging.error(f"An error occurred triggering update of service records for {updated_component.component_name}: {message}")
+                        return False, f"An error occurred triggering update of service records for {updated_component.component_name}: {message}"
 
                 self.update_component_lifetime_status(updated_component)
                 self.update_component_service_status(updated_component)
@@ -2197,7 +2197,7 @@ class BusinessLogic():
             return success, message
 
         except Exception as error:
-            logging.error(f"An error occured creating service record for component with id {component_id}: {str(error)}")
+            logging.error(f"An error occurred creating service record for component with id {component_id}: {str(error)}")
             return False, f"Error creating service record for {component_id}: {str(error)}"
 
     def create_planned_service(self, service_id, component_id, service_description, workplan_id, incident_id, planned_date):
@@ -2461,7 +2461,7 @@ class BusinessLogic():
             return success, message
 
         except Exception as error:
-            logging.error(f"An error occured updating service records for component with id {component_id}: {str(error)}")
+            logging.error(f"An error occurred updating service records for component with id {component_id}: {str(error)}")
             return False, f"Error updating service records for component with id {component_id}: {str(error)}"
 
     def recalculate_component_after_service_removal(self, component_id):
@@ -2478,8 +2478,8 @@ class BusinessLogic():
                                                             first_service.description,
                                                             first_service.workplan_id)
             if not success:
-                logging.error(f"An error occured triggering update of service records for {component.component_name}: {message}")
-                return False, f"An error occured triggering update of service records for {component.component_name}: {message}"
+                logging.error(f"An error occurred triggering update of service records for {component.component_name}: {message}")
+                return False, f"An error occurred triggering update of service records for {component.component_name}: {message}"
 
             return True, f"Recalculated service records for {component.component_name}"
 
@@ -3349,8 +3349,8 @@ class BusinessLogic():
                     success, message = self.process_history_records(component_id)
                 
                 if not success:
-                    logging.error(f"An error occured triggering update of history records for {component_id} after deletion: {message}")
-                    return False, f"An error occured triggering update of history records for {component_id} after deletion: {message}", component_id, bike_id, collection_id
+                    logging.error(f"An error occurred triggering update of history records for {component_id} after deletion: {message}")
+                    return False, f"An error occurred triggering update of history records for {component_id} after deletion: {message}", component_id, bike_id, collection_id
                 
             elif table_selector == "Components":
                 self.update_component_type_count(component_type)

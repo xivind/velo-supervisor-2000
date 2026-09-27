@@ -54,7 +54,7 @@ Assessed 2026-09-20, after the service integration work for issue #351.
 
 ## 7. Smaller items
 
-- Spelling in user-facing messages and docstrings, for example "occured" and "receords"
+- Spelling in user-facing messages and docstrings. The 21 occurrences of "occured" were corrected on 2026-09-27, "receords" no longer exists in the code
 - Lint noise: trailing whitespace, lines over 100 characters, missing final newlines
 - `validate_service_record` now takes seven parameters, which is at the edge of readable
 - `derive_workplan_context` (`backend/utils.py`) runs twice per page render on `bike_details`, `component_details`, `incident_reports` and `workplan_details`: once inside `get_workplan_names_dict` for title resolution, again inside `get_workplan_data_tuple` for the workplans table. Matches the approved design, and the #351 production regression run showed no problem at current scale (a few hundred services). Follow-up only: compute the context once per render and reuse it

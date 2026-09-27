@@ -153,7 +153,7 @@ def write_config(form_type, db_path=None, strava_tokens=None, verbose_logging=No
         return True, message
 
     except OSError as error:
-        return False, f"An error occured updating configuration: {str(error)}"
+        return False, f"An error occurred updating configuration: {str(error)}"
 
 def read_filtered_logs():
     """Function to get filtered log records"""
