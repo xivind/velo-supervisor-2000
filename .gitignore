@@ -27,3 +27,9 @@ graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
 
 # graphify - install-time safety backup, not needed long-term
 .claude/settings.json.graphify-bak
+
+# graphify - rebuildable incremental build cache, not worth tracking
+graphify-out/cache/
+
+# python bytecode, anywhere in the tree
+__pycache__/
