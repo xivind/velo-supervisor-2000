@@ -369,7 +369,7 @@ class DatabaseManager:
                         query.execute()
 
                     else:
-                        query = Bikes.insert(**bike_data)
+                        query = Bikes.insert(**bike_data, service_status="No components registered")
                         query.execute()
 
             return True, f'Records for {len(bike_list)} bikes updated.'
