@@ -215,7 +215,7 @@ const helpTopics = {
             <p>Manage all components across all bikes. View by individual components or collections. Filter by status, search by name, and perform bulk operations. Click any component to see detailed history, service records, and mileage tracking.</p>
 
             <h6 class="mt-3">📝 WORKPLANS</h6>
-            <p>Group planned services into a plan of work. A workplan has a due date and a size, and gets its bike and components from the services it contains. Complete the services, then complete the workplan.</p>
+            <p>Group planned services into a plan of work. A workplan has a due date and a size, and gets its bike and components from the services it contains. Give it a name to describe the work, or leave the name empty and a title is generated from its components and description. Complete the services, then complete the workplan.</p>
 
             <h6 class="mt-3">🚨 INCIDENTS</h6>
             <p>Log and track mechanical issues, crashes, or other incidents. Record severity, affected components/bikes, and resolution details. Plan services straight from an incident to turn it into work, on its own or as part of a workplan.</p>
@@ -432,7 +432,9 @@ const helpTopics = {
             <ol>
                 <li>Register the incident with the affected bike and components</li>
                 <li>On the incidents page, click 📝 to create a workplan with planned services for those components, or 🧑‍🔧 to plan services without a workplan</li>
-                <li>The incident description carries over, so nothing is typed twice</li>
+                <li>The incident description carries over, so nothing is typed twice. The workplan modal lists the components that come from the incident, untick any that should be left out</li>
+                <li>Open the incident again to see its linked services, each with a link to the component and to the workplan the service belongs to. "Linked service" opens that service for editing</li>
+                <li>Setting an incident to Resolved while services are still planned is allowed, a warning states how many stay planned on their workplans</li>
                 <li>Complete the services, then complete the workplan and choose to close its open incidents</li>
             </ol>
 
