@@ -75,7 +75,8 @@ async def root(request: Request):
     payload = business_logic.get_bike_overview()
     template_path = "index.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -87,7 +88,8 @@ async def bike_details(request: Request,
     payload = business_logic.get_bike_details(bike_id)
     template_path = "bike_details.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload,
                                        "button_order": get_button_order(CONFIG, 'bike_details')})
@@ -99,7 +101,8 @@ async def component_overview(request: Request):
     payload = business_logic.get_component_overview()
     template_path = "component_overview.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -110,7 +113,8 @@ async def incident_reports(request: Request):
     payload = business_logic.get_incident_reports()
     template_path = "incident_reports.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -121,7 +125,8 @@ async def workplans(request: Request):
     payload = business_logic.get_workplans()
     template_path = "workplans.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -133,7 +138,8 @@ async def workplan_details(request: Request,
     payload = business_logic.get_workplan_details(workplan_id)
     template_path = "workplan_details.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -145,7 +151,8 @@ async def component_details(request: Request,
     payload = business_logic.get_component_details(component_id)
     template_path = "component_details.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload,
                                        "button_order": get_button_order(CONFIG, 'component_details')})
@@ -158,7 +165,8 @@ async def collection_details(request: Request,
     payload = business_logic.get_collection_details(collection_id)
     template_path = "collection_details.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -169,7 +177,8 @@ async def component_types_overview(request: Request):
     payload = business_logic.get_component_types()
     template_path = "component_types.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -183,7 +192,8 @@ async def config_overview(request: Request):
                "button_sorting": get_button_sorting_config(CONFIG)}
     template_path = "config.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request,
                                        "payload": payload})
 
@@ -193,7 +203,8 @@ async def help_page(request: Request):
 
     template_path = "help.html"
 
-    return templates.TemplateResponse(template_path,
+    return templates.TemplateResponse(request,
+                                      template_path,
                                       {"request": request})
 
 @app.post("/create_component", response_class=HTMLResponse)
@@ -202,7 +213,7 @@ async def create_component(component_id: Optional[str] = Form(None),
                            component_updated_date: str = Form(...),
                            component_name: str = Form(...),
                            component_type: str = Form(...),
-                           component_bike_id: str = Form(...),
+                           component_bike_id: Optional[str] = Form(None),
                            expected_lifetime: Optional[str] = Form(None),
                            service_interval: Optional[str] = Form(None),
                            threshold_km: Optional[str] = Form(None),
@@ -243,7 +254,7 @@ async def component_modify(component_id: Optional[str] = Form(None),
                            component_updated_date: str = Form(...),
                            component_name: str = Form(...),
                            component_type: str = Form(...),
-                           component_bike_id: str = Form(...),
+                           component_bike_id: Optional[str] = Form(None),
                            expected_lifetime: Optional[str] = Form(None),
                            service_interval: Optional[str] = Form(None),
                            threshold_km: Optional[str] = Form(None),
@@ -282,15 +293,17 @@ async def component_modify(component_id: Optional[str] = Form(None),
 async def add_history_record(request: Request,
                              component_id: str = Form(...),
                              component_installation_status: str = Form(...),
-                             component_bike_id: str = Form(...),
+                             component_bike_id: Optional[str] = Form(None),
                              component_updated_date: str = Form(...),
+                             notes: Optional[str] = Form(None),
                              redirect_to: Optional[str] = Form(None)):
     """Endpoint with conditional routing for redirects and AJAX to add an existing component history record."""
 
     success, message = business_logic.create_history_record(component_id,
                                                             component_installation_status,
                                                             component_bike_id,
-                                                            component_updated_date)
+                                                            component_updated_date,
+                                                            notes)
 
     accept_header = request.headers.get("accept", "")
     is_ajax = "application/json" in accept_header or request.headers.get("x-requested-with") == "XMLHttpRequest"
@@ -319,10 +332,11 @@ async def add_history_record(request: Request,
 @app.post("/update_history_record", response_class=HTMLResponse)
 async def update_history_record(component_id: str = Form(...),
                                 history_id: str = Form(...),
-                                updated_date: str = Form(...)):
+                                updated_date: str = Form(...),
+                                notes: Optional[str] = Form(None)):
     """Endpoint to update an existing component history record"""
 
-    success, message = business_logic.update_history_record(history_id, updated_date)
+    success, message = business_logic.update_history_record(history_id, updated_date, notes)
 
     response = RedirectResponse(
         url=f"/component_details/{component_id}?success={success}&message={message}",
@@ -346,7 +360,8 @@ async def quick_swap(old_component_id: str = Form(...),
                      new_threshold_days: Optional[str] = Form(None),
                      new_cost: Optional[str] = Form(None),
                      new_offset: Optional[int] = Form(0),
-                     new_notes: Optional[str] = Form(None)):
+                     new_notes: Optional[str] = Form(None),
+                     notes: Optional[str] = Form(None)):
     """Endpoint to swap one component with another"""
 
     if create_new == "true":
@@ -366,14 +381,16 @@ async def quick_swap(old_component_id: str = Form(...),
                                                                   fate,
                                                                   swap_date,
                                                                   None,
-                                                                  new_component_data)
+                                                                  new_component_data,
+                                                                  notes)
 
     else:
         success, message = business_logic.quick_swap_orchestrator(old_component_id,
                                                                   fate,
                                                                   swap_date,
                                                                   new_component_id,
-                                                                  None)
+                                                                  None,
+                                                                  notes)
 
     return JSONResponse({"success": success, "message": message})
 
@@ -426,27 +443,35 @@ async def update_collection(collection_id: str = Form(...),
 async def change_collection_status(collection_id: str = Form(...),
                                    new_status: str = Form(...),
                                    updated_date: str = Form(...),
-                                   bike_id: Optional[str] = Form(None)):
+                                   bike_id: Optional[str] = Form(None),
+                                   notes: Optional[str] = Form(None)):
     """Endpoint to change the status of all components in a collection"""
 
     success, message = business_logic.change_collection_status(collection_id,
                                                                new_status,
                                                                updated_date,
-                                                               bike_id)
+                                                               bike_id,
+                                                               notes)
 
     return JSONResponse({"success": success, "message": message})
 
 @app.post("/add_service_record", response_class=HTMLResponse)
 async def add_service(component_id: str = Form(...),
-                      service_date: str = Form(...),
                       service_description: str = Form(...),
-                      workplan_id: Optional[str] = Form(None)):
-    """Endpoint to add service"""
+                      service_date: Optional[str] = Form(None),
+                      workplan_id: Optional[str] = Form(None),
+                      status: str = Form("Completed"),
+                      incident_id: Optional[str] = Form(None),
+                      planned_date: Optional[str] = Form(None)):
+    """Endpoint to add service, planned or completed"""
 
     success, message = business_logic.create_service_record(component_id,
                                                             service_date,
                                                             service_description,
-                                                            workplan_id)
+                                                            workplan_id,
+                                                            status,
+                                                            incident_id,
+                                                            planned_date)
 
     redirect_url = f"/component_details/{component_id}"
 
@@ -456,26 +481,43 @@ async def add_service(component_id: str = Form(...),
 
     return response
 
-@app.post("/bulk_add_service_records")
-async def bulk_add_service_records(workplan_id: str = Form(...),
-                                   component_ids: List[str] = Form(...),
-                                   service_date: str = Form(...),
-                                   service_description: str = Form(...)):
-    """Endpoint to bulk add service records for workplan components"""
+@app.post("/add_planned_services")
+async def add_planned_services(component_ids: List[str] = Form(...),
+                               service_description: str = Form(...),
+                               workplan_id: Optional[str] = Form(None),
+                               incident_id: Optional[str] = Form(None),
+                               planned_date: Optional[str] = Form(None)):
+    """Endpoint to add planned services for one or more components"""
 
-    success, message = business_logic.bulk_create_service_records(workplan_id=workplan_id,
-                                                                  component_ids=component_ids,
-                                                                  service_date=service_date,
-                                                                  service_description=service_description)
+    success, message = business_logic.create_planned_services(component_ids=component_ids,
+                                                              service_description=service_description,
+                                                              workplan_id=workplan_id,
+                                                              incident_id=incident_id,
+                                                              planned_date=planned_date)
+
+    return JSONResponse({"success": success, "message": message})
+
+@app.post("/complete_services")
+async def complete_services(service_ids: List[str] = Form(...),
+                            service_date: str = Form(...),
+                            completion_note: Optional[str] = Form(None)):
+    """Endpoint to complete one or more planned services"""
+
+    success, message = business_logic.complete_services(service_ids=service_ids,
+                                                        service_date=service_date,
+                                                        completion_note=completion_note)
 
     return JSONResponse({"success": success, "message": message})
 
 @app.post("/update_service_record", response_class=HTMLResponse)
 async def update_service_record(component_id: str = Form(...),
                                 service_id: str = Form(...),
-                                service_date: str = Form(...),
                                 service_description: str = Form(...),
+                                service_date: Optional[str] = Form(None),
                                 workplan_id: Optional[str] = Form(None),
+                                status: str = Form("Completed"),
+                                incident_id: Optional[str] = Form(None),
+                                planned_date: Optional[str] = Form(None),
                                 redirect_url: Optional[str] = Form(None)):
     """Endpoint to update an existing service record"""
 
@@ -483,7 +525,10 @@ async def update_service_record(component_id: str = Form(...),
                                                             service_id,
                                                             service_date,
                                                             service_description,
-                                                            workplan_id)
+                                                            workplan_id,
+                                                            status,
+                                                            incident_id,
+                                                            planned_date)
 
     if not redirect_url or not redirect_url.strip():
         redirect_url = f"/component_details/{component_id}"
@@ -502,8 +547,7 @@ async def add_incident_record(incident_date: str = Form(...),
                               incident_affected_bike_id: Optional[str] = Form(None),
                               incident_description: Optional[str] = Form(None),
                               resolution_date: Optional[str] = Form(None),
-                              resolution_notes: Optional[str] = Form(None),
-                              workplan_id: Optional[str] = Form(None)):
+                              resolution_notes: Optional[str] = Form(None)):
     """Endpoint to create an incident record"""
 
     success, message = business_logic.create_incident_record(incident_date,
@@ -513,13 +557,9 @@ async def add_incident_record(incident_date: str = Form(...),
                                                              incident_affected_bike_id,
                                                              incident_description,
                                                              resolution_date,
-                                                             resolution_notes,
-                                                             workplan_id)
+                                                             resolution_notes)
 
-    if workplan_id and workplan_id.strip():
-        redirect_url = f"/workplan_details/{workplan_id}"
-    else:
-        redirect_url = "/incident_reports"
+    redirect_url = "/incident_reports"
 
     response = RedirectResponse(
         url=f"{redirect_url}?success={success}&message={message}",
@@ -537,7 +577,6 @@ async def update_incident_record(incident_id: str = Form(...),
                                  incident_description: Optional[str] = Form(None),
                                  resolution_date: Optional[str] = Form(None),
                                  resolution_notes: Optional[str] = Form(None),
-                                 workplan_id: Optional[str] = Form(None),
                                  update_mode: Optional[str] = Form(None),
                                  redirect_url: Optional[str] = Form(None)):
     """Endpoint to update an incident record (supports full or partial updates)"""
@@ -551,7 +590,6 @@ async def update_incident_record(incident_id: str = Form(...),
                                                              incident_description,
                                                              resolution_date,
                                                              resolution_notes,
-                                                             workplan_id,
                                                              update_mode)
 
     if not redirect_url or not redirect_url.strip():
@@ -564,26 +602,26 @@ async def update_incident_record(incident_id: str = Form(...),
     return response
 
 @app.post("/add_workplan", response_class=HTMLResponse)
-async def add_workplan(due_date: str = Form(...),
+async def add_workplan(workplan_name: Optional[str] = Form(None),
+                       due_date: str = Form(...),
                        workplan_status: str = Form(...),
                        workplan_size: str = Form(...),
-                       workplan_affected_component_ids: Optional[List[str]] = Form(None),
-                       workplan_affected_bike_id: Optional[str] = Form(None),
                        workplan_description: Optional[str] = Form(None),
                        completion_date: Optional[str] = Form(None),
                        completion_notes: Optional[str] = Form(None),
-                       source_incident_id: Optional[str] = Form(None)):
+                       source_incident_id: Optional[str] = Form(None),
+                       component_ids: Optional[List[str]] = Form(None)):
     """Endpoint to create a workplan (optionally linked to an incident)"""
 
     success, message, workplan_id = business_logic.create_workplan(due_date,
                                                                     workplan_status,
                                                                     workplan_size,
-                                                                    workplan_affected_component_ids,
-                                                                    workplan_affected_bike_id,
                                                                     workplan_description,
                                                                     completion_date,
                                                                     completion_notes,
-                                                                    source_incident_id)
+                                                                    workplan_name,
+                                                                    source_incident_id,
+                                                                    component_ids)
 
     response = RedirectResponse(
         url=f"/workplan_details/{workplan_id}?success={success}&message={message}",
@@ -593,11 +631,10 @@ async def add_workplan(due_date: str = Form(...),
 
 @app.post("/update_workplan", response_class=HTMLResponse)
 async def update_workplan(workplan_id: str = Form(...),
+                          workplan_name: Optional[str] = Form(None),
                           due_date: Optional[str] = Form(None),
                           workplan_status: Optional[str] = Form(None),
                           workplan_size: Optional[str] = Form(None),
-                          workplan_affected_component_ids: Optional[List[str]] = Form(None),
-                          workplan_affected_bike_id: Optional[str] = Form(None),
                           workplan_description: Optional[str] = Form(None),
                           completion_date: Optional[str] = Form(None),
                           completion_notes: Optional[str] = Form(None),
@@ -609,13 +646,12 @@ async def update_workplan(workplan_id: str = Form(...),
                                                       due_date,
                                                       workplan_status,
                                                       workplan_size,
-                                                      workplan_affected_component_ids,
-                                                      workplan_affected_bike_id,
                                                       workplan_description,
                                                       completion_date,
                                                       completion_notes,
                                                       close_linked_incidents,
-                                                      update_mode)
+                                                      update_mode,
+                                                      workplan_name)
 
     response = RedirectResponse(
         url=f"/workplan_details/{workplan_id}?success={success}&message={message}",

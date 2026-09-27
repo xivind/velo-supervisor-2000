@@ -58,7 +58,7 @@ class Strava:
                 self.token_loader()
 
             except Exception as error:
-                logging.error(f'An error occured refreshing tokens: {error}.')
+                logging.error(f'An error occurred refreshing tokens: {error}.')
 
         try:
             logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])},in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}.')
@@ -93,7 +93,7 @@ class Strava:
                 logging.debug(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides.')
 
         except Exception as error:
-            logging.error(f'An error occured during the API call to fetch rides: {error}.')
+            logging.error(f'An error occurred during the API call to fetch rides: {error}.')
 
     async def get_athlete_bikes(self):
         """Method to authenticate and get the full list of bike ids from the athlete's Strava profile, independent of ride history"""
@@ -112,7 +112,7 @@ class Strava:
                 self.token_loader()
 
             except Exception as error:
-                logging.error(f'An error occured refreshing tokens: {error}.')
+                logging.error(f'An error occurred refreshing tokens: {error}.')
 
         try:
             logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])},in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}.')
@@ -127,7 +127,7 @@ class Strava:
                 logging.debug(f'Found {len(self.athlete_bike_ids)} bikes registered on athlete profile.')
 
         except Exception as error:
-            logging.error(f'An error occured during the API call to fetch athlete profile: {error}.')
+            logging.error(f'An error occurred during the API call to fetch athlete profile: {error}.')
 
         return self.athlete_bike_ids
 
@@ -148,7 +148,7 @@ class Strava:
                 self.token_loader()
 
             except Exception as error:
-                logging.error(f'An error occured refreshing tokens: {error}.')
+                logging.error(f'An error occurred refreshing tokens: {error}.')
 
         try:
             logging.info(f'Access token valid. Expires at {datetime.fromtimestamp(self.token["expires_at"])},in {datetime.fromtimestamp(self.token["expires_at"]) - datetime.now()}.')
@@ -169,7 +169,7 @@ class Strava:
 
 
         except Exception as error:
-            logging.error(f'An error occured during the API call to fetch bikes: {error}.')
+            logging.error(f'An error occurred during the API call to fetch bikes: {error}.')
 
     def prepare_payload_rides(self):
         """Method to prepare a list of rides"""

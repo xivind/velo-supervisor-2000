@@ -15,8 +15,7 @@
 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#workplanRecordModal">
     <span>📝 New workplan</span>
 </button>
-<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal"
-        data-workplans='{{ payload.workplans_data | tojson if payload.workplans_data else "[]" }}'>
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#incidentRecordModal">
     <span>🚨 New incident</span>
 </button>
 </div>

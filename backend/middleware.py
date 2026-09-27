@@ -34,7 +34,7 @@ class Middleware(BaseHTTPMiddleware):
             truncated_traceback = "\n".join(traceback.format_exc().splitlines()[-6:])
             error_message = f"An unexpected error occurred: {truncated_traceback}"
 
-        return self.templates.TemplateResponse("error.html", {
+        return self.templates.TemplateResponse(request, "error.html", {
             "request": request,
             "status_code": status_code,
             "error_message": error_message,

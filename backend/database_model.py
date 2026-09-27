@@ -105,7 +105,7 @@ class Collections(BaseModel):
     sub_collections = CharField()
     updated_date = CharField()
     comment = CharField()
-    
+
     class Meta:
         """Extends model with extra attributes"""
         table_name = "collections"
@@ -120,6 +120,7 @@ class ComponentHistory(BaseModel):
     updated_date = CharField()
     update_reason = CharField()
     distance_marker = FloatField()
+    notes = CharField()
 
     class Meta:
         """Extends model with extra attributes"""
@@ -136,6 +137,9 @@ class Services(BaseModel):
     distance_marker = FloatField()
     description = CharField()
     workplan_id = CharField()
+    status = CharField()
+    incident_id = CharField()
+    planned_date = CharField()
 
     class Meta:
         """Extends model with extra attributes"""
@@ -153,7 +157,6 @@ class Incidents(BaseModel):
     incident_description = CharField()
     resolution_date = CharField()
     resolution_notes = CharField()
-    workplan_id = CharField()
 
     class Meta:
         """Extends model with extra attributes"""
@@ -163,11 +166,10 @@ class Incidents(BaseModel):
 class Workplans(BaseModel):
     """Model for table: workplans"""
     workplan_id = CharField(primary_key=True, unique=True)
+    workplan_name = CharField()
     due_date = CharField()
     workplan_status = CharField()
     workplan_size = CharField()
-    workplan_affected_component_ids = CharField()
-    workplan_affected_bike_id = CharField()
     workplan_description = CharField()
     completion_date = CharField()
     completion_notes = CharField()

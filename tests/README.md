@@ -21,7 +21,7 @@ Velo Supervisor 2000 uses **manual testing protocols** rather than automated tes
 
 ## Available Test Protocols
 
-- **[test_protocol_collections.md](test_protocol_collections.md)**: Comprehensive testing for the Collections feature (135 test cases)
+- **[test_protocol_services.md](test_protocol_services.md)**: Planned services, workplans and incidents, including migration and component status notes
 
 ## Future Test Protocols
 
@@ -29,8 +29,6 @@ As development continues, additional test protocols should be created for:
 
 - Components management
 - Bike tracking and details
-- Workplans functionality
-- Incident reports
 - Component types
 - Strava integration
 - Configuration and settings
