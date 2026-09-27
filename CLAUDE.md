@@ -74,9 +74,8 @@ These rules apply to ALL agents and Claude Code itself.
 - **Server runs on**: Port 8000 (http://localhost:8000)
 
 ### Dependencies
-- **Install Python dependencies**: `pip install -r requirements.txt`
-- **Python version**: 3.9+ (as specified in DOCKERFILE)
-- **Create virtual environment**: Recommended for local development
+- **Install Python dependencies**: `uv sync` from the project root (creates `.venv` from `uv.lock`). Add packages with `uv add`, never edit `uv.lock` by hand
+- **Python version**: 3.12 (as specified in DOCKERFILE, `pyproject.toml` requires 3.11+)
 
 ### Database Operations
 - **Database backup**: Use `./backup_db.sh` (Docker-specific script)
