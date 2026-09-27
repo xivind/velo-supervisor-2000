@@ -18,7 +18,7 @@ Assessed 2026-09-20, after the service integration work for issue #351.
 
 **Risk:** renaming or reordering a field breaks pages, and Jinja renders an unknown name as empty rather than raising. During #351 the incidents page crashed on an unpack, and the unfinished workplans table on component details silently rendered empty because its filter used a removed field name. Neither produced an error in the log.
 
-**Fix:** return dictionaries from the tuple builders in `utils.py` and access fields by name in templates. This can be done one builder at a time. Enabling Jinja's strict undefined mode would turn the silent case into a loud one. This could also apply to other payloads. Dicts should always be used to return payloads, instead of tuples. Claude must push back if this is not advisable.
+**Fix:** return dictionaries from the tuple builders in `utils.py` (and possibly other scripts) and access fields by name in templates. This can be done one builder at a time. Enabling Jinja's strict undefined mode would turn the silent case into a loud one. This could also apply to other payloads. Dicts should always be used to return payloads, instead of tuples. Claude must push back if this is not advisable.
 
 ## 3. Two very large files
 
