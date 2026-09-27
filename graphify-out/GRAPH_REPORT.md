@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `06b70d4b`
+- Built from commit: `8d03b404`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,9 +19,9 @@
 - .get_bike_details
 - migrate_incidents_workplan_link
 - Base Template
-- utils.py
-- Meta
 - Strava
+- Meta
+- utils.py
 - What was checked and held up
 - main.js
 - get
@@ -31,27 +31,27 @@
 - DatabaseManager
 - Database Migration Script (db_migration.py)
 - Service integration (#351) - fullstack to code-reviewer
-- validateDateInput
-- sortColumn
+- migrate_components_time_fields
+- Middleware
 - main.py
 - Service integration: incidents, workplans and services
 - .write_delete_record
-- .read_single_component_type
-- get_filtered_log
+- validateDateInput
+- sortColumn
 - Python Requirements List
 - .read_single_bike
 - .read_component
 - Issues found (none blocking)
-- cleanup
-- initializeIncidentTable
+- validateComponentThresholds
+- .read_single_component_type
 - version.py
 - CLAUDE.md
 - .get_component_details
-- validateComponentThresholds
-- migrate_components_time_fields
+- renderPreview
+- initializeIncidentTable
 - helpTopics Data Object
 - conftest.py
-- .read_all_incidents
+- .count_component_types_in_use
 - insert_planned_service_for_migration
 - seed_component
 - test_migration.py
@@ -67,19 +67,22 @@
 - migrate_workplans_name_column
 - db_migration.py
 - run_all_migrations
-- .read_subset_components
+- .read_recent_rides
 - Results
-- .read_subset_service_record
+- .read_subset_components
 - migrate_database
+- .read_subset_service_record
 - .read_sum_distance_subset_rides
-- renderPreview
 - migrate_services_workplan_link
 - .write_workplan
-- .read_bikes
-- config_overview
-- .read_subset_component_history
+- cleanup
 - .read_all_components_objects
+- config_overview
+- .write_incident_record
+- .read_all_incidents
+- .read_bikes
 - Git Workflow Rules
+- .read_date_oldest_ride
 - code-reviewer.md
 - backup_db.sh
 - create-container-vs2000.sh
@@ -108,7 +111,7 @@
 - v0.4.4 Release
 - database-expert.md
 - ux-designer.md
-- .read_recent_rides
+- .read_subset_component_history
 - Agent Communication via Handovers
 - fullstack-developer.md
 - product-manager.md
@@ -116,23 +119,20 @@
 - architect.md
 - Architecture Overview
 - Development Commands
-- Middleware
 - .read_unique_bikes
+- get_filtered_log
+- Collections Test Protocol
 - docs-maintainer.md
 - Code Style & Standards
 - Development Notes
 - Standard Development Workflow
 - Sub-Agent Team
 - Testing Requirements
-- .write_incident_record
-- .count_component_types_in_use
-- .read_date_oldest_ride
+- Complete Workplan Modal Template
 - .write_component_distance
 - .read_workplans_by_incident
 - Service integration (#351): findings from the manual test walkthrough
 - .write_component_service_status
-- Collections Test Protocol
-- Complete Workplan Modal Template
 
 ## God Nodes (most connected - your core abstractions)
 1. `DatabaseManager` - 70 edges
@@ -161,14 +161,6 @@
 ## Import Cycles
 - None detected.
 
-## Hyperedges (group relationships)
-- **Breaking Database Schema Change Releases** — readme_v0_4_2, readme_v0_4_3, readme_v0_4_5, readme_v0_4_7, readme_v0_4_9, readme_db_migration_script [EXTRACTED 0.90]
-- **Feature Introduction Documented in Help Page** — readme_v0_4_5, readme_v0_4_6, readme_v0_4_7, frontend_templates_help_core_concepts_collections, frontend_templates_help_common_tasks_quick_swap, frontend_templates_help_core_concepts_hybrid_tracking [INFERRED 0.85]
-- **Generic JS-Driven Utility Modals** — frontend_templates_modal_confirm_confirmmodal, frontend_templates_modal_validation_validationmodal, frontend_templates_modal_report_reportmodal, frontend_templates_modal_docs_docsmodal, frontend_templates_modal_loading_loadingmodal [INFERRED 0.85]
-- **Help Topic Display and Search Flow** — frontend_templates_help_helptopics, frontend_templates_help_showhelptopic, frontend_templates_help_search_functionality [INFERRED 0.85]
-- **Shared Status Legend Badge Pattern** — frontend_templates_component_overview_template, frontend_templates_collection_details_template, frontend_templates_index_template [INFERRED 0.85]
-- **Templates Iterating payload.all_components_data** — frontend_templates_modal_incident_record_incidentrecordmodal, frontend_templates_modal_install_component_installcomponentmodal, frontend_templates_modal_quick_swap_quickswapmodal, frontend_templates_modal_workplan_record_workplanrecordmodal [INFERRED 0.90]
-
 ## Communities (118 total, 48 thin omitted)
 
 ### Community 0 - ".get_bike_details"
@@ -183,17 +175,17 @@ Nodes (8): check_incidents_workplan_column(), check_services_integration_columns
 Cohesion: 0.12
 Nodes (34): Base Template, btn_new_incident Macro (Bike Details), btn_new_workplan Macro (Bike Details), Bike Details Template, Collection Details Template, btn_new_incident Macro (Component Details), btn_new_workplan Macro (Component Details), btn_quick_swap Macro (+26 more)
 
-### Community 3 - "utils.py"
-Cohesion: 0.05
-Nodes (44): apscheduler_schedulers_asyncio, apscheduler_triggers_cron, apscheduler_triggers_interval, Module to handle business logic, Module for interaction with a Sqlite database, lifespan(), Manage application startup and shutdown, Endpoint to update config file based on which form was submitted (+36 more)
+### Community 3 - "Strava"
+Cohesion: 0.18
+Nodes (9): Class to interact with Strava API, Method to authenticate and get data from Stravas gear API, Method to prepare a list of rides, Method to prepare a list of bikes, Method to read oauth options from file, Method to save oauth options to file, Method to authenticate and get data from Stravas activities API, Method to authenticate and get the full list of bike ids from the athlete's… (+1 more)
 
 ### Community 4 - "Meta"
 Cohesion: 0.09
 Nodes (34): BaseModel, Bikes, Collections, ComponentHistory, Components, ComponentTypes, Incidents, Meta (+26 more)
 
-### Community 5 - "Strava"
-Cohesion: 0.18
-Nodes (9): Class to interact with Strava API, Method to authenticate and get data from Stravas gear API, Method to prepare a list of rides, Method to prepare a list of bikes, Method to read oauth options from file, Method to save oauth options to file, Method to authenticate and get data from Stravas activities API, Method to authenticate and get the full list of bike ids from the athlete's… (+1 more)
+### Community 5 - "utils.py"
+Cohesion: 0.05
+Nodes (44): apscheduler_schedulers_asyncio, apscheduler_triggers_cron, apscheduler_triggers_interval, Module to handle business logic, Module for interaction with a Sqlite database, lifespan(), Manage application startup and shutdown, Endpoint to update config file based on which form was submitted (+36 more)
 
 ### Community 6 - "What was checked and held up"
 Cohesion: 0.09
@@ -231,13 +223,13 @@ Nodes (16): Collections (Core Concept), Component Types vs Components, Hybrid Ti
 Cohesion: 0.08
 Nodes (22): Method to add service record, planned or completed, Method to add a planned service, which has no service date, bike or distance…, Method to build the report used by the plan services and complete services…, Method to create planned services for one or more components with the same…, Method to complete planned services with one service date, keeping their…, Method to validate service records before processing and storing in database, generate_incident_title(), get_effective_planned_date() (+14 more)
 
-### Community 15 - "validateDateInput"
-Cohesion: 0.33
-Nodes (6): initializeWorkplanForm(), submitCollectionAjax(), submitComponentAjax(), validateCollectionStatusChange(), validateDateInput(), validateWorkplanForm()
+### Community 15 - "migrate_components_time_fields"
+Cohesion: 0.50
+Nodes (4): check_components_time_columns(), migrate_components_time_fields(), Check if Components table needs time-based fields migration, Add time-based fields to Components table and populate threshold_km
 
-### Community 16 - "sortColumn"
-Cohesion: 0.29
-Nodes (8): initializeCollectionsSorting(), sortColumn(), initializeWorkplanTable(), setupIncidentTableSorting(), setupWorkplanSearch(), setupWorkplanStatusFiltering(), setupWorkplanTableSorting(), updateWorkplansVisibility()
+### Community 16 - "Middleware"
+Cohesion: 0.24
+Nodes (7): Middleware, Request, Class to handle exceptions that breaks the program and should be shown to the…, Method to dispatch intercepted requests, Method to catch and handle exceptions, BaseHTTPMiddleware, Exception
 
 ### Community 17 - "main.py"
 Cohesion: 0.06
@@ -251,9 +243,13 @@ Nodes (10): Data model, Error handling, Goal, main.js, Modals, Out of scope, Pag
 Cohesion: 0.17
 Nodes (6): Method to retrieve record for a specific entry in the installation log, Method to retrieve a specific service record, Method to retrieve record for a specific collection, Method to retrieve record for a specific incident report, Method to retrieve record for a specific workplan, Method to delete a given record and associated records
 
-### Community 21 - "get_filtered_log"
-Cohesion: 0.50
-Nodes (4): get_filtered_log(), Endpoint to read log and return only business events, Function to get filtered log records, read_filtered_logs()
+### Community 20 - "validateDateInput"
+Cohesion: 0.33
+Nodes (6): initializeWorkplanForm(), submitCollectionAjax(), submitComponentAjax(), validateCollectionStatusChange(), validateDateInput(), validateWorkplanForm()
+
+### Community 21 - "sortColumn"
+Cohesion: 0.29
+Nodes (8): initializeCollectionsSorting(), sortColumn(), initializeWorkplanTable(), setupIncidentTableSorting(), setupWorkplanSearch(), setupWorkplanStatusFiltering(), setupWorkplanTableSorting(), updateWorkplansVisibility()
 
 ### Community 22 - "Python Requirements List"
 Cohesion: 0.25
@@ -267,13 +263,9 @@ Nodes (3): Method to get component names based on list of ids, Method to retriev
 Cohesion: 0.12
 Nodes (16): Method to get the name of a bike based on bike id, bike_details(), component_details(), incident_reports(), Endpoint for incident reports page, Endpoint for workplan details page, Endpoint for component details page, Endpoint for bike details page (+8 more)
 
-### Community 26 - "cleanup"
-Cohesion: 0.50
-Nodes (4): cleanup(), handleCancel(), handleConfirm(), performBulkStatusChange()
-
-### Community 27 - "initializeIncidentTable"
-Cohesion: 0.67
-Nodes (4): initializeIncidentTable(), setupIncidentSearch(), setupIncidentStatusFiltering(), updateIncidentVisibility()
+### Community 26 - "validateComponentThresholds"
+Cohesion: 0.33
+Nodes (6): addFormValidation(), clearValidationErrors(), showFieldError(), showValidationModal(), validateComponentThresholds(), validateQuickSwapForm()
 
 ### Community 28 - "version.py"
 Cohesion: 0.40
@@ -287,13 +279,13 @@ Nodes (4): CLAUDE.md, Data Management Tips, Need More Help? (Troubleshooting), H
 Cohesion: 0.11
 Nodes (27): Method to produce payload for page component details, Method to produce payload for page incident reports, Method to produce payload for page of all workplans, Method to produce payload for workplan details page, calculate_elapsed_days(), derive_workplan_context(), generate_workplan_title(), get_formatted_bikes_list() (+19 more)
 
-### Community 31 - "validateComponentThresholds"
-Cohesion: 0.33
-Nodes (6): addFormValidation(), clearValidationErrors(), showFieldError(), showValidationModal(), validateComponentThresholds(), validateQuickSwapForm()
-
-### Community 32 - "migrate_components_time_fields"
+### Community 31 - "renderPreview"
 Cohesion: 0.50
-Nodes (4): check_components_time_columns(), migrate_components_time_fields(), Check if Components table needs time-based fields migration, Add time-based fields to Components table and populate threshold_km
+Nodes (4): containsMarkdown(), renderPreview(), setInitialMode(), updateCheckboxInText()
+
+### Community 32 - "initializeIncidentTable"
+Cohesion: 0.67
+Nodes (4): initializeIncidentTable(), setupIncidentSearch(), setupIncidentStatusFiltering(), updateIncidentVisibility()
 
 ### Community 33 - "helpTopics Data Object"
 Cohesion: 0.50
@@ -359,13 +351,13 @@ Nodes (7): 2026-09-25, first walkthrough, human, 2026-09-26, regression against 
 Cohesion: 0.33
 Nodes (6): find_database_file(), migrate_database(), prompt_for_db_path(), Search for a database file in the user's home directory and subdirectories, Prompt user for database path or filename and verify it exists, Main function to handle the database migration.
 
-### Community 56 - "renderPreview"
-Cohesion: 0.50
-Nodes (4): containsMarkdown(), renderPreview(), setInitialMode(), updateCheckboxInText()
-
 ### Community 57 - "migrate_services_workplan_link"
 Cohesion: 0.50
 Nodes (4): check_services_workplan_column(), migrate_services_workplan_link(), Check if Services table needs workplan_id column, Add workplan_id column to Services table for workplan hub integration
+
+### Community 59 - "cleanup"
+Cohesion: 0.50
+Nodes (4): cleanup(), handleCancel(), handleConfirm(), performBulkStatusChange()
 
 ### Community 61 - "config_overview"
 Cohesion: 0.50
@@ -419,9 +411,9 @@ Nodes (5): Architecture Overview, Configuration, Core Components, Key Features, 
 Cohesion: 0.40
 Nodes (5): Database Operations, Dependencies, Development Commands, Running the Application, Testing
 
-### Community 104 - "Middleware"
-Cohesion: 0.24
-Nodes (7): Middleware, Request, Class to handle exceptions that breaks the program and should be shown to the…, Method to dispatch intercepted requests, Method to catch and handle exceptions, BaseHTTPMiddleware, Exception
+### Community 105 - "get_filtered_log"
+Cohesion: 0.50
+Nodes (4): get_filtered_log(), Endpoint to read log and return only business events, Function to get filtered log records, read_filtered_logs()
 
 ### Community 107 - "docs-maintainer.md"
 Cohesion: 0.50
@@ -465,7 +457,7 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `Git Workflow Rules` and `Version Script CI Workflow`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `DatabaseManager` connect `DatabaseManager` to `.get_bike_details`, `utils.py`, `Meta`, `What was checked and held up`, `.write_delete_record`, `.read_single_component_type`, `.read_single_bike`, `.read_component`, `Issues found (none blocking)`, `.read_all_incidents`, `.read_collection_by_component`, `.read_incidents_by_workplan`, `.read_latest_ride_record`, `database_manager.py`, `.read_subset_components`, `.read_subset_service_record`, `.read_sum_distance_subset_rides`, `.write_workplan`, `.read_bikes`, `.read_subset_component_history`, `.read_all_components_objects`, `.read_recent_rides`, `.read_unique_bikes`, `.write_incident_record`, `.count_component_types_in_use`, `.read_date_oldest_ride`, `.write_component_distance`, `.read_workplans_by_incident`, `.write_component_service_status`?**
+- **Why does `DatabaseManager` connect `DatabaseManager` to `.get_bike_details`, `Meta`, `utils.py`, `What was checked and held up`, `.write_delete_record`, `.read_single_bike`, `.read_component`, `Issues found (none blocking)`, `.read_single_component_type`, `.count_component_types_in_use`, `.read_collection_by_component`, `.read_incidents_by_workplan`, `.read_latest_ride_record`, `database_manager.py`, `.read_recent_rides`, `.read_subset_components`, `.read_subset_service_record`, `.read_sum_distance_subset_rides`, `.write_workplan`, `.read_all_components_objects`, `.write_incident_record`, `.read_all_incidents`, `.read_bikes`, `.read_date_oldest_ride`, `.read_subset_component_history`, `.read_unique_bikes`, `.write_component_distance`, `.read_workplans_by_incident`, `.write_component_service_status`?**
   _High betweenness centrality (0.165) - this node is a cross-community bridge._
 - **Why does `BusinessLogic` connect `BusinessLogic` to `.get_bike_details`, `utils.py`, `What was checked and held up`, `generate_unique_id`, `validate_date_format`, `.calculate_collection_status`, `Service integration (#351) - fullstack to code-reviewer`, `.get_component_details`?**
   _High betweenness centrality (0.107) - this node is a cross-community bridge._
