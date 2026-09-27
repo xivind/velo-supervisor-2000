@@ -4,7 +4,7 @@
 **Updated:** 2026-09-26
 **Branch:** `feature/service-integration` off `dev`, not pushed
 **Spec:** `docs/superpowers/specs/2026-09-18-service-integration-design.md`
-**Plan:** `docs/superpowers/plans/2026-09-18-service-integration.md`
+**Plan:** `docs/superpowers/plans/2026-09-18-service-integration.md`, removed once executed, see git history
 
 ## What was built
 
