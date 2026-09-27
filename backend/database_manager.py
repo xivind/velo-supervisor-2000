@@ -21,6 +21,16 @@ class DatabaseManager:
     def __init__(self):
         self.database = database
 
+    def check_database_connection(self):
+        """Method to check that the database can be read. Reads a real table, since SELECT 1 succeeds even on a
+        corrupt or missing database file, and catches DatabaseError, since a corrupt file does not raise OperationalError"""
+        try:
+            Bikes.select().exists()
+            return True, "ok"
+
+        except peewee.DatabaseError as error:
+            return False, f"Database check failed: {str(error)}"
+
     def read_bikes(self):
         """Method to read content of bikes table"""
         return Bikes.select()

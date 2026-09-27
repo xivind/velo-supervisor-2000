@@ -1345,7 +1345,7 @@ class BusinessLogic():
                     if success:
                         logging.debug(message)
                     else:
-                        logging.error(message)
+                        logging.warning(message)
                 
                 elif component_installation_status == "Not installed":
                     logging.warning(f"Component {component_name} is not installed, no history record created. Using alternate method to set lifetime and service status")
@@ -1481,7 +1481,7 @@ class BusinessLogic():
 
             success, message = self.validate_history_record("create history", component_id, history_id, component_updated_date, installation_status, component_bike_id)
             if not success:
-                logging.error(f"Validation of history record failed: {message}")
+                logging.warning(f"Validation of history record failed: {message}")
                 return success, message
 
             if installation_status == "Not installed":
@@ -1534,7 +1534,7 @@ class BusinessLogic():
 
             success, message = self.validate_history_record("edit history", current_history.component_id, history_id, updated_date, current_history.update_reason, current_history.bike_id)
             if not success:
-                logging.error(f"Validation of history record failed: {message}")
+                logging.warning(f"Validation of history record failed: {message}")
                 return success, message
             
             history_data = {"history_id": history_id,
@@ -1789,7 +1789,7 @@ class BusinessLogic():
                                                                     new_component_data)
 
             if not is_valid:
-                logging.error(f"Quick swap validation failed for {old_component.component_name}: {validation_message}")
+                logging.warning(f"Quick swap validation failed for {old_component.component_name}: {validation_message}")
                 return False, validation_message
 
             bike_id = old_component.bike_id
@@ -1816,7 +1816,7 @@ class BusinessLogic():
                                                                            component_notes=new_component_data["notes"])
 
                 if success == False:
-                    logging.error(f"Quick swap failed: Failed to create new component '{new_component_data['component_name']}': {message}")
+                    logging.warning(f"Quick swap failed: Failed to create new component '{new_component_data['component_name']}': {message}")
                     return False, f"Quick swap failed: Could not create new component. {message}"
 
                 elif success == "warning":
@@ -1838,7 +1838,7 @@ class BusinessLogic():
                                                           notes=notes)
 
             if not success:
-                logging.error(f"Quick swap failed: Could not update old component status: {message}")
+                logging.warning(f"Quick swap failed: Could not update old component status: {message}")
                 if new_component_data:
                     logging.warning(f"Quick swap partial failure: New component '{new_component.component_name}' (ID: {new_component_id}) was created with status 'Not installed'. Old component '{old_component.component_name}' (ID: {old_component_id}) could not be updated to '{fate}'. Manual fix required: {message}")
                     return False, f"Quick swap partially failed: New component '{new_component.component_name}' was created but remains 'Not installed'. Old component '{old_component.component_name}' remains 'Installed' on {bike.bike_name}. Manual fix required: {message}"
@@ -1855,7 +1855,7 @@ class BusinessLogic():
                                                           notes=notes)
 
             if not success:
-                logging.error(f"Quick swap failed: Could not install new component: {message}")
+                logging.warning(f"Quick swap failed: Could not install new component: {message}")
                 logging.warning(f"Quick swap partial failure: {old_component.component_name} is now '{fate}' but {new_component.component_name} could not be installed")
                 return False, f"Quick swap partially failed: '{old_component.component_name}' is now '{fate}', but '{new_component.component_name}' could not be installed on {bike.bike_name}. Manual fix required: {message}"
 
@@ -2076,7 +2076,7 @@ class BusinessLogic():
                     successful_components.append(component_name)
                 else:
                     failed_components.append({"name": component_name, "error": message})
-                    logging.error(f"Failed to update component {component_id}: {message}")
+                    logging.warning(f"Failed to update component {component_id}: {message}")
 
             if success_count > 0:
                 try:
@@ -2130,7 +2130,7 @@ class BusinessLogic():
                            "successful_components": [],
                            "failed_components": failed_components}
                 
-                logging.error("Collection status change: all components failed")
+                logging.warning("Collection status change: all components failed")
                 return False, message
 
         except Exception as error:
@@ -2163,7 +2163,7 @@ class BusinessLogic():
 
             success, message = self.validate_service_record("create service", component_id, service_id, service_date, workplan_id=workplan_id)
             if not success:
-                logging.error(f"Validation of service record failed: {message}")
+                logging.warning(f"Validation of service record failed: {message}")
                 return success, message
 
             service_data = {"service_id": service_id,
@@ -2210,7 +2210,7 @@ class BusinessLogic():
                                                         service_description=service_description,
                                                         planned_date=planned_date)
         if not success:
-            logging.error(f"Validation of planned service failed: {message}")
+            logging.warning(f"Validation of planned service failed: {message}")
             return success, message
 
         component = database_manager.read_component(component_id)
@@ -2286,7 +2286,7 @@ class BusinessLogic():
                     logging.info(f"Created planned service for {component_name}")
                 else:
                     failed_components.append({"name": component_name, "error": message})
-                    logging.error(f"Failed to create planned service for {component_id}: {message}")
+                    logging.warning(f"Failed to create planned service for {component_id}: {message}")
 
             message = self.build_bulk_service_message("planned", successful_components, failed_components, [])
             logging.info(message["summary"])
@@ -2326,7 +2326,7 @@ class BusinessLogic():
                                                                 workplan_id=service.workplan_id)
                 if not success:
                     failed_components.append({"name": component_name, "error": message})
-                    logging.error(f"Failed to complete service {service_id}: {message}")
+                    logging.warning(f"Failed to complete service {service_id}: {message}")
                     continue
 
                 service_description = f"{service.description}\n{completion_note}" if completion_note else service.description
@@ -2405,7 +2405,7 @@ class BusinessLogic():
                                                                 service_description=service_description,
                                                                 planned_date=planned_date)
                 if not success:
-                    logging.error(f"Validation of service record failed: {message}")
+                    logging.warning(f"Validation of service record failed: {message}")
                     return success, message
 
                 service_data = {"service_id": service_id,
@@ -2436,7 +2436,7 @@ class BusinessLogic():
             validation_mode = "complete service" if current_service.status == "Planned" else "edit service"
             success, message = self.validate_service_record(validation_mode, component_id, service_id, service_date, workplan_id=workplan_id)
             if not success:
-                logging.error(f"Validation of service record failed: {message}")
+                logging.warning(f"Validation of service record failed: {message}")
                 return success, message
 
             service_data = {"service_id": service_id,
@@ -3395,3 +3395,7 @@ class BusinessLogic():
         else:
             self.app_state.strava_last_pull = "never"
             self.app_state.strava_days_since_last_pull = None
+
+    def check_database_connection(self):
+        """Method to check the database connection for the health check"""
+        return database_manager.check_database_connection()

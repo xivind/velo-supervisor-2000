@@ -19,10 +19,15 @@ from utils import (read_config,
                    read_filtered_logs,
                    shutdown_server,
                    get_button_order,
-                   get_button_sorting_config)
+                   get_button_sorting_config,
+                   get_health_status,
+                   ERROR_RECORDER)
 
 # Load configuration
 CONFIG = read_config()
+
+# Record errors in memory for the health check
+logging.getLogger().addHandler(ERROR_RECORDER)
 
 # Lifespan context manager for startup and shutdown events
 @asynccontextmanager
@@ -799,3 +804,11 @@ async def get_filtered_log():
     """Endpoint to read log and return only business events""" 
 
     return read_filtered_logs()
+
+@app.get("/health")
+async def health():
+    """Endpoint for the Docker health check, returns 503 if errors were logged the last 24 hours or the database check fails"""
+    database_success, database_message = business_logic.check_database_connection()
+    healthy, health_status = get_health_status(database_success, database_message)
+
+    return JSONResponse(content=health_status, status_code=200 if healthy else 503)

@@ -3,11 +3,13 @@
 
 import json
 import asyncio
+import logging
 import uuid
 import time
 import sys
 import re
-from datetime import datetime
+from collections import deque
+from datetime import datetime, timedelta
 
 def get_formatted_datetime_now():
     """Function to get current datetime formatted as YYYY-MM-DD HH:MM"""
@@ -164,6 +166,45 @@ def read_filtered_logs():
     subset_filtered_logs = filtered_logs[-100:]
 
     return {"logs": subset_filtered_logs}
+
+class ErrorRecorder(logging.Handler):
+    """Logging handler that keeps the most recent error records in memory for the health check"""
+    def __init__(self):
+        super().__init__()
+        self.errors = deque(maxlen=20)
+
+    def emit(self, record):
+        """Method to store error records and ignore lower levels. Filters here instead of relying on the handler level,
+        since lifespan in main.py resets the level of all root handlers"""
+        if record.levelno < logging.ERROR:
+            return
+
+        message = record.getMessage()
+        if record.exc_info and record.exc_info[1]:
+            message = f"{message}: {type(record.exc_info[1]).__name__}: {record.exc_info[1]}"
+
+        self.errors.append((datetime.fromtimestamp(record.created), message))
+
+    def read_recent_errors(self, hours):
+        """Method to get error records newer than the given number of hours"""
+        cutoff = datetime.now() - timedelta(hours=hours)
+        with self.lock:
+            return [(error_time, message) for error_time, message in self.errors if error_time >= cutoff]
+
+ERROR_RECORDER = ErrorRecorder()
+
+def get_health_status(database_success, database_message):
+    """Function to assess application health from errors logged the last 24 hours and the database check"""
+    recent_errors = ERROR_RECORDER.read_recent_errors(24)
+    healthy = database_success and not recent_errors
+
+    health_status = {"status": "healthy" if healthy else "unhealthy",
+                     "database": database_message,
+                     "latest_errors": [{"time": error_time.strftime("%Y-%m-%d %H:%M:%S"),
+                                        "message": message[:300]}
+                                       for error_time, message in recent_errors[-3:]]}
+
+    return healthy, health_status
 
 async def shutdown_server():
     """Helper function to shutdown the server after a short delay"""

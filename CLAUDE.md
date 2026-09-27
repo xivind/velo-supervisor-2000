@@ -25,7 +25,7 @@ These rules apply to ALL agents and Claude Code itself.
 - **Handovers: max 100 lines.** Focus on decisions made, files changed, and what the next agent needs. No preambles, no project summaries, no repeating CLAUDE.md content.
 - **No redundant context.** Don't restate project architecture, tech stack, or patterns already documented here.
 - **Progress updates: 1-2 sentences max.** Don't narrate every step you take.
-- **Code comments only where logic isn't self-evident.** No boilerplate docstrings.
+- **No inline code comments,** except where the file already has that pattern (e.g. section comments in `main.py`, `DOCKERFILE`). Explanations of non-obvious logic go in the docstring. No boilerplate docstrings.
 - **Don't repeat yourself.** If something is in CLAUDE.md, reference it - don't rewrite it.
 
 ---
@@ -370,9 +370,12 @@ This project uses breaking database schema changes between versions. Always run 
 
 ### Docker Development
 The application is designed to run in Docker with mounted volumes for data persistence and secrets management.
+The Docker `HEALTHCHECK` runs `backend/healthcheck.py` every 600s against `/health`, which returns 503 if an ERROR was logged in the last 24 hours or the database can't be read.
 
 ### Logging
 Application uses rotating file logs configured in `uvicorn_log_config.ini`, logs stored in `/data/logs/` when running in Docker.
+
+**Log levels drive container health:** any ERROR logged in the last 24 hours marks the container unhealthy (see `/health`, #103). Use `logging.error` only when something actually failed (exception, failed database write, failed recalculation, Strava API failure), logged once where it fails. Use `logging.warning` for rejected input (validation, business rules) and for callers repeating a failure already logged below them.
 
 ---
 

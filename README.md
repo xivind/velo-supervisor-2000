@@ -60,6 +60,8 @@ As a principle, development is to be done in the dev-branch. When changes are re
 - New feature: It's now possible to add notes when changing component status, also available through collections and quick swap.
 - Workplans can now be given user defined names. An auto generated title will be used if no user defined name is supplied.
 - The incident modal now lists linked services, with links to each component and its workplan.
+- Switched from pip to uv as python package manager
+- Added health check endpoint and integration with docker daemon
 - Fixed a bug where a component status change or a service deletion silently removed the workplan link from the newest service.
 - Fixed page rendering and form handling on current versions of FastAPI and Starlette.
 - Fixed a bug where the date picker refused future dates for planned dates and due dates.
