@@ -25,7 +25,7 @@ These rules apply to ALL agents and Claude Code itself.
 - **Handovers: max 100 lines.** Focus on decisions made, files changed, and what the next agent needs. No preambles, no project summaries, no repeating CLAUDE.md content.
 - **No redundant context.** Don't restate project architecture, tech stack, or patterns already documented here.
 - **Progress updates: 1-2 sentences max.** Don't narrate every step you take.
-- **Code comments only where logic isn't self-evident.** No boilerplate docstrings.
+- **No inline code comments,** except where the file already has that pattern (e.g. section comments in `main.py`, `DOCKERFILE`). Explanations of non-obvious logic go in the docstring. No boilerplate docstrings.
 - **Don't repeat yourself.** If something is in CLAUDE.md, reference it - don't rewrite it.
 
 ---
@@ -74,9 +74,8 @@ These rules apply to ALL agents and Claude Code itself.
 - **Server runs on**: Port 8000 (http://localhost:8000)
 
 ### Dependencies
-- **Install Python dependencies**: `pip install -r requirements.txt`
-- **Python version**: 3.9+ (as specified in DOCKERFILE)
-- **Create virtual environment**: Recommended for local development
+- **Install Python dependencies**: `uv sync` from the project root (creates `.venv` from `uv.lock`). Add packages with `uv add`, never edit `uv.lock` by hand
+- **Python version**: 3.12 (as specified in DOCKERFILE, `pyproject.toml` requires 3.11+)
 
 ### Database Operations
 - **Database backup**: Use `./backup_db.sh` (Docker-specific script)
@@ -363,14 +362,20 @@ See `.handovers/CLAUDE.md` for comprehensive instructions on creating and using 
 
 ## Development Notes
 
+### Technical Debt
+Known technical debt is tracked in [issue #356](https://github.com/xivind/velo-supervisor-2000/issues/356), not in a file in the repository. Add findings there, and say in the issue when an item is cleared.
+
 ### Database Schema Changes
 This project uses breaking database schema changes between versions. Always run `backend/db_migration.py` when upgrading and backup the database first using the provided script.
 
 ### Docker Development
 The application is designed to run in Docker with mounted volumes for data persistence and secrets management.
+The Docker `HEALTHCHECK` runs `backend/healthcheck.py` every 600s against `/health`, which returns 503 if an ERROR was logged in the last 24 hours or the database can't be read.
 
 ### Logging
 Application uses rotating file logs configured in `uvicorn_log_config.ini`, logs stored in `/data/logs/` when running in Docker.
+
+**Log levels drive container health:** any ERROR logged in the last 24 hours marks the container unhealthy (see `/health`, #103). Use `logging.error` only when something actually failed (exception, failed database write, failed recalculation, Strava API failure), logged once where it fails. Use `logging.warning` for rejected input (validation, business rules) and for callers repeating a failure already logged below them.
 
 ---
 

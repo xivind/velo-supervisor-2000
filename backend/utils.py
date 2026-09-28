@@ -3,11 +3,13 @@
 
 import json
 import asyncio
+import logging
 import uuid
 import time
 import sys
 import re
-from datetime import datetime
+from collections import deque
+from datetime import datetime, timedelta
 
 def get_formatted_datetime_now():
     """Function to get current datetime formatted as YYYY-MM-DD HH:MM"""
@@ -32,6 +34,8 @@ def get_button_order(config, page_name):
     defaults = {'bike_details': ['new-collection',
                                  'new-component',
                                  'install-existing',
+                                 'plan-services',
+                                 'complete-services',
                                  'new-workplan',
                                  'new-incident'],
                 'component_details': ['view-bike',
@@ -41,17 +45,26 @@ def get_button_order(config, page_name):
                                       'quick-swap',
                                       'duplicate',
                                       'new-service',
+                                      'plan-services',
+                                      'complete-services',
                                       'new-workplan',
                                       'new-incident',
                                       'delete']}
 
-    return config.get('button_sorting', {}).get(page_name, defaults.get(page_name, []))
+    default_order = defaults.get(page_name, [])
+    configured_order = config.get('button_sorting', {}).get(page_name, default_order)
+
+    missing_buttons = [button_id for button_id in default_order if button_id not in configured_order]
+
+    return configured_order + missing_buttons
 
 def get_button_sorting_config(config):
     """Function to get button sorting configuration for config page"""
     default_button_sorting = {'bike_details': ['new-collection',
                                                'new-component',
                                                'install-existing',
+                                               'plan-services',
+                                               'complete-services',
                                                'new-workplan',
                                                'new-incident'],
                             'component_details': ['view-bike',
@@ -61,6 +74,8 @@ def get_button_sorting_config(config):
                                                   'quick-swap',
                                                   'duplicate',
                                                   'new-service',
+                                                  'plan-services',
+                                                  'complete-services',
                                                   'new-workplan',
                                                   'new-incident',
                                                   'delete']}
@@ -119,6 +134,7 @@ def write_config(form_type, db_path=None, strava_tokens=None, verbose_logging=No
             updated_config["button_sorting"] = {"bike_details": ["new-collection",
                                                                  "new-component",
                                                                  "install-existing",
+                                                                 "plan-services",
                                                                  "new-workplan",
                                                                  "new-incident"],
                                                 "component_details": ["view-bike",
@@ -128,6 +144,7 @@ def write_config(form_type, db_path=None, strava_tokens=None, verbose_logging=No
                                                                       "quick-swap",
                                                                       "duplicate",
                                                                       "new-service",
+                                                                      "plan-services",
                                                                       "new-workplan",
                                                                       "new-incident",
                                                                       "delete"]}
@@ -138,7 +155,7 @@ def write_config(form_type, db_path=None, strava_tokens=None, verbose_logging=No
         return True, message
 
     except OSError as error:
-        return False, f"An error occured updating configuration: {str(error)}"
+        return False, f"An error occurred updating configuration: {str(error)}"
 
 def read_filtered_logs():
     """Function to get filtered log records"""
@@ -149,6 +166,45 @@ def read_filtered_logs():
     subset_filtered_logs = filtered_logs[-100:]
 
     return {"logs": subset_filtered_logs}
+
+class ErrorRecorder(logging.Handler):
+    """Logging handler that keeps the most recent error records in memory for the health check"""
+    def __init__(self):
+        super().__init__()
+        self.errors = deque(maxlen=20)
+
+    def emit(self, record):
+        """Method to store error records and ignore lower levels. Filters here instead of relying on the handler level,
+        since lifespan in main.py resets the level of all root handlers"""
+        if record.levelno < logging.ERROR:
+            return
+
+        message = record.getMessage()
+        if record.exc_info and record.exc_info[1]:
+            message = f"{message}: {type(record.exc_info[1]).__name__}: {record.exc_info[1]}"
+
+        self.errors.append((datetime.fromtimestamp(record.created), message))
+
+    def read_recent_errors(self, hours):
+        """Method to get error records newer than the given number of hours"""
+        cutoff = datetime.now() - timedelta(hours=hours)
+        with self.lock:
+            return [(error_time, message) for error_time, message in self.errors if error_time >= cutoff]
+
+ERROR_RECORDER = ErrorRecorder()
+
+def get_health_status(database_success, database_message):
+    """Function to assess application health from errors logged the last 24 hours and the database check"""
+    recent_errors = ERROR_RECORDER.read_recent_errors(24)
+    healthy = database_success and not recent_errors
+
+    health_status = {"status": "healthy" if healthy else "unhealthy",
+                     "database": database_message,
+                     "latest_errors": [{"time": error_time.strftime("%Y-%m-%d %H:%M:%S"),
+                                        "message": message[:300]}
+                                       for error_time, message in recent_errors[-3:]]}
+
+    return healthy, health_status
 
 async def shutdown_server():
     """Helper function to shutdown the server after a short delay"""
@@ -184,20 +240,95 @@ def get_formatted_bikes_list(bikes):
 
     return sorted(bikes_data, key=lambda x: (("(Retired)" in x[0]), x[0].lower()))
 
+def derive_workplan_context(services, database_manager):
+    """Derive bike, component and progress information for a workplan from its services"""
+    bike_ids = []
+    bike_names = []
+    component_ids = []
+    component_names = []
+    completed_count = 0
+    total_count = 0
+
+    for service in services:
+        total_count += 1
+        if service.status == "Completed":
+            completed_count += 1
+
+        component = database_manager.read_component(service.component_id)
+        if service.component_id not in component_ids:
+            component_ids.append(service.component_id)
+            component_names.append(component.component_name if component else "Deleted component")
+
+        if service.status == "Completed":
+            service_bike_id = service.bike_id
+        else:
+            service_bike_id = component.bike_id if component else None
+
+        if service_bike_id and service_bike_id not in bike_ids:
+            bike_ids.append(service_bike_id)
+            bike_names.append(database_manager.read_bike_name(service_bike_id))
+
+    return {"bike_ids": bike_ids,
+            "bike_names": bike_names,
+            "component_ids": component_ids,
+            "component_names": component_names,
+            "completed_count": completed_count,
+            "total_count": total_count}
+
+def get_effective_planned_date(service, workplan):
+    """Return the service's own planned date, else the workplan due date, else None"""
+    if service.planned_date:
+        return service.planned_date
+
+    if workplan and workplan.due_date:
+        return workplan.due_date
+
+    return None
+
+def resolve_workplan_title(workplan, component_names, bike_name):
+    """Return the name the user gave the workplan, or a generated title when there is none"""
+    if workplan.workplan_name and workplan.workplan_name.strip():
+        return workplan.workplan_name
+
+    return generate_workplan_title(component_names, bike_name, workplan.workplan_description)
+
 def get_workplan_names_dict(database_manager):
     """Build dictionary mapping workplan_id -> workplan_name for all workplans"""
     workplan_names = {}
     for workplan in database_manager.read_all_workplans():
-        affected_component_names = database_manager.read_component_names(workplan.workplan_affected_component_ids)
-        affected_bike_name = database_manager.read_bike_name(workplan.workplan_affected_bike_id)
-        workplan_names[workplan.workplan_id] = generate_workplan_title(affected_component_names,
-                                                                       affected_bike_name,
-                                                                       workplan.workplan_description)
+        context = derive_workplan_context(database_manager.read_services_by_workplan(workplan.workplan_id),
+                                          database_manager)
+        workplan_names[workplan.workplan_id] = resolve_workplan_title(workplan,
+                                                                      context["component_names"],
+                                                                      context["bike_names"][0] if context["bike_names"] else None)
 
     return workplan_names
 
+def build_incident_service_entry(service, database_manager, workplan_names):
+    """Describe one service linked to an incident, for the read only list in the incident modal"""
+    component = database_manager.read_component(service.component_id)
+    workplan = database_manager.read_single_workplan(service.workplan_id) if service.workplan_id else None
+
+    return {"service_id": service.service_id,
+            "component_id": service.component_id,
+            "component_name": component.component_name if component else "Deleted component",
+            "status": service.status,
+            "description": service.description,
+            "service_date": service.service_date,
+            "planned_date": service.planned_date,
+            "date": service.service_date if service.status == "Completed" else get_effective_planned_date(service, workplan),
+            "workplan_id": service.workplan_id,
+            "workplan_name": workplan_names.get(service.workplan_id) if service.workplan_id else None,
+            "workplan_status": workplan.workplan_status if workplan else None}
+
 def get_incident_data_tuple(incident, database_manager, workplan_names):
-    """Build standard incident data tuple for display (15 fields)"""
+    """Build standard incident data tuple for display (17 fields)"""
+    incident_services = list(database_manager.read_services_by_incident(incident.incident_id))
+    incident_workplans = []
+    for service in incident_services:
+        if service.workplan_id and service.workplan_id not in [workplan_id for workplan_id, _ in incident_workplans]:
+            incident_workplans.append((service.workplan_id, workplan_names.get(service.workplan_id, None)))
+
     return (incident.incident_id,
             incident.incident_date,
             incident.incident_status,
@@ -214,31 +345,54 @@ def get_incident_data_tuple(incident, database_manager, workplan_names):
             generate_incident_title(database_manager.read_component_names(incident.incident_affected_component_ids),
                                     database_manager.read_bike_name(incident.incident_affected_bike_id),
                                     incident.incident_description),
-            incident.workplan_id,
-            workplan_names.get(incident.workplan_id, None))
+            incident_workplans,
+            sum(1 for service in incident_services if service.status == "Planned"),
+            sum(1 for service in incident_services if service.status == "Completed"),
+            [build_incident_service_entry(service, database_manager, workplan_names)
+             for service in incident_services])
 
 def get_workplan_data_tuple(workplan, database_manager):
     """Build standard workplan data tuple for display (14 fields)"""
-    affected_component_names = database_manager.read_component_names(workplan.workplan_affected_component_ids)
-    affected_bike_name = database_manager.read_bike_name(workplan.workplan_affected_bike_id)
+    context = derive_workplan_context(database_manager.read_services_by_workplan(workplan.workplan_id),
+                                      database_manager)
+    service_progress = ({"completed": context["completed_count"], "total": context["total_count"]}
+                        if context["total_count"] > 0 else None)
 
     return (workplan.workplan_id,
             workplan.due_date,
             workplan.workplan_status,
             workplan.workplan_size,
-            parse_json_string(workplan.workplan_affected_component_ids),
-            affected_component_names,
-            workplan.workplan_affected_bike_id,
-            affected_bike_name,
+            context["component_ids"],
+            context["component_names"],
+            context["bike_ids"],
+            context["bike_names"],
             workplan.workplan_description,
             workplan.completion_date,
             workplan.completion_notes,
             calculate_elapsed_days(workplan.due_date,
                                    workplan.completion_date if workplan.completion_date else get_formatted_datetime_now())[1],
-            generate_workplan_title(affected_component_names,
-                                    affected_bike_name,
-                                    workplan.workplan_description),
-            parse_checkbox_progress(workplan.workplan_description))
+            resolve_workplan_title(workplan,
+                                   context["component_names"],
+                                   context["bike_names"][0] if context["bike_names"] else None),
+            service_progress)
+
+def get_planned_service_data_tuple(service, database_manager, workplan_names):
+    """Build standard planned service tuple for display (11 fields)"""
+    workplan = database_manager.read_single_workplan(service.workplan_id) if service.workplan_id else None
+    component = database_manager.read_component(service.component_id)
+    oldest_history_record = database_manager.read_oldest_history_record(service.component_id)
+
+    return (service.service_id,
+            service.component_id,
+            component.component_name if component else "Deleted component",
+            service.description,
+            service.workplan_id,
+            workplan_names.get(service.workplan_id, None) if service.workplan_id else None,
+            service.incident_id,
+            get_effective_planned_date(service, workplan),
+            service.planned_date,
+            component.installation_status if component else "Deleted",
+            oldest_history_record.updated_date if oldest_history_record else None)
 
 def calculate_percentage_reached(total, remaining):
     """Function to calculate remaining service interval or remaining lifetime as percentage"""
@@ -342,21 +496,6 @@ def generate_workplan_title(affected_component_names, affected_bike_name, workpl
     title = " - ".join(title_parts) if title_parts else "No workplan metadata"
 
     return title[:60] + "..." if len(title) > 80 else title
-
-def parse_checkbox_progress(description):
-    """Parse checkbox progress from markdown description"""
-    if not description:
-        return None
-
-    total_checkboxes = len(re.findall(r'- \[[x ]\]', description))
-    checked_checkboxes = len(re.findall(r'- \[x\]', description))
-
-    if total_checkboxes > 0:
-        return {'total': total_checkboxes,
-                'checked': checked_checkboxes,
-                'percentage': round((checked_checkboxes / total_checkboxes) * 100)}
-
-    return None
 
 def strip_markdown_syntax(text):
     """Strip markdown syntax from text to produce clean plain text"""

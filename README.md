@@ -10,7 +10,7 @@ The onboarding procedure is not ready yet, but you can start piloting already no
 - **Step 1:** Copy the file `backend/template_db.sqlite` and place it somewhere outside the repo
 - **Step 2:** Copy the file `backend/strava_tokens.example.json` and place it somewhere outside the repo. You should rename the file as well, e.g. to `strava_tokens.json`. Modify it with your own data and dont share it with anyone else. [See this tutorial](https://developers.strava.com/docs/getting-started/) on how to obtain the oauth-data from Strava. **Important:** the tutorial's example authorization URL uses `scope=read`, which is not enough. Replace it with `scope=read,activity:read_all,activity:write,profile:read_all` - the `profile:read_all` scope is required for the app to detect bikes that dont have any recorded rides yet
 - **Step 3:** Make a copy of `backend/config.json.example` and rename it to `config.json`. This new file should reside within the backend directory. It is in .gitignore, so it will not be synced to remote. Update it with the correct path to your database file and Strava tokens
-- **Step 4:** Create a virtual Python 3 environment and install the required packages, e.g. by using `pip install -r requirements.txt` Skip this step if you prefer to deploy the program as a Docker container. If you deploy as Docker container, you can have a look at the script `create-container-vs2000.sh` for inspiration, but surely you need to modify it to your liking
+- **Step 4:** Install [uv](https://docs.astral.sh/uv/) and run `uv sync` from the project root. This creates a virtual Python 3.12 environment in `.venv` and installs the required packages from `uv.lock`. Skip this step if you prefer to deploy the program as a Docker container. If you deploy as Docker container, you can have a look at the script `create-container-vs2000.sh` for inspiration, but surely you need to modify it to your liking
 - **Step 5:** To run the program from your terminal, instead of deploying as a Docker container, use this command from within the backed directory: `uvicorn main:app --log-config uvicorn_log_config.ini` Make sure that you actviate the newly created python 3 environment in advance
 - **Step 6:** On startup the program will call Stravas APIs and get the last 200 rides and related bikes, but since this is the first time you run the program, you need to manually fetch all ride data and all bikes. This is done by navigating to the `CONFIG` tab and click the button `Get all rides`
 - **Step 7:** You are all set and can now register your first components. The rest will hopefully be self explanatory. Reach out if you have any comments or questions, and create issues for bug reports and feature requests as needed
@@ -44,150 +44,159 @@ As a principle, development is to be done in the dev-branch. When changes are re
 *To see whats coming in the next release, check out the [project board](https://github.com/users/xivind/projects/2/views/1). All items marked as P0 are planned for the next release.*
 
 **Future releases**
-- Further GUI optimization for mobile devices (first iteration completed in v0.4.7)
-- Improved initital setup and configuration
-- ... and much more
+- Further GUI optimization for mobile devices (first iteration completed in v0.4.7).
+- Improved initital setup and configuration.
+- ... and much more.
 
-**Planned for v0.5.0**  
+**Planned for next release**
+- See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0).
 
-- See the [project board](https://github.com/users/xivind/projects/2/views/1) for whats coming in this release (all items marked as P0)
+**v0.5.0 (CURRENT)**  
+*THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). REMEMBER TO BACKUP THE DATABASE FIRST.*
 
-**v0.4.9 (CURRENT)**  
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER.*
+
+- The integration between incidents, services and workplans has been completely rewritten, in an effort to reduce administrative burden to the bicycle mechanic. Services are now the unit of work, and can be either planned or completed. Planned services do not affect component status until they are completed. Services and workplans can be created directly from an incident and managed through workplans, from bike details page or from each component details page. See the help docs for more information on use.
+- New feature: It's now possible to add notes when changing component status, also available through collections and quick swap.
+- Workplans can now be given user defined names. An auto generated title will be used if no user defined name is supplied.
+- The incident modal now lists linked services, with links to each component and its workplan.
+- Switched from pip to uv as python package manager
+- Added health check endpoint and integration with docker daemon
+- Fixed a bug where a component status change or a service deletion silently removed the workplan link from the newest service.
+- Fixed page rendering and form handling on current versions of FastAPI and Starlette.
+- Fixed a bug where the date picker refused future dates for planned dates and due dates.
+- Minor GUI enhancements.
+- Miscellaneous minor bug fixes.
+
+**v0.4.9**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.8 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
 
 There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the Velo Supervisor 2000 database. Remember to backup the database first.
 
-*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER.*
 
-- Workplans, incident and services are now integrated. Workplans act as a hub, allowing the user to tie incidents, workplans and service together
-- Misc minor frontend and backend improvements
-- Fixed a bug where new bikes without any Strava rides yet did not appear, and a related bug where a newly added bike could briefly show an incorrect "all healthy" status before any components were registered
-- Misc minor bug fixes (none affecting data quality)
+- Workplans, incident and services are now integrated. Workplans act as a hub, allowing the user to tie incidents, workplans and service together.
+- Misc minor frontend and backend improvements.
+- Fixed a bug where new bikes without any Strava rides yet did not appear, and a related bug where a newly added bike could briefly show an incorrect "all healthy" status before any components were registered.
+- Misc minor bug fixes (none affecting data quality).
 
 **v0.4.8**  
-*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER.*
 
-- New feature: Install existing components or collections directly from bike details page
-- New feature: Sorting of buttons on bike details page and component details page are now user configurable from the configuration page
-- New feature: Log level is now user configurable from the configuration page. Verbose logging is disabled by default
-- Collections feature totally rewritten based on user feedback. Each collection now has their separate page, allowing users to change single component status, in addition to chaging collection status, without losing page context
-- Component statuses may now be changed directly from component overview page or bike details page, in addition to collection details page, so the user no longer need to navigate to the component details page for each component
-- Improved handling of redirects, so users don't lose page context, but are redirected back to the page they initiated the action from, assuming that page still exists 
-- To prevent unintentional collection desyncs, users are now informed in a non blocking way, if they try to change status directly of a single component that is managed through collections
-- Refactored application startup to use FastAPI's modern lifespan context manager, replacing deprecated event handlers. Background tasks (Strava sync, component field updates) are now centrally managed by APScheduler 
-- Improvements in backend validation rules
-- Minor GUI enhancements
-- Miscellaneous minor bug fixes
+- New feature: Install existing components or collections directly from bike details page.
+- New feature: Sorting of buttons on bike details page and component details page are now user configurable from the configuration page.
+- New feature: Log level is now user configurable from the configuration page. Verbose logging is disabled by default.
+- Collections feature totally rewritten based on user feedback. Each collection now has their separate page, allowing users to change single component status, in addition to chaging collection status, without losing page context.
+- Component statuses may now be changed directly from component overview page or bike details page, in addition to collection details page, so the user no longer need to navigate to the component details page for each component.
+- Improved handling of redirects, so users don't lose page context, but are redirected back to the page they initiated the action from, assuming that page still exists.
+- To prevent unintentional collection desyncs, users are now informed in a non blocking way, if they try to change status directly of a single component that is managed through collections.
+- Refactored application startup to use FastAPI's modern lifespan context manager, replacing deprecated event handlers. Background tasks (Strava sync, component field updates) are now centrally managed by APScheduler.
+- Improvements in backend validation rules.
+- Minor GUI enhancements.
+- Miscellaneous minor bug fixes.
 
 **v0.4.7**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.6 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
 
 There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the Velo Supervisor 2000 database. Remember to backup the database first.
 
-*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER.*
 
-- New feature: Hybrid time + distance tracking for component lifetime and service intervals with automated nightly updates for tracking days
-- New feature: To avoid unnecessary noise, thresholds for when due status should be set are now user configurable. Default threshold for distance is set to 200 km. This may be changed by the user, pr component type and component. The Lifetime / service status "approaching" has proved to be of little value and is now removed 
-- First iteration of mobile-first GUI improvements with single-column layouts, flexible badge design, improved footer and css classes for formatting tables on mobile devices 
-- Enhanced component status visualization with trigger indicators (distance, time, or both)
-- Changed date format in log to match date format elsewhere in the program  
+- New feature: Hybrid time + distance tracking for component lifetime and service intervals with automated nightly updates for tracking days.
+- New feature: To avoid unnecessary noise, thresholds for when due status should be set are now user configurable. Default threshold for distance is set to 200 km. This may be changed by the user, pr component type and component. The Lifetime / service status "approaching" has proved to be of little value and is now removed.
+- First iteration of mobile-first GUI improvements with single-column layouts, flexible badge design, improved footer and css classes for formatting tables on mobile devices.
+- Enhanced component status visualization with trigger indicators (distance, time, or both).
+- Changed date format in log to match date format elsewhere in the program.
 
 **v0.4.6**  
-*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER.*
 
-- New feature: Quick swap - makes it possible to swap two components with one click
-- Rearranged table on component overview page: statistics is now at the bottom
-- Minor UI-improvements
+- New feature: Quick swap - makes it possible to swap two components with one click.
+- Rearranged table on component overview page: statistics is now at the bottom.
+- Minor UI-improvements.
 
 **v0.4.5**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.4 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
 
 There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the Velo Supervisor 2000 database. Remember to backup the database first.
 
-*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER*
+*THIS UPDATE INCLUDES CHANGES IN THE CSS AND JAVASCRIPT FILES. REMEMBER TO CLEAR CLIENT BROWSER CACHE (Ctrl + Shift + R) AFTER UPDATING THE SERVER.*
 
-- New feature: Collection feature
-- New feature: First draft of help page / user docs
-- Minor bug fixes
+- New feature: Collection feature.
+- New feature: First draft of help page / user docs.
+- Minor bug fixes.
 
 **v0.4.4**  
-
-- Rearranged tables for incidents and workplans on bike details and component pages, and made these tables more informative
-- Tables for incidents and workplans on component details page are hidden when there are no records to show
-- Fixed a bug that added extra line breaks in text areas of incidents and workplans
-- Added support for Markdown in workplan description and visualisation of tasklist progress in tables showing workplans
+- Rearranged tables for incidents and workplans on bike details and component pages, and made these tables more informative.
+- Tables for incidents and workplans on component details page are hidden when there are no records to show.
+- Fixed a bug that added extra line breaks in text areas of incidents and workplans.
+- Added support for Markdown in workplan description and visualisation of tasklist progress in tables showing workplans.
 
 **v0.4.3**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.2 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
 
 There are new features in this version that require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script searches the home folders of the current user to find the Velo Supervisor 2000 database. Remember to backup the database first.
 
-- New feature: Workplans for bikes and components
-- New feature: Incident reports for bikes and components
-- Improved database migration script, with more robust approach to find databases
-- Improved handling of null values in component table
-- Fixed a bug that in some cases would freeze the GUI if trying to escape a modal
-- Fixed a bug that caused date fields and date pickers to be out of sync
+- New feature: Workplans for bikes and components.
+- New feature: Incident reports for bikes and components.
+- Improved database migration script, with more robust approach to find databases.
+- Improved handling of null values in component table.
+- Fixed a bug that in some cases would freeze the GUI if trying to escape a modal.
+- Fixed a bug that caused date fields and date pickers to be out of sync.
 
 **v0.4.2**  
 *THIS IS A BREAKING CHANGE AND REQUIRES CHANGES TO DATA MODEL AND DB SCHEMA. IF YOU ARE UPGRADING FROM v0.4.1 OR EARLIER, USE [PROVIDED MIGRATION SCRIPT](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py).*
 
 The updates in this version require a database migration. Use [python3](https://www.python.org/downloads/) to run the script [db_migration.py from the backend folder](https://github.com/xivind/velo-supervisor-2000/blob/master/backend/db_migration.py). The script will check config.json to find the database, optionally the user will be prompted by the script to enter the path manually. Remember to backup the database first.  
 
-- Possible to define mandatory component types and max quantities for any component type. Compliance for each bike is showed on landing page and bike details page. Remember to configure mandatory components and max quantities from component type page
-- Improved handling of component types with better data validation and more intuitive GUI, sorting / searching of table etc
-- Improved generation of unique IDs for installation history records. Ids no longer contain any information, except the ID itself
-- Improvements in date picker functionality: dates can now be entered directly without using the picker, todays date time are prefilled for new records while date time is inherited from existing records when editing, improve gui for picker
-- Fixed a bug that caused estimates for next service to be too high
-- Fixed a bug that prevented services to be added using date time now
+- Possible to define mandatory component types and max quantities for any component type. Compliance for each bike is showed on landing page and bike details page. Remember to configure mandatory components and max quantities from component type page.
+- Improved handling of component types with better data validation and more intuitive GUI, sorting / searching of table etc.
+- Improved generation of unique IDs for installation history records. Ids no longer contain any information, except the ID itself.
+- Improvements in date picker functionality: dates can now be entered directly without using the picker, todays date time are prefilled for new records while date time is inherited from existing records when editing, improve gui for picker.
+- Fixed a bug that caused estimates for next service to be too high.
+- Fixed a bug that prevented services to be added using date time now.
 
 **v0.4.1**
-
-- Made it possible to add components to retired bikes and change status on components assigned to retired bikes
-- Switched date picker library from Flatpickr to Tempus Dominus (enables use on mobile devices)
-- Added type ahead search in component tables
-- Added distance to reached lifetime or service interval (whichever is closest) to components table in bike details
-- Improved sorting of component tables
-- Minor GUI improvements
-- Misc bugfixes
+- Made it possible to add components to retired bikes and change status on components assigned to retired bikes.
+- Switched date picker library from Flatpickr to Tempus Dominus (enables use on mobile devices).
+- Added type ahead search in component tables.
+- Added distance to reached lifetime or service interval (whichever is closest) to components table in bike details.
+- Improved sorting of component tables.
+- Minor GUI improvements.
+- Misc bugfixes.
 
 **v0.4.0**
-
-- Installation history and service history can now be modified
-- Backend for distance calculation refactored
-- Improved input validation backend and frontend
-- Improved GUI with less clutter and more emphasis on important information
-- Moved all user interaction to modals
-- More accurate calculation of page load time
-- Changed logic for bike statuses to be less misleading and more intuitive
-- More informative error page
-- Improved backend for handling deletion of records
-- Made it possible to service components that are not assigned to a bike
-- Made it possible to register components without adding them to bike
-- Misc bugfixes
+- Installation history and service history can now be modified.
+- Backend for distance calculation refactored.
+- Improved input validation backend and frontend.
+- Improved GUI with less clutter and more emphasis on important information.
+- Moved all user interaction to modals.
+- More accurate calculation of page load time.
+- Changed logic for bike statuses to be less misleading and more intuitive.
+- More informative error page.
+- Improved backend for handling deletion of records.
+- Made it possible to service components that are not assigned to a bike.
+- Made it possible to register components without adding them to bike.
+- Misc bugfixes.
 
 **v0.3.1**
-
-- Fixed bug that prevented Strava activities to be saved properly
-- Preliminary onboarding instructions for pilot users
-- Minor GUI improvements
+- Fixed bug that prevented Strava activities to be saved properly.
+- Preliminary onboarding instructions for pilot users.
+- Minor GUI improvements.
 
 **v0.3.0**
-
-- Configured program to run in Docker
-- Improved logic for versioning  
-- Feedback to user from business logic
-- Improved input validation and user interaction
-- Refactored backend and improved business logic
-- Refactored frontend and introduced base template
+- Configured program to run in Docker.
+- Improved logic for versioning.
+- Feedback to user from business logic.
+- Improved input validation and user interaction.
+- Refactored backend and improved business logic.
+- Refactored frontend and introduced base template.
 
 **v0.2.0**
-
-- Improved error handling and more informative error page
-- Display banner if last pull from Strava hasnt happened in a while
-- Misc bugfixes and minor improvements
+- Improved error handling and more informative error page.
+- Display banner if last pull from Strava hasnt happened in a while.
+- Misc bugfixes and minor improvements.
 
 **v0.1.0**
-
-- Running version of program (bugs are present)
-- Code updated to work with FastAPI 0.115.0
+- Running version of program (bugs are present).
+- Code updated to work with FastAPI 0.115.0.

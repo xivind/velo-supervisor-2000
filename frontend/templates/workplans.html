@@ -29,7 +29,7 @@
     <div class="card-body">
         <div class="mb-2 ms-2">
             <div class="small text-secondary d-flex align-items-center">
-                <small class="form-text text-muted mt-1">Search includes workplan descriptions and completion notes. To go directly to bike or component detail pages, click the names of bikes or components</small>
+                <small class="form-text text-muted mt-1">Search includes workplan names, descriptions, completion notes and the names of the components in the workplan. To go directly to bike detail pages, click the names of bikes</small>
             </div>
         </div>
         <div class="input-group mb-3">
@@ -42,7 +42,7 @@
                 <tr>
                     <th class="text-center" data-sort="status"><span class="sort-indicator"></span></th>
                     <th data-sort="bike">Bike <span class="sort-indicator"></span></th>
-                    <th data-sort="components">Components <span class="sort-indicator"></span></th>
+                    <th data-sort="workplan_name">Workplan name <span class="sort-indicator"></span></th>
                     <th class="text-center" data-sort="size">Size <span class="sort-indicator"></span></th>
                     <th data-sort="due_date">Due date <span class="sort-indicator"></span></th>
                     <th data-sort="completion_date">Completion date<span class="sort-indicator"></span></th>
@@ -52,8 +52,8 @@
             </thead>
             <tbody>
                 {% if payload.workplans_data %}
-                    {% for workplan_id, due_date, workplan_status, workplan_size, workplan_affected_component_ids, affected_component_names, workplan_affected_bike_id, affected_bike_name, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, checkbox_progress in payload.workplans_data %}
-                        <tr class="clickable-row clickable" data-href="/workplan_details/{{ workplan_id }}" data-description="{{ workplan_description }}" data-notes="{{ completion_notes }}">
+                    {% for workplan_id, due_date, workplan_status, workplan_size, component_ids, component_names, bike_ids, bike_names, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, service_progress in payload.workplans_data %}
+                        <tr class="clickable-row clickable" data-href="/workplan_details/{{ workplan_id }}" data-description="{{ workplan_description }}" data-notes="{{ completion_notes }}" data-components="{{ component_names|join(', ') }}">
                             <td class="text-center">
                                 {% if elapsed_days > 0 and workplan_status != "Done" %}
                                     <span class="badge rounded-pill status-attention fixed-width-badge-workplan-status">Overdue</span>
@@ -64,25 +64,16 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if affected_bike_name != "Not assigned" %}
-                                    <a href="/bike_details/{{ workplan_affected_bike_id }}" class="text-decoration-none text-reset" onclick="event.stopPropagation();">{{ affected_bike_name }}</a>
+                                {% if bike_ids %}
+                                    {% for bike_id in bike_ids %}
+                                        <a href="/bike_details/{{ bike_id }}" class="text-decoration-none text-reset" onclick="event.stopPropagation();">{{ bike_names[loop.index0] }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
                                 {% else %}
-                                    {{ affected_bike_name }}
+                                    Not assigned
                                 {% endif %}
                             </td>
                             <td>
-                                {% if workplan_affected_component_ids %}
-                                    {% for component_id in workplan_affected_component_ids %}
-                                        {% set component_name = affected_component_names[loop.index0] %}
-                                        {% if component_name != "Deleted component" %}
-                                            <a href="/component_details/{{ component_id }}" class="text-decoration-none text-reset" onclick="event.stopPropagation();">{{ component_name }}</a>{% if not loop.last %}, {% endif %}
-                                        {% else %}
-                                            {{ component_name }}{% if not loop.last %}, {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% else %}
-                                    {{ affected_component_names[0] }}
-                                {% endif %}
+                                {{ workplan_title }}
                             </td>
                             <td class="text-center">
                                 <div>
@@ -94,14 +85,15 @@
                                     <span class="badge color-workplan-size-small fixed-width-badge-workplan-size">Small</span>
                                     {% endif %}
                                 </div>
-                                {% if checkbox_progress %}
+                                {% if service_progress %}
+                                    {% set service_percentage = (service_progress.completed / service_progress.total * 100) | round | int %}
                                     <div class="checkbox-progress-container">
-                                        <span class="checkbox-progress-donut {% if checkbox_progress.percentage == 100 %}complete{% endif %}" 
-                                            style="--progress: {{ checkbox_progress.percentage }}"
-                                            title="Task progress: {{ checkbox_progress.checked }} of {{ checkbox_progress.total }} completed">
+                                        <span class="checkbox-progress-donut {% if service_percentage == 100 %}complete{% endif %}"
+                                            style="--progress: {{ service_percentage }}"
+                                            title="Services: {{ service_progress.completed }} of {{ service_progress.total }} completed">
                                         </span>
-                                        <span class="checkbox-progress-text {% if checkbox_progress.percentage == 100 %}complete{% endif %}">
-                                            {{ checkbox_progress.checked }}/{{ checkbox_progress.total }}
+                                        <span class="checkbox-progress-text {% if service_percentage == 100 %}complete{% endif %}">
+                                            {{ service_progress.completed }}/{{ service_progress.total }}
                                         </span>
                                     </div>
                                 {% endif %}
