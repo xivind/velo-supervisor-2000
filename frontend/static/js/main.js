@@ -3443,6 +3443,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('install_component_id').value = '';
         document.getElementById('collection_select').value = '';
         document.getElementById('collection_preview').classList.add('d-none');
+        document.getElementById('install-collection-warning-banner').classList.add('d-none');
 
         // Reset to component mode
         currentMode = 'component';
@@ -3476,6 +3477,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle component selection (Component mode)
     document.getElementById('component_select').addEventListener('change', function() {
         document.getElementById('install_component_id').value = this.value;
+
+        // Show/hide collection warning banner
+        const selectedOption = this.value ? this.querySelector(`option[value="${this.value}"]`) : null;
+        const collectionName = selectedOption?.dataset.collectionName || '';
+        const collectionWarningBanner = document.getElementById('install-collection-warning-banner');
+        if (collectionName) {
+            document.getElementById('install-collection-warning-collection-name').textContent = collectionName;
+            collectionWarningBanner.classList.remove('d-none');
+        } else {
+            collectionWarningBanner.classList.add('d-none');
+        }
     });
 
     // Handle collection selection (Collection mode) - Show preview (Issue 5 fix)
