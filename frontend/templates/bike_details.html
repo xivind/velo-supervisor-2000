@@ -140,6 +140,17 @@
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">⚡ <strong>Installed components:</strong> {{ payload.count_installed }}</span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">⛔ <strong>Retired components:</strong> {{ payload.count_retired }}</span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">💰 <strong>Expected cost next service:</strong> {% if payload.sum_cost == "No estimate" %}{{ payload.sum_cost }}{% else %}{{ payload.sum_cost }}{% endif %}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">📦 <strong>Collections:</strong>
+                        {%- set ns = namespace(found=false) -%}
+                        {%- for collection_id, collection_name, bike_name, updated_date, components, bike_id, comment, component_details, status, collection_bike_mismatch in payload.all_collections -%}
+                            {%- if bike_id == payload.bike_data['bike_id'] -%}
+                                {%- if ns.found %}, {% else %} {% endif -%}
+                                <a href="/collection_details/{{ collection_id }}" class="text-decoration-none text-reset">{{ collection_name }}</a>{% if status == 'needs_attention' or collection_bike_mismatch %} ❓{% endif %}
+                                {%- set ns.found = true -%}
+                            {%- endif -%}
+                        {%- endfor -%}
+                        {%- if not ns.found %} No collections assigned{% endif -%}
+                    </span>
                     <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">📝 <strong>Notes:</strong> {% if payload.bike_data.bike_notes %}{{ payload.bike_data.bike_notes }}{% else %}No bike notes available{% endif %}</span>
                 </div>
                 <hr/>
