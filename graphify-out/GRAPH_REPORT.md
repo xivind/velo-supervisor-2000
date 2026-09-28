@@ -1,63 +1,63 @@
-# Graph Report - velo-supervisor-2000  (2026-09-27)
+# Graph Report - velo-supervisor-2000  (2026-09-28)
 
 ## Corpus Check
-- 38 files · ~144,335 words
+- 42 files · ~146,690 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 5, .example 1, .sqlite 1)
 
 ## Summary
-- 952 nodes · 1462 edges · 118 communities (70 shown, 48 thin omitted)
-- Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 207 edges (avg confidence: 0.9)
+- 994 nodes · 1527 edges · 122 communities (73 shown, 49 thin omitted)
+- Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 223 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8d03b404`
+- Built from commit: `88d926bb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- .get_bike_details
+- .get_component_overview
 - migrate_incidents_workplan_link
 - Base Template
 - Strava
 - Meta
-- utils.py
-- What was checked and held up
+- scheduler.py
+- .process_service_records
 - main.js
 - get
 - CLAUDE.md
-- .calculate_collection_status
 - BusinessLogic
+- .update_component_service_status
 - DatabaseManager
 - Database Migration Script (db_migration.py)
-- Service integration (#351) - fullstack to code-reviewer
+- migrate_component_history_notes
 - migrate_components_time_fields
 - Middleware
-- main.py
+- post
 - Service integration: incidents, workplans and services
 - .write_delete_record
 - validateDateInput
 - sortColumn
-- Python Requirements List
-- .read_single_bike
+- config_overview
+- main.py
 - .read_component
 - Issues found (none blocking)
 - validateComponentThresholds
-- .read_single_component_type
+- test_health.py
 - version.py
 - CLAUDE.md
-- .get_component_details
-- renderPreview
-- initializeIncidentTable
+- utils.py
+- .delete_record
+- .read_single_component_type
 - helpTopics Data Object
 - conftest.py
-- .count_component_types_in_use
+- update_config
 - insert_planned_service_for_migration
 - seed_component
 - test_migration.py
 - migrate_component_types_time_fields
-- generate_unique_id
-- validate_date_format
+- .create_history_record
+- Service integration (#351) - fullstack to code-reviewer
 - D. Design questions to decide before coding
 - .read_collection_by_component
 - .read_incidents_by_workplan
@@ -67,22 +67,22 @@
 - migrate_workplans_name_column
 - db_migration.py
 - run_all_migrations
-- .read_recent_rides
+- renderPreview
 - Results
-- .read_subset_components
+- initializeIncidentTable
 - migrate_database
 - .read_subset_service_record
-- .read_sum_distance_subset_rides
+- .count_component_types_in_use
 - migrate_services_workplan_link
-- .write_workplan
+- .read_unique_bikes
 - cleanup
 - .read_all_components_objects
-- config_overview
+- .read_single_bike
 - .write_incident_record
 - .read_all_incidents
-- .read_bikes
-- Git Workflow Rules
 - .read_date_oldest_ride
+- Git Workflow Rules
+- .read_recent_rides
 - code-reviewer.md
 - backup_db.sh
 - create-container-vs2000.sh
@@ -119,7 +119,7 @@
 - architect.md
 - Architecture Overview
 - Development Commands
-- .read_unique_bikes
+- .read_subset_installed_components
 - get_filtered_log
 - Collections Test Protocol
 - docs-maintainer.md
@@ -129,14 +129,18 @@
 - Sub-Agent Team
 - Testing Requirements
 - Complete Workplan Modal Template
-- .write_component_distance
-- .read_workplans_by_incident
-- Service integration (#351): findings from the manual test walkthrough
+- .write_component_lifetime_status
+- .read_all_component_types
+- .write_bike_service_status
 - .write_component_service_status
+- .read_latest_history_record
+- Service integration (#351): findings from the manual test walkthrough
+- .write_component_distance
+- .write_workplan
 
 ## God Nodes (most connected - your core abstractions)
-1. `DatabaseManager` - 70 edges
-2. `BusinessLogic` - 64 edges
+1. `DatabaseManager` - 71 edges
+2. `BusinessLogic` - 65 edges
 3. `seed_component()` - 24 edges
 4. `run_all_migrations()` - 22 edges
 5. `Meta` - 20 edges
@@ -155,17 +159,17 @@
   docs/superpowers/plans/2026-09-25-service-integration-test-findings.md → backend/db_migration.py
 - `What was checked and held up` --references--> `run_all_migrations()`  [INFERRED]
   .handovers/review/service-integration-reviewer-to-docs-maintainer.md → backend/db_migration.py
-- `Migration` --references--> `generate_unique_id()`  [INFERRED]
-  docs/superpowers/specs/2026-09-18-service-integration-design.md → backend/utils.py
+- `Decisions Made` --references--> `lifespan()`  [INFERRED]
+  .handovers/fullstack/health-check-fullstack-to-reviewer.md → backend/main.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (118 total, 48 thin omitted)
+## Communities (122 total, 49 thin omitted)
 
-### Community 0 - ".get_bike_details"
-Cohesion: 0.14
-Nodes (12): Method to produce payload for page component overview, Method to check if a bike has all mandatory components and respects max…, Method to produce payload for page bike overview, Method to create component-to-collection mapping dictionaries, Method to build dictionaries of bike and component ids referenced in received…, Method to build dictionaries of bike and component ids referenced by services…, Method to produce payload for page bike details, Method to read content of components table as formatted tuples (+4 more)
+### Community 0 - ".get_component_overview"
+Cohesion: 0.13
+Nodes (8): Method to produce payload for page component overview, Method to determine which factor triggered a warning status, Calculate lifetime and service triggers for a component, Method to produce payload for page bike overview, Method to create component-to-collection mapping dictionaries, Method to produce payload for collection details page, Method to build dictionaries of bike and component ids referenced in received…, Method to build dictionaries of bike and component ids referenced by services…
 
 ### Community 1 - "migrate_incidents_workplan_link"
 Cohesion: 0.25
@@ -183,45 +187,45 @@ Nodes (9): Class to interact with Strava API, Method to authenticate and get dat
 Cohesion: 0.09
 Nodes (34): BaseModel, Bikes, Collections, ComponentHistory, Components, ComponentTypes, Incidents, Meta (+26 more)
 
-### Community 5 - "utils.py"
-Cohesion: 0.05
-Nodes (44): apscheduler_schedulers_asyncio, apscheduler_triggers_cron, apscheduler_triggers_interval, Module to handle business logic, Module for interaction with a Sqlite database, lifespan(), Manage application startup and shutdown, Endpoint to update config file based on which form was submitted (+36 more)
+### Community 5 - "scheduler.py"
+Cohesion: 0.11
+Nodes (19): apscheduler_schedulers_asyncio, apscheduler_triggers_cron, apscheduler_triggers_interval, Module to handle business logic, Module for interaction with a Sqlite database, Initialize and start the APScheduler instance, Scheduler for automated maintenance tasks, Gracefully shutdown the APScheduler instance (+11 more)
 
-### Community 6 - "What was checked and held up"
-Cohesion: 0.09
-Nodes (21): Method to update status for a given bike based on component service and…, Method to create installation history record, Method to calculate distance and bike id for history records, Method to update a service record, including status changes in both directions, Method to recalculate a component after a completed service is deleted or…, Method to calculate distance and bike id for service records, Method to determine worst-case status between distance and days-based…, Method to update time-based status fields for all non-retired components (+13 more)
+### Community 6 - ".process_service_records"
+Cohesion: 0.16
+Nodes (11): Method to add service record, planned or completed, Method to add a planned service, which has no service date, bike or distance…, Method to build the report used by the plan services and complete services…, Method to create planned services for one or more components with the same…, Method to complete planned services with one service date, keeping their…, Method to update a service record, including status changes in both directions, Method to recalculate a component after a completed service is deleted or…, Method to validate service records before processing and storing in database (+3 more)
 
 ### Community 7 - "main.js"
 Cohesion: 0.08
 Nodes (12): editCollection(), filterNewComponentsByType(), handleOldComponentChange(), handleUpdate(), initializeCollectionsSearch(), updateRowVisibility(), initializeComponentSelector(), NOTE: All collection details page handlers are in the "Functions used on… (+4 more)
 
 ### Community 8 - "get"
-Cohesion: 0.10
-Nodes (24): add_history_record(), collection_details(), component_overview(), component_types_overview(), help_page(), http_exception_handler(), Request, Endpoint for workplans page (+16 more)
+Cohesion: 0.09
+Nodes (26): add_history_record(), collection_details(), component_overview(), component_types_overview(), health(), help_page(), http_exception_handler(), Request (+18 more)
 
 ### Community 9 - "CLAUDE.md"
 Cohesion: 0.25
 Nodes (6): Change Management Rules, Communication & Output Rules, Debugging & Bug Fixing Rules, graphify, Important Notes, Project Overview
 
-### Community 10 - ".calculate_collection_status"
-Cohesion: 0.17
-Nodes (6): Method to update collection, Method to validate collections before allowing bulk operations, Method to change status of all components in a collection, Calculate status flags for a collection based on its components., Method to produce payload for displaying table of all collections, Method to produce payload for collection details page
+### Community 10 - "BusinessLogic"
+Cohesion: 0.09
+Nodes (15): BusinessLogic, Method to create collection, Method to update collection, Method to validate collections before allowing bulk operations, Method to change status of all components in a collection, Method to update incident record (supports full or partial updates), Method to update workplan (supports full or partial updates), Method to validate that a workplan can be set to Done (+7 more)
 
-### Community 11 - "BusinessLogic"
-Cohesion: 0.08
-Nodes (17): BusinessLogic, Method to update component lifetime and service status when no installation…, Method to create component, Method to update component details, Method to orchestrate swap of one component with another, Method to validate quick swap operation, Method to compute component status using threshold logic, Method to determine which factor triggered a warning status (+9 more)
+### Community 11 - ".update_component_service_status"
+Cohesion: 0.12
+Nodes (14): Method to update component lifetime and service status when no installation…, Method to update status for a given bike based on component service and…, Method to calculate distance and bike id for history records, Method to compute component status using threshold logic, Method to determine worst-case status between distance and days-based…, Method to update time-based status fields for all non-retired components, Method to determine which selection of components to update, Method to update component table with distance from ride table (+6 more)
 
 ### Community 12 - "DatabaseManager"
 Cohesion: 0.08
-Nodes (13): DatabaseManager, Method to read and sort content of component_types table, Method to read installed components for a specific bike, Class to interact with a SQLite database through Peewee, Method to retrieve the most recent record from the installation log of a given…, Method to retrieve the oldest record from the installation log of a given…, Method to read all collections, Method to read all workplans (+5 more)
+Nodes (13): DatabaseManager, Method to sum distance for a given set of rides, Method to read components for a specific bike, Class to interact with a SQLite database through Peewee, Method to retrieve the oldest record from the installation log of a given…, Method to check that the database can be read. Reads a real table, since SELECT…, Method to read all collections, Method to read all workplans (+5 more)
 
 ### Community 13 - "Database Migration Script (db_migration.py)"
 Cohesion: 0.13
 Nodes (16): Collections (Core Concept), Component Types vs Components, Hybrid Time + Distance Tracking, Mileage Tracking, Understanding Thresholds, Getting Started: Define Component Types, Incidents Page, Workplans Page (+8 more)
 
-### Community 14 - "Service integration (#351) - fullstack to code-reviewer"
-Cohesion: 0.08
-Nodes (22): Method to add service record, planned or completed, Method to add a planned service, which has no service date, bike or distance…, Method to build the report used by the plan services and complete services…, Method to create planned services for one or more components with the same…, Method to complete planned services with one service date, keeping their…, Method to validate service records before processing and storing in database, generate_incident_title(), get_effective_planned_date() (+14 more)
+### Community 14 - "migrate_component_history_notes"
+Cohesion: 0.50
+Nodes (4): check_component_history_notes_column(), migrate_component_history_notes(), Check if component_history table needs notes column, Add notes column to component_history table
 
 ### Community 15 - "migrate_components_time_fields"
 Cohesion: 0.50
@@ -231,13 +235,13 @@ Nodes (4): check_components_time_columns(), migrate_components_time_fields(), Ch
 Cohesion: 0.24
 Nodes (7): Middleware, Request, Class to handle exceptions that breaks the program and should be shown to the…, Method to dispatch intercepted requests, Method to catch and handle exceptions, BaseHTTPMiddleware, Exception
 
-### Community 17 - "main.py"
+### Community 17 - "post"
 Cohesion: 0.06
-Nodes (42): asyncio, add_collection(), add_incident_record(), add_planned_services(), add_service(), add_workplan(), change_collection_status(), complete_services() (+34 more)
+Nodes (31): add_collection(), add_incident_record(), add_planned_services(), add_service(), add_workplan(), change_collection_status(), complete_services(), component_types_modify() (+23 more)
 
 ### Community 18 - "Service integration: incidents, workplans and services"
-Cohesion: 0.18
-Nodes (10): Data model, Error handling, Goal, main.js, Modals, Out of scope, Pages, Service integration: incidents, workplans and services (+2 more)
+Cohesion: 0.14
+Nodes (13): Backend, Data model, Error handling, Goal, main.js, main.py, Modals, Out of scope (+5 more)
 
 ### Community 19 - ".write_delete_record"
 Cohesion: 0.17
@@ -251,9 +255,13 @@ Nodes (6): initializeWorkplanForm(), submitCollectionAjax(), submitComponentAjax
 Cohesion: 0.29
 Nodes (8): initializeCollectionsSorting(), sortColumn(), initializeWorkplanTable(), setupIncidentTableSorting(), setupWorkplanSearch(), setupWorkplanStatusFiltering(), setupWorkplanTableSorting(), updateWorkplansVisibility()
 
-### Community 22 - "Python Requirements List"
-Cohesion: 0.25
-Nodes (8): APScheduler, Python Requirements List, FastAPI, Jinja2, Peewee ORM, python-multipart, requests-oauthlib, Uvicorn
+### Community 22 - "config_overview"
+Cohesion: 0.50
+Nodes (4): config_overview(), Endpoint for component types page, get_button_sorting_config(), Function to get button sorting configuration for config page
+
+### Community 23 - "main.py"
+Cohesion: 0.12
+Nodes (17): component_modify(), lifespan(), Route handlers for Velo Supervisor 2000, Endpoint to modify component types, Endpoint to update an existing component history record, Manage application startup and shutdown, update_history_record(), Module for middleware (+9 more)
 
 ### Community 24 - ".read_component"
 Cohesion: 0.33
@@ -267,6 +275,10 @@ Nodes (16): Method to get the name of a bike based on bike id, bike_details(), c
 Cohesion: 0.33
 Nodes (6): addFormValidation(), clearValidationErrors(), showFieldError(), showValidationModal(), validateComponentThresholds(), validateQuickSwapForm()
 
+### Community 27 - "test_health.py"
+Cohesion: 0.06
+Nodes (32): Method to check the database connection for the health check, ErrorRecorder, get_health_status(), Logging handler that keeps the most recent error records in memory for the…, Method to store error records and ignore lower levels. Filters here instead of…, Method to get error records newer than the given number of hours, Function to assess application health from errors logged the last 24 hours and…, Blockers / Open Questions (+24 more)
+
 ### Community 28 - "version.py"
 Cohesion: 0.40
 Nodes (4): get_git_info(), Script to maintain version number, Function to get latest version number and commit hash, subprocess
@@ -275,25 +287,25 @@ Nodes (4): get_git_info(), Script to maintain version number, Function to get la
 Cohesion: 0.50
 Nodes (4): CLAUDE.md, Data Management Tips, Need More Help? (Troubleshooting), Handover Documents Directory (.handovers/)
 
-### Community 30 - ".get_component_details"
-Cohesion: 0.11
-Nodes (27): Method to produce payload for page component details, Method to produce payload for page incident reports, Method to produce payload for page of all workplans, Method to produce payload for workplan details page, calculate_elapsed_days(), derive_workplan_context(), generate_workplan_title(), get_formatted_bikes_list() (+19 more)
+### Community 30 - "utils.py"
+Cohesion: 0.05
+Nodes (63): asyncio, Method to produce payload for page component details, Method to add workplan, optionally with planned services for components of a…, Method to produce payload for page incident reports, Method to produce payload for page of all workplans, Method to produce payload for workplan details page, Method to produce payload for page bike details, Method to read content of components table as formatted tuples (+55 more)
 
-### Community 31 - "renderPreview"
-Cohesion: 0.50
-Nodes (4): containsMarkdown(), renderPreview(), setInitialMode(), updateCheckboxInText()
-
-### Community 32 - "initializeIncidentTable"
-Cohesion: 0.67
-Nodes (4): initializeIncidentTable(), setupIncidentSearch(), setupIncidentStatusFiltering(), updateIncidentVisibility()
+### Community 31 - ".delete_record"
+Cohesion: 0.22
+Nodes (5): Method to update component details, Validate threshold configuration rules for component intervals, Method to create or update component types, Method to update only the count of components for a given component type, Method to delete a given record and associated records
 
 ### Community 33 - "helpTopics Data Object"
 Cohesion: 0.50
 Nodes (4): helpTopics Data Object, Help Page Template, Help Search Functionality, showHelpTopic() Function
 
 ### Community 34 - "conftest.py"
-Cohesion: 0.18
-Nodes (12): fixture, os, pytest, shutil, sys, app_env(), migrated_env(), modules() (+4 more)
+Cohesion: 0.13
+Nodes (15): Health check run by the Docker daemon, exit code 0 means healthy and 1 means…, fixture, os, pytest, shutil, sys, app_env(), migrated_env() (+7 more)
+
+### Community 35 - "update_config"
+Cohesion: 0.50
+Nodes (4): Endpoint to update config file based on which form was submitted, update_config(), Helper function to shutdown the server after a short delay, shutdown_server()
 
 ### Community 36 - "insert_planned_service_for_migration"
 Cohesion: 0.25
@@ -304,24 +316,24 @@ Cohesion: 0.15
 Nodes (31): add_twin_component(), Planned services must be invisible to health computation, Rides before and after the service dates used below, so distances are not zero, Second installed component on bike-1 with the same settings as comp-1, Create one bike and one installed component with an installation record, seed_component(), seed_rides(), snapshot_health() (+23 more)
 
 ### Community 38 - "test_migration.py"
-Cohesion: 0.28
-Nodes (12): sqlite3, columns(), create_old_schema(), Migration converts the old workplan/incident model to services, Seed workplans, incidents and services in the pre-#351 shape, Recreate services, workplans, incidents and component_history as they were…, run_migration(), seed_old_data() (+4 more)
+Cohesion: 0.32
+Nodes (11): columns(), create_old_schema(), Migration converts the old workplan/incident model to services, Seed workplans, incidents and services in the pre-#351 shape, Recreate services, workplans, incidents and component_history as they were…, run_migration(), seed_old_data(), snapshot() (+3 more)
 
 ### Community 39 - "migrate_component_types_time_fields"
 Cohesion: 0.50
 Nodes (4): check_component_types_time_columns(), migrate_component_types_time_fields(), Check if ComponentTypes table needs time-based fields migration, Add time-based fields to ComponentTypes table
 
-### Community 40 - "generate_unique_id"
-Cohesion: 0.14
-Nodes (11): Method to create collection, Method to add incident record, Method to add workplan, optionally with planned services for components of a…, build_incident_service_entry(), generate_unique_id(), parse_json_string(), Function to generates a random and unique ID, Describe one service linked to an incident, for the read only list in the… (+3 more)
+### Community 40 - ".create_history_record"
+Cohesion: 0.16
+Nodes (9): Method to create component, Method to create installation history record, Method to orchestrate swap of one component with another, Method to validate quick swap operation, Method to check if a bike has all mandatory components and respects max…, Method to add incident record, generate_unique_id(), Function to generates a random and unique ID (+1 more)
 
-### Community 41 - "validate_date_format"
-Cohesion: 0.17
-Nodes (7): Method to update a component history record with validation, Method to validate history records before processing and storing in database, Method to update incident record (supports full or partial updates), Method to update workplan (supports full or partial updates), Method to validate that a workplan can be set to Done, Function to validate that a date string matches the required format YYYY-MM-DD…, validate_date_format()
+### Community 41 - "Service integration (#351) - fullstack to code-reviewer"
+Cohesion: 0.13
+Nodes (12): Method to update a component history record with validation, Method to validate history records before processing and storing in database, Function to validate that a date string matches the required format YYYY-MM-DD…, validate_date_format(), Bugs found and fixed, Known limitations, Next steps, Regression evidence, 2026-09-26 (+4 more)
 
 ### Community 42 - "D. Design questions to decide before coding"
-Cohesion: 0.18
-Nodes (11): Code review outcome, 2026-09-26, D. Design questions to decide before coding, Decisions (2026-09-26), Follow-up tweaks asked for on 2026-09-26, Second round of tweaks, 2026-09-26, Third round of tweaks, 2026-09-26, Warning when resolving an incident with open services, 2026-09-26, initializeIncidentForm() (+3 more)
+Cohesion: 0.20
+Nodes (10): Code review outcome, 2026-09-26, D. Design questions to decide before coding, Decisions (2026-09-26), Follow-up tweaks asked for on 2026-09-26, Second round of tweaks, 2026-09-26, Third round of tweaks, 2026-09-26, Warning when resolving an incident with open services, 2026-09-26, initializeIncidentForm() (+2 more)
 
 ### Community 45 - "migrate_workplans_to_planned_services"
 Cohesion: 0.25
@@ -336,16 +348,24 @@ Cohesion: 0.50
 Nodes (4): check_workplans_name_column(), migrate_workplans_name_column(), Check if workplans table needs the workplan_name column, Add the optional user given name to the workplans table, existing workplans…
 
 ### Community 49 - "db_migration.py"
-Cohesion: 0.21
-Nodes (11): check_component_history_notes_column(), check_component_types_columns(), count_component_types_in_use(), migrate_component_history_notes(), migrate_component_types(), Count how many components use a specific component type, Check if the component_types table needs migration, Migrate the component_types table to add new columns (+3 more)
+Cohesion: 0.28
+Nodes (8): check_component_types_columns(), count_component_types_in_use(), migrate_component_types(), Count how many components use a specific component type, Check if the component_types table needs migration, Migrate the component_types table to add new columns, Script to migrate the database, including adding new tables and fields, sqlite3
 
 ### Community 50 - "run_all_migrations"
 Cohesion: 0.14
 Nodes (14): create_collections_table(), create_incidents_table(), create_workplans_table(), populate_component_types_thresholds(), populate_components_thresholds(), Creates the incidents table if it doesn't exist., Creates the workplans table if it doesn't exist., Creates the collections table if it doesn't exist. (+6 more)
 
+### Community 51 - "renderPreview"
+Cohesion: 0.50
+Nodes (4): containsMarkdown(), renderPreview(), setInitialMode(), updateCheckboxInText()
+
 ### Community 52 - "Results"
 Cohesion: 0.25
 Nodes (7): 2026-09-25, first walkthrough, human, 2026-09-26, regression against the baseline database, Claude, 2026-09-27, second walkthrough, human, Preparation, Results, Scope, Test Protocol: Planned services, workplans and incidents
+
+### Community 53 - "initializeIncidentTable"
+Cohesion: 0.67
+Nodes (4): initializeIncidentTable(), setupIncidentSearch(), setupIncidentStatusFiltering(), updateIncidentVisibility()
 
 ### Community 54 - "migrate_database"
 Cohesion: 0.33
@@ -358,10 +378,6 @@ Nodes (4): check_services_workplan_column(), migrate_services_workplan_link(), C
 ### Community 59 - "cleanup"
 Cohesion: 0.50
 Nodes (4): cleanup(), handleCancel(), handleConfirm(), performBulkStatusChange()
-
-### Community 61 - "config_overview"
-Cohesion: 0.50
-Nodes (4): config_overview(), Endpoint for component types page, get_button_sorting_config(), Function to get button sorting configuration for config page
 
 ### Community 65 - "Git Workflow Rules"
 Cohesion: 0.25
@@ -448,24 +464,24 @@ Nodes (9): B. Bugs to fix, C. Interface changes the user asked for, Extra wordin
   .github/workflows/run_version_script.yml · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **165 isolated node(s):** `backup_db.sh script`, `create-container-vs2000.sh script`, `velo-supervisor-2000`, `Core Responsibilities`, `Workflow` (+160 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 500 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **48 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **167 isolated node(s):** `backup_db.sh script`, `create-container-vs2000.sh script`, `velo-supervisor-2000`, `Core Responsibilities`, `Workflow` (+162 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 520 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **49 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `Git Workflow Rules` and `Version Script CI Workflow`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `DatabaseManager` connect `DatabaseManager` to `.get_bike_details`, `Meta`, `utils.py`, `What was checked and held up`, `.write_delete_record`, `.read_single_bike`, `.read_component`, `Issues found (none blocking)`, `.read_single_component_type`, `.count_component_types_in_use`, `.read_collection_by_component`, `.read_incidents_by_workplan`, `.read_latest_ride_record`, `database_manager.py`, `.read_recent_rides`, `.read_subset_components`, `.read_subset_service_record`, `.read_sum_distance_subset_rides`, `.write_workplan`, `.read_all_components_objects`, `.write_incident_record`, `.read_all_incidents`, `.read_bikes`, `.read_date_oldest_ride`, `.read_subset_component_history`, `.read_unique_bikes`, `.write_component_distance`, `.read_workplans_by_incident`, `.write_component_service_status`?**
+- **Why does `DatabaseManager` connect `DatabaseManager` to `Meta`, `scheduler.py`, `.update_component_service_status`, `.write_delete_record`, `.read_component`, `Issues found (none blocking)`, `utils.py`, `.read_single_component_type`, `.read_collection_by_component`, `.read_incidents_by_workplan`, `.read_latest_ride_record`, `database_manager.py`, `.read_subset_service_record`, `.count_component_types_in_use`, `.read_unique_bikes`, `.read_all_components_objects`, `.read_single_bike`, `.write_incident_record`, `.read_all_incidents`, `.read_date_oldest_ride`, `.read_recent_rides`, `.read_subset_component_history`, `.read_subset_installed_components`, `.write_component_lifetime_status`, `.read_all_component_types`, `.write_bike_service_status`, `.write_component_service_status`, `.read_latest_history_record`, `.write_component_distance`, `.write_workplan`?**
   _High betweenness centrality (0.165) - this node is a cross-community bridge._
-- **Why does `BusinessLogic` connect `BusinessLogic` to `.get_bike_details`, `utils.py`, `What was checked and held up`, `generate_unique_id`, `validate_date_format`, `.calculate_collection_status`, `Service integration (#351) - fullstack to code-reviewer`, `.get_component_details`?**
-  _High betweenness centrality (0.107) - this node is a cross-community bridge._
+- **Why does `BusinessLogic` connect `BusinessLogic` to `.get_component_overview`, `scheduler.py`, `.process_service_records`, `.create_history_record`, `Service integration (#351) - fullstack to code-reviewer`, `.update_component_service_status`, `test_health.py`, `utils.py`, `.delete_record`?**
+  _High betweenness centrality (0.109) - this node is a cross-community bridge._
 - **Why does `renderIncidentServices()` connect `D. Design questions to decide before coding` to `Issues found (none blocking)`, `main.js`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
+  _High betweenness centrality (0.067) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `DatabaseManager` (e.g. with `Bikes` and `Collections`) actually correct?**
   _`DatabaseManager` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 2 inferred relationships involving `BusinessLogic` (e.g. with `strava_sync_job()` and `update_time_based_fields_job()`) actually correct?**
   _`BusinessLogic` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `backup_db.sh script`, `create-container-vs2000.sh script`, `velo-supervisor-2000` to the rest of the system?**
-  _165 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _167 weakly-connected nodes found - possible documentation gaps or missing edges._
