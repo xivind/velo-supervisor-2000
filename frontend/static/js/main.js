@@ -762,10 +762,18 @@ window.setServiceModalStatus = function(status) {
     document.getElementById('servicePlannedDateGroup').classList.toggle('d-none', !isPlanned);
 };
 
-// Function to select a value in a service modal dropdown, adding the option when it is missing
-window.setServiceModalSelect = function(selectId, value) {
+// Function to select a value in a service modal dropdown, showing only options selectable for the component plus the linked one
+window.setServiceModalSelect = function(selectId, value, componentId) {
     const select = document.getElementById(selectId);
     if (!select) return;
+
+    Array.from(select.options).forEach(option => {
+        if (!option.value) return;
+        const componentIds = option.dataset.componentIds ? JSON.parse(option.dataset.componentIds) : null;
+        const isSelectable = option.dataset.selectable === 'true' && (!componentIds || componentIds.includes(componentId));
+        option.hidden = !isSelectable && option.value !== value;
+        option.disabled = option.hidden;
+    });
 
     if (value && !Array.from(select.options).some(option => option.value === value)) {
         const option = document.createElement('option');
@@ -800,7 +808,7 @@ window.openServiceRecordModal = function(data) {
 
             setServiceModalStatus(status);
             setServiceModalSelect('serviceWorkplanId', workplanId);
-            setServiceModalSelect('serviceIncidentId', incidentId);
+            setServiceModalSelect('serviceIncidentId', incidentId, componentId);
 
             // Manage the link that opens the workplan in a new tab
             const isOnWorkplanDetailsPage = document.getElementById('workplan-details') !== null;
@@ -4078,7 +4086,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('servicePlannedDate').value = '';
         setServiceModalStatus('Completed');
         setServiceModalSelect('serviceWorkplanId', '');
-        setServiceModalSelect('serviceIncidentId', '');
+        setServiceModalSelect('serviceIncidentId', '', currentComponentId);
 
         // Reset ID display to placeholder text
         document.getElementById('service-id-display').textContent = 'Not created yet';
@@ -4326,7 +4334,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const row = document.createElement('tr');
                 const workplanLink = service.workplan_id
                     ? `<a href="/workplan_details/${service.workplan_id}" target="_blank" class="text-decoration-none text-reset">${window.escapeHtml(service.workplan_name || 'Workplan ' + service.workplan_id)}</a>` +
-                      `<br><small class="text-muted">${service.workplan_status === 'Done' ? 'Completed' : 'Open'}</small>`
+                      `<br><small class="text-muted">${service.workplan_status === 'Done' ? 'Done' : 'Planned'}</small>`
                     : 'No workplan';
                 row.innerHTML = `<td><a href="/component_details/${service.component_id}" class="text-decoration-none text-reset">${window.escapeHtml(service.component_name)}</a>` +
                                 `<br><small><a href="#" class="text-muted text-decoration-none incident-service-link">Linked service</a></small></td>` +
@@ -4390,6 +4398,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal.show();
             });
         });
+
+        // Open the incident in edit mode when the page is reached through a link to it
+        if (window.location.hash.startsWith('#incident-')) {
+            document.querySelector(`.edit-incident-btn[data-incident-id="${CSS.escape(window.location.hash.replace('#incident-', ''))}"]`)?.click();
+        }
     });
     
     // Initialize the component selector with delayed data loading

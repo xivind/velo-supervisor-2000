@@ -114,7 +114,7 @@
                         🧑‍🔧 <strong>Services:</strong>
                         {% if payload.workplan_data.total_count > 0 %}
                             {% set service_percentage = (payload.workplan_data.completed_count / payload.workplan_data.total_count * 100) | round | int %}
-                            <span class="checkbox-progress-container">
+                            <span class="checkbox-progress-container mt-0 align-text-bottom">
                                 <span class="checkbox-progress-donut {% if service_percentage == 100 %}complete{% endif %}"
                                     style="--progress: {{ service_percentage }}"
                                     title="Services: {{ payload.workplan_data.completed_count }} of {{ payload.workplan_data.total_count }} completed">

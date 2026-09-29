@@ -351,6 +351,16 @@ def get_incident_data_tuple(incident, database_manager, workplan_names):
             [build_incident_service_entry(service, database_manager, workplan_names)
              for service in incident_services])
 
+def get_service_incident_options(database_manager):
+    """Build incident options for the service modal (4 fields), all incidents so linked resolved ones keep their title"""
+    return [(incident.incident_id,
+             generate_incident_title(database_manager.read_component_names(incident.incident_affected_component_ids),
+                                     database_manager.read_bike_name(incident.incident_affected_bike_id),
+                                     incident.incident_description),
+             incident.incident_status,
+             parse_json_string(incident.incident_affected_component_ids) or [])
+            for incident in database_manager.read_all_incidents()]
+
 def get_workplan_data_tuple(workplan, database_manager):
     """Build standard workplan data tuple for display (14 fields)"""
     context = derive_workplan_context(database_manager.read_services_by_workplan(workplan.workplan_id),
