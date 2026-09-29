@@ -1,0 +1,37 @@
+<div class="modal fade" id="completeServicesModal" tabindex="-1" aria-labelledby="completeServicesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header input-modal-header">
+                <h5 class="modal-title input-modal-title" id="completeServicesModalLabel">Complete services</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="completeServicesDate" class="form-label fw-bold">Service date</label>
+                    <div class="input-group date-input-group">
+                        <input type="text" class="form-control datepicker-input" id="completeServicesDate" required>
+                        <span class="input-group-text datepicker-toggle">🗓</span>
+                    </div>
+                    <small class="form-text text-muted">The same date is set for all selected services.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="completeServicesNote" class="form-label fw-bold">Note</label>
+                    <textarea class="form-control" id="completeServicesNote" rows="2" placeholder="Optional. Added to the description of each selected service"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Planned services to complete</label>
+                    <div id="completeServicesCheckboxes" class="border rounded p-3 scrollable-checkboxes">
+                        <!-- Checkboxes inserted by main.js -->
+                    </div>
+                    <small class="form-text text-muted">Descriptions are kept as planned. Services on retired components cannot be completed.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="completeServicesSubmitBtn">Complete services</button>
+            </div>
+        </div>
+    </div>
+</div>

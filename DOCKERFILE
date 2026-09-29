@@ -1,14 +1,19 @@
 # Docker file based on this tutorial https://python.plainenglish.io/turn-your-python-script-into-a-real-program-with-docker-c200e15d5265
 
 # Use an official Python runtime as a base image
-FROM python:3.9
+FROM python:3.12-slim
+
+# Use uv as a drop in replacement for pip
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Install dependencies from the lockfile, fail the build if uv.lock is out of sync with pyproject.toml
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-dev --no-cache
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Set the working directory in the container
 WORKDIR /app/backend
-
-# Copy the requirements.txt file and install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire project directory into the container
 COPY backend/. .
@@ -23,8 +28,8 @@ EXPOSE 8000
 # Command to run your application using Uvicorn
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--log-config", "uvicorn_log_config.ini"]
 
-# Healthcheck to monitor the container for errors
-# HEALTHCHECK --interval=600s --timeout=10s --retries=3 CMD curl -sSf -o /dev/null -w '%{http_code}' http://127.0.0.1:8000 || exit 1
+# Healthcheck to monitor the container for errors, see backend/healthcheck.py
+HEALTHCHECK --interval=600s --timeout=5s --retries=3 CMD ["python", "healthcheck.py"]
 
 
 

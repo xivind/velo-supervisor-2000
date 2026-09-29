@@ -11,3 +11,8 @@ dependencies = [
     "requests-oauthlib>=2.0.0",
     "uvicorn>=0.52.4",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
