@@ -6,6 +6,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div id="planServicesIncidentBanner" class="alert alert-info d-none">
+                    These services will be linked to the incident you planned them from.
+                </div>
                 <div id="planServicesMultipleBanner" class="alert alert-warning d-none">
                     <strong>Multiple components selected</strong><br>
                     The same description, planned date, workplan and incident will be set for all selected components.
@@ -26,7 +29,8 @@
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <small class="form-text text-muted">Select components which this service applies to. Retired components cannot be serviced and are not listed.</small>
+                    <small class="form-text text-muted" id="planServicesComponentsHelp">Select components which this service applies to. Retired components cannot be serviced and are not listed.</small>
+                    <small class="form-text text-muted d-none" id="planServicesComponentsIncidentHelp">Only components listed on the incident can be selected. Remove any that this service does not apply to.</small>
                 </div>
 
                 <div class="mb-3">
@@ -49,6 +53,7 @@
                         {% endfor %}
                     </select>
                     <small class="form-text text-muted">Optional. Only planned workplans can be selected.</small>
+                    <small class="form-text text-muted" id="planServicesNoIncidentNote">Planned services are not linked to an incident. To link an incident, plan services from the incidents page, or edit the service afterwards.</small>
                 </div>
             </div>
             <div class="modal-footer">

@@ -29,29 +29,29 @@ def read_config():
         config = json.load(file)
     return config
 
+DEFAULT_BUTTON_SORTING = {'bike_details': ['new-collection',
+                                           'new-component',
+                                           'install-existing',
+                                           'plan-services',
+                                           'complete-services',
+                                           'new-workplan',
+                                           'new-incident'],
+                          'component_details': ['view-bike',
+                                                'update-status',
+                                                'update-details',
+                                                'edit-collection',
+                                                'quick-swap',
+                                                'duplicate',
+                                                'new-service',
+                                                'plan-services',
+                                                'complete-services',
+                                                'new-workplan',
+                                                'new-incident',
+                                                'delete']}
+
 def get_button_order(config, page_name):
     """Function to get button order for a specific page with defaults"""
-    defaults = {'bike_details': ['new-collection',
-                                 'new-component',
-                                 'install-existing',
-                                 'plan-services',
-                                 'complete-services',
-                                 'new-workplan',
-                                 'new-incident'],
-                'component_details': ['view-bike',
-                                      'update-status',
-                                      'update-details',
-                                      'edit-collection',
-                                      'quick-swap',
-                                      'duplicate',
-                                      'new-service',
-                                      'plan-services',
-                                      'complete-services',
-                                      'new-workplan',
-                                      'new-incident',
-                                      'delete']}
-
-    default_order = defaults.get(page_name, [])
+    default_order = DEFAULT_BUTTON_SORTING.get(page_name, [])
     configured_order = config.get('button_sorting', {}).get(page_name, default_order)
 
     missing_buttons = [button_id for button_id in default_order if button_id not in configured_order]
@@ -60,27 +60,7 @@ def get_button_order(config, page_name):
 
 def get_button_sorting_config(config):
     """Function to get button sorting configuration for config page"""
-    default_button_sorting = {'bike_details': ['new-collection',
-                                               'new-component',
-                                               'install-existing',
-                                               'plan-services',
-                                               'complete-services',
-                                               'new-workplan',
-                                               'new-incident'],
-                            'component_details': ['view-bike',
-                                                  'update-status',
-                                                  'update-details',
-                                                  'edit-collection',
-                                                  'quick-swap',
-                                                  'duplicate',
-                                                  'new-service',
-                                                  'plan-services',
-                                                  'complete-services',
-                                                  'new-workplan',
-                                                  'new-incident',
-                                                  'delete']}
-
-    return config.get('button_sorting', default_button_sorting)
+    return {page_name: get_button_order(config, page_name) for page_name in DEFAULT_BUTTON_SORTING}
 
 def parse_button_sorting(bike_details_json, component_details_json):
     """Function to parse button sorting data from form submission"""
@@ -131,23 +111,7 @@ def write_config(form_type, db_path=None, strava_tokens=None, verbose_logging=No
             return False, f"Unknown form type: {form_type}"
 
         if "button_sorting" not in updated_config:
-            updated_config["button_sorting"] = {"bike_details": ["new-collection",
-                                                                 "new-component",
-                                                                 "install-existing",
-                                                                 "plan-services",
-                                                                 "new-workplan",
-                                                                 "new-incident"],
-                                                "component_details": ["view-bike",
-                                                                      "update-status",
-                                                                      "update-details",
-                                                                      "edit-collection",
-                                                                      "quick-swap",
-                                                                      "duplicate",
-                                                                      "new-service",
-                                                                      "plan-services",
-                                                                      "new-workplan",
-                                                                      "new-incident",
-                                                                      "delete"]}
+            updated_config["button_sorting"] = DEFAULT_BUTTON_SORTING
 
         with open('config.json', 'w', encoding='utf-8') as file:
             json.dump(updated_config, file, indent=4)
