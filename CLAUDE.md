@@ -78,7 +78,6 @@ These rules apply to ALL agents and Claude Code itself.
 - **Python version**: 3.12 (as specified in DOCKERFILE, `pyproject.toml` requires 3.11+)
 
 ### Database Operations
-- **Database backup**: Use `./backup_db.sh` (Docker-specific script)
 - **Database migration**: Run `python3 backend/db_migration.py` for schema updates between versions
 - **Template database**: Located at `backend/template_db.sqlite`
 
