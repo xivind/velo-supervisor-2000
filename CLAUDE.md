@@ -365,7 +365,7 @@ See `.handovers/CLAUDE.md` for comprehensive instructions on creating and using 
 Known technical debt is tracked in [issue #356](https://github.com/xivind/velo-supervisor-2000/issues/356), not in a file in the repository. Add findings there, and say in the issue when an item is cleared.
 
 ### Database Schema Changes
-This project uses breaking database schema changes between versions. Always run `backend/db_migration.py` when upgrading and backup the database first using the provided script.
+This project uses breaking database schema changes between versions. Always run `backend/db_migration.py` when upgrading and backup the database first.
 
 ### Docker Development
 The application is designed to run in Docker with mounted volumes for data persistence and secrets management.
