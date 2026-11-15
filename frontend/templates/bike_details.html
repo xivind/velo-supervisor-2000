@@ -151,7 +151,7 @@
                         {%- endfor -%}
                         {%- if not ns.found %} No collections assigned{% endif -%}
                     </span>
-                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">📝 <strong>Notes:</strong> {% if payload.bike_data.bike_notes %}{{ payload.bike_data.bike_notes }}{% else %}No bike notes available{% endif %}</span>
+                    <span class="badge bg-light text-dark border fs-6 text-wrap text-start fw-normal badge-info">📄 <strong>Notes:</strong> {% if payload.bike_data.bike_notes %}{{ payload.bike_data.bike_notes }}{% else %}No bike notes available{% endif %}</span>
                 </div>
                 <hr/>
                 <div class="text-end">
@@ -200,7 +200,7 @@
             <div class="card shadow mb-4">
                 <div class="alert alert-warning m-0">
                     <div class="d-flex align-items-center">
-                        <div class="fs-2 me-3">🏷</div>
+                        <div class="fs-2 me-3">🏷️</div>
                         <div>
                             <h5 class="card-title mb-2">Component type compliance issues</h5>
                             {% if not payload.compliance_report.all_mandatory_present %}

@@ -227,6 +227,7 @@ def test_page_payloads_build_with_planned_and_completed_services(modules):
     seed_component(modules)
     seed_rides(modules)
     add_incident(modules, "inc-1", ["comp-1"])
+    add_incident(modules, "inc-2", ["comp-1"], status="Resolved")
     business_logic = modules.business_logic
     database_manager = modules.database_manager
     modules.database_model.Collections.create(collection_id="col-1", collection_name="Drivetrain",
@@ -255,7 +256,8 @@ def test_page_payloads_build_with_planned_and_completed_services(modules):
     assert len(component_payload["planned_services_data"]) == 1
     assert len(component_payload["service_history_data"]) == 1
     assert component_payload["plan_services_preselect"] == ["comp-1"]
-    assert component_payload["open_incidents_for_component"][0][0] == "inc-1"
+    assert sorted((incident[0], incident[2], incident[3]) for incident in component_payload["service_incident_options"]) == \
+        [("inc-1", "Open", ["comp-1"]), ("inc-2", "Resolved", ["comp-1"])]
     assert component_payload["oldest_history_date"] == "2026-01-01 10:00"
     assert len(component_payload["component_history_data"][0]) == 8
 

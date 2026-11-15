@@ -17,7 +17,7 @@
                     <div class="col-12 mb-3 d-none" id="workplan_components_section">
                         <div class="form-label fw-bold">Components transferred from incident</div>
                         <div id="workplan_components_list"></div>
-                        <small class="form-text text-muted">A planned service is created for each component that stays ticked.</small>
+                        <small class="form-text text-muted">A planned service is created for each component that stays ticked, and linked to this incident.</small>
                     </div>
 
                     <div class="col-12 mb-3">
@@ -66,7 +66,7 @@
                         <!-- Edit Mode (default) -->
                         <div id="workplan_edit_mode">
                             <textarea class="form-control" id="workplan_description" name="workplan_description" rows="4"></textarea>
-                            <small class="form-text text-muted">Markdown syntax is supported: **bold**, *italic*, # headers, - [ ] checkboxes, etc.</small>
+                            <small class="form-text text-muted">Optional. Markdown syntax is supported: **bold**, *italic*, # headers, - [ ] checkboxes, etc.</small>
                         </div>
                         
                         <!-- Preview Mode (hidden by default) -->
@@ -91,6 +91,7 @@
                     <div class="col-12 mb-3">
                         <label for="completion_notes" class="form-label fw-bold">Completion notes</label>
                         <textarea class="form-control" id="completion_notes" name="completion_notes" rows="2"></textarea>
+                        <small class="form-text text-muted">Optional.</small>
                     </div>
                 </form>
             </div>

@@ -399,6 +399,8 @@ th[data-sort].sorted-desc .sort-indicator::after {
 
 .checkbox-progress-donut.complete {
     background: #198754;
+    mask: none;
+    -webkit-mask: none;
 }
 
 .checkbox-progress-donut.complete::after {
@@ -431,6 +433,10 @@ tr:hover .checkbox-progress-donut {
         #adb5bd calc(var(--progress) * 3.6deg),
         #adb5bd 360deg
     );
+}
+
+tr:hover .checkbox-progress-donut.complete {
+    background: #198754;
 }
 
 tr:hover .checkbox-progress-text {
