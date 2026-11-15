@@ -16,6 +16,13 @@ graphify-out/cost.json
 # freshness check; a fresh clone's checkout-time mtime would falsely read as fresh)
 graphify-out/cache/last_query_stamp
 
+# graphify - per-Claude-session hook nudge counters, meaningless outside that session
+graphify-out/cache/hook_sessions/
+
+# graphify - clustering sidecar from label/cluster-only; update and the post-commit
+# hook never refresh it, so a tracked copy goes stale. Regenerate: graphify cluster-only .
+graphify-out/.graphify_analysis.json
+
 # graphify - machine-local interpreter path pointers (wrong on other machines)
 graphify-out/.graphify_python
 graphify-out/.graphify_root

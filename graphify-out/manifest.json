@@ -150,9 +150,9 @@
     "semantic_hash": "5343c82b134fc54bf2ab7481ba4fa899"
   },
   "CLAUDE.md": {
-    "mtime": 1793745351.695456,
-    "seen": 1793745400.0298333,
-    "ast_hash": "64ccbf2e98b577eeefa1865a9bc8d39d",
+    "mtime": 1793745679.7164457,
+    "seen": 1794737220.5082624,
+    "ast_hash": "92d632c19dfd5786c0b2d739b2abcd2f",
     "semantic_hash": ""
   },
   "README.md": {
@@ -162,9 +162,9 @@
     "semantic_hash": "5696cd69b33010dc9554773fec18c885"
   },
   "backend/current_version.txt": {
-    "mtime": 1791320103.1786096,
-    "seen": 1793745400.0298395,
-    "ast_hash": "f44663bd164d7af437b681a4ceaa3795",
+    "mtime": 1793748040.1003718,
+    "seen": 1794737220.5082693,
+    "ast_hash": "ec7d62c8846766eb89ee329a65886e76",
     "semantic_hash": ""
   },
   "frontend/templates/base.html": {
