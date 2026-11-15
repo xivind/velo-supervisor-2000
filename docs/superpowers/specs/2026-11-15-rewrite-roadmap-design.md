@@ -105,11 +105,12 @@ Every stage ends with CLAUDE.md and the agent files in `.claude/agents/` updated
 **Purpose:** settle how the app should look and work, ignoring how the current code and pages are shaped.
 
 - Prototype the key screens and flows for phone and desktop with Claude Design.
-- Inputs: @thomiz's `bike-dashboard.html` and the requirements in #363, the workplan flow in #362 and #365, the phone feedback in #171, and the two menus (main menu and bike actions) described in #363.
+- Inputs: @thomiz's `bike-dashboard.html` and the requirements in #363, the workplan flow in #362 and #365, the phone feedback in #171, and the two menus (main menu and bike actions) described in #363. These are only inputs for inspiration and not necessarily how it should look. We decide that on our own. 
 - Ignore the current code. Keep the domain rules that protect data: one bike per component at a time, no future dates, how service intervals and lifetimes work.
 - Every place the design needs a rule changed (for example #362, several services on one component in one workplan, or creating a workplan with its services in one step) becomes an explicit feature issue, decided before Stage 5.
+- The design stage should also result in a design profile, that the rest of the work will consult and adhere to. The design profile should deal with for example color palettes, fonts, the use of icons, how buttons should be shaped, and other visual conventions. 
 
-**Done when:** approved prototypes for phone and desktop, a list of required behaviour changes as feature issues, and a parity checklist of everything the old UI can do and the new UI must cover.
+**Done when:** approved prototypes for phone and desktop, a list of required behaviour changes as feature issues, and a parity checklist of everything the old UI can do and the new UI must cover. The design profile should also be done as part of this stage.
 
 ### Stage 3: Architecture
 
