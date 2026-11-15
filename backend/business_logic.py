@@ -15,6 +15,7 @@ from utils import (read_config,
                    get_formatted_bikes_list,
                    get_workplan_names_dict,
                    get_incident_data_tuple,
+                   get_service_incident_options,
                    get_workplan_data_tuple,
                    get_planned_service_data_tuple,
                    derive_workplan_context,
@@ -164,6 +165,8 @@ class BusinessLogic():
         workplans_data = [get_workplan_data_tuple(workplan, database_manager)
                           for workplan in database_manager.read_all_workplans()]
 
+        service_incident_options = get_service_incident_options(database_manager)
+
         planned_services_data = [get_planned_service_data_tuple(service, database_manager, workplan_names)
                                  for service in database_manager.read_planned_services_by_bike(bike_id)]
 
@@ -190,6 +193,7 @@ class BusinessLogic():
                    "planned_services_data": planned_services_data if planned_services_data else None,
                    "today": get_formatted_datetime_now(),
                    "plan_services_preselect": plan_services_preselect,
+                   "service_incident_options": service_incident_options,
                    "component_collection_names": component_collection_names,
                    "component_collection_data": component_collection_data}
 
@@ -407,12 +411,11 @@ class BusinessLogic():
 
         workplans_data = [get_workplan_data_tuple(workplan, database_manager)
                           for workplan in database_manager.read_all_workplans()]
+
+        service_incident_options = get_service_incident_options(database_manager)
         
         planned_services_data = [get_planned_service_data_tuple(service, database_manager, workplan_names)
                                  for service in database_manager.read_planned_services_by_component(component_id)]
-
-        open_incidents_for_component = [(incident[0], incident[12]) for incident in incident_reports_data
-                                        if incident[4] and component_id in incident[4]]
 
         plan_services_preselect = [component_id] if bike_component.installation_status != "Retired" else []
 
@@ -432,7 +435,7 @@ class BusinessLogic():
                    "workplans_data": workplans_data,
                    "planned_services_data": planned_services_data if planned_services_data else None,
                    "today": get_formatted_datetime_now(),
-                   "open_incidents_for_component": open_incidents_for_component,
+                   "service_incident_options": service_incident_options,
                    "plan_services_preselect": plan_services_preselect,
                    "oldest_history_date": oldest_history_record.updated_date if oldest_history_record else None,
                    "component_collection_names": component_collection_names,
@@ -626,10 +629,13 @@ class BusinessLogic():
         workplans_data = [get_workplan_data_tuple(workplan, database_manager)
                           for workplan in database_manager.read_all_workplans()]
 
+        service_incident_options = get_service_incident_options(database_manager)
+
         payload = {"all_components_data": all_components_data,
                    "bikes_data": bikes_data,
                    "incident_reports_data": incident_reports_data,
-                   "workplans_data": workplans_data}
+                   "workplans_data": workplans_data,
+                   "service_incident_options": service_incident_options}
 
         return payload
     
@@ -800,6 +806,8 @@ class BusinessLogic():
         workplans_data = [get_workplan_data_tuple(workplan, database_manager)
                           for workplan in database_manager.read_all_workplans()]
 
+        service_incident_options = get_service_incident_options(database_manager)
+
         payload = {"workplan_data": workplan_data,
                    "all_services_completed": all_services_completed,
                    "latest_service_date": latest_service_date,
@@ -810,7 +818,8 @@ class BusinessLogic():
                    "all_components_data": all_components_data,
                    "component_bike_names": component_bike_names,
                    "today": get_formatted_datetime_now(),
-                   "workplans_data": workplans_data}
+                   "workplans_data": workplans_data,
+                   "service_incident_options": service_incident_options}
 
         return payload
 

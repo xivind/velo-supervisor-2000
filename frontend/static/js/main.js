@@ -762,10 +762,18 @@ window.setServiceModalStatus = function(status) {
     document.getElementById('servicePlannedDateGroup').classList.toggle('d-none', !isPlanned);
 };
 
-// Function to select a value in a service modal dropdown, adding the option when it is missing
-window.setServiceModalSelect = function(selectId, value) {
+// Function to select a value in a service modal dropdown, showing only options selectable for the component plus the linked one
+window.setServiceModalSelect = function(selectId, value, componentId) {
     const select = document.getElementById(selectId);
     if (!select) return;
+
+    Array.from(select.options).forEach(option => {
+        if (!option.value) return;
+        const componentIds = option.dataset.componentIds ? JSON.parse(option.dataset.componentIds) : null;
+        const isSelectable = option.dataset.selectable === 'true' && (!componentIds || componentIds.includes(componentId));
+        option.hidden = !isSelectable && option.value !== value;
+        option.disabled = option.hidden;
+    });
 
     if (value && !Array.from(select.options).some(option => option.value === value)) {
         const option = document.createElement('option');
@@ -800,7 +808,7 @@ window.openServiceRecordModal = function(data) {
 
             setServiceModalStatus(status);
             setServiceModalSelect('serviceWorkplanId', workplanId);
-            setServiceModalSelect('serviceIncidentId', incidentId);
+            setServiceModalSelect('serviceIncidentId', incidentId, componentId);
 
             // Manage the link that opens the workplan in a new tab
             const isOnWorkplanDetailsPage = document.getElementById('workplan-details') !== null;
@@ -861,24 +869,24 @@ document.addEventListener('DOMContentLoaded', function() {
             if (status === 'Completed') {
                 if (!serviceDateInput.value || !validateDateInput(serviceDateInput)) {
                     event.preventDefault();
-                    showServicesValidationModal('Please enter a valid service date in format YYYY-MM-DD HH:MM.');
+                    showValidationModal('Please enter a valid service date in format YYYY-MM-DD HH:MM.');
                     return;
                 }
 
                 if (new Date(serviceDateInput.value) > new Date()) {
                     event.preventDefault();
-                    showServicesValidationModal('Service date cannot be in the future.');
+                    showValidationModal('Service date cannot be in the future.');
                     return;
                 }
 
                 if (oldestHistoryDate && serviceDateInput.value <= oldestHistoryDate) {
                     event.preventDefault();
-                    showServicesValidationModal(`Service date cannot be at or before the creation date of the component (${oldestHistoryDate}).`);
+                    showValidationModal(`Service date cannot be at or before the creation date of the component (${oldestHistoryDate}).`);
                     return;
                 }
             } else if (plannedDateInput.value && !validateDateInput(plannedDateInput)) {
                 event.preventDefault();
-                showServicesValidationModal('Please enter a valid planned date in format YYYY-MM-DD HH:MM, or leave it blank.');
+                showValidationModal('Please enter a valid planned date in format YYYY-MM-DD HH:MM, or leave it blank.');
             }
         });
     }
@@ -1314,8 +1322,8 @@ window.submitBulkServiceAction = function(url, formData, loadingText, titles) {
     }, 300);
 };
 
-// Function to show a validation message from the services modals
-window.showServicesValidationModal = function(message) {
+// Function to show a validation message
+window.showValidationModal = function(message) {
     document.getElementById('validationModalBody').textContent = message;
     validationModal.show();
 };
@@ -1331,6 +1339,7 @@ window.showServicesValidationModal = function(message) {
         const componentSelect = document.getElementById('planServicesComponents');
         const workplanSelect = document.getElementById('planServicesWorkplanId');
         const multipleBanner = document.getElementById('planServicesMultipleBanner');
+        const allComponentOptions = Array.from(componentSelect.options).map(option => ({value: option.value, text: option.textContent}));
 
         // Function to show the banner when the same values apply to several components
         function updateMultipleBanner() {
@@ -1353,9 +1362,19 @@ window.showServicesValidationModal = function(message) {
                 ts.on('change', updateMultipleBanner);
             }
 
+            // Opened from an incident, only the components listed on the incident can be selected
+            const fromIncident = incidentId !== '';
             componentSelect.tomSelect.clear();
+            componentSelect.tomSelect.clearOptions();
+            allComponentOptions.filter(option => !fromIncident || preselect.includes(option.value))
+                .forEach(option => componentSelect.tomSelect.addOption(option));
             componentSelect.tomSelect.setValue(preselect);
             updateMultipleBanner();
+
+            document.getElementById('planServicesIncidentBanner').classList.toggle('d-none', !fromIncident);
+            document.getElementById('planServicesComponentsHelp').classList.toggle('d-none', fromIncident);
+            document.getElementById('planServicesComponentsIncidentHelp').classList.toggle('d-none', !fromIncident);
+            document.getElementById('planServicesNoIncidentNote').classList.toggle('d-none', fromIncident);
 
             document.getElementById('planServicesDescription').value = '';
             document.getElementById('planServicesPlannedDate').value = '';
@@ -1372,17 +1391,17 @@ window.showServicesValidationModal = function(message) {
             const selectedComponents = componentSelect.tomSelect ? componentSelect.tomSelect.getValue() : [];
 
             if (!serviceDescription || serviceDescription.trim().length < 5) {
-                showServicesValidationModal('Please enter a description of at least 5 characters.');
+                showValidationModal('Please enter a description of at least 5 characters.');
                 return;
             }
 
             if (selectedComponents.length === 0) {
-                showServicesValidationModal('Please select at least one component.');
+                showValidationModal('Please select at least one component.');
                 return;
             }
 
             if (plannedDate && !validateDateInput(plannedDateInput)) {
-                showServicesValidationModal('Please enter a valid planned date in format YYYY-MM-DD HH:MM, or leave it blank.');
+                showValidationModal('Please enter a valid planned date in format YYYY-MM-DD HH:MM, or leave it blank.');
                 return;
             }
 
@@ -1471,17 +1490,17 @@ window.showServicesValidationModal = function(message) {
             const selectedCheckboxes = Array.from(document.querySelectorAll('.complete-service-checkbox:checked'));
 
             if (!serviceDate || !validateDateInput(dateInput)) {
-                showServicesValidationModal('Please enter a valid service date in format YYYY-MM-DD HH:MM.');
+                showValidationModal('Please enter a valid service date in format YYYY-MM-DD HH:MM.');
                 return;
             }
 
             if (new Date(serviceDate) > new Date()) {
-                showServicesValidationModal('Service date cannot be in the future.');
+                showValidationModal('Service date cannot be in the future.');
                 return;
             }
 
             if (selectedCheckboxes.length === 0) {
-                showServicesValidationModal('Please select at least one service.');
+                showValidationModal('Please select at least one service.');
                 return;
             }
 
@@ -1490,12 +1509,12 @@ window.showServicesValidationModal = function(message) {
                 const workplanCompletionDate = checkbox.dataset.workplanCompletionDate;
 
                 if (oldestHistoryDate && serviceDate <= oldestHistoryDate) {
-                    showServicesValidationModal(`Service date cannot be at or before the creation date of ${checkbox.dataset.componentName} (${oldestHistoryDate}).`);
+                    showValidationModal(`Service date cannot be at or before the creation date of ${checkbox.dataset.componentName} (${oldestHistoryDate}).`);
                     return;
                 }
 
                 if (workplanCompletionDate && serviceDate > workplanCompletionDate) {
-                    showServicesValidationModal(`Service date cannot be after the completion date of the workplan (${workplanCompletionDate}). Reopen the workplan first.`);
+                    showValidationModal(`Service date cannot be after the completion date of the workplan (${workplanCompletionDate}). Reopen the workplan first.`);
                     return;
                 }
             }
@@ -2365,17 +2384,17 @@ window.showServicesValidationModal = function(message) {
         const createNew = document.getElementById('create_new_component').checked;
 
         if (!oldComponentId) {
-            showValidationModal('Validation Error', 'Select a component to swap out.');
+            showValidationModal('Select a component to swap out.');
             return false;
         }
 
         if (!fateChecked) {
-            showValidationModal('Validation Error', 'Select the fate of the component being swapped out.');
+            showValidationModal('Select the fate of the component being swapped out.');
             return false;
         }
 
         if (!validateDateInput(swapDateInput)) {
-            showValidationModal('Validation Error', 'Enter a valid swap date in the format YYYY-MM-DD HH:MM.');
+            showValidationModal('Enter a valid swap date in the format YYYY-MM-DD HH:MM.');
             return false;
         }
 
@@ -2384,12 +2403,12 @@ window.showServicesValidationModal = function(message) {
             const newType = document.getElementById('new_component_type').value.trim();
 
             if (!newName) {
-                showValidationModal('Validation Error', 'Enter a name for the new component.');
+                showValidationModal('Enter a name for the new component.');
                 return false;
             }
 
             if (!newType) {
-                showValidationModal('Validation Error', 'Component type is required for the new component.');
+                showValidationModal('Component type is required for the new component.');
                 return false;
             }
 
@@ -2400,20 +2419,12 @@ window.showServicesValidationModal = function(message) {
         } else {
             const newComponentId = document.getElementById('new_component_id').value;
             if (!newComponentId) {
-                showValidationModal('Validation Error', 'Select a component to install or check "Create new component".');
+                showValidationModal('Select a component to install or check "Create new component".');
                 return false;
             }
         }
 
         return true;
-    }
-
-    function showValidationModal(title, message) {
-        const validationModal = bootstrap.Modal.getInstance(document.getElementById('validationModal')) ||
-            new bootstrap.Modal(document.getElementById('validationModal'));
-        document.getElementById('validationModalLabel').textContent = title;
-        document.getElementById('validationModalBody').textContent = message;
-        validationModal.show();
     }
 
     function performQuickSwap() {
@@ -4078,7 +4089,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('servicePlannedDate').value = '';
         setServiceModalStatus('Completed');
         setServiceModalSelect('serviceWorkplanId', '');
-        setServiceModalSelect('serviceIncidentId', '');
+        setServiceModalSelect('serviceIncidentId', '', currentComponentId);
 
         // Reset ID display to placeholder text
         document.getElementById('service-id-display').textContent = 'Not created yet';
@@ -4326,7 +4337,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const row = document.createElement('tr');
                 const workplanLink = service.workplan_id
                     ? `<a href="/workplan_details/${service.workplan_id}" target="_blank" class="text-decoration-none text-reset">${window.escapeHtml(service.workplan_name || 'Workplan ' + service.workplan_id)}</a>` +
-                      `<br><small class="text-muted">${service.workplan_status === 'Done' ? 'Completed' : 'Open'}</small>`
+                      `<br><small class="text-muted">${service.workplan_status === 'Done' ? 'Done' : 'Planned'}</small>`
                     : 'No workplan';
                 row.innerHTML = `<td><a href="/component_details/${service.component_id}" class="text-decoration-none text-reset">${window.escapeHtml(service.component_name)}</a>` +
                                 `<br><small><a href="#" class="text-muted text-decoration-none incident-service-link">Linked service</a></small></td>` +
@@ -4390,6 +4401,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal.show();
             });
         });
+
+        // Open the incident in edit mode when the page is reached through a link to it
+        if (window.location.hash.startsWith('#incident-')) {
+            document.querySelector(`.edit-incident-btn[data-incident-id="${CSS.escape(window.location.hash.replace('#incident-', ''))}"]`)?.click();
+        }
     });
     
     // Initialize the component selector with delayed data loading
@@ -5845,19 +5861,19 @@ function setupWorkplanSearch() {
 
             if (!validateDateInput(completionDateInput)) {
                 event.preventDefault();
-                showServicesValidationModal('Please enter a valid completion date in format YYYY-MM-DD HH:MM.');
+                showValidationModal('Please enter a valid completion date in format YYYY-MM-DD HH:MM.');
                 return;
             }
 
             if (new Date(completionDate) > new Date()) {
                 event.preventDefault();
-                showServicesValidationModal('Completion date cannot be in the future.');
+                showValidationModal('Completion date cannot be in the future.');
                 return;
             }
 
             if (latestServiceDate && completionDate < latestServiceDate) {
                 event.preventDefault();
-                showServicesValidationModal(`Completion date cannot be before the latest service in this workplan (${latestServiceDate}).`);
+                showValidationModal(`Completion date cannot be before the latest service in this workplan (${latestServiceDate}).`);
             }
         });
     });
@@ -6160,6 +6176,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'new-collection': '📦 New collection',
         'new-component': '⚙ New component',
         'install-existing': '⚙ Install existing',
+        'plan-services': '🧑‍🔧 Plan services',
+        'complete-services': '✅ Complete services',
         'new-workplan': '📝 New workplan',
         'new-incident': '🚨 New incident',
         'view-bike': '🚴 View bike',

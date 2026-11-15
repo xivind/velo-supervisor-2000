@@ -78,7 +78,6 @@ These rules apply to ALL agents and Claude Code itself.
 - **Python version**: 3.12 (as specified in DOCKERFILE, `pyproject.toml` requires 3.11+)
 
 ### Database Operations
-- **Database backup**: Use `./backup_db.sh` (Docker-specific script)
 - **Database migration**: Run `python3 backend/db_migration.py` for schema updates between versions
 - **Template database**: Located at `backend/template_db.sqlite`
 
@@ -366,7 +365,7 @@ See `.handovers/CLAUDE.md` for comprehensive instructions on creating and using 
 Known technical debt is tracked in [issue #356](https://github.com/xivind/velo-supervisor-2000/issues/356), not in a file in the repository. Add findings there, and say in the issue when an item is cleared.
 
 ### Database Schema Changes
-This project uses breaking database schema changes between versions. Always run `backend/db_migration.py` when upgrading and backup the database first using the provided script.
+This project uses breaking database schema changes between versions. Always run `backend/db_migration.py` when upgrading and backup the database first.
 
 ### Docker Development
 The application is designed to run in Docker with mounted volumes for data persistence and secrets management.

@@ -54,9 +54,7 @@
                             <option value="">No workplan</option>
                             {% if payload.workplans_data is defined and payload.workplans_data %}
                                 {% for workplan_id, due_date, workplan_status, workplan_size, component_ids, component_names, bike_ids, bike_names, workplan_description, completion_date, completion_notes, elapsed_days, workplan_title, service_progress in payload.workplans_data %}
-                                    {% if workplan_status == "Planned" %}
-                                    <option value="{{ workplan_id }}">{{ workplan_title }}</option>
-                                    {% endif %}
+                                    <option value="{{ workplan_id }}" data-selectable="{{ 'true' if workplan_status == 'Planned' else 'false' }}" {% if workplan_status != "Planned" %}hidden disabled{% endif %}>{{ workplan_title }}</option>
                                 {% endfor %}
                             {% endif %}
                         </select>
@@ -70,9 +68,9 @@
                         </div>
                         <select class="form-select mt-2" id="serviceIncidentId" name="incident_id">
                             <option value="">No incident</option>
-                            {% if payload.open_incidents_for_component is defined and payload.open_incidents_for_component %}
-                                {% for incident_id, incident_title in payload.open_incidents_for_component %}
-                                    <option value="{{ incident_id }}">{{ incident_title }}</option>
+                            {% if payload.service_incident_options is defined and payload.service_incident_options %}
+                                {% for incident_id, incident_title, incident_status, incident_component_ids in payload.service_incident_options %}
+                                    <option value="{{ incident_id }}" data-selectable="{{ 'true' if incident_status == 'Open' else 'false' }}" data-component-ids='{{ incident_component_ids|tojson }}' hidden disabled>{{ incident_title }}</option>
                                 {% endfor %}
                             {% endif %}
                         </select>
