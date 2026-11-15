@@ -1,15 +1,17 @@
 # Graph Report - velo-supervisor-2000  (2026-11-15)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 45 files · ~92,137 words
+- Verdict: corpus is large enough that graph structure adds value.
+- Unclassified: 12 file(s) not represented in the graph (top: (none) 5, .example 1, .sqlite 1)
 
 ## Summary
 - 1125 nodes · 1840 edges · 130 communities (58 shown, 72 thin omitted)
 - Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 279 edges (avg confidence: 0.91)
-- Token cost: 77,570 input · 1,693 output
+- Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4f8736e5`
+- Built from commit: `ad301f8a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -412,7 +414,7 @@ Nodes (3): Before Creating Handover, For fullstack-developer, Testing Requiremen
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `DatabaseManager` connect `Database Bulk Reads` to `Component History Query`, `Database Models`, `Unique Bikes Query`, `Bike and Component Details`, `Bike Record Access`, `Bike Service Status Write`, `Service Record Queries`, `Collection Write`, `Component History Model`, `Docker Health Check`, `Latest Ride Query`, `Component Record Access`, `Collections Model`, `Services Model`, `Component Types Read`, `Single Record Reads`, `Service Record Lookup`, `Installed Components Query`?**
-  _High betweenness centrality (0.152) - this node is a cross-community bridge._
+  _High betweenness centrality (0.143) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `DatabaseManager` (e.g. with `Bikes` and `Collections`) actually correct?**
   _`DatabaseManager` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Quick Swap Components`, `Strava OAuth Token Setup (Step 2)`, `Semantic Versioning (SemVer)` to the rest of the system?**
@@ -420,7 +422,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `API Route Handlers` be split into smaller, more focused modules?**
   _Cohesion score 0.06161616161616162 - nodes in this community are weakly interconnected._
 - **Why does `BusinessLogic` connect `Collections and Overview Logic` to `App Startup and Scheduler`, `Service Status Processing`, `Bike and Component Details`, `Component Distance and Status Updates`, `Workplan Details and Naming`, `Service Creation and Completion`, `Component Status Thresholds`, `Incident and Workplan Payloads`, `Docker Health Check`, `Incident Data and Workplan Creation`, `Record Update Validation`, `Component Creation and Quick Swap`?**
-  _High betweenness centrality (0.145) - this node is a cross-community bridge._
+  _High betweenness centrality (0.093) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `BusinessLogic` (e.g. with `strava_sync_job()` and `update_time_based_fields_job()`) actually correct?**
   _`BusinessLogic` has 2 INFERRED edges - model-reasoned connections that need verification._
 
