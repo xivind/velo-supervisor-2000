@@ -8,7 +8,8 @@ docker container rm velo-supervisor-2000
 docker image rm velo-supervisor-2000
 
 # Build and tag image
-docker build -t velo-supervisor-2000 -f Dockerfile .
+cd "$(dirname "$0")/.." || exit 1
+docker build -t velo-supervisor-2000 .
 
 # Create and run container
 docker run -d \

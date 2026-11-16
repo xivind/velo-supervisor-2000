@@ -1,0 +1,53 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.13.8"
+      - run: uv sync --locked
+      - run: uv run pytest --cov=velo_supervisor --cov-report=term
+      - run: uv run coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Build image
+        run: docker build -t vs2000:ci .
+      - name: Prepare data directory
+        run: |
+          mkdir -p /tmp/data/logs
+          cp config/template_db.sqlite /tmp/data/db.sqlite
+          echo '{"db_path": "/data/db.sqlite", "strava_tokens": "/secrets/strava_tokens.json"}' > /tmp/data/config.json
+          sudo chown -R 1000:1000 /tmp/data
+      - name: Run container
+        run: docker run -d --name vs2000 -v /tmp/data:/data -p 8000:8000 vs2000:ci
+      - name: Check health
+        run: |
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health || true)
+            [ "$code" = "200" ] && exit 0
+            sleep 2
+          done
+          echo "Health check failed, last status $code"
+          docker logs vs2000
+          exit 1
+      - name: Check footer version
+        run: |
+          version=$(curl -s http://localhost:8000/ | grep -o 'Version:</strong> [^<]*' | sed 's/Version:<\/strong> //' | head -n 1)
+          echo "Footer version: $version"
+          expected=$(git describe --tags --abbrev=0 | sed -E 's/^v//' | cut -d. -f1,2)
+          echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+' || { echo "Version malformed"; docker logs vs2000; exit 1; }
+          case "$version" in "$expected".*) ;; *) echo "Version $version does not start with $expected"; exit 1;; esac

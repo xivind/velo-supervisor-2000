@@ -1,24 +1,7 @@
-# This dockerignore file is meant specificallty for building the image for velo supervisor 2000
-
-# Python artifacts
-backend/__pycache__
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
-.env
-
-# Logs and runtime files
-*.log
-backend/version.py
-backend/config.json.example
-
-# Scripts and build files
-*.sh
-DOCKERFILE
-.dockerignore
-.gitignore
-.github
-.idx
 .venv
+**/__pycache__
+.pytest_cache
+graphify-out
+*.sqlite
+!config/template_db.sqlite
+/config.json
