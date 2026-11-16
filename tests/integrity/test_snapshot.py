@@ -58,3 +58,22 @@ def test_normalise_new_ids_is_stable(tmp_path, db_copy):
     collection = states[0]["collections"]["new:collections:1"]
     assert collection["components"] == json.dumps(["new:components:1", "old1"])
     assert collection["collection_id"] == "new:collections:1"
+
+
+def test_normalise_new_ids_leaves_substrings_alone(db_copy):
+    baseline = (set(stored_state(db_copy)["component_types"]) - {"Chain"}) | {"c1"}
+    insert(db_copy, "components", component_id="c1", component_name="Chain KMC X11", component_type="Chain")
+    state = normalise_new_ids(stored_state(db_copy), baseline)
+    assert "new:component_types:1" in state["component_types"]
+    assert state["components"]["c1"]["component_name"] == "Chain KMC X11"
+    assert state["components"]["c1"]["component_type"] == "new:component_types:1"
+    assert "component_type" in state["components"]["c1"]
+
+
+def test_normalise_new_ids_numbers_by_rowid_order(db_copy):
+    baseline = set(stored_state(db_copy)["bikes"])
+    insert(db_copy, "bikes", bike_id="zzz")
+    insert(db_copy, "bikes", bike_id="aaa")
+    bikes = normalise_new_ids(stored_state(db_copy), baseline)["bikes"]
+    assert list(bikes)[-2:] == ["new:bikes:1", "new:bikes:2"]
+    assert bikes["new:bikes:1"]["bike_id"] == "new:bikes:1"

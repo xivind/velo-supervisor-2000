@@ -33,28 +33,42 @@ def stored_state(db_path: Path) -> dict[str, dict[str, dict]]:
 
 
 def normalise_new_ids(state: dict, baseline_ids: set[str]) -> dict:
-    """Replace primary keys absent from baseline_ids with new:<table>:<n>, everywhere in the state"""
+    """Replace primary keys absent from baseline_ids with new:<table>:<n>.
+
+    Only whole values equal to a new ID, and whole elements of JSON-array strings
+    such as collections.components, are replaced, never substrings. Dict keys change
+    only for the rows of the table that owns the new ID.
+    """
     mapping = {}
     for table, rows in state.items():
         counter = 0
         for key in rows:
             if key not in baseline_ids:
                 counter += 1
-                mapping[key] = f"new:{table}:{counter}"
-    if not mapping:
-        return state
-    pattern = re.compile("|".join(re.escape(key) for key in sorted(mapping, key=len, reverse=True)))
+                mapping[(table, key)] = f"new:{table}:{counter}"
+    new_ids = {key: value for (_, key), value in mapping.items()}
 
-    def replace(value):
-        if isinstance(value, str):
-            return pattern.sub(lambda match: mapping[match.group(0)], value)
-        if isinstance(value, dict):
-            return {replace(key): replace(item) for key, item in value.items()}
-        if isinstance(value, list):
-            return [replace(item) for item in value]
-        return value
+    def replace_text(text):
+        if text in new_ids:
+            return new_ids[text]
+        if text.startswith("["):
+            try:
+                items = json.loads(text)
+            except ValueError:
+                return text
+            if isinstance(items, list) and any(isinstance(item, str) and item in new_ids for item in items):
+                return json.dumps([new_ids.get(item, item) if isinstance(item, str) else item
+                                   for item in items])
+        return text
 
-    return replace(state)
+    normalised = {}
+    for table, rows in state.items():
+        normalised[table] = {}
+        for key, row in rows.items():
+            new_key = mapping.get((table, key), key)
+            normalised[table][new_key] = {column: replace_text(value) if isinstance(value, str) else value
+                                          for column, value in row.items()}
+    return normalised
 
 
 def dumps(state: dict) -> str:
