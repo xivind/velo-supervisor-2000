@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Module for configuration and mapping of a Sqlite database"""
 
-from utils import read_config
+from velo_supervisor.utils import read_config
 from peewee import (SqliteDatabase,
                     Model,
                     CharField,

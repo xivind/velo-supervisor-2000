@@ -6,8 +6,7 @@ import sys
 import os
 import json
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from utils import generate_unique_id
+from velo_supervisor.utils import generate_unique_id
 
 def find_database_file(filename):
     """Search for a database file in the user's home directory and subdirectories"""

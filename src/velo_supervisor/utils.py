@@ -2,6 +2,7 @@
 """Module for auxiliary functions"""
 
 import json
+import os
 import asyncio
 import logging
 import uuid
@@ -10,6 +11,8 @@ import sys
 import re
 from collections import deque
 from datetime import datetime, timedelta
+from pathlib import Path
+from importlib.metadata import version, PackageNotFoundError
 
 def get_formatted_datetime_now():
     """Function to get current datetime formatted as YYYY-MM-DD HH:MM"""
@@ -18,14 +21,17 @@ def get_formatted_datetime_now():
 def get_current_version():
     """Function to get current program version"""
     try:
-        with open('current_version.txt', 'r', encoding='utf-8') as file:
-            return file.read().strip()
-    except FileNotFoundError:
+        return version("velo-supervisor-2000")
+    except PackageNotFoundError:
         return "Version unknown"
+
+def config_path():
+    """Function to get the configuration file path from VELO_SUPERVISOR_CONFIG, defaulting to config.json in the working directory. An empty value counts as unset."""
+    return Path(os.environ.get("VELO_SUPERVISOR_CONFIG") or "config.json")
 
 def read_config():
     """Function to read configuration file"""
-    with open('config.json', 'r', encoding='utf-8') as file:
+    with open(config_path(), 'r', encoding='utf-8') as file:
         config = json.load(file)
     return config
 
@@ -113,7 +119,7 @@ def write_config(form_type, db_path=None, strava_tokens=None, verbose_logging=No
         if "button_sorting" not in updated_config:
             updated_config["button_sorting"] = DEFAULT_BUTTON_SORTING
 
-        with open('config.json', 'w', encoding='utf-8') as file:
+        with open(config_path(), 'w', encoding='utf-8') as file:
             json.dump(updated_config, file, indent=4)
 
         return True, message

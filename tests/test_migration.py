@@ -73,7 +73,7 @@ def snapshot(db_path):
 
 
 def run_migration(db_path):
-    import db_migration
+    from velo_supervisor import db_migration
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     performed = db_migration.run_all_migrations(cursor, conn)

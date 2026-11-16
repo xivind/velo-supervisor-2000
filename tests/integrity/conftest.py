@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-TEMPLATE_DB = REPO_ROOT / "backend" / "template_db.sqlite"
+TEMPLATE_DB = REPO_ROOT / "config" / "template_db.sqlite"
 
 
 @pytest.fixture

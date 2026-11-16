@@ -13,15 +13,16 @@ from integrity.snapshot import stored_state
 @pytest.fixture
 def isolated(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("VELO_SUPERVISOR_CONFIG", "")
+    monkeypatch.setenv("VELO_SUPERVISOR_CONFIG", str(tmp_path / "config.json"))
     monkeypatch.syspath_prepend(str(tmp_path))
     yield
-    for name in ("main", "business_logic", "database_manager", "database_model", "utils", "strava"):
-        sys.modules.pop(name, None)
+    for name in list(sys.modules):
+        if name == "velo_supervisor" or name.startswith("velo_supervisor."):
+            del sys.modules[name]
 
 
-def test_detect_layout_flat():
-    assert detect_layout(REPO_ROOT) == "flat"
+def test_detect_layout_package():
+    assert detect_layout(REPO_ROOT) == "package"
 
 
 def test_detect_layout_rejects_unknown(tmp_path):
@@ -32,7 +33,7 @@ def test_detect_layout_rejects_unknown(tmp_path):
 def test_load_app_binds_to_given_database(isolated, db_copy, tmp_path):
     insert(db_copy, "bikes", bike_id="b1", bike_name="Bike One", bike_retired="False")
     app = load_app(REPO_ROOT, db_copy, tmp_path / "work")
-    assert app.layout == "flat"
+    assert app.layout == "package"
     assert [bike.bike_name for bike in app.database_manager.read_bikes()] == ["Bike One"]
 
 
