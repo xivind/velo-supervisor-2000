@@ -13,7 +13,7 @@ from integrity.snapshot import stored_state
 @pytest.fixture
 def isolated(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("VELO_SUPERVISOR_CONFIG", "")
+    monkeypatch.setenv("VELO_SUPERVISOR_CONFIG", str(tmp_path / "config.json"))
     monkeypatch.syspath_prepend(str(tmp_path))
     yield
     for name in list(sys.modules):
