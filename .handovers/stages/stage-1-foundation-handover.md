@@ -27,8 +27,19 @@ Present on both sides: 10 components without installation history, handled by pr
 
 Present on both sides: the same 10 `process_history_records` 'No history records' lines. No derived errors.
 
+### End of Phase B (after Tasks 5-7: version from git tag, config from `VELO_SUPERVISOR_CONFIG`, new Docker image)
+Same command, `--out-dir <scratchpad>/phase-b-end`. "identical", same row counts, same 10 lines present on both sides, no derived errors. CI run 43971553671: `test` and `docker` green; footer version `0.5.1.dev90+g6b451009a`.
+
 ## Decisions Made
 1. `extract` output carries `recalculation_failures`, so a failure shows in a diff.
+2. `db_migration.py` does not read `config.json` (it searches for the database file and asks), so it needed no change for the config location; the spec said otherwise. README line 150 is corrected in Task 17.
+3. The Docker build stage restores tracked files hidden by `.dockerignore` before `uv sync`, so the version has no dirty-tree suffix; CI fails on a dirty suffix and, on a tag, requires the version to equal the tag.
+4. Curated graphify community labels (63 of 144 lost in the move) are relabelled once in Task 19.
+
+## Switch-over steps for the Pi (Stage 6)
+- Move `config.json` to `/data/config.json`.
+- `/data`, `/data/logs` and `/secrets` writable by UID 1000. `strava_tokens.json` in `/secrets` is shared with the sync-strava and update-strava containers: if they rewrite it as root, VS2000 can no longer refresh the token. Check ownership after their next run.
+- Turn on required checks for `master` branch protection.
 
 ## Next Steps
 Task 4 onwards per plan.
