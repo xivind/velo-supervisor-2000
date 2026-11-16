@@ -122,6 +122,7 @@ Every stage ends with CLAUDE.md and the agent files in `.claude/agents/` updated
 - Provenance model based on W3C PROV-O (#352), with the source-of-change agents above. Schema changes and the migration path for them.
 - Payloads as named fields, never positional tuples. Jinja strict undefined mode, so a missing field fails loudly (#356 item 2).
 - Open here: whether the JSON side and MCP need a token on a home network, and how MCP is run (inside the app or as its own process).
+- The test strategy for the new layers: route tests for every resource in both formats (HTML and JSON), MCP tests, and how the new UI is tested in a browser.
 
 **Done when:** a written architecture document approved by the user.
 
@@ -132,6 +133,7 @@ Every stage ends with CLAUDE.md and the agent files in `.claude/agents/` updated
 - One area at a time: services, components, collections, Strava sync. The natural seams are listed in #356 item 3.
 - Split the long functions (#356 item 4). The distance functions are only touched once Stage 1 tests cover them.
 - Detail routes return 404 for unknown IDs instead of 500 (#356 comment of 2026-09-27).
+- Every resource route gets tests in both formats as it is built, following the Stage 3 test strategy. A refactored function keeps the Stage 1 tests that cover it green, and gets unit tests of its own where the split makes that possible.
 - Every step is behaviour-preserving. A real bug found in current logic is written down as an issue and fixed later as a separate change, never inside the refactor.
 - The frozen old UI is not kept working on `dev`. `master` is the reference instead.
 
@@ -142,7 +144,7 @@ Every stage ends with CLAUDE.md and the agent files in `.claude/agents/` updated
 **Purpose:** build the new UI page by page, and make the deliberate behaviour changes.
 
 - Two tracks, never mixed in one step:
-  - **Pages:** built from the approved prototypes and checked off against the parity checklist.
+  - **Pages:** built from the approved prototypes and checked off against the parity checklist. Each page gets browser tests for its workshop flows, following the Stage 3 test strategy, before it is checked off.
   - **Features:** each with its own issue, tests and release note. Provenance (#352) together with recently changed components (#180), several services per component in a workplan (#362), the #365 behaviours, the no-future-dates rule as one server-side check (#340), blocked dates in the date picker (#218), a loading indicator (#234), the help page (#99), and the data normalisation items in #356 (blank strings to NULL).
 - A preview container runs `staging` against a copy of the production data, so the user and @thomiz can try it early. `dev` is merged into `staging` whenever there is something worth trying.
 
