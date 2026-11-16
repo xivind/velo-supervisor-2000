@@ -10,6 +10,7 @@ import sys
 import re
 from collections import deque
 from datetime import datetime, timedelta
+from importlib.metadata import version, PackageNotFoundError
 
 def get_formatted_datetime_now():
     """Function to get current datetime formatted as YYYY-MM-DD HH:MM"""
@@ -18,9 +19,8 @@ def get_formatted_datetime_now():
 def get_current_version():
     """Function to get current program version"""
     try:
-        with open('current_version.txt', 'r', encoding='utf-8') as file:
-            return file.read().strip()
-    except FileNotFoundError:
+        return version("velo-supervisor-2000")
+    except PackageNotFoundError:
         return "Version unknown"
 
 def read_config():

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "velo-supervisor-2000"
-version = "0.1.0"
+dynamic = ["version"]
 requires-python = ">=3.11"
 dependencies = [
     "apscheduler>=3.11.3",
@@ -29,3 +29,9 @@ pythonpath = ["scripts"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/velo_supervisor"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.uv]
+cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true } }]
