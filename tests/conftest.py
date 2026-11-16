@@ -16,7 +16,7 @@ from integrity.clock import frozen_clock
 from integrity.derived import derived_values
 from integrity.loader import load_app
 from integrity.recalculate import recalculate
-from integrity.snapshot import normalise_new_ids, stored_state
+from integrity.snapshot import new_id_map, normalise_new_ids, replace_ids, stored_state
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE_DB = REPO_ROOT / "config" / "template_db.sqlite"
@@ -73,13 +73,14 @@ def snapshot_now(app):
     """Return a function that snapshots stored and derived values as they are, without recalculating.
 
     Primary keys that were not in the database when the test started are replaced by
-    new:<table>:<n> labels.
+    new:<table>:<n> labels in both layers.
     """
     baseline_ids = {key for rows in stored_state(app.db_path).values() for key in rows}
 
     def take():
-        return {"stored": normalise_new_ids(stored_state(app.db_path), baseline_ids),
-                "derived": derived_values(app)}
+        stored = stored_state(app.db_path)
+        return {"stored": normalise_new_ids(stored, baseline_ids),
+                "derived": replace_ids(derived_values(app), new_id_map(stored, baseline_ids))}
 
     return take
 

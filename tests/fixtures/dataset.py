@@ -49,7 +49,8 @@ Computed columns (distances, remaining, next, statuses, markers, in_use) start b
 zero, except on comp-no-history, so every value after setup comes from the
 recalculation. Row order matters: on bike-road the healthy cassette comes before the
 chain, because update_bike_status raises when a bike's only rated installed components
-are due (no OK, none exceeded), which a chain recalculated first would hit.
+are due (no OK, none exceeded), which a chain recalculated first would hit (#371;
+Task 9 carries a dedicated characterisation test for it).
 
 IDS holds every ID except rides; values start with bike-, comp-, coll-, wp-, inc-, svc-
 or hist-. Ride IDs read ride-<road|gravel|commute>-<yyyy>-<mm>, plus ride-no-gear.
