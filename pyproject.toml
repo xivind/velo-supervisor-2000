@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
 [project]
 name = "velo-supervisor-2000"
 version = "0.1.0"
@@ -22,3 +26,6 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["scripts"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/velo_supervisor"]

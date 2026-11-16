@@ -3,7 +3,7 @@
 
 import peewee
 import json
-from database_model import (database,
+from velo_supervisor.database_model import (database,
                             Bikes,
                             Rides,
                             ComponentTypes,
@@ -13,7 +13,7 @@ from database_model import (database,
                             Incidents,
                             Workplans,
                             Collections)
-from utils import (format_component_status,
+from velo_supervisor.utils import (format_component_status,
                    format_cost)
 
 class DatabaseManager:

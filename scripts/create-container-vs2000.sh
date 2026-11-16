@@ -8,7 +8,7 @@ docker container rm velo-supervisor-2000
 docker image rm velo-supervisor-2000
 
 # Build and tag image
-docker build -t velo-supervisor-2000 -f DOCKERFILE .
+docker build -t velo-supervisor-2000 -f Dockerfile .
 
 # Create and run container
 docker run -d \

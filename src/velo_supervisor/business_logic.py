@@ -4,7 +4,7 @@
 import logging
 from datetime import datetime
 import json
-from utils import (read_config,
+from velo_supervisor.utils import (read_config,
                    calculate_percentage_reached,
                    generate_unique_id,
                    format_component_status,
@@ -23,8 +23,8 @@ from utils import (read_config,
                    generate_incident_title,
                    resolve_workplan_title,
                    strip_markdown_syntax)
-from strava import Strava
-from database_manager import DatabaseManager
+from velo_supervisor.strava import Strava
+from velo_supervisor.database_manager import DatabaseManager
 
 # Load configuration
 CONFIG = read_config()

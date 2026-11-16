@@ -4,16 +4,17 @@
 from typing import Optional, List
 import asyncio
 import logging
+from pathlib import Path
 from contextlib import asynccontextmanager
-from middleware import Middleware
-from scheduler import start_scheduler, stop_scheduler
+from velo_supervisor.middleware import Middleware
+from velo_supervisor.scheduler import start_scheduler, stop_scheduler
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from business_logic import BusinessLogic
-from utils import (read_config,
+from velo_supervisor.business_logic import BusinessLogic
+from velo_supervisor.utils import (read_config,
                    get_current_version,
                    write_config,
                    read_filtered_logs,
@@ -46,12 +47,14 @@ async def lifespan(app: FastAPI):
 
     stop_scheduler()
 
+PACKAGE_DIR = Path(__file__).parent
+
 # Create application object
 app = FastAPI(lifespan=lifespan)
 
 # Setup static files and templates
-app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
-templates = Jinja2Templates(directory="../frontend/templates")
+app.mount("/static", StaticFiles(directory=PACKAGE_DIR / "static"), name="static")
+templates = Jinja2Templates(directory=PACKAGE_DIR / "templates")
 
 # Add middleware
 app.add_middleware(Middleware, templates=templates)

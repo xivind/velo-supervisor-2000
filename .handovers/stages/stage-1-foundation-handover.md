@@ -22,6 +22,11 @@ Exported `master` twice with `git archive`; in one copy changed `total_distance 
 
 Present on both sides: 10 components without installation history, handled by process_history_records' 'No history records' path, identical on both sides. No derived errors.
 
+### Task 4, step 9: src layout vs master
+`uv run python scripts/integrity/compare.py --ref master --db <prod copy> --out-dir <scratchpad>/after-move`. Exit code 0, "identical". Rows per table: bikes 17, collections 14, component_history 1035, component_types 50, components 638, incidents 15, rides 7449, services 228, workplans 12, same as the baseline.
+
+Present on both sides: the same 10 `process_history_records` 'No history records' lines. No derived errors.
+
 ## Decisions Made
 1. `extract` output carries `recalculation_failures`, so a failure shows in a diff.
 

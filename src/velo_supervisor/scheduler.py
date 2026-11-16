@@ -5,7 +5,7 @@ import logging
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
-from business_logic import BusinessLogic
+from velo_supervisor.business_logic import BusinessLogic
 
 SCHEDULER = None
 APP_STATE = None

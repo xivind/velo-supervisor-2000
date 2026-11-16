@@ -1,10 +1,8 @@
 .vscode/settings.json
 .vscode/launch.json
 .mypy_cache/*
-backend/__pycache__/*
 tests/__pycache__/*
-backend/.mypy_cache/*
-backend/config.json
+/config.json
 .venv
 
 # graphify - local-only cost log
