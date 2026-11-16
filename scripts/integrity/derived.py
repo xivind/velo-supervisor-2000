@@ -5,8 +5,9 @@ workplan, incident, component_type and overview. Positional tuples are given nam
 from the templates that unpack them (INCIDENT_FIELDS and the other lists below); a
 tuple whose length differs from its name list raises TupleShapeError, a ValueError.
 Model instances become field dicts and floats are rounded to 6 decimals, as in
-snapshot.stored_state. A source that fails for one record is recorded as
-{"error": ...} under that record, so one broken record does not hide the rest.
+snapshot.stored_state. A source that fails is recorded as {"error": ...} in its slot,
+per record or, for page level sources, under overview.<source>, so one broken record
+does not hide the rest; shape errors still raise.
 
 Sources and what they contribute:
 - get_bike_overview: overview.bike_overview (bike rows, open incident and planned
@@ -14,13 +15,13 @@ Sources and what they contribute:
 - get_bike_details(id): bike.bike_data, component_rows, count_installed, count_retired,
   sum_cost, recent_rides, planned_services, plan_services_preselect
 - process_bike_compliance_report(id): bike.compliance_report
-- get_component_overview: overview.component_overview (component rows and counts,
-  collections, component to collection mapping); component.overview_row, list_row
+- get_component_overview: overview.component_overview (component counts);
+  component.overview_row, list_row
 - get_component_details(id): component.details, history, service_history, bike_name,
   days_since_service, planned_services, plan_services_preselect, oldest_history_date
 - calculate_component_triggers(component): component.triggers
 - calculate_percentage_reached: contributes the percentage fields of component.details
-- get_component_collection_mapping: overview.component_overview.component_collection_*
+- get_component_collection_mapping: overview.component_collection_mapping
 - get_all_collections: collection.summary
 - get_collection_details(id): collection.collection_data, warnings, component_rows,
   plan_services_preselect
@@ -188,10 +189,13 @@ def _component_values(app, component, index_incidents, index_workplans, overview
 
 def _collection_values(app, collection, all_rows):
     logic = app.business_logic
-    component_ids = json.loads(collection.components) if collection.components else []
     values = {"summary": all_rows.get(collection.collection_id)}
-    _guard(values, "status", lambda: _plain(_sorted_bike_names(logic.calculate_collection_status(component_ids,
-                                                                                                collection.bike_id))))
+
+    def status():
+        component_ids = json.loads(collection.components) if collection.components else []
+        return _plain(_sorted_bike_names(logic.calculate_collection_status(component_ids, collection.bike_id)))
+
+    _guard(values, "status", status)
 
     def details():
         payload = logic.get_collection_details(collection.collection_id)
@@ -228,6 +232,16 @@ def _workplan_values(app, workplan_id, rows):
     return values
 
 
+def _source(overview, key, build, fallback=None):
+    try:
+        return build()
+    except TupleShapeError:
+        raise
+    except Exception as error:
+        overview[key] = {"error": f"{type(error).__name__}: {error}"}
+        return fallback
+
+
 def derived_values(app) -> dict[str, dict[str, dict]]:
     """Collect every value the pages derive from stored data, keyed resource, id, field"""
     logic = app.business_logic
@@ -241,37 +255,59 @@ def derived_values(app) -> dict[str, dict[str, dict]]:
     workplans = list(manager.read_all_workplans())
     incidents = list(manager.read_all_incidents())
 
-    index_incidents = logic.process_incidents(incidents)
-    index_workplans = logic.process_workplans(workplans)
+    index_incidents = _source(overview, "incident_index", lambda: logic.process_incidents(incidents),
+                              {"bike_incidents": {}, "component_incidents": {}})
+    index_workplans = _source(overview, "workplan_index", lambda: logic.process_workplans(workplans),
+                              {"bike_workplans": {}, "component_workplans": {}})
 
-    bike_overview = logic.get_bike_overview()
-    overview_rows = {row["bike_id"]: row for row in _named_list(OVERVIEW_BIKE_FIELDS, bike_overview["bikes_data"])}
-    overview["bike_overview"] = {"bikes_data": list(overview_rows.values()),
-                                 "open_incidents": _plain(bike_overview["open_incidents"]),
-                                 "planned_workplans": _plain(bike_overview["planned_workplans"]),
-                                 "assigned_collections": _plain(bike_overview["assigned_collections"])}
+    def bike_overview():
+        payload = logic.get_bike_overview()
+        rows = _named_list(OVERVIEW_BIKE_FIELDS, payload["bikes_data"])
+        overview["bike_overview"] = {"bikes_data": rows,
+                                     "open_incidents": _plain(payload["open_incidents"]),
+                                     "planned_workplans": _plain(payload["planned_workplans"]),
+                                     "assigned_collections": _plain(payload["assigned_collections"])}
+        return {row["bike_id"]: row for row in rows}
 
-    component_overview = logic.get_component_overview()
-    display_rows = _by_first(COMPONENT_DISPLAY_FIELDS, component_overview["all_components_display_data"])
-    list_rows = _by_first(COMPONENT_LIST_FIELDS, component_overview["all_components_data"])
-    mapping_names, mapping_data = logic.get_component_collection_mapping()
-    overview["component_overview"] = {
-        "count_installed": component_overview["count_installed"],
-        "count_not_installed": component_overview["count_not_installed"],
-        "count_retired": component_overview["count_retired"],
-        "bikes_data": _named_list(("bike_name", "bike_id"), component_overview["bikes_data"]),
-        "component_collection_names": _plain(mapping_names),
-        "component_collection_data": {str(key): _named(COLLECTION_MAPPING_FIELDS, row)
-                                      for key, row in mapping_data.items()}}
+    overview_rows = _source(overview, "bike_overview", bike_overview, {})
 
-    collection_rows = _by_first(COLLECTION_FIELDS, logic.get_all_collections())
-    incident_payload = logic.get_incident_reports()
-    overview["incident_reports"] = {
-        "service_incident_options": _named_list(SERVICE_INCIDENT_OPTION_FIELDS,
-                                                incident_payload["service_incident_options"])}
-    result["incident"] = _by_first(INCIDENT_FIELDS, incident_payload["incident_reports_data"])
-    workplan_rows = _by_first(WORKPLAN_FIELDS, logic.get_workplans()["workplans_data"])
-    result["component_type"] = _by_first(COMPONENT_TYPE_FIELDS, logic.get_component_types()["component_types"])
+    def component_overview():
+        payload = logic.get_component_overview()
+        overview["component_overview"] = {
+            "count_installed": payload["count_installed"],
+            "count_not_installed": payload["count_not_installed"],
+            "count_retired": payload["count_retired"],
+            "bikes_data": _named_list(("bike_name", "bike_id"), payload["bikes_data"])}
+        return (_by_first(COMPONENT_DISPLAY_FIELDS, payload["all_components_display_data"]),
+                _by_first(COMPONENT_LIST_FIELDS, payload["all_components_data"]))
+
+    display_rows, list_rows = _source(overview, "component_overview", component_overview, ({}, {}))
+
+    def collection_mapping():
+        names, data = logic.get_component_collection_mapping()
+        overview["component_collection_mapping"] = {
+            "component_collection_names": _plain(names),
+            "component_collection_data": {str(key): _named(COLLECTION_MAPPING_FIELDS, row)
+                                          for key, row in data.items()}}
+
+    _source(overview, "component_collection_mapping", collection_mapping)
+
+    collection_rows = _source(overview, "collections",
+                              lambda: _by_first(COLLECTION_FIELDS, logic.get_all_collections()), {})
+
+    def incident_reports():
+        payload = logic.get_incident_reports()
+        overview["incident_reports"] = {
+            "service_incident_options": _named_list(SERVICE_INCIDENT_OPTION_FIELDS,
+                                                    payload["service_incident_options"])}
+        return _by_first(INCIDENT_FIELDS, payload["incident_reports_data"])
+
+    result["incident"] = _source(overview, "incident_reports", incident_reports, {})
+    workplan_rows = _source(overview, "workplans",
+                            lambda: _by_first(WORKPLAN_FIELDS, logic.get_workplans()["workplans_data"]), {})
+    result["component_type"] = _source(overview, "component_types",
+                                       lambda: _by_first(COMPONENT_TYPE_FIELDS,
+                                                         logic.get_component_types()["component_types"]), {})
 
     for bike in bikes:
         values = _bike_values(app, bike.bike_id, index_incidents, index_workplans)

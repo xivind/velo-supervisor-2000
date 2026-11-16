@@ -66,3 +66,14 @@ def test_derived_is_json_serialisable(app):
 def test_no_source_errors(app):
     text = dumps(derived_values(app))
     assert '"error"' not in text
+
+
+def test_dangling_collection_is_recorded_not_raised(app):
+    insert(app.db_path, "collections", collection_id="col2", collection_name="Gone",
+           components=json.dumps(["gone"]), bike_id="b1", updated_date="2026-01-01 00:00:00")
+    result = derived_values(app)
+    assert "error" in result["overview"]["collections"]
+    assert "AttributeError" in result["overview"]["collections"]["error"]
+    assert "col2" in result["collection"]
+    assert {"c1", "c2"} <= set(result["component"])
+    assert "b1" in result["bike"] and "w1" in result["workplan"] and "i1" in result["incident"]
