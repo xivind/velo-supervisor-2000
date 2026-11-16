@@ -8,9 +8,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /
 COPY --from=ghcr.io/astral-sh/uv:0.13.8 /uv /usr/local/bin/uv
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0
 
-# Copy the repository, including .git for the version, and install from the lockfile
+# Copy the repository, including .git for the version, restore tracked files hidden by .dockerignore so the tree is clean, and install from the lockfile
 WORKDIR /app
 COPY . .
+RUN git ls-files -z --deleted | xargs -0 -r git checkout --
 RUN uv sync --locked --no-dev --no-editable
 
 # Runtime stage: only the virtual environment and the log configuration
