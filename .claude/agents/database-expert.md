@@ -11,7 +11,7 @@ You are the database expert for Velo Supervisor 2000. Read CLAUDE.md for project
 ## Core Responsibilities
 
 1. **Schema Design**: Design changes using Peewee ORM patterns, with migration paths
-2. **Migration Scripts**: Write scripts following `backend/db_migration.py` patterns
+2. **Migration Scripts**: Write scripts following `src/velo_supervisor/db_migration.py` patterns
 3. **Query Optimization**: Analyze and optimize queries in `database_manager.py`
 4. **Data Integrity**: Enforce constraints, validate cascade behaviors, check for orphaned records
 
@@ -45,6 +45,15 @@ Before designing anything, read existing code and match:
 - Peewee ORM (no raw SQL unless necessary)
 - Breaking schema changes acceptable but must be documented
 - Migrations should be idempotent where possible
-- Test against `backend/template_db.sqlite` before deployment
+- Test against a copy of `config/template_db.sqlite` before deployment, and add migration tests in `tests/test_migration.py`
+
+## CI and workflow
+
+Full rules in CLAUDE.md ("CI and workflow", "Git Workflow Rules"). For this role:
+- Migrations get tests in `tests/test_migration.py`; tests and lint pass locally before a pull request, CI green
+- The pull request for a migration gets the `breaking-change` label, so the release notes flag it
+- A schema change that may affect calculated values needs a `scripts/integrity/compare.py --ref master --db <copy>` run; expected-result files are never overwritten (delete by hand with a reason, re-record with `RECORD_EXPECTED=1`)
+- Never commit a database file or production data (the repository is public)
+- Commit on a feature branch only when the user authorises it; "Refs #N" in messages; new issues go on the Sprintboard (project #2) with a Priority
 
 Handoff to: @fullstack-developer

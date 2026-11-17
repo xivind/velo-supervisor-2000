@@ -1,5 +1,4 @@
 import pytest
-
 from integrity.delta import ABSENT, snapshot_delta
 
 
@@ -21,7 +20,8 @@ def test_added_and_removed_rows_list_every_leaf():
         "bikes/b1/name": {"before": "Old", "after": ABSENT},
         "bikes/b1/notes": {"before": "x", "after": ABSENT},
         "bikes/b2/name": {"before": ABSENT, "after": "New"},
-        "bikes/b2/notes": {"before": ABSENT, "after": "y"}}
+        "bikes/b2/notes": {"before": ABSENT, "after": "y"},
+    }
 
 
 def test_list_is_one_value():
@@ -36,13 +36,15 @@ def test_none_and_absent_stay_apart():
     assert snapshot_delta(before, after) == {
         "row/added_none": {"before": ABSENT, "after": None},
         "row/dropped_none": {"before": None, "after": ABSENT},
-        "row/kept_none": {"before": None, "after": 1}}
+        "row/kept_none": {"before": None, "after": 1},
+    }
 
 
 def test_empty_dict_is_a_value():
     assert snapshot_delta({"row": {"a": 1}}, {"row": {}}) == {
         "row": {"before": ABSENT, "after": {}},
-        "row/a": {"before": 1, "after": ABSENT}}
+        "row/a": {"before": 1, "after": ABSENT},
+    }
 
 
 def test_paths_are_sorted():

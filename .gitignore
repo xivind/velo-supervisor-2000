@@ -38,3 +38,7 @@ graphify-out/cache/ast/
 
 # python bytecode, anywhere in the tree
 __pycache__/
+
+# coverage output
+.coverage
+htmlcov/

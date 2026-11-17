@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import pytest
-
 from integrity.snapshot import dumps
 
 EXPECTED_DIR = Path(__file__).resolve().parent / "expected"

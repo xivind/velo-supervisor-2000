@@ -11,7 +11,8 @@ def test_dataset_builds_and_recalculates(app, snapshot_now):
     assert set(astuple(IDS)) <= stored_keys
     assert not any(key.startswith("new:") for key in stored_keys)
     assert set(astuple(IDS)) & set(snapshot["derived"]["component"]) == {
-        value for value in astuple(IDS) if value.startswith("comp-")}
+        value for value in astuple(IDS) if value.startswith("comp-")
+    }
 
 
 def test_only_the_component_without_history_fails_recalculation(app, recalculation_failures):
@@ -32,8 +33,22 @@ def test_component_name_keeps_norwegian_letters(app, snapshot_now):
 def test_new_ids_are_normalised_in_both_layers(app, snapshot_now):
     baseline = {key for rows in stored_state(app.db_path).values() for key in rows}
     success, _, component_id = app.business_logic.create_component(
-        None, "Installed", "2026-11-01 08:00", "New chain", "Chain", IDS.bike_gravel,
-        "3000", "500", "100", "", "", "", "300", 0, None)
+        None,
+        "Installed",
+        "2026-11-01 08:00",
+        "New chain",
+        "Chain",
+        IDS.bike_gravel,
+        "3000",
+        "500",
+        "100",
+        "",
+        "",
+        "",
+        "300",
+        0,
+        None,
+    )
     assert success
     new_ids = {key for rows in stored_state(app.db_path).values() for key in rows} - baseline
     assert component_id in new_ids and len(new_ids) == 2

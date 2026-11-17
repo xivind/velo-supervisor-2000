@@ -5,13 +5,13 @@ The app fixture binds the modules to the synthetic dataset. Recorder tests log t
 whose only handler is utils.ERROR_RECORDER; the /health tests import main, which adds the
 recorder to the root logger, as at startup.
 """
+
 import importlib
 import logging
 from datetime import timedelta
 
 import pytest
 import time_machine
-
 from integrity.clock import FIXED_NOW
 
 
@@ -56,7 +56,8 @@ def test_recorder_includes_exception_in_message(logger, recorder):
     except AttributeError:
         logger.exception("An error occurred")
     assert [message for _, message in recorder.read_recent_errors(24)] == [
-        "An error occurred: AttributeError: 'NoneType' object has no attribute 'bike_name'"]
+        "An error occurred: AttributeError: 'NoneType' object has no attribute 'bike_name'"
+    ]
 
 
 def test_healthy_without_errors_and_with_working_database(app):
@@ -64,7 +65,9 @@ def test_healthy_without_errors_and_with_working_database(app):
     database_check = app.business_logic.check_database_connection()
     assert database_check == (True, "ok")
     assert app.utils.get_health_status(*database_check) == (
-        True, {"status": "healthy", "database": "ok", "latest_errors": []})
+        True,
+        {"status": "healthy", "database": "ok", "latest_errors": []},
+    )
 
 
 def test_error_makes_app_unhealthy_for_24_hours(app, logger):
@@ -72,15 +75,31 @@ def test_error_makes_app_unhealthy_for_24_hours(app, logger):
     logger.error("An error occurred refreshing tokens: expired")
     healthy, health_status = app.utils.get_health_status(True, "ok")
     assert healthy is False
-    assert health_status == {"status": "unhealthy", "database": "ok",
-                             "latest_errors": [{"time": "2026-11-16 12:00:00",
-                                                "message": "An error occurred refreshing tokens: expired"}]}
+    assert health_status == {
+        "status": "unhealthy",
+        "database": "ok",
+        "latest_errors": [{"time": "2026-11-16 12:00:00", "message": "An error occurred refreshing tokens: expired"}],
+    }
 
     with time_machine.travel(FIXED_NOW + timedelta(hours=23, minutes=59), tick=False):
         assert app.utils.get_health_status(True, "ok")[0] is False
     with time_machine.travel(FIXED_NOW + timedelta(hours=24, minutes=1), tick=False):
         assert app.utils.get_health_status(True, "ok") == (
-            True, {"status": "healthy", "database": "ok", "latest_errors": []})
+            True,
+            {"status": "healthy", "database": "ok", "latest_errors": []},
+        )
+
+
+def test_health_status_lists_the_last_three_errors_cut_at_300_characters(app, logger):
+    """The status shows only the newest three errors, oldest first, each cut at 300 characters"""
+    messages = [f"Error {number}: " + "x" * 400 for number in range(1, 5)]
+    for message in messages:
+        logger.error(message)
+    healthy, health_status = app.utils.get_health_status(True, "ok")
+    assert healthy is False
+    assert health_status["latest_errors"] == [
+        {"time": "2026-11-16 12:00:00", "message": message[:300]} for message in messages[1:]
+    ]
 
 
 def test_failing_database_makes_app_unhealthy(app, database, tmp_path):
@@ -93,7 +112,9 @@ def test_failing_database_makes_app_unhealthy(app, database, tmp_path):
     healthy, health_status = app.utils.get_health_status(*database_check)
     assert healthy is False
     assert (health_status["status"], health_status["database"]) == (
-        "unhealthy", "Database check failed: file is not a database")
+        "unhealthy",
+        "Database check failed: file is not a database",
+    )
 
 
 def test_missing_database_file_makes_app_unhealthy(app, database, tmp_path):
@@ -112,5 +133,4 @@ def test_health_route_answers_200_when_healthy_and_503_after_an_error(client):
     logging.getLogger("velo_supervisor").error("Strava API request failed")
     response = client.get("/health")
     assert response.status_code == 503
-    assert response.json()["latest_errors"] == [{"time": "2026-11-16 12:00:00",
-                                                 "message": "Strava API request failed"}]
+    assert response.json()["latest_errors"] == [{"time": "2026-11-16 12:00:00", "message": "Strava API request failed"}]

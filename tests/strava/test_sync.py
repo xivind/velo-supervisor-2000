@@ -9,6 +9,7 @@ Walk; page 3 is empty. Strava IDs are integers; the corrected ride carries the d
 string ID so that it replaces the stored ride. Ride IDs that are not in the dataset show as new:rides:<n> in the
 deltas, numbered in row order, and new bikes as new:bikes:<n>.
 """
+
 import asyncio
 import json
 import logging
@@ -16,18 +17,23 @@ import sys
 from pathlib import Path
 
 import pytest
-
 from fixtures.dataset import IDS
 from fixtures.expected import assert_matches_expected
 from integrity.clock import FIXED_NOW
 from integrity.snapshot import stored_state
+
 from strava.fake_oauth import load_fixture, new_session_class
 
 ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities?page={}&per_page=200"
 REFRESH_URL = "https://www.strava.com/oauth/token"
 GEAR_PREFIX = "https://www.strava.com/api/v3/gear/"
-TOKEN = {"access_token": "synthetic-access-token", "refresh_token": "synthetic-refresh-token",
-         "token_type": "Bearer", "client_id": "00000", "client_secret": "synthetic-client-secret"}
+TOKEN = {
+    "access_token": "synthetic-access-token",
+    "refresh_token": "synthetic-refresh-token",
+    "token_type": "Bearer",
+    "client_id": "00000",
+    "client_secret": "synthetic-client-secret",
+}
 PAGE1_RIDES = ["9100000004", "9100000003", "9100000001", "9100000002"]
 PAGE2_RIDES = ["ride-gravel-2026-10", "9000000001"]
 
@@ -84,9 +90,15 @@ def test_recent_mode_collects_bikes_from_rides_with_gear(app, session, caplog):
     assert _urls(session) == [ACTIVITIES_URL.format(1)]
     assert strava.bike_ids_recent_rides == {IDS.bike_road, IDS.bike_gravel, "bike-touring"}
     assert [ride["ride_id"] for ride in strava.payload_rides] == PAGE1_RIDES
-    assert strava.payload_rides[2] == {"ride_id": "9100000001", "bike_id": IDS.bike_road, "ride_name": "Road ride",
-                                       "record_time": "2026-11-10 12:00", "moving_time": "2:00:00",
-                                       "ride_distance": 60.0, "commute": False}
+    assert strava.payload_rides[2] == {
+        "ride_id": "9100000001",
+        "bike_id": IDS.bike_road,
+        "ride_name": "Road ride",
+        "record_time": "2026-11-10 12:00",
+        "moving_time": "2:00:00",
+        "ride_distance": 60.0,
+        "commute": False,
+    }
     assert _errors(caplog) == []
 
 
@@ -96,8 +108,14 @@ def test_ride_without_gear_is_stored(app, session):
     """
     asyncio.run(app.business_logic.update_rides_bulk("recent"))
     assert stored_state(app.db_path)["rides"]["9100000004"] == {
-        "ride_id": "9100000004", "bike_id": "None", "record_time": "2026-11-14 12:00",
-        "ride_name": "Ride on a rental bike", "ride_distance": 12.0, "moving_time": "0:45:00", "commute": "True"}
+        "ride_id": "9100000004",
+        "bike_id": "None",
+        "record_time": "2026-11-14 12:00",
+        "ride_name": "Ride on a rental bike",
+        "ride_distance": 12.0,
+        "moving_time": "0:45:00",
+        "commute": "True",
+    }
     assert _gear_requested(session) == {IDS.bike_road, IDS.bike_gravel, "bike-touring"}
 
 
@@ -123,8 +141,9 @@ def test_expired_token_is_refreshed_and_saved(app, monkeypatch, caplog):
     session = _install(app, monkeypatch)
     strava = app.bl_module.strava
     asyncio.run(strava.get_rides("recent"))
-    assert session.refreshes == [(REFRESH_URL, "synthetic-refresh-token",
-                                  {"client_id": "00000", "client_secret": "synthetic-client-secret"})]
+    assert session.refreshes == [
+        (REFRESH_URL, "synthetic-refresh-token", {"client_id": "00000", "client_secret": "synthetic-client-secret"})
+    ]
     saved = json.loads(Path(strava.oauth_file).read_text(encoding="utf-8"))
     assert saved == {**load_fixture("token_refresh"), "client_id": "00000", "client_secret": "synthetic-client-secret"}
     assert session.calls == [(ACTIVITIES_URL.format(1), "synthetic-access-token-refreshed")]
@@ -160,9 +179,14 @@ def test_refresh_all_bikes_merges_athlete_and_known_bikes(app, session, caplog):
     assert result == (True, "Records for 4 bikes updated.")
     assert _gear_requested(session) == {IDS.bike_road, IDS.bike_gravel, IDS.bike_retired, "bike-touring"}
     bikes = stored_state(app.db_path)["bikes"]
-    assert bikes["bike-touring"] == {"bike_id": "bike-touring", "bike_name": "Touring bike", "bike_retired": "False",
-                                     "service_status": "No components registered", "total_distance": 40.0,
-                                     "notes": "Bought 2026-11"}
+    assert bikes["bike-touring"] == {
+        "bike_id": "bike-touring",
+        "bike_name": "Touring bike",
+        "bike_retired": "False",
+        "service_status": "No components registered",
+        "total_distance": 40.0,
+        "notes": "Bought 2026-11",
+    }
     assert bikes[IDS.bike_gravel]["notes"] == "None"
     assert bikes[IDS.bike_road]["total_distance"] == 1230.0
     assert _errors(caplog) == []

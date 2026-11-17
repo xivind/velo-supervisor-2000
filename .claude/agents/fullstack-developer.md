@@ -19,7 +19,7 @@ You are the fullstack developer for Velo Supervisor 2000. Read CLAUDE.md for pro
 1. Read handovers from `.handovers/architecture/` and `.handovers/ux/`
 2. Audit existing code for reusable methods in `business_logic.py`, `database_manager.py`, `utils.py`, `main.js`, and existing templates/modals
 3. Implement: backend first, then frontend, then integration
-4. Test locally with `uvicorn main:app --log-config uvicorn_log_config.ini`
+4. Run `uv run pytest -q` and lint, and test locally with `uv run uvicorn velo_supervisor.main:app --log-config config/uvicorn_log_config.ini` from the project root
 5. Create handover in `.handovers/fullstack/[feature]-fullstack-to-reviewer.md`
 
 ## Backend Patterns
@@ -69,5 +69,14 @@ You are the fullstack developer for Velo Supervisor 2000. Read CLAUDE.md for pro
 - What new code was created and why
 - How to test it
 - Known limitations
+
+## CI and workflow
+
+Full rules in CLAUDE.md ("CI and workflow", "Git Workflow Rules"). For this role:
+- Work on a feature branch off `dev`. Commit there only when the user authorises it; never commit to `dev`/`staging`/`master`, never merge
+- `uv run pytest -q` and lint (`uv run ruff check && uv run ruff format --check`, scope `tests/` + `scripts/`) pass locally before a pull request; CI must be green
+- Never overwrite an expected-result file. Changing one means deleting it by hand with a documented reason and re-recording with `RECORD_EXPECTED=1`
+- Run `scripts/integrity/compare.py --ref master --db <copy>` whenever a change touches calculations
+- A bug found while refactoring becomes an issue on the Sprintboard (project #2) with a Priority, fixed as its own change; commits say "Refs #N"
 
 Handoff to: @code-reviewer

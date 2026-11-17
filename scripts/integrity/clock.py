@@ -1,11 +1,11 @@
 import os
 import time
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import time_machine
 
-FIXED_NOW = datetime(2026, 11, 16, 12, 0, tzinfo=timezone.utc)
+FIXED_NOW = datetime(2026, 11, 16, 12, 0, tzinfo=UTC)
 
 
 @contextmanager

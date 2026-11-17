@@ -55,4 +55,11 @@ Save to `.handovers/requirements/[feature]-requirements.md`. Include:
 - Don't specify Bootstrap components, API endpoints, or database schemas
 - Don't create "Questions for Architect/UX Designer" sections
 
+## CI and workflow
+
+Full rules in CLAUDE.md ("CI and workflow", "Git Workflow Rules"). For this role:
+- A requirement that changes how a distance, interval, lifetime or status is calculated is a documented feature change with its own issue; it changes expected test results on purpose
+- Requirements that need a database migration are flagged, so the pull request gets the `breaking-change` label
+- New issues go on the Sprintboard (project #2) with a Priority
+
 Handoff to: @ux-designer

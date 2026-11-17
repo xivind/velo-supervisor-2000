@@ -16,13 +16,12 @@ def recalculate(app: AppModules) -> list[str]:
         if success is False:
             failures.append(f"{step}:{identifier}: {message}")
 
-    check("distance_iterator", "all_bikes",
-          logic.update_components_distance_iterator(sorted(manager.read_unique_bikes())))
+    check(
+        "distance_iterator", "all_bikes", logic.update_components_distance_iterator(sorted(manager.read_unique_bikes()))
+    )
     for component in manager.read_all_components_objects():
-        check("process_history_records", component.component_id,
-              logic.process_history_records(component.component_id))
+        check("process_history_records", component.component_id, logic.process_history_records(component.component_id))
     check("update_time_based_fields", "all_components", logic.update_time_based_fields())
     for component_type in manager.read_all_component_types():
-        check("update_component_type_count", component_type[0],
-              logic.update_component_type_count(component_type[0]))
+        check("update_component_type_count", component_type[0], logic.update_component_type_count(component_type[0]))
     return sorted(failures)

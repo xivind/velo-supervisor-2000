@@ -7,8 +7,17 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Literal
 
-FLAT_MODULES = ("main", "business_logic", "database_manager", "database_model",
-                "utils", "strava", "middleware", "scheduler", "db_migration")
+FLAT_MODULES = (
+    "main",
+    "business_logic",
+    "database_manager",
+    "database_model",
+    "utils",
+    "strava",
+    "middleware",
+    "scheduler",
+    "db_migration",
+)
 
 
 @dataclass
@@ -45,9 +54,7 @@ def load_app(checkout: Path, db_path: Path, workdir: Path) -> AppModules:
     """
     layout = detect_layout(checkout)
     workdir.mkdir(parents=True, exist_ok=True)
-    config = {"db_path": str(db_path),
-              "strava_tokens": str(workdir / "strava_tokens.json"),
-              "verbose_logging": False}
+    config = {"db_path": str(db_path), "strava_tokens": str(workdir / "strava_tokens.json"), "verbose_logging": False}
     (workdir / "config.json").write_text(json.dumps(config), encoding="utf-8")
     os.chdir(workdir)
     os.environ["VELO_SUPERVISOR_CONFIG"] = str(workdir / "config.json")
@@ -57,12 +64,12 @@ def load_app(checkout: Path, db_path: Path, workdir: Path) -> AppModules:
     prefix = "" if layout == "flat" else "velo_supervisor."
     utils = importlib.import_module(f"{prefix}utils")
     bl_module = importlib.import_module(f"{prefix}business_logic")
-    app_state = SimpleNamespace(strava_last_pull=None,
-                                strava_days_since_last_pull=None,
-                                db_path=str(db_path))
-    return AppModules(layout=layout,
-                      business_logic=bl_module.BusinessLogic(app_state),
-                      bl_module=bl_module,
-                      database_manager=bl_module.database_manager,
-                      utils=utils,
-                      db_path=db_path)
+    app_state = SimpleNamespace(strava_last_pull=None, strava_days_since_last_pull=None, db_path=str(db_path))
+    return AppModules(
+        layout=layout,
+        business_logic=bl_module.BusinessLogic(app_state),
+        bl_module=bl_module,
+        database_manager=bl_module.database_manager,
+        utils=utils,
+        db_path=db_path,
+    )

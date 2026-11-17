@@ -5,12 +5,13 @@ The pre-#351 database is the synthetic dataset with services, workplans, inciden
 component_history rebuilt in their old shape and filled with old-model rows that point at the
 dataset's bikes and components. The test lives until Stage 6 replaces the migration path.
 """
+
 import shutil
 import sqlite3
 
 import pytest
-
 from fixtures.dataset import IDS, TEMPLATE_DB, build_dataset
+
 from velo_supervisor import db_migration
 
 OLD_SCHEMA = [
@@ -27,28 +28,95 @@ OLD_SCHEMA = [
 ]
 
 OLD_WORKPLANS = [
-    ("wp-spring", "2026-03-01 10:00", "Planned", "Small",
-     f'["{IDS.comp_chain_moved}", "{IDS.comp_cassette_serviced}", "{IDS.comp_wheel_offset}", "comp-gone", '
-     f'"{IDS.comp_pads_retired}"]', IDS.bike_road, "Spring service", None, None),
-    ("wp-last-year", "2025-03-01 10:00", "Done", "Small", f'["{IDS.comp_chain_moved}"]', IDS.bike_road,
-     "Last year", "2025-03-02 10:00", "All good"),
+    (
+        "wp-spring",
+        "2026-03-01 10:00",
+        "Planned",
+        "Small",
+        (
+            f'["{IDS.comp_chain_moved}", "{IDS.comp_cassette_serviced}", "{IDS.comp_wheel_offset}", "comp-gone", '
+            f'"{IDS.comp_pads_retired}"]'
+        ),
+        IDS.bike_road,
+        "Spring service",
+        None,
+        None,
+    ),
+    (
+        "wp-last-year",
+        "2025-03-01 10:00",
+        "Done",
+        "Small",
+        f'["{IDS.comp_chain_moved}"]',
+        IDS.bike_road,
+        "Last year",
+        "2025-03-02 10:00",
+        "All good",
+    ),
     ("wp-emergency", "2026-04-01 10:00", "Planned", "Small", None, None, "Emergency fix", None, None),
 ]
 OLD_SERVICES = [
-    ("svc-in-plan", IDS.comp_chain_moved, "Chain", IDS.bike_road, "2026-02-01 08:00", 0, "Already waxed in plan",
-     "wp-spring"),
+    (
+        "svc-in-plan",
+        IDS.comp_chain_moved,
+        "Chain",
+        IDS.bike_road,
+        "2026-02-01 08:00",
+        0,
+        "Already waxed in plan",
+        "wp-spring",
+    ),
 ]
 OLD_INCIDENTS = [
-    ("inc-cassette", "2026-02-10 10:00", "Open", "Priority", f'["{IDS.comp_cassette_serviced}"]', IDS.bike_road,
-     "Cassette skips", None, None, "wp-spring"),
-    ("inc-bike-only", "2026-02-11 10:00", "Open", "Monitor", None, IDS.bike_road, "Creaking", None, None,
-     "wp-spring"),
-    ("inc-new-work", "2026-02-12 10:00", "Open", "Priority", f'["{IDS.comp_chain_moved}"]', IDS.bike_road,
-     "Chain snapped", None, None, "wp-emergency"),
-    ("inc-retired-only", "2026-02-13 10:00", "Open", "Monitor", f'["{IDS.comp_pads_retired}"]', IDS.bike_retired,
-     "Pads rusty", None, None, "wp-emergency"),
-    ("inc-last-year", "2025-02-11 10:00", "Resolved", "Monitor", f'["{IDS.comp_chain_moved}"]', IDS.bike_road,
-     "Old", "2025-03-02 10:00", "Fixed", "wp-last-year"),
+    (
+        "inc-cassette",
+        "2026-02-10 10:00",
+        "Open",
+        "Priority",
+        f'["{IDS.comp_cassette_serviced}"]',
+        IDS.bike_road,
+        "Cassette skips",
+        None,
+        None,
+        "wp-spring",
+    ),
+    ("inc-bike-only", "2026-02-11 10:00", "Open", "Monitor", None, IDS.bike_road, "Creaking", None, None, "wp-spring"),
+    (
+        "inc-new-work",
+        "2026-02-12 10:00",
+        "Open",
+        "Priority",
+        f'["{IDS.comp_chain_moved}"]',
+        IDS.bike_road,
+        "Chain snapped",
+        None,
+        None,
+        "wp-emergency",
+    ),
+    (
+        "inc-retired-only",
+        "2026-02-13 10:00",
+        "Open",
+        "Monitor",
+        f'["{IDS.comp_pads_retired}"]',
+        IDS.bike_retired,
+        "Pads rusty",
+        None,
+        None,
+        "wp-emergency",
+    ),
+    (
+        "inc-last-year",
+        "2025-02-11 10:00",
+        "Resolved",
+        "Monitor",
+        f'["{IDS.comp_chain_moved}"]',
+        IDS.bike_road,
+        "Old",
+        "2025-03-02 10:00",
+        "Fixed",
+        "wp-last-year",
+    ),
 ]
 TABLES = ["services", "workplans", "incidents", "component_history"]
 
@@ -120,16 +188,27 @@ def test_migration_converts_old_model(old_db):
     assert "workplan_name" in columns(old_db, "workplans")
     assert not {"workplan_affected_component_ids", "workplan_affected_bike_id"} & columns(old_db, "workplans")
     assert "workplan_id" not in columns(old_db, "incidents")
+    assert query(old_db, "SELECT workplan_id, workplan_name FROM workplans ORDER BY workplan_id") == [
+        ("wp-emergency", None),
+        ("wp-last-year", None),
+        ("wp-spring", None),
+    ]
 
     assert query(old_db, "SELECT status, incident_id FROM services WHERE service_id = 'svc-in-plan'") == [
-        ("Completed", None)]
-    assert query(old_db, """SELECT component_id, service_date, bike_id, distance_marker, incident_id, planned_date
+        ("Completed", None)
+    ]
+    assert query(
+        old_db,
+        """SELECT component_id, service_date, bike_id, distance_marker, incident_id, planned_date
                             FROM services WHERE workplan_id = 'wp-spring' AND status = 'Planned'
-                            ORDER BY component_id""") == [
+                            ORDER BY component_id""",
+    ) == [
         (IDS.comp_cassette_serviced, None, None, None, "inc-cassette", None),
-        (IDS.comp_wheel_offset, None, None, None, None, None)]
-    assert query(old_db, "SELECT component_id, status, incident_id FROM services WHERE workplan_id = 'wp-emergency'") == [
-        (IDS.comp_chain_moved, "Planned", "inc-new-work")]
+        (IDS.comp_wheel_offset, None, None, None, None, None),
+    ]
+    assert query(
+        old_db, "SELECT component_id, status, incident_id FROM services WHERE workplan_id = 'wp-emergency'"
+    ) == [(IDS.comp_chain_moved, "Planned", "inc-new-work")]
     assert query(old_db, "SELECT COUNT(*) FROM services WHERE component_id = ?", (IDS.comp_pads_retired,)) == [(0,)]
 
     spring = description(old_db, "workplans", "workplan_id", "wp-spring")
@@ -139,10 +218,14 @@ def test_migration_converts_old_model(old_db):
     last_year = description(old_db, "workplans", "workplan_id", "wp-last-year")
     assert last_year.startswith("Last year") and "Road bike" in last_year and "Chain" in last_year
 
-    for incident_id, workplan_id in [("inc-retired-only", "wp-emergency"), ("inc-bike-only", "wp-spring"),
-                                     ("inc-last-year", "wp-last-year")]:
+    for incident_id, workplan_id in [
+        ("inc-retired-only", "wp-emergency"),
+        ("inc-bike-only", "wp-spring"),
+        ("inc-last-year", "wp-last-year"),
+    ]:
         assert f"previously linked to workplan {workplan_id}" in description(
-            old_db, "incidents", "incident_id", incident_id)
+            old_db, "incidents", "incident_id", incident_id
+        )
     assert description(old_db, "incidents", "incident_id", "inc-bike-only").startswith("Creaking")
     assert description(old_db, "incidents", "incident_id", "inc-cassette") == "Cassette skips"
 

@@ -1,8 +1,6 @@
 import sys
-from pathlib import Path
 
 import pytest
-
 from conftest import REPO_ROOT, insert
 from integrity.clock import frozen_clock
 from integrity.loader import detect_layout, load_app
@@ -39,14 +37,42 @@ def test_load_app_binds_to_given_database(isolated, db_copy, tmp_path):
 
 def test_extraction_is_repeatable(isolated, db_copy, tmp_path):
     insert(db_copy, "bikes", bike_id="b1", bike_name="Bike", bike_retired="False")
-    insert(db_copy, "rides", ride_id="r1", bike_id="b1", record_time="2026-01-01 10:00:00",
-           ride_name="Ride", ride_distance=12.5, moving_time="1:00:00", commute="False")
-    insert(db_copy, "components", component_id="c1", bike_id="b1", component_name="Chain",
-           component_type="Chain", installation_status="Installed", component_distance_offset=0, cost=0, lifetime_expected=1000,
-           service_interval=500, updated_date="2026-01-01 00:00:00")
-    insert(db_copy, "component_history", history_id="h1", component_id="c1", bike_id="b1",
-           component_name="Chain", updated_date="2026-01-01 00:00:00",
-           update_reason="Installed", distance_marker=0)
+    insert(
+        db_copy,
+        "rides",
+        ride_id="r1",
+        bike_id="b1",
+        record_time="2026-01-01 10:00:00",
+        ride_name="Ride",
+        ride_distance=12.5,
+        moving_time="1:00:00",
+        commute="False",
+    )
+    insert(
+        db_copy,
+        "components",
+        component_id="c1",
+        bike_id="b1",
+        component_name="Chain",
+        component_type="Chain",
+        installation_status="Installed",
+        component_distance_offset=0,
+        cost=0,
+        lifetime_expected=1000,
+        service_interval=500,
+        updated_date="2026-01-01 00:00:00",
+    )
+    insert(
+        db_copy,
+        "component_history",
+        history_id="h1",
+        component_id="c1",
+        bike_id="b1",
+        component_name="Chain",
+        updated_date="2026-01-01 00:00:00",
+        update_reason="Installed",
+        distance_marker=0,
+    )
     results = []
     for run in range(2):
         path = tmp_path / f"run{run}.sqlite"
@@ -61,11 +87,30 @@ def test_extraction_is_repeatable(isolated, db_copy, tmp_path):
 
 def test_recalculate_reports_failures_repeatably(isolated, db_copy, tmp_path):
     insert(db_copy, "bikes", bike_id="b1", bike_name="Bike", bike_retired="False")
-    insert(db_copy, "rides", ride_id="r1", bike_id="b1", record_time="2026-01-01 10:00:00",
-           ride_name="Ride", ride_distance=12.5, moving_time="1:00:00", commute="False")
-    insert(db_copy, "components", component_id="c1", bike_id="b1", component_name="Chain",
-           component_type="Chain", installation_status="Installed", component_distance_offset=0,
-           cost=0, lifetime_expected=1000, service_interval=500)
+    insert(
+        db_copy,
+        "rides",
+        ride_id="r1",
+        bike_id="b1",
+        record_time="2026-01-01 10:00:00",
+        ride_name="Ride",
+        ride_distance=12.5,
+        moving_time="1:00:00",
+        commute="False",
+    )
+    insert(
+        db_copy,
+        "components",
+        component_id="c1",
+        bike_id="b1",
+        component_name="Chain",
+        component_type="Chain",
+        installation_status="Installed",
+        component_distance_offset=0,
+        cost=0,
+        lifetime_expected=1000,
+        service_interval=500,
+    )
     results = []
     for run in range(2):
         path = tmp_path / f"run{run}.sqlite"

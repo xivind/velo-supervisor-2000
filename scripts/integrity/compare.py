@@ -38,11 +38,17 @@ def _error_paths(node, path=""):
 
 def present_on_both_sides(left: dict, right: dict) -> list[str]:
     """Recalculation failures and derived error entries that appear identically on both sides"""
-    lines = [f"recalculation_failures: {line}" for line in left.get("recalculation_failures", [])
-             if line in right.get("recalculation_failures", [])]
+    lines = [
+        f"recalculation_failures: {line}"
+        for line in left.get("recalculation_failures", [])
+        if line in right.get("recalculation_failures", [])
+    ]
     right_errors = set(_error_paths(right.get("derived", {})))
-    lines += [f"derived/{path}: {message}" for path, message in _error_paths(left.get("derived", {}))
-              if (path, message) in right_errors]
+    lines += [
+        f"derived/{path}: {message}"
+        for path, message in _error_paths(left.get("derived", {}))
+        if (path, message) in right_errors
+    ]
     return lines
 
 
@@ -51,8 +57,10 @@ def rows_per_table(state: dict) -> dict[str, int]:
 
 
 def _run_extract(checkout: Path, db: Path, out: Path):
-    subprocess.run([sys.executable, str(EXTRACT_SCRIPT), "--checkout", str(checkout),
-                    "--db", str(db), "--out", str(out)], check=True)
+    subprocess.run(
+        [sys.executable, str(EXTRACT_SCRIPT), "--checkout", str(checkout), "--db", str(db), "--out", str(out)],
+        check=True,
+    )
 
 
 def main() -> int:
@@ -61,17 +69,23 @@ def main() -> int:
     parser.add_argument("--db", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path)
     args = parser.parse_args()
+    if args.out_dir and args.out_dir.resolve().is_relative_to(REPO_ROOT):
+        print(f"Refusing --out-dir inside the repository ({REPO_ROOT}): outputs hold production data", file=sys.stderr)
+        return 2
     with tempfile.TemporaryDirectory() as temp:
         out_dir = args.out_dir or Path(temp) / "out"
         out_dir.mkdir(parents=True, exist_ok=True)
         export = Path(temp) / "export"
         export.mkdir()
-        archive = subprocess.run(["git", "archive", args.ref], cwd=REPO_ROOT,
-                                 check=True, capture_output=True).stdout
+        archive = subprocess.run(["git", "archive", args.ref], cwd=REPO_ROOT, check=True, capture_output=True).stdout
         subprocess.run(["tar", "-x", "-C", str(export)], input=archive, check=True)
         left_out, right_out = out_dir / "left.json", out_dir / "right.json"
-        _run_extract(export, args.db, left_out)
-        _run_extract(REPO_ROOT, args.db, right_out)
+        try:
+            _run_extract(export, args.db, left_out)
+            _run_extract(REPO_ROOT, args.db, right_out)
+        except subprocess.CalledProcessError as error:
+            print(f"Extraction failed: {error}", file=sys.stderr)
+            return 2
         left = json.loads(left_out.read_text(encoding="utf-8"))
         right = json.loads(right_out.read_text(encoding="utf-8"))
     differences = diff(left, right)

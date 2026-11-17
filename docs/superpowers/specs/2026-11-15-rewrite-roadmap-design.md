@@ -79,9 +79,11 @@ The rewrite has failed, even if it works, if any of these happen:
 
 ## Stages
 
-Every stage ends with CLAUDE.md and the agent files in `.claude/agents/` updated to match the new state, so agents never work from rules that no longer apply. Each stage starts with its own design (brainstorm, written spec) and plan.
+Every stage ends with CLAUDE.md and the agent files in `.claude/agents/` updated to match the new state, so agents never work from rules that no longer apply. Each stage starts with its own design (brainstorm, written spec) and plan. Every stage ends with a handover in `.handovers/stages/` (status, decisions, comparison results, open items), and its status line below links to it.
 
 ### Stage 1: Foundation
+
+**Status:** Delivered 2026-11-17; the release backfill for existing tags is pending. Handover: [stage-1-foundation-handover.md](../../../.handovers/stages/stage-1-foundation-handover.md)
 
 **Purpose:** a safety net that proves later stages didn't change the logic.
 
@@ -157,6 +159,8 @@ Every stage ends with CLAUDE.md and the agent files in `.claude/agents/` updated
 - Migration from the `master` schema to the `dev` schema, tested on a copy of the production database, with a backup first.
 - Integrity comparison against `master` on that copy, with differences explained by documented feature changes only.
 - Release, then remove the old templates and `main.js`, merge `dev` into `master`.
+- Switch on the required checks (`test`, `lint`, `docker`) in the branch protection for `master`.
+- On the Pi: move `config.json` to `/data/config.json`, and check that `/data`, `/data/logs` and `/secrets` are writable by UID 1000. `strava_tokens.json` in `/secrets` is shared with the sync-strava and update-strava containers; if they rewrite it as root, the app can no longer refresh the token.
 - Final sweep of CLAUDE.md, the agent files, README and the help page.
 
 ## Verifying integrity
