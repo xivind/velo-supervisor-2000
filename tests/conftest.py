@@ -12,7 +12,9 @@ from pathlib import Path
 import pytest
 
 from fixtures.dataset import build_dataset
+from fixtures.expected import assert_matches_expected
 from integrity.clock import frozen_clock
+from integrity.delta import snapshot_delta
 from integrity.derived import derived_values
 from integrity.loader import load_app
 from integrity.recalculate import recalculate
@@ -81,6 +83,34 @@ def snapshot_now(app):
         stored = stored_state(app.db_path)
         return {"stored": normalise_new_ids(stored, baseline_ids),
                 "derived": replace_ids(derived_values(app), new_id_map(stored, baseline_ids))}
+
+    return take
+
+
+def config_contents(app):
+    """The config file as written, without the fixture's own db_path and strava_tokens, tmp paths that
+    differ per run. The same keys set to other values are kept.
+    """
+    config = json.loads(app.utils.config_path().read_text(encoding="utf-8"))
+    workdir = str(app.db_path.parent)
+    return {key: value for key, value in config.items()
+            if not (key in ("db_path", "strava_tokens") and value.startswith(workdir))}
+
+
+@pytest.fixture
+def operation_delta(app, snapshot_now):
+    """Return a function giving the snapshot_delta from the recalculated dataset to now.
+
+    The before state is taken when the fixture is set up, ahead of anything the test does, so
+    setup shows in the delta. It must equal the recorded recalculation result, which pins the
+    baseline the deltas are relative to. Both sides include the config contents.
+    """
+    before = snapshot_now()
+    assert_matches_expected("recalculation", before)
+    before["config"] = config_contents(app)
+
+    def take():
+        return snapshot_delta(before, {**snapshot_now(), "config": config_contents(app)})
 
     return take
 
