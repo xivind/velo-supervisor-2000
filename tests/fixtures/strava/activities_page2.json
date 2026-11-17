@@ -1,8 +1,9 @@
 [
-  {"id": "ride-gravel-2026-10", "name": "Gravel ride 2026-10, corrected", "type": "Ride", "gear_id": "bike-gravel",
-   "distance": 22000.0, "moving_time": 3900, "start_date_local": "2026-10-20T12:00:00Z", "commute": false},
-  {"id": 9000000002, "name": "Afternoon walk", "type": "Walk", "gear_id": null, "distance": 4000.0,
-   "moving_time": 3000, "start_date_local": "2026-07-04T15:00:00Z", "commute": false},
-  {"id": 9000000001, "name": "Long road ride", "type": "Ride", "gear_id": "bike-road", "distance": 70000.0,
-   "moving_time": 10800, "start_date_local": "2026-06-25T09:00:00Z", "commute": false}
+  {"id": "ride-gravel-2026-10", "name": "Gravel ride 2026-10, corrected", "type": "Ride", "sport_type": "GravelRide",
+   "gear_id": "bike-gravel", "distance": 22000.0, "moving_time": 3900, "start_date_local": "2026-10-20T12:00:00Z",
+   "commute": false},
+  {"id": 9000000002, "name": "Afternoon walk", "type": "Walk", "sport_type": "Walk", "gear_id": null,
+   "distance": 4000.0, "moving_time": 3000, "start_date_local": "2026-07-04T15:00:00Z", "commute": false},
+  {"id": 9000000001, "name": "Long road ride", "type": "Ride", "sport_type": "Ride", "gear_id": "bike-road",
+   "distance": 70000.0, "moving_time": 10800, "start_date_local": "2026-06-25T09:00:00Z", "commute": false}
 ]

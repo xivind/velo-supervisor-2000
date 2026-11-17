@@ -2,7 +2,8 @@
 
 Routing by URL:
 - /api/v3/athlete/activities?page=N: activities_page<N>.json, or activities_empty.json when
-  that page has no file
+  that page has no file; with activities set (see new_session_class), that list as page 1 and
+  an empty list for every later page
 - /api/v3/athlete: athlete.json
 - /api/v3/gear/<id>: gear_<id>.json
 - refresh_token(): token_refresh.json, or raises refresh_error when it is set
@@ -38,6 +39,7 @@ class FakeOAuth2Session:
     calls: ClassVar[list] = []
     refreshes: ClassVar[list] = []
     refresh_error = None
+    activities = None
 
     def __init__(self, client_id, token=None):
         self.client_id = client_id
@@ -45,6 +47,9 @@ class FakeOAuth2Session:
 
     def get(self, url):
         self.calls.append((url, self.token.get("access_token")))
+        parsed = urlparse(url)
+        if self.activities is not None and parsed.path == f"{API_PREFIX}athlete/activities":
+            return FakeResponse(self.activities if parse_qs(parsed.query)["page"] == ["1"] else [])
         return FakeResponse(load_fixture(self._route(url)))
 
     def refresh_token(self, token_url, refresh_token=None, **kwargs):
@@ -68,8 +73,10 @@ class FakeOAuth2Session:
         raise LookupError(f"No synthetic Strava response for {url}")
 
 
-def new_session_class(refresh_error=None):
-    """A FakeOAuth2Session subclass with its own empty call records"""
+def new_session_class(refresh_error=None, activities=None):
+    """A FakeOAuth2Session subclass with its own empty call records, serving activities as page 1 when given"""
     return type(
-        "FakeOAuth2Session", (FakeOAuth2Session,), {"calls": [], "refreshes": [], "refresh_error": refresh_error}
+        "FakeOAuth2Session",
+        (FakeOAuth2Session,),
+        {"calls": [], "refreshes": [], "refresh_error": refresh_error, "activities": activities},
     )

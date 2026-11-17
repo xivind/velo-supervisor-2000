@@ -1,14 +1,15 @@
 [
-  {"id": 9100000004, "name": "Ride on a rental bike", "type": "Ride", "gear_id": null, "distance": 12000.0,
-   "moving_time": 2700, "start_date_local": "2026-11-14T12:00:00Z", "commute": true},
-  {"id": 9100000005, "name": "Evening run", "type": "Run", "gear_id": "g-shoes", "distance": 8000.0,
-   "moving_time": 2400, "start_date_local": "2026-11-13T18:00:00Z", "commute": false},
-  {"id": 9100000003, "name": "Touring bike first ride", "type": "Ride", "gear_id": "bike-touring",
+  {"id": 9100000004, "name": "Ride on a rental bike", "type": "Ride", "sport_type": "Ride", "gear_id": null,
+   "distance": 12000.0, "moving_time": 2700, "start_date_local": "2026-11-14T12:00:00Z", "commute": true},
+  {"id": 9100000005, "name": "Evening run", "type": "Run", "sport_type": "Run", "gear_id": "g-shoes",
+   "distance": 8000.0, "moving_time": 2400, "start_date_local": "2026-11-13T18:00:00Z", "commute": false},
+  {"id": 9100000003, "name": "Touring bike first ride", "type": "Ride", "sport_type": "Ride", "gear_id": "bike-touring",
    "distance": 40000.0, "moving_time": 5400, "start_date_local": "2026-11-12T12:00:00Z", "commute": false},
-  {"id": 9100000006, "name": "Indoor trainer session", "type": "VirtualRide", "gear_id": "bike-road",
-   "distance": 30000.0, "moving_time": 3600, "start_date_local": "2026-11-11T19:00:00Z", "commute": false},
-  {"id": 9100000001, "name": "Road ride", "type": "Ride", "gear_id": "bike-road", "distance": 60000.0,
-   "moving_time": 7200, "start_date_local": "2026-11-10T12:00:00Z", "commute": false},
-  {"id": 9100000002, "name": "Gravel loop", "type": "Ride", "gear_id": "bike-gravel", "distance": 25000.0,
-   "moving_time": 3600, "start_date_local": "2026-11-08T12:00:00Z", "commute": false}
+  {"id": 9100000006, "name": "Indoor trainer session", "type": "VirtualRide", "sport_type": "VirtualRide",
+   "gear_id": "bike-road", "distance": 30000.0, "moving_time": 3600, "start_date_local": "2026-11-11T19:00:00Z",
+   "commute": false},
+  {"id": 9100000001, "name": "Road ride", "type": "Ride", "sport_type": "Ride", "gear_id": "bike-road",
+   "distance": 60000.0, "moving_time": 7200, "start_date_local": "2026-11-10T12:00:00Z", "commute": false},
+  {"id": 9100000002, "name": "Gravel loop", "type": "Ride", "sport_type": "GravelRide", "gear_id": "bike-gravel",
+   "distance": 25000.0, "moving_time": 3600, "start_date_local": "2026-11-08T12:00:00Z", "commute": false}
 ]

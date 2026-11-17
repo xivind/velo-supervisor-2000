@@ -6,6 +6,8 @@ import logging
 from datetime import datetime, timedelta
 from requests_oauthlib import OAuth2Session
 
+RIDE_SPORT_TYPES = frozenset({"Ride", "MountainBikeRide", "GravelRide"})
+
 class Strava:
     """Class to interact with Strava API"""
     def __init__(self, oauth_file):
@@ -88,7 +90,7 @@ class Strava:
                 self.prepare_payload_rides()
                 
                 for activity in self.json_response:
-                    if str(activity["type"]) == "Ride" and activity["gear_id"] != None:
+                    if activity["sport_type"] in RIDE_SPORT_TYPES and activity["gear_id"] != None:
                         self.bike_ids_recent_rides.add(activity["gear_id"])
                 logging.debug(f'Found {len(self.bike_ids_recent_rides)} bikes in recent rides.')
 
@@ -172,11 +174,11 @@ class Strava:
             logging.error(f'An error occurred during the API call to fetch bikes: {error}.')
 
     def prepare_payload_rides(self):
-        """Method to prepare a list of rides"""
+        """Method to prepare a list of rides: activities whose sport_type is in RIDE_SPORT_TYPES (#12)"""
 
         for activities in self.json_response:
 
-            if str(activities["type"]) == "Ride":
+            if activities["sport_type"] in RIDE_SPORT_TYPES:
 
                 try:
                     ride = {}
@@ -196,7 +198,7 @@ class Strava:
                     logging.error(f'More info about the error: {error}.')
 
             else:
-                logging.warning("Activity is not of type Ride. Skipping.")
+                logging.warning(f'Activity of sport type {activities["sport_type"]} is not counted. Skipping.')
 
     def prepare_payload_bikes(self):
         """Method to prepare a list of bikes"""
