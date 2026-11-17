@@ -1,0 +1,206 @@
+{
+ "derived/workplan/new:workplans:1/all_services_completed": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/bike_ids": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/bike_names": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/completion_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/completion_notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/component_bike_names": {
+  "after": {},
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/component_ids": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/component_names": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/bike_ids": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/bike_names": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/completed_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/component_ids": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/component_names": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/total_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/bike_ids": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/bike_names": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/completed_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/completion_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/completion_notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/component_ids": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/component_names": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/description": {
+  "after": "Winter preparation",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/description_display": {
+  "after": "Winter preparation",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/due_date": {
+  "after": "2026-12-01 10:00",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/elapsed_days": {
+  "after": -15,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/total_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/workplan_id": {
+  "after": "new:workplans:1",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/workplan_name": {
+  "after": "Winter prep",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/workplan_name_given": {
+  "after": "Winter prep",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/workplan_size": {
+  "after": "Small",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/workplan_status": {
+  "after": "Planned",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/due_date": {
+  "after": "2026-12-01 10:00",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/elapsed_days": {
+  "after": -15,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/incidents": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/latest_service_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/planned_services": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/service_progress": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/services": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/workplan_description": {
+  "after": "Winter preparation",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/workplan_id": {
+  "after": "new:workplans:1",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/workplan_size": {
+  "after": "Small",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/workplan_status": {
+  "after": "Planned",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/workplan_title": {
+  "after": "Winter prep",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/completion_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/completion_notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/due_date": {
+  "after": "2026-12-01 10:00",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/workplan_description": {
+  "after": "Winter preparation",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/workplan_id": {
+  "after": "new:workplans:1",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/workplan_name": {
+  "after": "Winter prep",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/workplan_size": {
+  "after": "Small",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/workplan_status": {
+  "after": "Planned",
+  "before": "<absent>"
+ }
+}

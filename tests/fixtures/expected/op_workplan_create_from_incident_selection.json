@@ -1,0 +1,738 @@
+{
+ "derived/bike/bike-road/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   },
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   },
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "description": "Chain skips under load",
+    "effective_planned_date": "2026-12-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "new:services:1",
+    "workplan_id": "new:workplans:1",
+    "workplan_name": "Cassette - Cassette only - Road bike"
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   },
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ]
+ },
+ "derived/bike/bike-road/workplans/workplan_count": {
+  "after": 2,
+  "before": 1
+ },
+ "derived/bike/bike-road/workplans/workplan_ids": {
+  "after": [
+   "wp-drivetrain",
+   "new:workplans:1"
+  ],
+  "before": [
+   "wp-drivetrain"
+  ]
+ },
+ "derived/component/comp-cassette-serviced/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "description": "Chain skips under load",
+    "effective_planned_date": "2026-12-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "new:services:1",
+    "workplan_id": "new:workplans:1",
+    "workplan_name": "Cassette - Cassette only - Road bike"
+   }
+  ],
+  "before": null
+ },
+ "derived/component/comp-cassette-serviced/workplans/workplan_count": {
+  "after": 2,
+  "before": 1
+ },
+ "derived/component/comp-cassette-serviced/workplans/workplan_ids": {
+  "after": [
+   "wp-drivetrain",
+   "new:workplans:1"
+  ],
+  "before": [
+   "wp-drivetrain"
+  ]
+ },
+ "derived/incident/inc-drivetrain/incident_services": {
+  "after": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "date": "2026-11-01 10:00",
+    "description": "Replace chain",
+    "planned_date": null,
+    "service_date": null,
+    "service_id": "svc-chain-planned",
+    "status": "Planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+    "workplan_status": "Planned"
+   },
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "date": "2026-12-01 10:00",
+    "description": "Chain skips under load",
+    "planned_date": null,
+    "service_date": null,
+    "service_id": "new:services:1",
+    "status": "Planned",
+    "workplan_id": "new:workplans:1",
+    "workplan_name": "Cassette - Cassette only - Road bike",
+    "workplan_status": "Planned"
+   },
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "date": "2026-02-01 08:00",
+    "description": "Deep clean",
+    "planned_date": null,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "status": "Completed",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+    "workplan_status": "Planned"
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "date": "2026-11-01 10:00",
+    "description": "Replace chain",
+    "planned_date": null,
+    "service_date": null,
+    "service_id": "svc-chain-planned",
+    "status": "Planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+    "workplan_status": "Planned"
+   },
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "date": "2026-02-01 08:00",
+    "description": "Deep clean",
+    "planned_date": null,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "status": "Completed",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+    "workplan_status": "Planned"
+   }
+  ]
+ },
+ "derived/incident/inc-drivetrain/incident_workplans": {
+  "after": [
+   [
+    "wp-drivetrain",
+    "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   ],
+   [
+    "new:workplans:1",
+    "Cassette - Cassette only - Road bike"
+   ]
+  ],
+  "before": [
+   [
+    "wp-drivetrain",
+    "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   ]
+  ]
+ },
+ "derived/incident/inc-drivetrain/planned_service_count": {
+  "after": 2,
+  "before": 1
+ },
+ "derived/overview/bike_overview/planned_workplans/bike_workplans/bike-road/workplan_count": {
+  "after": 2,
+  "before": 1
+ },
+ "derived/overview/bike_overview/planned_workplans/bike_workplans/bike-road/workplan_ids": {
+  "after": [
+   "new:workplans:1",
+   "wp-drivetrain"
+  ],
+  "before": [
+   "wp-drivetrain"
+  ]
+ },
+ "derived/overview/bike_overview/planned_workplans/component_workplans/comp-cassette-serviced/workplan_count": {
+  "after": 2,
+  "before": 1
+ },
+ "derived/overview/bike_overview/planned_workplans/component_workplans/comp-cassette-serviced/workplan_ids": {
+  "after": [
+   "new:workplans:1",
+   "wp-drivetrain"
+  ],
+  "before": [
+   "wp-drivetrain"
+  ]
+ },
+ "derived/workplan/new:workplans:1/all_services_completed": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/bike_ids": {
+  "after": [
+   "bike-road"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/bike_names": {
+  "after": [
+   "Road bike"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/completion_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/completion_notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/component_bike_names/comp-cassette-serviced": {
+  "after": "Road bike",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/component_ids": {
+  "after": [
+   "comp-cassette-serviced"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/component_names": {
+  "after": [
+   "Cassette"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/bike_ids": {
+  "after": [
+   "bike-road"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/bike_names": {
+  "after": [
+   "Road bike"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/completed_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/component_ids": {
+  "after": [
+   "comp-cassette-serviced"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/component_names": {
+  "after": [
+   "Cassette"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/context/total_count": {
+  "after": 1,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/bike_ids": {
+  "after": [
+   "bike-road"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/bike_names": {
+  "after": [
+   "Road bike"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/completed_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/completion_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/completion_notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/component_ids": {
+  "after": [
+   "comp-cassette-serviced"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/component_names": {
+  "after": [
+   "Cassette"
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/description": {
+  "after": "Cassette only",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/description_display": {
+  "after": "Cassette only",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/due_date": {
+  "after": "2026-12-01 10:00",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/elapsed_days": {
+  "after": -15,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/total_count": {
+  "after": 1,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/workplan_id": {
+  "after": "new:workplans:1",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/workplan_name": {
+  "after": "Cassette - Cassette only - Road bike",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/workplan_name_given": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/workplan_size": {
+  "after": "Small",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/details/workplan_status": {
+  "after": "Planned",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/due_date": {
+  "after": "2026-12-01 10:00",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/elapsed_days": {
+  "after": -15,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/incidents": {
+  "after": [
+   {
+    "affected_bike_name": "Road bike",
+    "affected_component_names": [
+     "Chain",
+     "Cassette"
+    ],
+    "completed_service_count": 1,
+    "elapsed_days": 305,
+    "incident_affected_bike_id": "bike-road",
+    "incident_affected_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_date": "2026-01-15 10:00",
+    "incident_description": "Chain skips under load",
+    "incident_id": "inc-drivetrain",
+    "incident_services": [
+     {
+      "component_id": "comp-chain-moved",
+      "component_name": "Chain",
+      "date": "2026-11-01 10:00",
+      "description": "Replace chain",
+      "planned_date": null,
+      "service_date": null,
+      "service_id": "svc-chain-planned",
+      "status": "Planned",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     },
+     {
+      "component_id": "comp-cassette-serviced",
+      "component_name": "Cassette",
+      "date": "2026-12-01 10:00",
+      "description": "Chain skips under load",
+      "planned_date": null,
+      "service_date": null,
+      "service_id": "new:services:1",
+      "status": "Planned",
+      "workplan_id": "new:workplans:1",
+      "workplan_name": "Cassette - Cassette only - Road bike",
+      "workplan_status": "Planned"
+     },
+     {
+      "component_id": "comp-cassette-serviced",
+      "component_name": "Cassette",
+      "date": "2026-02-01 08:00",
+      "description": "Deep clean",
+      "planned_date": null,
+      "service_date": "2026-02-01 08:00",
+      "service_id": "svc-cassette-2",
+      "status": "Completed",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     }
+    ],
+    "incident_severity": "Priority",
+    "incident_status": "Open",
+    "incident_title": "Chain (+1 more) - Chain skips under load - Road bike",
+    "incident_workplans": [
+     [
+      "wp-drivetrain",
+      "Chain (+1 more) - Drivetrain overhaul - Road bike"
+     ],
+     [
+      "new:workplans:1",
+      "Cassette - Cassette only - Road bike"
+     ]
+    ],
+    "planned_service_count": 2,
+    "resolution_date": null,
+    "resolution_notes": null
+   }
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/latest_service_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "description": "Chain skips under load",
+    "effective_planned_date": "2026-12-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "new:services:1",
+    "workplan_id": "new:workplans:1",
+    "workplan_name": "Cassette - Cassette only - Road bike"
+   }
+  ],
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/service_progress/completed": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/service_progress/total": {
+  "after": 1,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/services": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/workplan_description": {
+  "after": "Cassette only",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/workplan_id": {
+  "after": "new:workplans:1",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/workplan_size": {
+  "after": "Small",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/workplan_status": {
+  "after": "Planned",
+  "before": "<absent>"
+ },
+ "derived/workplan/new:workplans:1/workplan_title": {
+  "after": "Cassette - Cassette only - Road bike",
+  "before": "<absent>"
+ },
+ "derived/workplan/wp-drivetrain/incidents": {
+  "after": [
+   {
+    "affected_bike_name": "Road bike",
+    "affected_component_names": [
+     "Chain",
+     "Cassette"
+    ],
+    "completed_service_count": 1,
+    "elapsed_days": 305,
+    "incident_affected_bike_id": "bike-road",
+    "incident_affected_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_date": "2026-01-15 10:00",
+    "incident_description": "Chain skips under load",
+    "incident_id": "inc-drivetrain",
+    "incident_services": [
+     {
+      "component_id": "comp-chain-moved",
+      "component_name": "Chain",
+      "date": "2026-11-01 10:00",
+      "description": "Replace chain",
+      "planned_date": null,
+      "service_date": null,
+      "service_id": "svc-chain-planned",
+      "status": "Planned",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     },
+     {
+      "component_id": "comp-cassette-serviced",
+      "component_name": "Cassette",
+      "date": "2026-12-01 10:00",
+      "description": "Chain skips under load",
+      "planned_date": null,
+      "service_date": null,
+      "service_id": "new:services:1",
+      "status": "Planned",
+      "workplan_id": "new:workplans:1",
+      "workplan_name": "Cassette - Cassette only - Road bike",
+      "workplan_status": "Planned"
+     },
+     {
+      "component_id": "comp-cassette-serviced",
+      "component_name": "Cassette",
+      "date": "2026-02-01 08:00",
+      "description": "Deep clean",
+      "planned_date": null,
+      "service_date": "2026-02-01 08:00",
+      "service_id": "svc-cassette-2",
+      "status": "Completed",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     }
+    ],
+    "incident_severity": "Priority",
+    "incident_status": "Open",
+    "incident_title": "Chain (+1 more) - Chain skips under load - Road bike",
+    "incident_workplans": [
+     [
+      "wp-drivetrain",
+      "Chain (+1 more) - Drivetrain overhaul - Road bike"
+     ],
+     [
+      "new:workplans:1",
+      "Cassette - Cassette only - Road bike"
+     ]
+    ],
+    "planned_service_count": 2,
+    "resolution_date": null,
+    "resolution_notes": null
+   }
+  ],
+  "before": [
+   {
+    "affected_bike_name": "Road bike",
+    "affected_component_names": [
+     "Chain",
+     "Cassette"
+    ],
+    "completed_service_count": 1,
+    "elapsed_days": 305,
+    "incident_affected_bike_id": "bike-road",
+    "incident_affected_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_date": "2026-01-15 10:00",
+    "incident_description": "Chain skips under load",
+    "incident_id": "inc-drivetrain",
+    "incident_services": [
+     {
+      "component_id": "comp-chain-moved",
+      "component_name": "Chain",
+      "date": "2026-11-01 10:00",
+      "description": "Replace chain",
+      "planned_date": null,
+      "service_date": null,
+      "service_id": "svc-chain-planned",
+      "status": "Planned",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     },
+     {
+      "component_id": "comp-cassette-serviced",
+      "component_name": "Cassette",
+      "date": "2026-02-01 08:00",
+      "description": "Deep clean",
+      "planned_date": null,
+      "service_date": "2026-02-01 08:00",
+      "service_id": "svc-cassette-2",
+      "status": "Completed",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     }
+    ],
+    "incident_severity": "Priority",
+    "incident_status": "Open",
+    "incident_title": "Chain (+1 more) - Chain skips under load - Road bike",
+    "incident_workplans": [
+     [
+      "wp-drivetrain",
+      "Chain (+1 more) - Drivetrain overhaul - Road bike"
+     ]
+    ],
+    "planned_service_count": 1,
+    "resolution_date": null,
+    "resolution_notes": null
+   }
+  ]
+ },
+ "stored/services/new:services:1/bike_id": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/component_id": {
+  "after": "comp-cassette-serviced",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/component_name": {
+  "after": "Cassette",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/description": {
+  "after": "Chain skips under load",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/distance_marker": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/incident_id": {
+  "after": "inc-drivetrain",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/planned_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/service_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/service_id": {
+  "after": "new:services:1",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/status": {
+  "after": "Planned",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/workplan_id": {
+  "after": "new:workplans:1",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/completion_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/completion_notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/due_date": {
+  "after": "2026-12-01 10:00",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/workplan_description": {
+  "after": "Cassette only",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/workplan_id": {
+  "after": "new:workplans:1",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/workplan_name": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/workplan_size": {
+  "after": "Small",
+  "before": "<absent>"
+ },
+ "stored/workplans/new:workplans:1/workplan_status": {
+  "after": "Planned",
+  "before": "<absent>"
+ }
+}

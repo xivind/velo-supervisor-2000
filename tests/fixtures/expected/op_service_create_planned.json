@@ -1,0 +1,82 @@
+{
+ "derived/bike/bike-gravel/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-tire-time",
+    "component_name": "Gravel tire",
+    "description": "Replace tire",
+    "effective_planned_date": null,
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-12-01 08:00",
+    "planned_date": null,
+    "service_id": "new:services:1",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ],
+  "before": null
+ },
+ "derived/component/comp-tire-time/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-tire-time",
+    "component_name": "Gravel tire",
+    "description": "Replace tire",
+    "effective_planned_date": null,
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-12-01 08:00",
+    "planned_date": null,
+    "service_id": "new:services:1",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ],
+  "before": null
+ },
+ "stored/services/new:services:1/bike_id": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/component_id": {
+  "after": "comp-tire-time",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/component_name": {
+  "after": "Gravel tire",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/description": {
+  "after": "Replace tire",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/distance_marker": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/incident_id": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/planned_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/service_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/service_id": {
+  "after": "new:services:1",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/status": {
+  "after": "Planned",
+  "before": "<absent>"
+ },
+ "stored/services/new:services:1/workplan_id": {
+  "after": null,
+  "before": "<absent>"
+ }
+}

@@ -1,0 +1,208 @@
+{
+ "derived/collection/coll-mixed/collection_data/collection_name": {
+  "after": "Road wheels",
+  "before": "Mixed parts"
+ },
+ "derived/collection/coll-mixed/collection_data/comment": {
+  "after": null,
+  "before": "Installed and spare parts"
+ },
+ "derived/collection/coll-mixed/collection_data/component_count": {
+  "after": 1,
+  "before": 2
+ },
+ "derived/collection/coll-mixed/collection_data/components": {
+  "after": "[\"comp-wheel-offset\"]",
+  "before": "[\"comp-wheel-offset\", \"comp-no-history\"]"
+ },
+ "derived/collection/coll-mixed/component_rows": {
+  "after": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "bike": "Not assigned",
+    "bike_id": null,
+    "component_distance": 300,
+    "component_id": "comp-no-history",
+    "cost": 1200,
+    "installation_status": "Not installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Spare saddle",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Saddle",
+    "updated_date": "2025-05-01 08:00"
+   }
+  ]
+ },
+ "derived/collection/coll-mixed/plan_services_preselect": {
+  "after": [
+   "comp-wheel-offset"
+  ],
+  "before": [
+   "comp-wheel-offset",
+   "comp-no-history"
+  ]
+ },
+ "derived/collection/coll-mixed/status/blocks_operations": {
+  "after": false,
+  "before": true
+ },
+ "derived/collection/coll-mixed/status/can_display_bike": {
+  "after": true,
+  "before": false
+ },
+ "derived/collection/coll-mixed/status/has_mixed_statuses": {
+  "after": false,
+  "before": true
+ },
+ "derived/collection/coll-mixed/status/not_installed_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/collection/coll-mixed/status/status": {
+  "after": "healthy",
+  "before": "needs_attention"
+ },
+ "derived/collection/coll-mixed/summary/collection_name": {
+  "after": "Road wheels",
+  "before": "Mixed parts"
+ },
+ "derived/collection/coll-mixed/summary/comment": {
+  "after": null,
+  "before": "Installed and spare parts"
+ },
+ "derived/collection/coll-mixed/summary/component_details": {
+  "after": [
+   {
+    "id": "comp-wheel-offset",
+    "name": "Rear wheel"
+   }
+  ],
+  "before": [
+   {
+    "id": "comp-wheel-offset",
+    "name": "Rear wheel"
+   },
+   {
+    "id": "comp-no-history",
+    "name": "Spare saddle"
+   }
+  ]
+ },
+ "derived/collection/coll-mixed/summary/components": {
+  "after": "[\"comp-wheel-offset\"]",
+  "before": "[\"comp-wheel-offset\", \"comp-no-history\"]"
+ },
+ "derived/collection/coll-mixed/summary/status": {
+  "after": "healthy",
+  "before": "needs_attention"
+ },
+ "derived/collection/coll-mixed/warnings/blocks_operations": {
+  "after": false,
+  "before": true
+ },
+ "derived/collection/coll-mixed/warnings/can_display_bike": {
+  "after": true,
+  "before": false
+ },
+ "derived/collection/coll-mixed/warnings/has_mixed_statuses": {
+  "after": false,
+  "before": true
+ },
+ "derived/collection/coll-mixed/warnings/not_installed_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/collection/coll-mixed/warnings/status": {
+  "after": "healthy",
+  "before": "needs_attention"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-no-history/bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-no-history/collection_id": {
+  "after": "<absent>",
+  "before": "coll-mixed"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-no-history/collection_name": {
+  "after": "<absent>",
+  "before": "Mixed parts"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-no-history/comment": {
+  "after": "<absent>",
+  "before": "Installed and spare parts"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-no-history/components": {
+  "after": "<absent>",
+  "before": "[\"comp-wheel-offset\", \"comp-no-history\"]"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-no-history/updated_date": {
+  "after": "<absent>",
+  "before": "2026-03-01 08:00"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-wheel-offset/collection_name": {
+  "after": "Road wheels",
+  "before": "Mixed parts"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-wheel-offset/comment": {
+  "after": null,
+  "before": "Installed and spare parts"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-wheel-offset/components": {
+  "after": "[\"comp-wheel-offset\"]",
+  "before": "[\"comp-wheel-offset\", \"comp-no-history\"]"
+ },
+ "derived/overview/component_collection_mapping/component_collection_names/comp-no-history": {
+  "after": "<absent>",
+  "before": "Mixed parts"
+ },
+ "derived/overview/component_collection_mapping/component_collection_names/comp-wheel-offset": {
+  "after": "Road wheels",
+  "before": "Mixed parts"
+ },
+ "stored/collections/coll-mixed/collection_name": {
+  "after": "Road wheels",
+  "before": "Mixed parts"
+ },
+ "stored/collections/coll-mixed/comment": {
+  "after": null,
+  "before": "Installed and spare parts"
+ },
+ "stored/collections/coll-mixed/components": {
+  "after": "[\"comp-wheel-offset\"]",
+  "before": "[\"comp-wheel-offset\", \"comp-no-history\"]"
+ }
+}

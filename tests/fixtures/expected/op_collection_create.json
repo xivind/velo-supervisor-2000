@@ -1,0 +1,344 @@
+{
+ "derived/collection/new:collections:1/collection_data/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/collection_data/bike_name": {
+  "after": "Road bike",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/collection_data/collection_id": {
+  "after": "new:collections:1",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/collection_data/collection_name": {
+  "after": "Drivetrain",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/collection_data/comment": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/collection_data/component_count": {
+  "after": 2,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/collection_data/components": {
+  "after": "[\"comp-cassette-serviced\", \"comp-chain-moved\"]",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/collection_data/updated_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/component_rows": {
+  "after": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 790,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   }
+  ],
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/plan_services_preselect": {
+  "after": [
+   "comp-cassette-serviced",
+   "comp-chain-moved"
+  ],
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/actual_component_bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/actual_component_bike_name": {
+  "after": "Road bike",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/bike_count": {
+  "after": 1,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/bike_names_list": {
+  "after": [
+   "Road bike"
+  ],
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/blocks_operations": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/can_display_bike": {
+  "after": true,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/collection_bike_mismatch": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/has_different_bikes": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/has_mixed_statuses": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/has_retired": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/installed_count": {
+  "after": 2,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/is_empty": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/not_installed_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/retired_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/status/status": {
+  "after": "healthy",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/summary/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/summary/bike_name": {
+  "after": "Road bike",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/summary/collection_bike_mismatch": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/summary/collection_id": {
+  "after": "new:collections:1",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/summary/collection_name": {
+  "after": "Drivetrain",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/summary/comment": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/summary/component_details": {
+  "after": [
+   {
+    "id": "comp-cassette-serviced",
+    "name": "Cassette"
+   },
+   {
+    "id": "comp-chain-moved",
+    "name": "Chain"
+   }
+  ],
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/summary/components": {
+  "after": "[\"comp-cassette-serviced\", \"comp-chain-moved\"]",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/summary/status": {
+  "after": "healthy",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/summary/updated_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/actual_component_bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/actual_component_bike_name": {
+  "after": "Road bike",
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/bike_count": {
+  "after": 1,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/bike_names_list": {
+  "after": [
+   "Road bike"
+  ],
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/blocks_operations": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/can_display_bike": {
+  "after": true,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/collection_bike_mismatch": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/has_different_bikes": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/has_mixed_statuses": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/has_retired": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/installed_count": {
+  "after": 2,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/is_empty": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/not_installed_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/retired_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/collection/new:collections:1/warnings/status": {
+  "after": "healthy",
+  "before": "<absent>"
+ },
+ "derived/overview/bike_overview/assigned_collections": {
+  "after": [
+   "bike-road",
+   "bike-gravel",
+   "bike-road"
+  ],
+  "before": [
+   "bike-road",
+   "bike-gravel"
+  ]
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-cassette-serviced/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-cassette-serviced/collection_id": {
+  "after": "new:collections:1",
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-cassette-serviced/collection_name": {
+  "after": "Drivetrain",
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-cassette-serviced/comment": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-cassette-serviced/components": {
+  "after": "[\"comp-cassette-serviced\", \"comp-chain-moved\"]",
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-cassette-serviced/updated_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-chain-moved/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-chain-moved/collection_id": {
+  "after": "new:collections:1",
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-chain-moved/collection_name": {
+  "after": "Drivetrain",
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-chain-moved/comment": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-chain-moved/components": {
+  "after": "[\"comp-cassette-serviced\", \"comp-chain-moved\"]",
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-chain-moved/updated_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_names/comp-cassette-serviced": {
+  "after": "Drivetrain",
+  "before": "<absent>"
+ },
+ "derived/overview/component_collection_mapping/component_collection_names/comp-chain-moved": {
+  "after": "Drivetrain",
+  "before": "<absent>"
+ },
+ "stored/collections/new:collections:1/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "stored/collections/new:collections:1/collection_id": {
+  "after": "new:collections:1",
+  "before": "<absent>"
+ },
+ "stored/collections/new:collections:1/collection_name": {
+  "after": "Drivetrain",
+  "before": "<absent>"
+ },
+ "stored/collections/new:collections:1/comment": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/collections/new:collections:1/components": {
+  "after": "[\"comp-cassette-serviced\", \"comp-chain-moved\"]",
+  "before": "<absent>"
+ },
+ "stored/collections/new:collections:1/sub_collections": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/collections/new:collections:1/updated_date": {
+  "after": null,
+  "before": "<absent>"
+ }
+}
