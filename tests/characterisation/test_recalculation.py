@@ -8,7 +8,7 @@ untouched dataset.
 import json
 import sqlite3
 
-from fixtures.dataset import IDS, _component, _history, _service
+from fixtures.dataset import IDS, component, history, service
 from fixtures.expected import assert_matches_expected
 from integrity.derived import derived_values
 from integrity.recalculate import recalculate
@@ -136,8 +136,8 @@ def test_retired_component_counts_days_to_retirement(app):
             pads["lifetime_status"]) == (90, 1410, 92, "OK")
     assert (pads["service_next"], pads["service_next_days"], pads["service_status"]) == (440, None, "OK")
     assert stored["component_history"][IDS.hist_pads_retired]["distance_marker"] == 90
-    service = stored["services"][IDS.svc_pads_retired]
-    assert (service["distance_marker"], service["bike_id"]) == (30, IDS.bike_retired)
+    pads_service = stored["services"][IDS.svc_pads_retired]
+    assert (pads_service["distance_marker"], pads_service["bike_id"]) == (30, IDS.bike_retired)
 
 
 def test_service_resets_interval(app):
@@ -187,8 +187,9 @@ def test_time_based_intervals_count_days_to_now(app):
     = 335 days to 2026-11-01, plus 15 = 350 (whole days); lifetime remaining 365 - 350 = 15, below
     threshold 30: "Due for replacement". Last service 2026-08-01 08:00: 31+30+31 = 92 days to
     2026-11-01, plus 15 = 107; service next 90 - 107 = -17: "Service interval exceeded".
-    No km intervals: lifetime remaining and service next None, distance still counted, gravel Dec 2025..Oct 2026, 11 x 20 = 220. Service marker of svc-tire:
-    gravel Dec 2025..Jul 2026, 8 x 20 = 160.
+    No km intervals: lifetime remaining and service next None, distance still counted, gravel
+    Dec 2025..Oct 2026, 11 x 20 = 220. Service marker of svc-tire: gravel Dec 2025..Jul 2026,
+    8 x 20 = 160.
     """
     stored = _stored(app)
     tire = stored["components"][IDS.comp_tire_time]
@@ -249,25 +250,24 @@ def test_ride_at_install_and_service_timestamps_counts_on_both_sides(app):
     Service marker (install <= ride <= service): 1 + 2 + 4 = 7.
     Since service (rides >= service): 4 + 8 = 12; service next 500 - 12 = 488.
     The 4 km ride at the service minute counts both in the service marker and in the distance
-    since that service.
+    since that service (#373).
     """
     _insert(app, "bikes", [_bike("bike-boundary", "Boundary bike")])
     _insert(app, "rides", [_ride("ride-boundary-install", "bike-boundary", "2026-01-01 08:00", 1.0),
                            _ride("ride-boundary-feb", "bike-boundary", "2026-02-10 12:00", 2.0),
                            _ride("ride-boundary-service", "bike-boundary", "2026-03-01 08:00", 4.0),
                            _ride("ride-boundary-apr", "bike-boundary", "2026-04-10 12:00", 8.0)])
-    _insert(app, "components", [_component("comp-boundary", "bike-boundary", "Boundary chain", "Chain", "Installed",
-                                           "2026-01-01 08:00", 0, lifetime_expected=3000, service_interval=500,
-                                           threshold_km=100)])
-    _insert(app, "component_history", [_history("hist-boundary", "comp-boundary", "bike-boundary", "Boundary chain",
-                                                 "2026-01-01 08:00", "Installed")])
-    _insert(app, "services", [_service("svc-boundary", "comp-boundary", "Boundary chain", "Lubed", "Completed",
-                                       "2026-03-01 08:00")])
+    _insert(app, "components", [component("comp-boundary", "bike-boundary", "Boundary chain", "Chain", "Installed",
+                                          "2026-01-01 08:00", 0, lifetime_expected=3000, service_interval=500,
+                                          threshold_km=100)])
+    _insert(app, "component_history", [history("hist-boundary", "comp-boundary", "bike-boundary", "Boundary chain",
+                                               "2026-01-01 08:00", "Installed")])
+    _insert(app, "services", [service("svc-boundary", "comp-boundary", "Boundary chain", "Lubed", "Completed",
+                                      "2026-03-01 08:00")])
     assert recalculate(app) == [NO_HISTORY_FAILURE]
     stored = _stored(app)
-    component = stored["components"]["comp-boundary"]
-    assert (component["component_distance"], component["service_next"], component["service_status"]) == (
-        15, 488, "OK")
+    chain = stored["components"]["comp-boundary"]
+    assert (chain["component_distance"], chain["service_next"], chain["service_status"]) == (15, 488, "OK")
     assert stored["services"]["svc-boundary"]["distance_marker"] == 7
 
 
@@ -278,10 +278,10 @@ def test_bike_with_only_unrated_components_is_maintenance_not_defined(app):
     """
     _insert(app, "bikes", [_bike("bike-cage", "Cage bike")])
     _insert(app, "rides", [_ride("ride-cage", "bike-cage", "2026-02-10 12:00", 30.0)])
-    _insert(app, "components", [_component("comp-cage", "bike-cage", "Cage", "Bottle cage", "Installed",
-                                           "2026-01-01 08:00", 0)])
-    _insert(app, "component_history", [_history("hist-cage", "comp-cage", "bike-cage", "Cage", "2026-01-01 08:00",
-                                                 "Installed")])
+    _insert(app, "components", [component("comp-cage", "bike-cage", "Cage", "Bottle cage", "Installed",
+                                          "2026-01-01 08:00", 0)])
+    _insert(app, "component_history", [history("hist-cage", "comp-cage", "bike-cage", "Cage", "2026-01-01 08:00",
+                                               "Installed")])
     assert recalculate(app) == [NO_HISTORY_FAILURE]
     stored = _stored(app)
     cage = stored["components"]["comp-cage"]
@@ -297,11 +297,11 @@ def test_bike_left_without_components_is_no_components_registered(app):
     """
     _insert(app, "bikes", [_bike("bike-empty", "Empty bike")])
     _insert(app, "rides", [_ride("ride-empty", "bike-empty", "2026-02-10 12:00", 30.0)])
-    _insert(app, "components", [_component("comp-loose", None, "Loose saddle", "Saddle", "Not installed",
-                                           "2026-03-01 08:00", 0, lifetime_expected=20000, threshold_km=200)])
+    _insert(app, "components", [component("comp-loose", None, "Loose saddle", "Saddle", "Not installed",
+                                          "2026-03-01 08:00", 0, lifetime_expected=20000, threshold_km=200)])
     _insert(app, "component_history", [
-        _history("hist-loose-on", "comp-loose", "bike-empty", "Loose saddle", "2026-01-01 08:00", "Installed"),
-        _history("hist-loose-off", "comp-loose", "bike-empty", "Loose saddle", "2026-03-01 08:00", "Not installed")])
+        history("hist-loose-on", "comp-loose", "bike-empty", "Loose saddle", "2026-01-01 08:00", "Installed"),
+        history("hist-loose-off", "comp-loose", "bike-empty", "Loose saddle", "2026-03-01 08:00", "Not installed")])
     assert recalculate(app) == [NO_HISTORY_FAILURE]
     stored = _stored(app)
     loose = stored["components"]["comp-loose"]
@@ -316,11 +316,11 @@ def test_lifetime_reached_exactly_is_exceeded(app):
     22 x 50 = 1100 km, remaining 1100 - 1100 = 0: "Lifetime exceeded"; bike-road becomes
     "Components need attention" although cassette and wheel are OK.
     """
-    _insert(app, "components", [_component("comp-worn-pads", IDS.bike_road, "Worn pads", "Rear brake pads",
-                                           "Installed", "2025-01-01 08:00", 0, lifetime_expected=1100,
-                                           threshold_km=100)])
-    _insert(app, "component_history", [_history("hist-worn-pads", "comp-worn-pads", IDS.bike_road, "Worn pads",
-                                                 "2025-01-01 08:00", "Installed")])
+    _insert(app, "components", [component("comp-worn-pads", IDS.bike_road, "Worn pads", "Rear brake pads",
+                                          "Installed", "2025-01-01 08:00", 0, lifetime_expected=1100,
+                                          threshold_km=100)])
+    _insert(app, "component_history", [history("hist-worn-pads", "comp-worn-pads", IDS.bike_road, "Worn pads",
+                                               "2025-01-01 08:00", "Installed")])
     assert recalculate(app) == [NO_HISTORY_FAILURE]
     stored = _stored(app)
     pads = stored["components"]["comp-worn-pads"]
@@ -373,11 +373,11 @@ def test_bike_with_only_due_component_fails_status_update(app):
     """
     _insert(app, "bikes", [_bike("bike-due", "Due bike")])
     _insert(app, "rides", [_ride("ride-due", "bike-due", "2026-06-10 12:00", 450.0)])
-    _insert(app, "components", [_component("comp-due-chain", "bike-due", "Due chain", "Chain", "Installed",
-                                           "2026-06-01 08:00", 0, lifetime_expected=3000, service_interval=500,
-                                           threshold_km=100)])
-    _insert(app, "component_history", [_history("hist-due-chain", "comp-due-chain", "bike-due", "Due chain",
-                                                 "2026-06-01 08:00", "Installed")])
+    _insert(app, "components", [component("comp-due-chain", "bike-due", "Due chain", "Chain", "Installed",
+                                          "2026-06-01 08:00", 0, lifetime_expected=3000, service_interval=500,
+                                          threshold_km=100)])
+    _insert(app, "component_history", [history("hist-due-chain", "comp-due-chain", "bike-due", "Due chain",
+                                               "2026-06-01 08:00", "Installed")])
     assert recalculate(app) == [
         f'distance_iterator:all_bikes: {{"{UNBOUND_STATUS}"}}',
         f"process_history_records:comp-due-chain: Error processing history records for Due chain: {UNBOUND_STATUS}",
@@ -401,13 +401,13 @@ def test_bike_with_only_not_installed_component_fails_status_update(app):
     """
     _insert(app, "bikes", [_bike("bike-spare", "Spare bike")])
     _insert(app, "rides", [_ride("ride-spare", "bike-spare", "2026-02-10 12:00", 100.0)])
-    _insert(app, "components", [_component("comp-spare-wheel", "bike-spare", "Spare wheel", "Rear wheel",
-                                           "Not installed", "2026-03-01 08:00", 0, lifetime_expected=10000,
-                                           threshold_km=200)])
+    _insert(app, "components", [component("comp-spare-wheel", "bike-spare", "Spare wheel", "Rear wheel",
+                                          "Not installed", "2026-03-01 08:00", 0, lifetime_expected=10000,
+                                          threshold_km=200)])
     _insert(app, "component_history", [
-        _history("hist-spare-on", "comp-spare-wheel", "bike-spare", "Spare wheel", "2026-01-01 08:00", "Installed"),
-        _history("hist-spare-off", "comp-spare-wheel", "bike-spare", "Spare wheel", "2026-03-01 08:00",
-                 "Not installed")])
+        history("hist-spare-on", "comp-spare-wheel", "bike-spare", "Spare wheel", "2026-01-01 08:00", "Installed"),
+        history("hist-spare-off", "comp-spare-wheel", "bike-spare", "Spare wheel", "2026-03-01 08:00",
+                "Not installed")])
     assert recalculate(app) == [
         NO_HISTORY_FAILURE,
         "process_history_records:comp-spare-wheel: Error processing history records for Spare wheel: "

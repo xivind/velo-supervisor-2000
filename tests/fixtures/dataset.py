@@ -148,7 +148,7 @@ def _months(first, last):
         year, month = (year + 1, 1) if month == 12 else (year, month + 1)
 
 
-def _monthly_rides(bike_id, label, day, distance, moving_time, last):
+def monthly_rides(bike_id, label, day, distance, moving_time, last):
     return [{"ride_id": f"ride-{label}-{year}-{month:02d}", "bike_id": bike_id,
              "record_time": f"{year}-{month:02d}-{day:02d} 12:00",
              "ride_name": f"{label.capitalize()} ride {year}-{month:02d}", "ride_distance": distance,
@@ -156,14 +156,14 @@ def _monthly_rides(bike_id, label, day, distance, moving_time, last):
             for year, month in _months((2025, 1), last)]
 
 
-RIDES = (_monthly_rides(IDS.bike_road, "road", 10, 50.0, "2:00:00", (2026, 10))
-         + _monthly_rides(IDS.bike_gravel, "gravel", 20, 20.0, "1:00:00", (2026, 10))
-         + _monthly_rides(IDS.bike_retired, "commute", 15, 10.0, "0:40:00", (2026, 3))
+RIDES = (monthly_rides(IDS.bike_road, "road", 10, 50.0, "2:00:00", (2026, 10))
+         + monthly_rides(IDS.bike_gravel, "gravel", 20, 20.0, "1:00:00", (2026, 10))
+         + monthly_rides(IDS.bike_retired, "commute", 15, 10.0, "0:40:00", (2026, 3))
          + [{"ride_id": "ride-no-gear", "bike_id": "None", "record_time": "2026-05-05 12:00",
              "ride_name": "Rental bike", "ride_distance": 15.0, "moving_time": "1:00:00", "commute": "True"}])
 
 
-def _component(component_id, bike_id, name, component_type, status, updated_date, cost, **settings):
+def component(component_id, bike_id, name, component_type, status, updated_date, cost, **settings):
     row = {"component_id": component_id, "bike_id": bike_id, "component_name": name,
            "component_type": component_type, "component_distance": 0.0, "component_distance_offset": 0,
            "installation_status": status, "lifetime_expected": None, "lifetime_remaining": None,
@@ -176,61 +176,61 @@ def _component(component_id, bike_id, name, component_type, status, updated_date
 
 
 COMPONENTS = [
-    _component(IDS.comp_cassette_serviced, IDS.bike_road, "Cassette", "Cassette", "Installed",
-               "2025-01-01 08:00", 800, lifetime_expected=6000, service_interval=1000, threshold_km=100),
-    _component(IDS.comp_wheel_offset, IDS.bike_road, "Rear wheel", "Rear wheel", "Installed",
-               "2025-03-01 08:00", 2500, component_distance_offset=1000, lifetime_expected=10000,
-               service_interval=2000, threshold_km=200, notes="Bought used"),
-    _component(IDS.comp_chain_moved, IDS.bike_road, "Chain", "Chain", "Installed", "2026-04-01 08:00", 400,
-               lifetime_expected=3000, service_interval=500, threshold_km=100),
-    _component(IDS.comp_tire_time, IDS.bike_gravel, "Gravel tire", "Tire", "Installed", "2025-12-01 08:00",
-               600, lifetime_expected_days=365, service_interval_days=90, threshold_days=30),
-    _component(IDS.comp_pads_norwegian, IDS.bike_gravel, "Bremseklosser bak æøå", "Rear brake pads",
-               "Installed", "2025-01-01 08:00", 200, lifetime_expected=1500, threshold_km=100,
-               notes="Byttet før påske"),
-    _component(IDS.comp_pads_retired, IDS.bike_retired, "Commuter brake pads", "Rear brake pads", "Retired",
-               "2025-10-01 08:00", 150, lifetime_expected=1500, service_interval=500, threshold_km=100,
-               lifetime_expected_days=365, threshold_days=30),
-    _component(IDS.comp_no_history, None, "Spare saddle", "Saddle", "Not installed", "2025-05-01 08:00", 1200,
-               component_distance=300.0, component_distance_offset=300, lifetime_expected=20000,
-               lifetime_remaining=19700.0, lifetime_status="OK", service_status="Not defined", threshold_km=200),
+    component(IDS.comp_cassette_serviced, IDS.bike_road, "Cassette", "Cassette", "Installed",
+              "2025-01-01 08:00", 800, lifetime_expected=6000, service_interval=1000, threshold_km=100),
+    component(IDS.comp_wheel_offset, IDS.bike_road, "Rear wheel", "Rear wheel", "Installed",
+              "2025-03-01 08:00", 2500, component_distance_offset=1000, lifetime_expected=10000,
+              service_interval=2000, threshold_km=200, notes="Bought used"),
+    component(IDS.comp_chain_moved, IDS.bike_road, "Chain", "Chain", "Installed", "2026-04-01 08:00", 400,
+              lifetime_expected=3000, service_interval=500, threshold_km=100),
+    component(IDS.comp_tire_time, IDS.bike_gravel, "Gravel tire", "Tire", "Installed", "2025-12-01 08:00",
+              600, lifetime_expected_days=365, service_interval_days=90, threshold_days=30),
+    component(IDS.comp_pads_norwegian, IDS.bike_gravel, "Bremseklosser bak æøå", "Rear brake pads",
+              "Installed", "2025-01-01 08:00", 200, lifetime_expected=1500, threshold_km=100,
+              notes="Byttet før påske"),
+    component(IDS.comp_pads_retired, IDS.bike_retired, "Commuter brake pads", "Rear brake pads", "Retired",
+              "2025-10-01 08:00", 150, lifetime_expected=1500, service_interval=500, threshold_km=100,
+              lifetime_expected_days=365, threshold_days=30),
+    component(IDS.comp_no_history, None, "Spare saddle", "Saddle", "Not installed", "2025-05-01 08:00", 1200,
+              component_distance=300.0, component_distance_offset=300, lifetime_expected=20000,
+              lifetime_remaining=19700.0, lifetime_status="OK", service_status="Not defined", threshold_km=200),
 ]
 
 
-def _history(history_id, component_id, bike_id, name, updated_date, reason, notes=None):
+def history(history_id, component_id, bike_id, name, updated_date, reason, notes=None):
     return {"history_id": history_id, "component_id": component_id, "bike_id": bike_id,
             "component_name": name, "updated_date": updated_date, "update_reason": reason,
             "distance_marker": 0.0, "notes": notes}
 
 
 HISTORY = [
-    _history(IDS.hist_chain_road_1, IDS.comp_chain_moved, IDS.bike_road, "Chain", "2025-01-01 08:00",
-             "Installed"),
-    _history(IDS.hist_chain_off_road, IDS.comp_chain_moved, IDS.bike_road, "Chain", "2025-07-01 08:00",
-             "Not installed"),
-    _history(IDS.hist_chain_gravel, IDS.comp_chain_moved, IDS.bike_gravel, "Chain", "2025-08-01 08:00",
-             "Installed", "Moved to the gravel bike for winter"),
-    _history(IDS.hist_chain_off_gravel, IDS.comp_chain_moved, IDS.bike_gravel, "Chain", "2026-03-01 08:00",
-             "Not installed"),
-    _history(IDS.hist_chain_road_2, IDS.comp_chain_moved, IDS.bike_road, "Chain", "2026-04-01 08:00",
-             "Installed"),
-    _history(IDS.hist_cassette, IDS.comp_cassette_serviced, IDS.bike_road, "Cassette", "2025-01-01 08:00",
-             "Installed"),
-    _history(IDS.hist_wheel, IDS.comp_wheel_offset, IDS.bike_road, "Rear wheel", "2025-03-01 08:00",
-             "Installed"),
-    _history(IDS.hist_tire, IDS.comp_tire_time, IDS.bike_gravel, "Gravel tire", "2025-12-01 08:00",
-             "Installed"),
-    _history(IDS.hist_pads_norwegian, IDS.comp_pads_norwegian, IDS.bike_gravel, "Bremseklosser bak æøå",
-             "2025-01-01 08:00", "Installed"),
-    _history(IDS.hist_pads_installed, IDS.comp_pads_retired, IDS.bike_retired, "Commuter brake pads",
-             "2025-01-01 08:00", "Installed"),
-    _history(IDS.hist_pads_retired, IDS.comp_pads_retired, IDS.bike_retired, "Commuter brake pads",
-             "2025-10-01 08:00", "Retired"),
+    history(IDS.hist_chain_road_1, IDS.comp_chain_moved, IDS.bike_road, "Chain", "2025-01-01 08:00",
+            "Installed"),
+    history(IDS.hist_chain_off_road, IDS.comp_chain_moved, IDS.bike_road, "Chain", "2025-07-01 08:00",
+            "Not installed"),
+    history(IDS.hist_chain_gravel, IDS.comp_chain_moved, IDS.bike_gravel, "Chain", "2025-08-01 08:00",
+            "Installed", "Moved to the gravel bike for winter"),
+    history(IDS.hist_chain_off_gravel, IDS.comp_chain_moved, IDS.bike_gravel, "Chain", "2026-03-01 08:00",
+            "Not installed"),
+    history(IDS.hist_chain_road_2, IDS.comp_chain_moved, IDS.bike_road, "Chain", "2026-04-01 08:00",
+            "Installed"),
+    history(IDS.hist_cassette, IDS.comp_cassette_serviced, IDS.bike_road, "Cassette", "2025-01-01 08:00",
+            "Installed"),
+    history(IDS.hist_wheel, IDS.comp_wheel_offset, IDS.bike_road, "Rear wheel", "2025-03-01 08:00",
+            "Installed"),
+    history(IDS.hist_tire, IDS.comp_tire_time, IDS.bike_gravel, "Gravel tire", "2025-12-01 08:00",
+            "Installed"),
+    history(IDS.hist_pads_norwegian, IDS.comp_pads_norwegian, IDS.bike_gravel, "Bremseklosser bak æøå",
+            "2025-01-01 08:00", "Installed"),
+    history(IDS.hist_pads_installed, IDS.comp_pads_retired, IDS.bike_retired, "Commuter brake pads",
+            "2025-01-01 08:00", "Installed"),
+    history(IDS.hist_pads_retired, IDS.comp_pads_retired, IDS.bike_retired, "Commuter brake pads",
+            "2025-10-01 08:00", "Retired"),
 ]
 
 
-def _service(service_id, component_id, name, description, status, service_date=None, workplan_id=None,
-             incident_id=None, planned_date=None):
+def service(service_id, component_id, name, description, status, service_date=None, workplan_id=None,
+            incident_id=None, planned_date=None):
     return {"service_id": service_id, "component_id": component_id, "component_name": name, "bike_id": None,
             "service_date": service_date, "distance_marker": 0.0 if status == "Completed" else None,
             "description": description, "workplan_id": workplan_id, "status": status,
@@ -238,21 +238,21 @@ def _service(service_id, component_id, name, description, status, service_date=N
 
 
 SERVICES = [
-    _service(IDS.svc_chain_1, IDS.comp_chain_moved, "Chain", "Cleaned and lubed", "Completed",
-             "2025-04-01 08:00"),
-    _service(IDS.svc_chain_2, IDS.comp_chain_moved, "Chain", "Waxed", "Completed", "2025-10-01 08:00"),
-    _service(IDS.svc_chain_planned, IDS.comp_chain_moved, "Chain", "Replace chain", "Planned",
-             workplan_id=IDS.wp_drivetrain, incident_id=IDS.inc_drivetrain),
-    _service(IDS.svc_cassette_1, IDS.comp_cassette_serviced, "Cassette", "Cleaned cassette", "Completed",
-             "2025-06-01 08:00"),
-    _service(IDS.svc_cassette_2, IDS.comp_cassette_serviced, "Cassette", "Deep clean", "Completed",
-             "2026-02-01 08:00", workplan_id=IDS.wp_drivetrain, incident_id=IDS.inc_drivetrain),
-    _service(IDS.svc_wheel_planned, IDS.comp_wheel_offset, "Rear wheel", "True rear wheel", "Planned",
-             planned_date="2026-10-15 10:00"),
-    _service(IDS.svc_tire, IDS.comp_tire_time, "Gravel tire", "Sealant top-up", "Completed",
-             "2026-08-01 08:00"),
-    _service(IDS.svc_pads_retired, IDS.comp_pads_retired, "Commuter brake pads", "Cleaned pads", "Completed",
-             "2025-04-01 08:00", workplan_id=IDS.wp_brake_check, incident_id=IDS.inc_squeal),
+    service(IDS.svc_chain_1, IDS.comp_chain_moved, "Chain", "Cleaned and lubed", "Completed",
+            "2025-04-01 08:00"),
+    service(IDS.svc_chain_2, IDS.comp_chain_moved, "Chain", "Waxed", "Completed", "2025-10-01 08:00"),
+    service(IDS.svc_chain_planned, IDS.comp_chain_moved, "Chain", "Replace chain", "Planned",
+            workplan_id=IDS.wp_drivetrain, incident_id=IDS.inc_drivetrain),
+    service(IDS.svc_cassette_1, IDS.comp_cassette_serviced, "Cassette", "Cleaned cassette", "Completed",
+            "2025-06-01 08:00"),
+    service(IDS.svc_cassette_2, IDS.comp_cassette_serviced, "Cassette", "Deep clean", "Completed",
+            "2026-02-01 08:00", workplan_id=IDS.wp_drivetrain, incident_id=IDS.inc_drivetrain),
+    service(IDS.svc_wheel_planned, IDS.comp_wheel_offset, "Rear wheel", "True rear wheel", "Planned",
+            planned_date="2026-10-15 10:00"),
+    service(IDS.svc_tire, IDS.comp_tire_time, "Gravel tire", "Sealant top-up", "Completed",
+            "2026-08-01 08:00"),
+    service(IDS.svc_pads_retired, IDS.comp_pads_retired, "Commuter brake pads", "Cleaned pads", "Completed",
+            "2025-04-01 08:00", workplan_id=IDS.wp_brake_check, incident_id=IDS.inc_squeal),
 ]
 
 COLLECTIONS = [
