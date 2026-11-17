@@ -1,0 +1,82 @@
+{
+ "derived/component_type/new:component_types:1/component_type": {
+  "after": "new:component_types:1",
+  "before": "<absent>"
+ },
+ "derived/component_type/new:component_types:1/in_use": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/component_type/new:component_types:1/lifetime_expected_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component_type/new:component_types:1/mandatory": {
+  "after": "No",
+  "before": "<absent>"
+ },
+ "derived/component_type/new:component_types:1/max_quantity": {
+  "after": 2,
+  "before": "<absent>"
+ },
+ "derived/component_type/new:component_types:1/service_interval_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component_type/new:component_types:1/suggested_lifetime_expected": {
+  "after": 15000,
+  "before": "<absent>"
+ },
+ "derived/component_type/new:component_types:1/suggested_service_interval": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component_type/new:component_types:1/threshold_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component_type/new:component_types:1/threshold_km": {
+  "after": 500,
+  "before": "<absent>"
+ },
+ "stored/component_types/new:component_types:1/component_type": {
+  "after": "new:component_types:1",
+  "before": "<absent>"
+ },
+ "stored/component_types/new:component_types:1/expected_lifetime": {
+  "after": 15000,
+  "before": "<absent>"
+ },
+ "stored/component_types/new:component_types:1/in_use": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "stored/component_types/new:component_types:1/lifetime_expected_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/component_types/new:component_types:1/mandatory": {
+  "after": "No",
+  "before": "<absent>"
+ },
+ "stored/component_types/new:component_types:1/max_quantity": {
+  "after": 2,
+  "before": "<absent>"
+ },
+ "stored/component_types/new:component_types:1/service_interval": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/component_types/new:component_types:1/service_interval_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/component_types/new:component_types:1/threshold_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/component_types/new:component_types:1/threshold_km": {
+  "after": 500,
+  "before": "<absent>"
+ }
+}

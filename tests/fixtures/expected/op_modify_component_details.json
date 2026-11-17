@@ -1,0 +1,368 @@
+{
+ "derived/bike/bike-road/component_rows": {
+  "after": [
+   {
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4900,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 550,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 1500,
+    "component_id": "comp-wheel-offset",
+    "cost": 2300,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8500,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel DT",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 790,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2210,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": 50,
+    "service_next_days": "-",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4900,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 550,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8000,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 790,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2210,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": 50,
+    "service_next_days": "-",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   }
+  ]
+ },
+ "derived/bike/bike-road/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   },
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel DT",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   },
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ]
+ },
+ "derived/collection/coll-mixed/component_rows": {
+  "after": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 1500,
+    "component_id": "comp-wheel-offset",
+    "cost": 2300,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel DT",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "bike": "Not assigned",
+    "bike_id": null,
+    "component_distance": 300,
+    "component_id": "comp-no-history",
+    "cost": 1200,
+    "installation_status": "Not installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Spare saddle",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Saddle",
+    "updated_date": "2025-05-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "bike": "Not assigned",
+    "bike_id": null,
+    "component_distance": 300,
+    "component_id": "comp-no-history",
+    "cost": 1200,
+    "installation_status": "Not installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Spare saddle",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Saddle",
+    "updated_date": "2025-05-01 08:00"
+   }
+  ]
+ },
+ "derived/collection/coll-mixed/summary/component_details": {
+  "after": [
+   {
+    "id": "comp-wheel-offset",
+    "name": "Rear wheel DT"
+   },
+   {
+    "id": "comp-no-history",
+    "name": "Spare saddle"
+   }
+  ],
+  "before": [
+   {
+    "id": "comp-wheel-offset",
+    "name": "Rear wheel"
+   },
+   {
+    "id": "comp-no-history",
+    "name": "Spare saddle"
+   }
+  ]
+ },
+ "derived/component/comp-wheel-offset/details/component_distance": {
+  "after": 1500,
+  "before": 2000
+ },
+ "derived/component/comp-wheel-offset/details/component_name": {
+  "after": "Rear wheel DT",
+  "before": "Rear wheel"
+ },
+ "derived/component/comp-wheel-offset/details/component_notes": {
+  "after": "Bought used, offset corrected",
+  "before": "Bought used"
+ },
+ "derived/component/comp-wheel-offset/details/cost": {
+  "after": 2300,
+  "before": 2500
+ },
+ "derived/component/comp-wheel-offset/details/lifetime_percentage": {
+  "after": 15.0,
+  "before": 20.0
+ },
+ "derived/component/comp-wheel-offset/details/lifetime_remaining": {
+  "after": 8500,
+  "before": 8000
+ },
+ "derived/component/comp-wheel-offset/details/offset": {
+  "after": 500,
+  "before": 1000
+ },
+ "derived/component/comp-wheel-offset/list_row/cost": {
+  "after": 2300,
+  "before": 2500
+ },
+ "derived/component/comp-wheel-offset/list_row/distance": {
+  "after": 1500,
+  "before": 2000
+ },
+ "derived/component/comp-wheel-offset/list_row/lifetime_remaining": {
+  "after": 8500.0,
+  "before": 8000.0
+ },
+ "derived/component/comp-wheel-offset/list_row/name": {
+  "after": "Rear wheel DT",
+  "before": "Rear wheel"
+ },
+ "derived/component/comp-wheel-offset/overview_row/component_distance": {
+  "after": 1500,
+  "before": 2000
+ },
+ "derived/component/comp-wheel-offset/overview_row/cost": {
+  "after": 2300,
+  "before": 2500
+ },
+ "derived/component/comp-wheel-offset/overview_row/name": {
+  "after": "Rear wheel DT",
+  "before": "Rear wheel"
+ },
+ "derived/component/comp-wheel-offset/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel DT",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ]
+ },
+ "stored/components/comp-wheel-offset/component_distance": {
+  "after": 1500,
+  "before": 2000
+ },
+ "stored/components/comp-wheel-offset/component_distance_offset": {
+  "after": 500,
+  "before": 1000
+ },
+ "stored/components/comp-wheel-offset/component_name": {
+  "after": "Rear wheel DT",
+  "before": "Rear wheel"
+ },
+ "stored/components/comp-wheel-offset/cost": {
+  "after": 2300,
+  "before": 2500
+ },
+ "stored/components/comp-wheel-offset/lifetime_remaining": {
+  "after": 8500,
+  "before": 8000
+ },
+ "stored/components/comp-wheel-offset/notes": {
+  "after": "Bought used, offset corrected",
+  "before": "Bought used"
+ }
+}

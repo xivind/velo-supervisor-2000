@@ -1,0 +1,82 @@
+{
+ "derived/component_type/Bottle cage/component_type": {
+  "after": "<absent>",
+  "before": "Bottle cage"
+ },
+ "derived/component_type/Bottle cage/in_use": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "derived/component_type/Bottle cage/lifetime_expected_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component_type/Bottle cage/mandatory": {
+  "after": "<absent>",
+  "before": "No"
+ },
+ "derived/component_type/Bottle cage/max_quantity": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "derived/component_type/Bottle cage/service_interval_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component_type/Bottle cage/suggested_lifetime_expected": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component_type/Bottle cage/suggested_service_interval": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component_type/Bottle cage/threshold_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component_type/Bottle cage/threshold_km": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/component_types/Bottle cage/component_type": {
+  "after": "<absent>",
+  "before": "Bottle cage"
+ },
+ "stored/component_types/Bottle cage/expected_lifetime": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/component_types/Bottle cage/in_use": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "stored/component_types/Bottle cage/lifetime_expected_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/component_types/Bottle cage/mandatory": {
+  "after": "<absent>",
+  "before": "No"
+ },
+ "stored/component_types/Bottle cage/max_quantity": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "stored/component_types/Bottle cage/service_interval": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/component_types/Bottle cage/service_interval_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/component_types/Bottle cage/threshold_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/component_types/Bottle cage/threshold_km": {
+  "after": "<absent>",
+  "before": null
+ }
+}

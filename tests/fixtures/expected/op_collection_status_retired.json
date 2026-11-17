@@ -1,0 +1,735 @@
+{
+ "derived/bike/bike-gravel/bike_data/bike_service_status": {
+  "after": "No active components",
+  "before": "Components need attention"
+ },
+ "derived/bike/bike-gravel/component_rows": {
+  "after": [
+   {
+    "component_distance": 220,
+    "component_id": "comp-tire-time",
+    "cost": 600,
+    "installation_status": "Retired",
+    "lifetime_remaining": "-",
+    "lifetime_remaining_days": 30,
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Gravel tire",
+    "service_next": "-",
+    "service_next_days": -2,
+    "service_status": "Service interval exceeded",
+    "service_trigger": "time",
+    "type": "Tire",
+    "updated_date": "2026-11-01 08:00"
+   },
+   {
+    "component_distance": 440,
+    "component_id": "comp-pads-norwegian",
+    "cost": 200,
+    "installation_status": "Retired",
+    "lifetime_remaining": 1060,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Bremseklosser bak æøå",
+    "service_next": "-",
+    "service_next_days": "-",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Rear brake pads",
+    "updated_date": "2026-11-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "component_distance": 220,
+    "component_id": "comp-tire-time",
+    "cost": 600,
+    "installation_status": "Installed",
+    "lifetime_remaining": "-",
+    "lifetime_remaining_days": 15,
+    "lifetime_status": "Due for replacement",
+    "lifetime_trigger": "time",
+    "name": "Gravel tire",
+    "service_next": "-",
+    "service_next_days": -17,
+    "service_status": "Service interval exceeded",
+    "service_trigger": "time",
+    "type": "Tire",
+    "updated_date": "2025-12-01 08:00"
+   },
+   {
+    "component_distance": 440,
+    "component_id": "comp-pads-norwegian",
+    "cost": 200,
+    "installation_status": "Installed",
+    "lifetime_remaining": 1060,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Bremseklosser bak æøå",
+    "service_next": "-",
+    "service_next_days": "-",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Rear brake pads",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ]
+ },
+ "derived/bike/bike-gravel/count_installed": {
+  "after": 0,
+  "before": 2
+ },
+ "derived/bike/bike-gravel/count_retired": {
+  "after": 2,
+  "before": 0
+ },
+ "derived/bike/bike-gravel/overview_row/count_installed": {
+  "after": 0,
+  "before": 2
+ },
+ "derived/bike/bike-gravel/overview_row/due_past_threshold_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/bike/bike-gravel/overview_row/exceeded_max_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/bike/bike-gravel/overview_row/service_status": {
+  "after": "No active components",
+  "before": "Components need attention"
+ },
+ "derived/bike/bike-gravel/plan_services_preselect": {
+  "after": [],
+  "before": [
+   "comp-tire-time",
+   "comp-pads-norwegian"
+  ]
+ },
+ "derived/bike/bike-gravel/sum_cost": {
+  "after": "No estimate",
+  "before": 600
+ },
+ "derived/collection/coll-gravel-set/collection_data/bike_id": {
+  "after": null,
+  "before": "bike-gravel"
+ },
+ "derived/collection/coll-gravel-set/collection_data/bike_name": {
+  "after": null,
+  "before": "Gravel bike"
+ },
+ "derived/collection/coll-gravel-set/collection_data/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/collection/coll-gravel-set/component_rows": {
+  "after": [
+   {
+    "bike": "Gravel bike",
+    "bike_id": "bike-gravel",
+    "component_distance": 220,
+    "component_id": "comp-tire-time",
+    "cost": 600,
+    "installation_status": "Retired",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Gravel tire",
+    "service_status": "Service interval exceeded",
+    "service_trigger": "time",
+    "type": "Tire",
+    "updated_date": "2026-11-01 08:00"
+   },
+   {
+    "bike": "Gravel bike",
+    "bike_id": "bike-gravel",
+    "component_distance": 440,
+    "component_id": "comp-pads-norwegian",
+    "cost": 200,
+    "installation_status": "Retired",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Bremseklosser bak æøå",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Rear brake pads",
+    "updated_date": "2026-11-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike": "Gravel bike",
+    "bike_id": "bike-gravel",
+    "component_distance": 220,
+    "component_id": "comp-tire-time",
+    "cost": 600,
+    "installation_status": "Installed",
+    "lifetime_status": "Due for replacement",
+    "lifetime_trigger": "time",
+    "name": "Gravel tire",
+    "service_status": "Service interval exceeded",
+    "service_trigger": "time",
+    "type": "Tire",
+    "updated_date": "2025-12-01 08:00"
+   },
+   {
+    "bike": "Gravel bike",
+    "bike_id": "bike-gravel",
+    "component_distance": 440,
+    "component_id": "comp-pads-norwegian",
+    "cost": 200,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Bremseklosser bak æøå",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Rear brake pads",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ]
+ },
+ "derived/collection/coll-gravel-set/plan_services_preselect": {
+  "after": [],
+  "before": [
+   "comp-tire-time",
+   "comp-pads-norwegian"
+  ]
+ },
+ "derived/collection/coll-gravel-set/status/actual_component_bike_id": {
+  "after": null,
+  "before": "bike-gravel"
+ },
+ "derived/collection/coll-gravel-set/status/actual_component_bike_name": {
+  "after": null,
+  "before": "Gravel bike"
+ },
+ "derived/collection/coll-gravel-set/status/bike_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/collection/coll-gravel-set/status/bike_names_list": {
+  "after": [],
+  "before": [
+   "Gravel bike"
+  ]
+ },
+ "derived/collection/coll-gravel-set/status/blocks_operations": {
+  "after": true,
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/status/can_display_bike": {
+  "after": false,
+  "before": true
+ },
+ "derived/collection/coll-gravel-set/status/has_retired": {
+  "after": true,
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/status/installed_count": {
+  "after": 0,
+  "before": 2
+ },
+ "derived/collection/coll-gravel-set/status/retired_count": {
+  "after": 2,
+  "before": 0
+ },
+ "derived/collection/coll-gravel-set/status/status": {
+  "after": "needs_attention",
+  "before": "healthy"
+ },
+ "derived/collection/coll-gravel-set/summary/bike_id": {
+  "after": null,
+  "before": "bike-gravel"
+ },
+ "derived/collection/coll-gravel-set/summary/bike_name": {
+  "after": null,
+  "before": "Gravel bike"
+ },
+ "derived/collection/coll-gravel-set/summary/status": {
+  "after": "needs_attention",
+  "before": "healthy"
+ },
+ "derived/collection/coll-gravel-set/summary/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/collection/coll-gravel-set/warnings/actual_component_bike_id": {
+  "after": null,
+  "before": "bike-gravel"
+ },
+ "derived/collection/coll-gravel-set/warnings/actual_component_bike_name": {
+  "after": null,
+  "before": "Gravel bike"
+ },
+ "derived/collection/coll-gravel-set/warnings/bike_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/collection/coll-gravel-set/warnings/bike_names_list": {
+  "after": [],
+  "before": [
+   "Gravel bike"
+  ]
+ },
+ "derived/collection/coll-gravel-set/warnings/blocks_operations": {
+  "after": true,
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/warnings/can_display_bike": {
+  "after": false,
+  "before": true
+ },
+ "derived/collection/coll-gravel-set/warnings/has_retired": {
+  "after": true,
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/warnings/installed_count": {
+  "after": 0,
+  "before": 2
+ },
+ "derived/collection/coll-gravel-set/warnings/retired_count": {
+  "after": 2,
+  "before": 0
+ },
+ "derived/collection/coll-gravel-set/warnings/status": {
+  "after": "needs_attention",
+  "before": "healthy"
+ },
+ "derived/component/comp-pads-norwegian/details/component_age_days": {
+  "after": 669,
+  "before": 684
+ },
+ "derived/component/comp-pads-norwegian/details/installation_status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "derived/component/comp-pads-norwegian/details/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-01-01 08:00"
+ },
+ "derived/component/comp-pads-norwegian/history": {
+  "after": [
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 440,
+    "history_id": "new:component_history:2",
+    "mileage": 440,
+    "notes": null,
+    "update_reason": "Retired",
+    "updated_date": "2026-11-01 08:00"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 0,
+    "history_id": "hist-pads-norwegian",
+    "mileage": 0,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 0,
+    "history_id": "hist-pads-norwegian",
+    "mileage": 0,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ]
+ },
+ "derived/component/comp-pads-norwegian/list_row/status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "derived/component/comp-pads-norwegian/list_row/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-01-01 08:00"
+ },
+ "derived/component/comp-pads-norwegian/overview_row/installation_status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "derived/component/comp-pads-norwegian/overview_row/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-01-01 08:00"
+ },
+ "derived/component/comp-pads-norwegian/plan_services_preselect": {
+  "after": [],
+  "before": [
+   "comp-pads-norwegian"
+  ]
+ },
+ "derived/component/comp-tire-time/details/component_age_days": {
+  "after": 335,
+  "before": 350
+ },
+ "derived/component/comp-tire-time/details/installation_status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "derived/component/comp-tire-time/details/lifetime_percentage_days": {
+  "after": 91.78,
+  "before": 95.89
+ },
+ "derived/component/comp-tire-time/details/lifetime_remaining_days": {
+  "after": 30,
+  "before": 15
+ },
+ "derived/component/comp-tire-time/details/lifetime_status": {
+  "after": "OK",
+  "before": "Due for replacement"
+ },
+ "derived/component/comp-tire-time/details/lifetime_status_days": {
+  "after": "OK",
+  "before": "Due for replacement"
+ },
+ "derived/component/comp-tire-time/details/lifetime_trigger": {
+  "after": null,
+  "before": "time"
+ },
+ "derived/component/comp-tire-time/details/service_next_days": {
+  "after": -2,
+  "before": -17
+ },
+ "derived/component/comp-tire-time/details/service_percentage_days": {
+  "after": 102.22,
+  "before": 118.89
+ },
+ "derived/component/comp-tire-time/details/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/component/comp-tire-time/history": {
+  "after": [
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 440,
+    "history_id": "new:component_history:1",
+    "mileage": 220,
+    "notes": null,
+    "update_reason": "Retired",
+    "updated_date": "2026-11-01 08:00"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 220,
+    "history_id": "hist-tire",
+    "mileage": 0,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2025-12-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 220,
+    "history_id": "hist-tire",
+    "mileage": 0,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2025-12-01 08:00"
+   }
+  ]
+ },
+ "derived/component/comp-tire-time/list_row/lifetime_remaining_days": {
+  "after": 30,
+  "before": 15
+ },
+ "derived/component/comp-tire-time/list_row/lifetime_status": {
+  "after": "OK",
+  "before": "Due for replacement"
+ },
+ "derived/component/comp-tire-time/list_row/service_next_days": {
+  "after": -2,
+  "before": -17
+ },
+ "derived/component/comp-tire-time/list_row/status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "derived/component/comp-tire-time/list_row/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/component/comp-tire-time/overview_row/installation_status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "derived/component/comp-tire-time/overview_row/lifetime_status": {
+  "after": "OK",
+  "before": "Due for replacement"
+ },
+ "derived/component/comp-tire-time/overview_row/lifetime_trigger": {
+  "after": null,
+  "before": "time"
+ },
+ "derived/component/comp-tire-time/overview_row/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/component/comp-tire-time/plan_services_preselect": {
+  "after": [],
+  "before": [
+   "comp-tire-time"
+  ]
+ },
+ "derived/component/comp-tire-time/triggers/lifetime_status_days": {
+  "after": "OK",
+  "before": "Due for replacement"
+ },
+ "derived/component/comp-tire-time/triggers/lifetime_trigger": {
+  "after": null,
+  "before": "time"
+ },
+ "derived/overview/bike_overview/assigned_collections": {
+  "after": [
+   "bike-road"
+  ],
+  "before": [
+   "bike-road",
+   "bike-gravel"
+  ]
+ },
+ "derived/overview/bike_overview/bikes_data": {
+  "after": [
+   {
+    "bike_id": "bike-road",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": true,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "None",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 3,
+    "distance": 1100,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 0,
+    "name": "Road bike",
+    "service_status": "All components healthy"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 0,
+    "distance": 440,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Gravel bike",
+    "service_status": "No active components"
+   },
+   {
+    "bike_id": "bike-retired",
+    "bike_status": "True",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 0,
+    "distance": 150,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Old commuter",
+    "service_status": "No active components"
+   }
+  ],
+  "before": [
+   {
+    "bike_id": "bike-road",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": true,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "None",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 3,
+    "distance": 1100,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 0,
+    "name": "Road bike",
+    "service_status": "All components healthy"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 2,
+    "distance": 440,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 1,
+    "name": "Gravel bike",
+    "service_status": "Components need attention"
+   },
+   {
+    "bike_id": "bike-retired",
+    "bike_status": "True",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 0,
+    "distance": 150,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Old commuter",
+    "service_status": "No active components"
+   }
+  ]
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-pads-norwegian/bike_id": {
+  "after": null,
+  "before": "bike-gravel"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-pads-norwegian/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-tire-time/bike_id": {
+  "after": null,
+  "before": "bike-gravel"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-tire-time/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/overview/component_overview/count_installed": {
+  "after": 3,
+  "before": 5
+ },
+ "derived/overview/component_overview/count_retired": {
+  "after": 3,
+  "before": 1
+ },
+ "stored/bikes/bike-gravel/service_status": {
+  "after": "No active components",
+  "before": "Components need attention"
+ },
+ "stored/collections/coll-gravel-set/bike_id": {
+  "after": null,
+  "before": "bike-gravel"
+ },
+ "stored/collections/coll-gravel-set/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-12-01 08:00"
+ },
+ "stored/component_history/new:component_history:1/bike_id": {
+  "after": "bike-gravel",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/component_id": {
+  "after": "comp-tire-time",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/component_name": {
+  "after": "Gravel tire",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/distance_marker": {
+  "after": 220,
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/history_id": {
+  "after": "new:component_history:1",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/update_reason": {
+  "after": "Retired",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/bike_id": {
+  "after": "bike-gravel",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/component_id": {
+  "after": "comp-pads-norwegian",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/component_name": {
+  "after": "Bremseklosser bak æøå",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/distance_marker": {
+  "after": 440,
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/history_id": {
+  "after": "new:component_history:2",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/update_reason": {
+  "after": "Retired",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "<absent>"
+ },
+ "stored/components/comp-pads-norwegian/installation_status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "stored/components/comp-pads-norwegian/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-01-01 08:00"
+ },
+ "stored/components/comp-tire-time/installation_status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "stored/components/comp-tire-time/lifetime_remaining_days": {
+  "after": 30,
+  "before": 15
+ },
+ "stored/components/comp-tire-time/lifetime_status": {
+  "after": "OK",
+  "before": "Due for replacement"
+ },
+ "stored/components/comp-tire-time/service_next_days": {
+  "after": -2,
+  "before": -17
+ },
+ "stored/components/comp-tire-time/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "2025-12-01 08:00"
+ }
+}

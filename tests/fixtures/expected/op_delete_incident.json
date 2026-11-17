@@ -1,0 +1,505 @@
+{
+ "derived/bike/bike-road/incidents": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/bike/bike-road/incidents/incident_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/bike/bike-road/incidents/incident_ids": {
+  "after": "<absent>",
+  "before": [
+   "inc-drivetrain"
+  ]
+ },
+ "derived/bike/bike-road/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   },
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   },
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ]
+ },
+ "derived/component/comp-cassette-serviced/incidents": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/comp-cassette-serviced/incidents/incident_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/component/comp-cassette-serviced/service_history": {
+  "after": [
+   {
+    "bike_name": "Road bike",
+    "bike_total_distance": 650,
+    "description": "Deep clean",
+    "distance_marker": 400,
+    "incident_id": null,
+    "planned_date": null,
+    "running_total": 650,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "workplan_id": "wp-drivetrain"
+   },
+   {
+    "bike_name": "Road bike",
+    "bike_total_distance": 250,
+    "description": "Cleaned cassette",
+    "distance_marker": 250,
+    "incident_id": null,
+    "planned_date": null,
+    "running_total": 250,
+    "service_date": "2025-06-01 08:00",
+    "service_id": "svc-cassette-1",
+    "workplan_id": null
+   }
+  ],
+  "before": [
+   {
+    "bike_name": "Road bike",
+    "bike_total_distance": 650,
+    "description": "Deep clean",
+    "distance_marker": 400,
+    "incident_id": "inc-drivetrain",
+    "planned_date": null,
+    "running_total": 650,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "workplan_id": "wp-drivetrain"
+   },
+   {
+    "bike_name": "Road bike",
+    "bike_total_distance": 250,
+    "description": "Cleaned cassette",
+    "distance_marker": 250,
+    "incident_id": null,
+    "planned_date": null,
+    "running_total": 250,
+    "service_date": "2025-06-01 08:00",
+    "service_id": "svc-cassette-1",
+    "workplan_id": null
+   }
+  ]
+ },
+ "derived/component/comp-chain-moved/incidents": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/comp-chain-moved/incidents/incident_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/component/comp-chain-moved/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   }
+  ]
+ },
+ "derived/incident/inc-drivetrain/affected_bike_name": {
+  "after": "<absent>",
+  "before": "Road bike"
+ },
+ "derived/incident/inc-drivetrain/affected_component_names": {
+  "after": "<absent>",
+  "before": [
+   "Chain",
+   "Cassette"
+  ]
+ },
+ "derived/incident/inc-drivetrain/completed_service_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/incident/inc-drivetrain/elapsed_days": {
+  "after": "<absent>",
+  "before": 305
+ },
+ "derived/incident/inc-drivetrain/incident_affected_bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "derived/incident/inc-drivetrain/incident_affected_component_ids": {
+  "after": "<absent>",
+  "before": [
+   "comp-chain-moved",
+   "comp-cassette-serviced"
+  ]
+ },
+ "derived/incident/inc-drivetrain/incident_date": {
+  "after": "<absent>",
+  "before": "2026-01-15 10:00"
+ },
+ "derived/incident/inc-drivetrain/incident_description": {
+  "after": "<absent>",
+  "before": "Chain skips under load"
+ },
+ "derived/incident/inc-drivetrain/incident_id": {
+  "after": "<absent>",
+  "before": "inc-drivetrain"
+ },
+ "derived/incident/inc-drivetrain/incident_services": {
+  "after": "<absent>",
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "date": "2026-11-01 10:00",
+    "description": "Replace chain",
+    "planned_date": null,
+    "service_date": null,
+    "service_id": "svc-chain-planned",
+    "status": "Planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+    "workplan_status": "Planned"
+   },
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "date": "2026-02-01 08:00",
+    "description": "Deep clean",
+    "planned_date": null,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "status": "Completed",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+    "workplan_status": "Planned"
+   }
+  ]
+ },
+ "derived/incident/inc-drivetrain/incident_severity": {
+  "after": "<absent>",
+  "before": "Priority"
+ },
+ "derived/incident/inc-drivetrain/incident_status": {
+  "after": "<absent>",
+  "before": "Open"
+ },
+ "derived/incident/inc-drivetrain/incident_title": {
+  "after": "<absent>",
+  "before": "Chain (+1 more) - Chain skips under load - Road bike"
+ },
+ "derived/incident/inc-drivetrain/incident_workplans": {
+  "after": "<absent>",
+  "before": [
+   [
+    "wp-drivetrain",
+    "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   ]
+  ]
+ },
+ "derived/incident/inc-drivetrain/planned_service_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/incident/inc-drivetrain/resolution_date": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/incident/inc-drivetrain/resolution_notes": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/overview/bike_overview/open_incidents/bike_incidents": {
+  "after": {},
+  "before": "<absent>"
+ },
+ "derived/overview/bike_overview/open_incidents/bike_incidents/bike-road/incident_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/overview/bike_overview/open_incidents/bike_incidents/bike-road/incident_ids": {
+  "after": "<absent>",
+  "before": [
+   "inc-drivetrain"
+  ]
+ },
+ "derived/overview/bike_overview/open_incidents/component_incidents": {
+  "after": {},
+  "before": "<absent>"
+ },
+ "derived/overview/bike_overview/open_incidents/component_incidents/comp-cassette-serviced/incident_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/overview/bike_overview/open_incidents/component_incidents/comp-chain-moved/incident_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/overview/incident_reports/service_incident_options": {
+  "after": [
+   {
+    "incident_component_ids": [
+     "comp-pads-retired"
+    ],
+    "incident_id": "inc-squeal",
+    "incident_status": "Resolved",
+    "incident_title": "Commuter brake pads - Rear brake squeals - Old commuter"
+   }
+  ],
+  "before": [
+   {
+    "incident_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_id": "inc-drivetrain",
+    "incident_status": "Open",
+    "incident_title": "Chain (+1 more) - Chain skips under load - Road bike"
+   },
+   {
+    "incident_component_ids": [
+     "comp-pads-retired"
+    ],
+    "incident_id": "inc-squeal",
+    "incident_status": "Resolved",
+    "incident_title": "Commuter brake pads - Rear brake squeals - Old commuter"
+   }
+  ]
+ },
+ "derived/workplan/wp-drivetrain/incidents": {
+  "after": null,
+  "before": [
+   {
+    "affected_bike_name": "Road bike",
+    "affected_component_names": [
+     "Chain",
+     "Cassette"
+    ],
+    "completed_service_count": 1,
+    "elapsed_days": 305,
+    "incident_affected_bike_id": "bike-road",
+    "incident_affected_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_date": "2026-01-15 10:00",
+    "incident_description": "Chain skips under load",
+    "incident_id": "inc-drivetrain",
+    "incident_services": [
+     {
+      "component_id": "comp-chain-moved",
+      "component_name": "Chain",
+      "date": "2026-11-01 10:00",
+      "description": "Replace chain",
+      "planned_date": null,
+      "service_date": null,
+      "service_id": "svc-chain-planned",
+      "status": "Planned",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     },
+     {
+      "component_id": "comp-cassette-serviced",
+      "component_name": "Cassette",
+      "date": "2026-02-01 08:00",
+      "description": "Deep clean",
+      "planned_date": null,
+      "service_date": "2026-02-01 08:00",
+      "service_id": "svc-cassette-2",
+      "status": "Completed",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     }
+    ],
+    "incident_severity": "Priority",
+    "incident_status": "Open",
+    "incident_title": "Chain (+1 more) - Chain skips under load - Road bike",
+    "incident_workplans": [
+     [
+      "wp-drivetrain",
+      "Chain (+1 more) - Drivetrain overhaul - Road bike"
+     ]
+    ],
+    "planned_service_count": 1,
+    "resolution_date": null,
+    "resolution_notes": null
+   }
+  ]
+ },
+ "derived/workplan/wp-drivetrain/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   }
+  ]
+ },
+ "derived/workplan/wp-drivetrain/services": {
+  "after": [
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "description": "Deep clean",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "planned_date": null,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "workplan_id": "wp-drivetrain"
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "description": "Deep clean",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "planned_date": null,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "workplan_id": "wp-drivetrain"
+   }
+  ]
+ },
+ "stored/incidents/inc-drivetrain/incident_affected_bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "stored/incidents/inc-drivetrain/incident_affected_component_ids": {
+  "after": "<absent>",
+  "before": "[\"comp-chain-moved\", \"comp-cassette-serviced\"]"
+ },
+ "stored/incidents/inc-drivetrain/incident_date": {
+  "after": "<absent>",
+  "before": "2026-01-15 10:00"
+ },
+ "stored/incidents/inc-drivetrain/incident_description": {
+  "after": "<absent>",
+  "before": "Chain skips under load"
+ },
+ "stored/incidents/inc-drivetrain/incident_id": {
+  "after": "<absent>",
+  "before": "inc-drivetrain"
+ },
+ "stored/incidents/inc-drivetrain/incident_severity": {
+  "after": "<absent>",
+  "before": "Priority"
+ },
+ "stored/incidents/inc-drivetrain/incident_status": {
+  "after": "<absent>",
+  "before": "Open"
+ },
+ "stored/incidents/inc-drivetrain/resolution_date": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/incidents/inc-drivetrain/resolution_notes": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-cassette-2/incident_id": {
+  "after": null,
+  "before": "inc-drivetrain"
+ },
+ "stored/services/svc-chain-planned/incident_id": {
+  "after": null,
+  "before": "inc-drivetrain"
+ }
+}

@@ -1,0 +1,416 @@
+{
+ "derived/component/new:components:1/bike_name": {
+  "after": "Not assigned",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/days_since_service": {
+  "after": "Component has never been serviced",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/bike_id": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_age_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_distance": {
+  "after": 200,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_id": {
+  "after": "new:components:1",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_name": {
+  "after": "Spare cassette",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_type": {
+  "after": "Cassette",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/cost": {
+  "after": 700,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/installation_status": {
+  "after": "Not installed",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_expected": {
+  "after": 6000,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_expected_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_percentage": {
+  "after": 3.33,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_percentage_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_remaining": {
+  "after": 5800,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_remaining_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_status_days": {
+  "after": "Not defined",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_status_distance": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/offset": {
+  "after": 200,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_interval": {
+  "after": 1000,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_interval_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_next": {
+  "after": 1000,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_next_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_percentage": {
+  "after": 0.0,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_percentage_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_status_days": {
+  "after": "Not defined",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_status_distance": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/threshold_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/threshold_km": {
+  "after": 100,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/history": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/incidents": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/bike": {
+  "after": "Not assigned",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/bike_id": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/component_id": {
+  "after": "new:components:1",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/cost": {
+  "after": 700,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/distance": {
+  "after": 200,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/lifetime_remaining": {
+  "after": 5800.0,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/lifetime_remaining_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/lifetime_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/name": {
+  "after": "Spare cassette",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/service_next": {
+  "after": 1000.0,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/service_next_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/service_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/status": {
+  "after": "Not installed",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/threshold_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/threshold_km": {
+  "after": 100,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/type": {
+  "after": "Cassette",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/oldest_history_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/bike": {
+  "after": "Not assigned",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/bike_id": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/component_distance": {
+  "after": 200,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/component_id": {
+  "after": "new:components:1",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/cost": {
+  "after": 700,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/installation_status": {
+  "after": "Not installed",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/lifetime_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/lifetime_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/name": {
+  "after": "Spare cassette",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/service_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/service_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/type": {
+  "after": "Cassette",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/plan_services_preselect": {
+  "after": [
+   "new:components:1"
+  ],
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/planned_services": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/service_history": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/lifetime_status_days": {
+  "after": "Not defined",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/lifetime_status_distance": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/lifetime_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/service_status_days": {
+  "after": "Not defined",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/service_status_distance": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/service_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/workplans": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component_type/Cassette/in_use": {
+  "after": 2,
+  "before": 1
+ },
+ "derived/overview/component_overview/count_not_installed": {
+  "after": 2,
+  "before": 1
+ },
+ "stored/component_types/Cassette/in_use": {
+  "after": 2,
+  "before": 1
+ },
+ "stored/components/new:components:1/bike_id": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/component_distance": {
+  "after": 200,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/component_distance_offset": {
+  "after": 200,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/component_id": {
+  "after": "new:components:1",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/component_name": {
+  "after": "Spare cassette",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/component_type": {
+  "after": "Cassette",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/cost": {
+  "after": 700,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/installation_status": {
+  "after": "Not installed",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/lifetime_expected": {
+  "after": 6000,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/lifetime_expected_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/lifetime_remaining": {
+  "after": 5800,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/lifetime_remaining_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/lifetime_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/service_interval": {
+  "after": 1000,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/service_interval_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/service_next": {
+  "after": 1000,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/service_next_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/service_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/threshold_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/threshold_km": {
+  "after": 100,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/updated_date": {
+  "after": "2026-11-01 08:00",
+  "before": "<absent>"
+ }
+}

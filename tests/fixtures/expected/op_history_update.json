@@ -1,0 +1,322 @@
+{
+ "derived/bike/bike-road/component_rows": {
+  "after": [
+   {
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4900,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 550,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8000,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 810,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2190,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": 50,
+    "service_next_days": "-",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4900,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 550,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8000,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 790,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2210,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": 50,
+    "service_next_days": "-",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   }
+  ]
+ },
+ "derived/component/comp-chain-moved/details/component_distance": {
+  "after": 810,
+  "before": 790
+ },
+ "derived/component/comp-chain-moved/details/lifetime_percentage": {
+  "after": 27.0,
+  "before": 26.33
+ },
+ "derived/component/comp-chain-moved/details/lifetime_remaining": {
+  "after": 2190,
+  "before": 2210
+ },
+ "derived/component/comp-chain-moved/history": {
+  "after": [
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 750,
+    "history_id": "hist-chain-road-2",
+    "mileage": 460,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2026-04-01 08:00"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 280,
+    "history_id": "hist-chain-off-gravel",
+    "mileage": 460,
+    "notes": null,
+    "update_reason": "Not installed",
+    "updated_date": "2026-03-01 08:00"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 120,
+    "history_id": "hist-chain-gravel",
+    "mileage": 300,
+    "notes": "Moved early for a gravel trip",
+    "update_reason": "Installed",
+    "updated_date": "2025-07-15 08:00"
+   },
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 300,
+    "history_id": "hist-chain-off-road",
+    "mileage": 300,
+    "notes": null,
+    "update_reason": "Not installed",
+    "updated_date": "2025-07-01 08:00"
+   },
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 0,
+    "history_id": "hist-chain-road-1",
+    "mileage": 0,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 750,
+    "history_id": "hist-chain-road-2",
+    "mileage": 440,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2026-04-01 08:00"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 280,
+    "history_id": "hist-chain-off-gravel",
+    "mileage": 440,
+    "notes": null,
+    "update_reason": "Not installed",
+    "updated_date": "2026-03-01 08:00"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 140,
+    "history_id": "hist-chain-gravel",
+    "mileage": 300,
+    "notes": "Moved to the gravel bike for winter",
+    "update_reason": "Installed",
+    "updated_date": "2025-08-01 08:00"
+   },
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 300,
+    "history_id": "hist-chain-off-road",
+    "mileage": 300,
+    "notes": null,
+    "update_reason": "Not installed",
+    "updated_date": "2025-07-01 08:00"
+   },
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 0,
+    "history_id": "hist-chain-road-1",
+    "mileage": 0,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ]
+ },
+ "derived/component/comp-chain-moved/list_row/distance": {
+  "after": 810,
+  "before": 790
+ },
+ "derived/component/comp-chain-moved/list_row/lifetime_remaining": {
+  "after": 2190.0,
+  "before": 2210.0
+ },
+ "derived/component/comp-chain-moved/overview_row/component_distance": {
+  "after": 810,
+  "before": 790
+ },
+ "derived/component/comp-chain-moved/service_history": {
+  "after": [
+   {
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 180,
+    "description": "Waxed",
+    "distance_marker": 210,
+    "incident_id": null,
+    "planned_date": null,
+    "running_total": 360,
+    "service_date": "2025-10-01 08:00",
+    "service_id": "svc-chain-2",
+    "workplan_id": null
+   },
+   {
+    "bike_name": "Road bike",
+    "bike_total_distance": 150,
+    "description": "Cleaned and lubed",
+    "distance_marker": 150,
+    "incident_id": null,
+    "planned_date": null,
+    "running_total": 150,
+    "service_date": "2025-04-01 08:00",
+    "service_id": "svc-chain-1",
+    "workplan_id": null
+   }
+  ],
+  "before": [
+   {
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 180,
+    "description": "Waxed",
+    "distance_marker": 190,
+    "incident_id": null,
+    "planned_date": null,
+    "running_total": 340,
+    "service_date": "2025-10-01 08:00",
+    "service_id": "svc-chain-2",
+    "workplan_id": null
+   },
+   {
+    "bike_name": "Road bike",
+    "bike_total_distance": 150,
+    "description": "Cleaned and lubed",
+    "distance_marker": 150,
+    "incident_id": null,
+    "planned_date": null,
+    "running_total": 150,
+    "service_date": "2025-04-01 08:00",
+    "service_id": "svc-chain-1",
+    "workplan_id": null
+   }
+  ]
+ },
+ "stored/component_history/hist-chain-gravel/notes": {
+  "after": "Moved early for a gravel trip",
+  "before": "Moved to the gravel bike for winter"
+ },
+ "stored/component_history/hist-chain-gravel/updated_date": {
+  "after": "2025-07-15 08:00",
+  "before": "2025-08-01 08:00"
+ },
+ "stored/component_history/hist-chain-off-gravel/distance_marker": {
+  "after": 460,
+  "before": 440
+ },
+ "stored/component_history/hist-chain-road-2/distance_marker": {
+  "after": 460,
+  "before": 440
+ },
+ "stored/components/comp-chain-moved/component_distance": {
+  "after": 810,
+  "before": 790
+ },
+ "stored/components/comp-chain-moved/lifetime_remaining": {
+  "after": 2190,
+  "before": 2210
+ },
+ "stored/services/svc-chain-2/distance_marker": {
+  "after": 210,
+  "before": 190
+ }
+}

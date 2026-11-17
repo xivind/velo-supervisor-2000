@@ -32,6 +32,48 @@ def stored_state(db_path: Path) -> dict[str, dict[str, dict]]:
         connection.close()
 
 
+def new_id_map(state: dict, baseline_ids: set[str]) -> dict[str, str]:
+    """Map each primary key absent from baseline_ids to new:<table>:<n>, numbered in row order"""
+    new_ids = {}
+    for table, rows in state.items():
+        counter = 0
+        for key in rows:
+            if key not in baseline_ids:
+                counter += 1
+                new_ids[key] = f"new:{table}:{counter}"
+    return new_ids
+
+
+def _replace_text(text, new_ids):
+    if text in new_ids:
+        return new_ids[text]
+    if text.startswith("["):
+        try:
+            items = json.loads(text)
+        except ValueError:
+            return text
+        if isinstance(items, list) and any(isinstance(item, str) and item in new_ids for item in items):
+            return json.dumps([new_ids.get(item, item) if isinstance(item, str) else item for item in items])
+    return text
+
+
+def replace_ids(value, new_ids: dict[str, str]):
+    """Replace new IDs in dict keys and values, lists and tuples, at any depth.
+
+    Only whole strings equal to a new ID, and whole elements of JSON-array strings, are
+    replaced, never substrings.
+    """
+    if isinstance(value, str):
+        return _replace_text(value, new_ids)
+    if isinstance(value, dict):
+        return {replace_ids(key, new_ids): replace_ids(item, new_ids) for key, item in value.items()}
+    if isinstance(value, list):
+        return [replace_ids(item, new_ids) for item in value]
+    if isinstance(value, tuple):
+        return tuple(replace_ids(item, new_ids) for item in value)
+    return value
+
+
 def normalise_new_ids(state: dict, baseline_ids: set[str]) -> dict:
     """Replace primary keys absent from baseline_ids with new:<table>:<n>.
 
@@ -39,36 +81,10 @@ def normalise_new_ids(state: dict, baseline_ids: set[str]) -> dict:
     such as collections.components, are replaced, never substrings. Dict keys change
     only for the rows of the table that owns the new ID.
     """
-    mapping = {}
-    for table, rows in state.items():
-        counter = 0
-        for key in rows:
-            if key not in baseline_ids:
-                counter += 1
-                mapping[(table, key)] = f"new:{table}:{counter}"
-    new_ids = {key: value for (_, key), value in mapping.items()}
-
-    def replace_text(text):
-        if text in new_ids:
-            return new_ids[text]
-        if text.startswith("["):
-            try:
-                items = json.loads(text)
-            except ValueError:
-                return text
-            if isinstance(items, list) and any(isinstance(item, str) and item in new_ids for item in items):
-                return json.dumps([new_ids.get(item, item) if isinstance(item, str) else item
-                                   for item in items])
-        return text
-
-    normalised = {}
-    for table, rows in state.items():
-        normalised[table] = {}
-        for key, row in rows.items():
-            new_key = mapping.get((table, key), key)
-            normalised[table][new_key] = {column: replace_text(value) if isinstance(value, str) else value
-                                          for column, value in row.items()}
-    return normalised
+    new_ids = new_id_map(state, baseline_ids)
+    return {table: {new_ids.get(key, key): {column: replace_ids(value, new_ids) for column, value in row.items()}
+                    for key, row in rows.items()}
+            for table, rows in state.items()}
 
 
 def dumps(state: dict) -> str:

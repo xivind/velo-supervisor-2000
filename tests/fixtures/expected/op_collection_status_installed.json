@@ -1,0 +1,591 @@
+{
+ "derived/bike/bike-road/component_rows": {
+  "after": [
+   {
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4900,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 550,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8000,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 790,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2210,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": 50,
+    "service_next_days": "-",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   },
+   {
+    "component_distance": 400,
+    "component_id": "comp-no-history",
+    "cost": 1200,
+    "installation_status": "Installed",
+    "lifetime_remaining": 19600,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Spare saddle",
+    "service_next": "-",
+    "service_next_days": "-",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Saddle",
+    "updated_date": "2026-09-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4900,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 550,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8000,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 790,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2210,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": 50,
+    "service_next_days": "-",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   }
+  ]
+ },
+ "derived/bike/bike-road/count_installed": {
+  "after": 4,
+  "before": 3
+ },
+ "derived/bike/bike-road/overview_row/count_installed": {
+  "after": 4,
+  "before": 3
+ },
+ "derived/bike/bike-road/plan_services_preselect": {
+  "after": [
+   "comp-cassette-serviced",
+   "comp-wheel-offset",
+   "comp-chain-moved",
+   "comp-no-history"
+  ],
+  "before": [
+   "comp-cassette-serviced",
+   "comp-wheel-offset",
+   "comp-chain-moved"
+  ]
+ },
+ "derived/collection/coll-mixed/collection_data/component_count": {
+  "after": 1,
+  "before": 2
+ },
+ "derived/collection/coll-mixed/collection_data/components": {
+  "after": "[\"comp-no-history\"]",
+  "before": "[\"comp-wheel-offset\", \"comp-no-history\"]"
+ },
+ "derived/collection/coll-mixed/collection_data/updated_date": {
+  "after": "2026-09-01 08:00",
+  "before": "2026-03-01 08:00"
+ },
+ "derived/collection/coll-mixed/component_rows": {
+  "after": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 400,
+    "component_id": "comp-no-history",
+    "cost": 1200,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Spare saddle",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Saddle",
+    "updated_date": "2026-09-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "bike": "Not assigned",
+    "bike_id": null,
+    "component_distance": 300,
+    "component_id": "comp-no-history",
+    "cost": 1200,
+    "installation_status": "Not installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Spare saddle",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Saddle",
+    "updated_date": "2025-05-01 08:00"
+   }
+  ]
+ },
+ "derived/collection/coll-mixed/plan_services_preselect": {
+  "after": [
+   "comp-no-history"
+  ],
+  "before": [
+   "comp-wheel-offset",
+   "comp-no-history"
+  ]
+ },
+ "derived/collection/coll-mixed/status/blocks_operations": {
+  "after": false,
+  "before": true
+ },
+ "derived/collection/coll-mixed/status/can_display_bike": {
+  "after": true,
+  "before": false
+ },
+ "derived/collection/coll-mixed/status/has_mixed_statuses": {
+  "after": false,
+  "before": true
+ },
+ "derived/collection/coll-mixed/status/not_installed_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/collection/coll-mixed/status/status": {
+  "after": "healthy",
+  "before": "needs_attention"
+ },
+ "derived/collection/coll-mixed/summary/component_details": {
+  "after": [
+   {
+    "id": "comp-no-history",
+    "name": "Spare saddle"
+   }
+  ],
+  "before": [
+   {
+    "id": "comp-wheel-offset",
+    "name": "Rear wheel"
+   },
+   {
+    "id": "comp-no-history",
+    "name": "Spare saddle"
+   }
+  ]
+ },
+ "derived/collection/coll-mixed/summary/components": {
+  "after": "[\"comp-no-history\"]",
+  "before": "[\"comp-wheel-offset\", \"comp-no-history\"]"
+ },
+ "derived/collection/coll-mixed/summary/status": {
+  "after": "healthy",
+  "before": "needs_attention"
+ },
+ "derived/collection/coll-mixed/summary/updated_date": {
+  "after": "2026-09-01 08:00",
+  "before": "2026-03-01 08:00"
+ },
+ "derived/collection/coll-mixed/warnings/blocks_operations": {
+  "after": false,
+  "before": true
+ },
+ "derived/collection/coll-mixed/warnings/can_display_bike": {
+  "after": true,
+  "before": false
+ },
+ "derived/collection/coll-mixed/warnings/has_mixed_statuses": {
+  "after": false,
+  "before": true
+ },
+ "derived/collection/coll-mixed/warnings/not_installed_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/collection/coll-mixed/warnings/status": {
+  "after": "healthy",
+  "before": "needs_attention"
+ },
+ "derived/component/comp-no-history/bike_name": {
+  "after": "Road bike",
+  "before": "Not assigned"
+ },
+ "derived/component/comp-no-history/details/bike_id": {
+  "after": "bike-road",
+  "before": null
+ },
+ "derived/component/comp-no-history/details/component_age_days": {
+  "after": 76,
+  "before": null
+ },
+ "derived/component/comp-no-history/details/component_distance": {
+  "after": 400,
+  "before": 300
+ },
+ "derived/component/comp-no-history/details/installation_status": {
+  "after": "Installed",
+  "before": "Not installed"
+ },
+ "derived/component/comp-no-history/details/lifetime_percentage": {
+  "after": 2.0,
+  "before": 1.5
+ },
+ "derived/component/comp-no-history/details/lifetime_remaining": {
+  "after": 19600,
+  "before": 19700
+ },
+ "derived/component/comp-no-history/details/updated_date": {
+  "after": "2026-09-01 08:00",
+  "before": "2025-05-01 08:00"
+ },
+ "derived/component/comp-no-history/history": {
+  "after": [
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 1000,
+    "history_id": "new:component_history:1",
+    "mileage": 0,
+    "notes": "Fitted for the season",
+    "update_reason": "Installed",
+    "updated_date": "2026-09-01 08:00"
+   }
+  ],
+  "before": []
+ },
+ "derived/component/comp-no-history/list_row/bike": {
+  "after": "Road bike",
+  "before": "Not assigned"
+ },
+ "derived/component/comp-no-history/list_row/bike_id": {
+  "after": "bike-road",
+  "before": null
+ },
+ "derived/component/comp-no-history/list_row/distance": {
+  "after": 400,
+  "before": 300
+ },
+ "derived/component/comp-no-history/list_row/lifetime_remaining": {
+  "after": 19600.0,
+  "before": 19700.0
+ },
+ "derived/component/comp-no-history/list_row/status": {
+  "after": "Installed",
+  "before": "Not installed"
+ },
+ "derived/component/comp-no-history/list_row/updated_date": {
+  "after": "2026-09-01 08:00",
+  "before": "2025-05-01 08:00"
+ },
+ "derived/component/comp-no-history/oldest_history_date": {
+  "after": "2026-09-01 08:00",
+  "before": null
+ },
+ "derived/component/comp-no-history/overview_row/bike": {
+  "after": "Road bike",
+  "before": "Not assigned"
+ },
+ "derived/component/comp-no-history/overview_row/bike_id": {
+  "after": "bike-road",
+  "before": null
+ },
+ "derived/component/comp-no-history/overview_row/component_distance": {
+  "after": 400,
+  "before": 300
+ },
+ "derived/component/comp-no-history/overview_row/installation_status": {
+  "after": "Installed",
+  "before": "Not installed"
+ },
+ "derived/component/comp-no-history/overview_row/updated_date": {
+  "after": "2026-09-01 08:00",
+  "before": "2025-05-01 08:00"
+ },
+ "derived/overview/bike_overview/bikes_data": {
+  "after": [
+   {
+    "bike_id": "bike-road",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": true,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "None",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 4,
+    "distance": 1100,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 0,
+    "name": "Road bike",
+    "service_status": "All components healthy"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 2,
+    "distance": 440,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 1,
+    "name": "Gravel bike",
+    "service_status": "Components need attention"
+   },
+   {
+    "bike_id": "bike-retired",
+    "bike_status": "True",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 0,
+    "distance": 150,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Old commuter",
+    "service_status": "No active components"
+   }
+  ],
+  "before": [
+   {
+    "bike_id": "bike-road",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": true,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "None",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 3,
+    "distance": 1100,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 0,
+    "name": "Road bike",
+    "service_status": "All components healthy"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 2,
+    "distance": 440,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 1,
+    "name": "Gravel bike",
+    "service_status": "Components need attention"
+   },
+   {
+    "bike_id": "bike-retired",
+    "bike_status": "True",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 0,
+    "distance": 150,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Old commuter",
+    "service_status": "No active components"
+   }
+  ]
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-no-history/components": {
+  "after": "[\"comp-no-history\"]",
+  "before": "[\"comp-wheel-offset\", \"comp-no-history\"]"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-no-history/updated_date": {
+  "after": "2026-09-01 08:00",
+  "before": "2026-03-01 08:00"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-wheel-offset/bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-wheel-offset/collection_id": {
+  "after": "<absent>",
+  "before": "coll-mixed"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-wheel-offset/collection_name": {
+  "after": "<absent>",
+  "before": "Mixed parts"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-wheel-offset/comment": {
+  "after": "<absent>",
+  "before": "Installed and spare parts"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-wheel-offset/components": {
+  "after": "<absent>",
+  "before": "[\"comp-wheel-offset\", \"comp-no-history\"]"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-wheel-offset/updated_date": {
+  "after": "<absent>",
+  "before": "2026-03-01 08:00"
+ },
+ "derived/overview/component_collection_mapping/component_collection_names/comp-wheel-offset": {
+  "after": "<absent>",
+  "before": "Mixed parts"
+ },
+ "derived/overview/component_overview/count_installed": {
+  "after": 6,
+  "before": 5
+ },
+ "derived/overview/component_overview/count_not_installed": {
+  "after": 0,
+  "before": 1
+ },
+ "stored/collections/coll-mixed/components": {
+  "after": "[\"comp-no-history\"]",
+  "before": "[\"comp-wheel-offset\", \"comp-no-history\"]"
+ },
+ "stored/collections/coll-mixed/updated_date": {
+  "after": "2026-09-01 08:00",
+  "before": "2026-03-01 08:00"
+ },
+ "stored/component_history/new:component_history:1/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/component_id": {
+  "after": "comp-no-history",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/component_name": {
+  "after": "Spare saddle",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/distance_marker": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/history_id": {
+  "after": "new:component_history:1",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/notes": {
+  "after": "Fitted for the season",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/update_reason": {
+  "after": "Installed",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/updated_date": {
+  "after": "2026-09-01 08:00",
+  "before": "<absent>"
+ },
+ "stored/components/comp-no-history/bike_id": {
+  "after": "bike-road",
+  "before": null
+ },
+ "stored/components/comp-no-history/component_distance": {
+  "after": 400,
+  "before": 300
+ },
+ "stored/components/comp-no-history/installation_status": {
+  "after": "Installed",
+  "before": "Not installed"
+ },
+ "stored/components/comp-no-history/lifetime_remaining": {
+  "after": 19600,
+  "before": 19700
+ },
+ "stored/components/comp-no-history/updated_date": {
+  "after": "2026-09-01 08:00",
+  "before": "2025-05-01 08:00"
+ }
+}

@@ -1,0 +1,1415 @@
+{
+ "derived/bike/bike-road/compliance_report/all_mandatory_present": {
+  "after": false,
+  "before": true
+ },
+ "derived/bike/bike-road/compliance_report/missing_mandatory": {
+  "after": "Chain",
+  "before": "None"
+ },
+ "derived/bike/bike-road/component_rows": {
+  "after": [
+   {
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4900,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 550,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8000,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4900,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 550,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8000,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 790,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2210,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": 50,
+    "service_next_days": "-",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   }
+  ]
+ },
+ "derived/bike/bike-road/count_installed": {
+  "after": 2,
+  "before": 3
+ },
+ "derived/bike/bike-road/overview_row/compliance_report/all_mandatory_present": {
+  "after": false,
+  "before": true
+ },
+ "derived/bike/bike-road/overview_row/compliance_report/missing_mandatory": {
+  "after": "Chain",
+  "before": "None"
+ },
+ "derived/bike/bike-road/overview_row/count_installed": {
+  "after": 2,
+  "before": 3
+ },
+ "derived/bike/bike-road/overview_row/due_past_threshold_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/bike/bike-road/plan_services_preselect": {
+  "after": [
+   "comp-cassette-serviced",
+   "comp-wheel-offset"
+  ],
+  "before": [
+   "comp-cassette-serviced",
+   "comp-wheel-offset",
+   "comp-chain-moved"
+  ]
+ },
+ "derived/bike/bike-road/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   },
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ]
+ },
+ "derived/component/comp-chain-moved/bike_name": {
+  "after": "<absent>",
+  "before": "Road bike"
+ },
+ "derived/component/comp-chain-moved/days_since_service": {
+  "after": "<absent>",
+  "before": "411 days ago"
+ },
+ "derived/component/comp-chain-moved/details/bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "derived/component/comp-chain-moved/details/component_age_days": {
+  "after": "<absent>",
+  "before": 684
+ },
+ "derived/component/comp-chain-moved/details/component_distance": {
+  "after": "<absent>",
+  "before": 790
+ },
+ "derived/component/comp-chain-moved/details/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "derived/component/comp-chain-moved/details/component_name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "derived/component/comp-chain-moved/details/component_notes": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/details/component_type": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "derived/component/comp-chain-moved/details/cost": {
+  "after": "<absent>",
+  "before": 400
+ },
+ "derived/component/comp-chain-moved/details/installation_status": {
+  "after": "<absent>",
+  "before": "Installed"
+ },
+ "derived/component/comp-chain-moved/details/lifetime_expected": {
+  "after": "<absent>",
+  "before": 3000
+ },
+ "derived/component/comp-chain-moved/details/lifetime_expected_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/details/lifetime_percentage": {
+  "after": "<absent>",
+  "before": 26.33
+ },
+ "derived/component/comp-chain-moved/details/lifetime_percentage_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/details/lifetime_remaining": {
+  "after": "<absent>",
+  "before": 2210
+ },
+ "derived/component/comp-chain-moved/details/lifetime_remaining_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/details/lifetime_status": {
+  "after": "<absent>",
+  "before": "OK"
+ },
+ "derived/component/comp-chain-moved/details/lifetime_status_days": {
+  "after": "<absent>",
+  "before": "Not defined"
+ },
+ "derived/component/comp-chain-moved/details/lifetime_status_distance": {
+  "after": "<absent>",
+  "before": "OK"
+ },
+ "derived/component/comp-chain-moved/details/lifetime_trigger": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/details/offset": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "derived/component/comp-chain-moved/details/service_interval": {
+  "after": "<absent>",
+  "before": 500
+ },
+ "derived/component/comp-chain-moved/details/service_interval_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/details/service_next": {
+  "after": "<absent>",
+  "before": 50
+ },
+ "derived/component/comp-chain-moved/details/service_next_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/details/service_percentage": {
+  "after": "<absent>",
+  "before": 90.0
+ },
+ "derived/component/comp-chain-moved/details/service_percentage_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/details/service_status": {
+  "after": "<absent>",
+  "before": "Due for service"
+ },
+ "derived/component/comp-chain-moved/details/service_status_days": {
+  "after": "<absent>",
+  "before": "Not defined"
+ },
+ "derived/component/comp-chain-moved/details/service_status_distance": {
+  "after": "<absent>",
+  "before": "Due for service"
+ },
+ "derived/component/comp-chain-moved/details/service_trigger": {
+  "after": "<absent>",
+  "before": "distance"
+ },
+ "derived/component/comp-chain-moved/details/threshold_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/details/threshold_km": {
+  "after": "<absent>",
+  "before": 100
+ },
+ "derived/component/comp-chain-moved/details/updated_date": {
+  "after": "<absent>",
+  "before": "2026-04-01 08:00"
+ },
+ "derived/component/comp-chain-moved/history": {
+  "after": "<absent>",
+  "before": [
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 750,
+    "history_id": "hist-chain-road-2",
+    "mileage": 440,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2026-04-01 08:00"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 280,
+    "history_id": "hist-chain-off-gravel",
+    "mileage": 440,
+    "notes": null,
+    "update_reason": "Not installed",
+    "updated_date": "2026-03-01 08:00"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 140,
+    "history_id": "hist-chain-gravel",
+    "mileage": 300,
+    "notes": "Moved to the gravel bike for winter",
+    "update_reason": "Installed",
+    "updated_date": "2025-08-01 08:00"
+   },
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 300,
+    "history_id": "hist-chain-off-road",
+    "mileage": 300,
+    "notes": null,
+    "update_reason": "Not installed",
+    "updated_date": "2025-07-01 08:00"
+   },
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 0,
+    "history_id": "hist-chain-road-1",
+    "mileage": 0,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ]
+ },
+ "derived/component/comp-chain-moved/incidents/incident_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/component/comp-chain-moved/list_row/bike": {
+  "after": "<absent>",
+  "before": "Road bike"
+ },
+ "derived/component/comp-chain-moved/list_row/bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "derived/component/comp-chain-moved/list_row/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "derived/component/comp-chain-moved/list_row/cost": {
+  "after": "<absent>",
+  "before": 400
+ },
+ "derived/component/comp-chain-moved/list_row/distance": {
+  "after": "<absent>",
+  "before": 790
+ },
+ "derived/component/comp-chain-moved/list_row/lifetime_remaining": {
+  "after": "<absent>",
+  "before": 2210.0
+ },
+ "derived/component/comp-chain-moved/list_row/lifetime_remaining_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/list_row/lifetime_status": {
+  "after": "<absent>",
+  "before": "OK"
+ },
+ "derived/component/comp-chain-moved/list_row/name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "derived/component/comp-chain-moved/list_row/service_next": {
+  "after": "<absent>",
+  "before": 50.0
+ },
+ "derived/component/comp-chain-moved/list_row/service_next_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/list_row/service_status": {
+  "after": "<absent>",
+  "before": "Due for service"
+ },
+ "derived/component/comp-chain-moved/list_row/status": {
+  "after": "<absent>",
+  "before": "Installed"
+ },
+ "derived/component/comp-chain-moved/list_row/threshold_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/list_row/threshold_km": {
+  "after": "<absent>",
+  "before": 100
+ },
+ "derived/component/comp-chain-moved/list_row/type": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "derived/component/comp-chain-moved/list_row/updated_date": {
+  "after": "<absent>",
+  "before": "2026-04-01 08:00"
+ },
+ "derived/component/comp-chain-moved/oldest_history_date": {
+  "after": "<absent>",
+  "before": "2025-01-01 08:00"
+ },
+ "derived/component/comp-chain-moved/overview_row/bike": {
+  "after": "<absent>",
+  "before": "Road bike"
+ },
+ "derived/component/comp-chain-moved/overview_row/bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "derived/component/comp-chain-moved/overview_row/component_distance": {
+  "after": "<absent>",
+  "before": 790
+ },
+ "derived/component/comp-chain-moved/overview_row/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "derived/component/comp-chain-moved/overview_row/cost": {
+  "after": "<absent>",
+  "before": 400
+ },
+ "derived/component/comp-chain-moved/overview_row/installation_status": {
+  "after": "<absent>",
+  "before": "Installed"
+ },
+ "derived/component/comp-chain-moved/overview_row/lifetime_status": {
+  "after": "<absent>",
+  "before": "OK"
+ },
+ "derived/component/comp-chain-moved/overview_row/lifetime_trigger": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/overview_row/name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "derived/component/comp-chain-moved/overview_row/service_status": {
+  "after": "<absent>",
+  "before": "Due for service"
+ },
+ "derived/component/comp-chain-moved/overview_row/service_trigger": {
+  "after": "<absent>",
+  "before": "distance"
+ },
+ "derived/component/comp-chain-moved/overview_row/type": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "derived/component/comp-chain-moved/overview_row/updated_date": {
+  "after": "<absent>",
+  "before": "2026-04-01 08:00"
+ },
+ "derived/component/comp-chain-moved/plan_services_preselect": {
+  "after": "<absent>",
+  "before": [
+   "comp-chain-moved"
+  ]
+ },
+ "derived/component/comp-chain-moved/planned_services": {
+  "after": "<absent>",
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   }
+  ]
+ },
+ "derived/component/comp-chain-moved/service_history": {
+  "after": "<absent>",
+  "before": [
+   {
+    "bike_name": "Gravel bike",
+    "bike_total_distance": 180,
+    "description": "Waxed",
+    "distance_marker": 190,
+    "incident_id": null,
+    "planned_date": null,
+    "running_total": 340,
+    "service_date": "2025-10-01 08:00",
+    "service_id": "svc-chain-2",
+    "workplan_id": null
+   },
+   {
+    "bike_name": "Road bike",
+    "bike_total_distance": 150,
+    "description": "Cleaned and lubed",
+    "distance_marker": 150,
+    "incident_id": null,
+    "planned_date": null,
+    "running_total": 150,
+    "service_date": "2025-04-01 08:00",
+    "service_id": "svc-chain-1",
+    "workplan_id": null
+   }
+  ]
+ },
+ "derived/component/comp-chain-moved/triggers/lifetime_status_days": {
+  "after": "<absent>",
+  "before": "Not defined"
+ },
+ "derived/component/comp-chain-moved/triggers/lifetime_status_distance": {
+  "after": "<absent>",
+  "before": "OK"
+ },
+ "derived/component/comp-chain-moved/triggers/lifetime_trigger": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-chain-moved/triggers/service_status_days": {
+  "after": "<absent>",
+  "before": "Not defined"
+ },
+ "derived/component/comp-chain-moved/triggers/service_status_distance": {
+  "after": "<absent>",
+  "before": "Due for service"
+ },
+ "derived/component/comp-chain-moved/triggers/service_trigger": {
+  "after": "<absent>",
+  "before": "distance"
+ },
+ "derived/component/comp-chain-moved/workplans/workplan_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/component/comp-chain-moved/workplans/workplan_ids": {
+  "after": "<absent>",
+  "before": [
+   "wp-drivetrain"
+  ]
+ },
+ "derived/component_type/Chain/in_use": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/incident/inc-drivetrain/affected_component_names": {
+  "after": [
+   "Deleted component",
+   "Cassette"
+  ],
+  "before": [
+   "Chain",
+   "Cassette"
+  ]
+ },
+ "derived/incident/inc-drivetrain/incident_services": {
+  "after": [
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "date": "2026-02-01 08:00",
+    "description": "Deep clean",
+    "planned_date": null,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "status": "Completed",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Cassette - Drivetrain overhaul - Road bike",
+    "workplan_status": "Planned"
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "date": "2026-11-01 10:00",
+    "description": "Replace chain",
+    "planned_date": null,
+    "service_date": null,
+    "service_id": "svc-chain-planned",
+    "status": "Planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+    "workplan_status": "Planned"
+   },
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "date": "2026-02-01 08:00",
+    "description": "Deep clean",
+    "planned_date": null,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "status": "Completed",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+    "workplan_status": "Planned"
+   }
+  ]
+ },
+ "derived/incident/inc-drivetrain/incident_title": {
+  "after": "Deleted component (+1 more) - Chain skips under load - Road bike",
+  "before": "Chain (+1 more) - Chain skips under load - Road bike"
+ },
+ "derived/incident/inc-drivetrain/incident_workplans": {
+  "after": [
+   [
+    "wp-drivetrain",
+    "Cassette - Drivetrain overhaul - Road bike"
+   ]
+  ],
+  "before": [
+   [
+    "wp-drivetrain",
+    "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   ]
+  ]
+ },
+ "derived/incident/inc-drivetrain/planned_service_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/overview/bike_overview/bikes_data": {
+  "after": [
+   {
+    "bike_id": "bike-road",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 2,
+    "distance": 1100,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Road bike",
+    "service_status": "All components healthy"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 2,
+    "distance": 440,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 1,
+    "name": "Gravel bike",
+    "service_status": "Components need attention"
+   },
+   {
+    "bike_id": "bike-retired",
+    "bike_status": "True",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 0,
+    "distance": 150,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Old commuter",
+    "service_status": "No active components"
+   }
+  ],
+  "before": [
+   {
+    "bike_id": "bike-road",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": true,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "None",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 3,
+    "distance": 1100,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 0,
+    "name": "Road bike",
+    "service_status": "All components healthy"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 2,
+    "distance": 440,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 1,
+    "name": "Gravel bike",
+    "service_status": "Components need attention"
+   },
+   {
+    "bike_id": "bike-retired",
+    "bike_status": "True",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 0,
+    "distance": 150,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Old commuter",
+    "service_status": "No active components"
+   }
+  ]
+ },
+ "derived/overview/bike_overview/planned_workplans/component_workplans/comp-chain-moved/workplan_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/overview/bike_overview/planned_workplans/component_workplans/comp-chain-moved/workplan_ids": {
+  "after": "<absent>",
+  "before": [
+   "wp-drivetrain"
+  ]
+ },
+ "derived/overview/component_overview/count_installed": {
+  "after": 4,
+  "before": 5
+ },
+ "derived/overview/incident_reports/service_incident_options": {
+  "after": [
+   {
+    "incident_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_id": "inc-drivetrain",
+    "incident_status": "Open",
+    "incident_title": "Deleted component (+1 more) - Chain skips under load - Road bike"
+   },
+   {
+    "incident_component_ids": [
+     "comp-pads-retired"
+    ],
+    "incident_id": "inc-squeal",
+    "incident_status": "Resolved",
+    "incident_title": "Commuter brake pads - Rear brake squeals - Old commuter"
+   }
+  ],
+  "before": [
+   {
+    "incident_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_id": "inc-drivetrain",
+    "incident_status": "Open",
+    "incident_title": "Chain (+1 more) - Chain skips under load - Road bike"
+   },
+   {
+    "incident_component_ids": [
+     "comp-pads-retired"
+    ],
+    "incident_id": "inc-squeal",
+    "incident_status": "Resolved",
+    "incident_title": "Commuter brake pads - Rear brake squeals - Old commuter"
+   }
+  ]
+ },
+ "derived/workplan/wp-drivetrain/all_services_completed": {
+  "after": true,
+  "before": false
+ },
+ "derived/workplan/wp-drivetrain/component_bike_names/comp-chain-moved": {
+  "after": "<absent>",
+  "before": "Road bike"
+ },
+ "derived/workplan/wp-drivetrain/component_ids": {
+  "after": [
+   "comp-cassette-serviced"
+  ],
+  "before": [
+   "comp-chain-moved",
+   "comp-cassette-serviced"
+  ]
+ },
+ "derived/workplan/wp-drivetrain/component_names": {
+  "after": [
+   "Cassette"
+  ],
+  "before": [
+   "Chain",
+   "Cassette"
+  ]
+ },
+ "derived/workplan/wp-drivetrain/context/component_ids": {
+  "after": [
+   "comp-cassette-serviced"
+  ],
+  "before": [
+   "comp-chain-moved",
+   "comp-cassette-serviced"
+  ]
+ },
+ "derived/workplan/wp-drivetrain/context/component_names": {
+  "after": [
+   "Cassette"
+  ],
+  "before": [
+   "Chain",
+   "Cassette"
+  ]
+ },
+ "derived/workplan/wp-drivetrain/context/total_count": {
+  "after": 1,
+  "before": 2
+ },
+ "derived/workplan/wp-drivetrain/details/component_ids": {
+  "after": [
+   "comp-cassette-serviced"
+  ],
+  "before": [
+   "comp-chain-moved",
+   "comp-cassette-serviced"
+  ]
+ },
+ "derived/workplan/wp-drivetrain/details/component_names": {
+  "after": [
+   "Cassette"
+  ],
+  "before": [
+   "Chain",
+   "Cassette"
+  ]
+ },
+ "derived/workplan/wp-drivetrain/details/total_count": {
+  "after": 1,
+  "before": 2
+ },
+ "derived/workplan/wp-drivetrain/details/workplan_name": {
+  "after": "Cassette - Drivetrain overhaul - Road bike",
+  "before": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+ },
+ "derived/workplan/wp-drivetrain/incidents": {
+  "after": [
+   {
+    "affected_bike_name": "Road bike",
+    "affected_component_names": [
+     "Deleted component",
+     "Cassette"
+    ],
+    "completed_service_count": 1,
+    "elapsed_days": 305,
+    "incident_affected_bike_id": "bike-road",
+    "incident_affected_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_date": "2026-01-15 10:00",
+    "incident_description": "Chain skips under load",
+    "incident_id": "inc-drivetrain",
+    "incident_services": [
+     {
+      "component_id": "comp-cassette-serviced",
+      "component_name": "Cassette",
+      "date": "2026-02-01 08:00",
+      "description": "Deep clean",
+      "planned_date": null,
+      "service_date": "2026-02-01 08:00",
+      "service_id": "svc-cassette-2",
+      "status": "Completed",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Cassette - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     }
+    ],
+    "incident_severity": "Priority",
+    "incident_status": "Open",
+    "incident_title": "Deleted component (+1 more) - Chain skips under load - Road bike",
+    "incident_workplans": [
+     [
+      "wp-drivetrain",
+      "Cassette - Drivetrain overhaul - Road bike"
+     ]
+    ],
+    "planned_service_count": 0,
+    "resolution_date": null,
+    "resolution_notes": null
+   }
+  ],
+  "before": [
+   {
+    "affected_bike_name": "Road bike",
+    "affected_component_names": [
+     "Chain",
+     "Cassette"
+    ],
+    "completed_service_count": 1,
+    "elapsed_days": 305,
+    "incident_affected_bike_id": "bike-road",
+    "incident_affected_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_date": "2026-01-15 10:00",
+    "incident_description": "Chain skips under load",
+    "incident_id": "inc-drivetrain",
+    "incident_services": [
+     {
+      "component_id": "comp-chain-moved",
+      "component_name": "Chain",
+      "date": "2026-11-01 10:00",
+      "description": "Replace chain",
+      "planned_date": null,
+      "service_date": null,
+      "service_id": "svc-chain-planned",
+      "status": "Planned",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     },
+     {
+      "component_id": "comp-cassette-serviced",
+      "component_name": "Cassette",
+      "date": "2026-02-01 08:00",
+      "description": "Deep clean",
+      "planned_date": null,
+      "service_date": "2026-02-01 08:00",
+      "service_id": "svc-cassette-2",
+      "status": "Completed",
+      "workplan_id": "wp-drivetrain",
+      "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike",
+      "workplan_status": "Planned"
+     }
+    ],
+    "incident_severity": "Priority",
+    "incident_status": "Open",
+    "incident_title": "Chain (+1 more) - Chain skips under load - Road bike",
+    "incident_workplans": [
+     [
+      "wp-drivetrain",
+      "Chain (+1 more) - Drivetrain overhaul - Road bike"
+     ]
+    ],
+    "planned_service_count": 1,
+    "resolution_date": null,
+    "resolution_notes": null
+   }
+  ]
+ },
+ "derived/workplan/wp-drivetrain/planned_services": {
+  "after": null,
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   }
+  ]
+ },
+ "derived/workplan/wp-drivetrain/service_progress/total": {
+  "after": 1,
+  "before": 2
+ },
+ "derived/workplan/wp-drivetrain/workplan_title": {
+  "after": "Cassette - Drivetrain overhaul - Road bike",
+  "before": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+ },
+ "stored/component_history/hist-chain-gravel/bike_id": {
+  "after": "<absent>",
+  "before": "bike-gravel"
+ },
+ "stored/component_history/hist-chain-gravel/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "stored/component_history/hist-chain-gravel/component_name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "stored/component_history/hist-chain-gravel/distance_marker": {
+  "after": "<absent>",
+  "before": 300
+ },
+ "stored/component_history/hist-chain-gravel/history_id": {
+  "after": "<absent>",
+  "before": "hist-chain-gravel"
+ },
+ "stored/component_history/hist-chain-gravel/notes": {
+  "after": "<absent>",
+  "before": "Moved to the gravel bike for winter"
+ },
+ "stored/component_history/hist-chain-gravel/update_reason": {
+  "after": "<absent>",
+  "before": "Installed"
+ },
+ "stored/component_history/hist-chain-gravel/updated_date": {
+  "after": "<absent>",
+  "before": "2025-08-01 08:00"
+ },
+ "stored/component_history/hist-chain-off-gravel/bike_id": {
+  "after": "<absent>",
+  "before": "bike-gravel"
+ },
+ "stored/component_history/hist-chain-off-gravel/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "stored/component_history/hist-chain-off-gravel/component_name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "stored/component_history/hist-chain-off-gravel/distance_marker": {
+  "after": "<absent>",
+  "before": 440
+ },
+ "stored/component_history/hist-chain-off-gravel/history_id": {
+  "after": "<absent>",
+  "before": "hist-chain-off-gravel"
+ },
+ "stored/component_history/hist-chain-off-gravel/notes": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/component_history/hist-chain-off-gravel/update_reason": {
+  "after": "<absent>",
+  "before": "Not installed"
+ },
+ "stored/component_history/hist-chain-off-gravel/updated_date": {
+  "after": "<absent>",
+  "before": "2026-03-01 08:00"
+ },
+ "stored/component_history/hist-chain-off-road/bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "stored/component_history/hist-chain-off-road/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "stored/component_history/hist-chain-off-road/component_name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "stored/component_history/hist-chain-off-road/distance_marker": {
+  "after": "<absent>",
+  "before": 300
+ },
+ "stored/component_history/hist-chain-off-road/history_id": {
+  "after": "<absent>",
+  "before": "hist-chain-off-road"
+ },
+ "stored/component_history/hist-chain-off-road/notes": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/component_history/hist-chain-off-road/update_reason": {
+  "after": "<absent>",
+  "before": "Not installed"
+ },
+ "stored/component_history/hist-chain-off-road/updated_date": {
+  "after": "<absent>",
+  "before": "2025-07-01 08:00"
+ },
+ "stored/component_history/hist-chain-road-1/bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "stored/component_history/hist-chain-road-1/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "stored/component_history/hist-chain-road-1/component_name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "stored/component_history/hist-chain-road-1/distance_marker": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "stored/component_history/hist-chain-road-1/history_id": {
+  "after": "<absent>",
+  "before": "hist-chain-road-1"
+ },
+ "stored/component_history/hist-chain-road-1/notes": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/component_history/hist-chain-road-1/update_reason": {
+  "after": "<absent>",
+  "before": "Installed"
+ },
+ "stored/component_history/hist-chain-road-1/updated_date": {
+  "after": "<absent>",
+  "before": "2025-01-01 08:00"
+ },
+ "stored/component_history/hist-chain-road-2/bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "stored/component_history/hist-chain-road-2/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "stored/component_history/hist-chain-road-2/component_name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "stored/component_history/hist-chain-road-2/distance_marker": {
+  "after": "<absent>",
+  "before": 440
+ },
+ "stored/component_history/hist-chain-road-2/history_id": {
+  "after": "<absent>",
+  "before": "hist-chain-road-2"
+ },
+ "stored/component_history/hist-chain-road-2/notes": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/component_history/hist-chain-road-2/update_reason": {
+  "after": "<absent>",
+  "before": "Installed"
+ },
+ "stored/component_history/hist-chain-road-2/updated_date": {
+  "after": "<absent>",
+  "before": "2026-04-01 08:00"
+ },
+ "stored/component_types/Chain/in_use": {
+  "after": 0,
+  "before": 1
+ },
+ "stored/components/comp-chain-moved/bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "stored/components/comp-chain-moved/component_distance": {
+  "after": "<absent>",
+  "before": 790
+ },
+ "stored/components/comp-chain-moved/component_distance_offset": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "stored/components/comp-chain-moved/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "stored/components/comp-chain-moved/component_name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "stored/components/comp-chain-moved/component_type": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "stored/components/comp-chain-moved/cost": {
+  "after": "<absent>",
+  "before": 400
+ },
+ "stored/components/comp-chain-moved/installation_status": {
+  "after": "<absent>",
+  "before": "Installed"
+ },
+ "stored/components/comp-chain-moved/lifetime_expected": {
+  "after": "<absent>",
+  "before": 3000
+ },
+ "stored/components/comp-chain-moved/lifetime_expected_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/components/comp-chain-moved/lifetime_remaining": {
+  "after": "<absent>",
+  "before": 2210
+ },
+ "stored/components/comp-chain-moved/lifetime_remaining_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/components/comp-chain-moved/lifetime_status": {
+  "after": "<absent>",
+  "before": "OK"
+ },
+ "stored/components/comp-chain-moved/notes": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/components/comp-chain-moved/service_interval": {
+  "after": "<absent>",
+  "before": 500
+ },
+ "stored/components/comp-chain-moved/service_interval_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/components/comp-chain-moved/service_next": {
+  "after": "<absent>",
+  "before": 50
+ },
+ "stored/components/comp-chain-moved/service_next_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/components/comp-chain-moved/service_status": {
+  "after": "<absent>",
+  "before": "Due for service"
+ },
+ "stored/components/comp-chain-moved/threshold_days": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/components/comp-chain-moved/threshold_km": {
+  "after": "<absent>",
+  "before": 100
+ },
+ "stored/components/comp-chain-moved/updated_date": {
+  "after": "<absent>",
+  "before": "2026-04-01 08:00"
+ },
+ "stored/services/svc-chain-1/bike_id": {
+  "after": "<absent>",
+  "before": "bike-road"
+ },
+ "stored/services/svc-chain-1/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "stored/services/svc-chain-1/component_name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "stored/services/svc-chain-1/description": {
+  "after": "<absent>",
+  "before": "Cleaned and lubed"
+ },
+ "stored/services/svc-chain-1/distance_marker": {
+  "after": "<absent>",
+  "before": 150
+ },
+ "stored/services/svc-chain-1/incident_id": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-chain-1/planned_date": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-chain-1/service_date": {
+  "after": "<absent>",
+  "before": "2025-04-01 08:00"
+ },
+ "stored/services/svc-chain-1/service_id": {
+  "after": "<absent>",
+  "before": "svc-chain-1"
+ },
+ "stored/services/svc-chain-1/status": {
+  "after": "<absent>",
+  "before": "Completed"
+ },
+ "stored/services/svc-chain-1/workplan_id": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-chain-2/bike_id": {
+  "after": "<absent>",
+  "before": "bike-gravel"
+ },
+ "stored/services/svc-chain-2/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "stored/services/svc-chain-2/component_name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "stored/services/svc-chain-2/description": {
+  "after": "<absent>",
+  "before": "Waxed"
+ },
+ "stored/services/svc-chain-2/distance_marker": {
+  "after": "<absent>",
+  "before": 190
+ },
+ "stored/services/svc-chain-2/incident_id": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-chain-2/planned_date": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-chain-2/service_date": {
+  "after": "<absent>",
+  "before": "2025-10-01 08:00"
+ },
+ "stored/services/svc-chain-2/service_id": {
+  "after": "<absent>",
+  "before": "svc-chain-2"
+ },
+ "stored/services/svc-chain-2/status": {
+  "after": "<absent>",
+  "before": "Completed"
+ },
+ "stored/services/svc-chain-2/workplan_id": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-chain-planned/bike_id": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-chain-planned/component_id": {
+  "after": "<absent>",
+  "before": "comp-chain-moved"
+ },
+ "stored/services/svc-chain-planned/component_name": {
+  "after": "<absent>",
+  "before": "Chain"
+ },
+ "stored/services/svc-chain-planned/description": {
+  "after": "<absent>",
+  "before": "Replace chain"
+ },
+ "stored/services/svc-chain-planned/distance_marker": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-chain-planned/incident_id": {
+  "after": "<absent>",
+  "before": "inc-drivetrain"
+ },
+ "stored/services/svc-chain-planned/planned_date": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-chain-planned/service_date": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-chain-planned/service_id": {
+  "after": "<absent>",
+  "before": "svc-chain-planned"
+ },
+ "stored/services/svc-chain-planned/status": {
+  "after": "<absent>",
+  "before": "Planned"
+ },
+ "stored/services/svc-chain-planned/workplan_id": {
+  "after": "<absent>",
+  "before": "wp-drivetrain"
+ }
+}

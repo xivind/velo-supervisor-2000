@@ -1,0 +1,1200 @@
+{
+ "derived/bike/bike-gravel/bike_data/bike_notes": {
+  "after": "None",
+  "before": null
+ },
+ "derived/bike/bike-gravel/bike_data/bike_total_distance": {
+  "after": 467,
+  "before": 440
+ },
+ "derived/bike/bike-gravel/component_rows": {
+  "after": [
+   {
+    "component_distance": 247,
+    "component_id": "comp-tire-time",
+    "cost": 600,
+    "installation_status": "Installed",
+    "lifetime_remaining": "-",
+    "lifetime_remaining_days": 15,
+    "lifetime_status": "Due for replacement",
+    "lifetime_trigger": "time",
+    "name": "Gravel tire",
+    "service_next": "-",
+    "service_next_days": -17,
+    "service_status": "Service interval exceeded",
+    "service_trigger": "time",
+    "type": "Tire",
+    "updated_date": "2025-12-01 08:00"
+   },
+   {
+    "component_distance": 467,
+    "component_id": "comp-pads-norwegian",
+    "cost": 200,
+    "installation_status": "Installed",
+    "lifetime_remaining": 1033,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Bremseklosser bak æøå",
+    "service_next": "-",
+    "service_next_days": "-",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Rear brake pads",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "component_distance": 220,
+    "component_id": "comp-tire-time",
+    "cost": 600,
+    "installation_status": "Installed",
+    "lifetime_remaining": "-",
+    "lifetime_remaining_days": 15,
+    "lifetime_status": "Due for replacement",
+    "lifetime_trigger": "time",
+    "name": "Gravel tire",
+    "service_next": "-",
+    "service_next_days": -17,
+    "service_status": "Service interval exceeded",
+    "service_trigger": "time",
+    "type": "Tire",
+    "updated_date": "2025-12-01 08:00"
+   },
+   {
+    "component_distance": 440,
+    "component_id": "comp-pads-norwegian",
+    "cost": 200,
+    "installation_status": "Installed",
+    "lifetime_remaining": 1060,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Bremseklosser bak æøå",
+    "service_next": "-",
+    "service_next_days": "-",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Rear brake pads",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ]
+ },
+ "derived/bike/bike-gravel/overview_row/distance": {
+  "after": 467,
+  "before": 440
+ },
+ "derived/bike/bike-gravel/recent_rides": {
+  "after": [
+   {
+    "commute": "False",
+    "date": "2026-11-08 12:00",
+    "name": "Gravel loop",
+    "ride_distance": 25,
+    "ride_id": "new:rides:4"
+   },
+   {
+    "commute": "False",
+    "date": "2026-10-20 12:00",
+    "name": "Gravel ride 2026-10, corrected",
+    "ride_distance": 22,
+    "ride_id": "ride-gravel-2026-10"
+   },
+   {
+    "commute": "False",
+    "date": "2026-09-20 12:00",
+    "name": "Gravel ride 2026-09",
+    "ride_distance": 20,
+    "ride_id": "ride-gravel-2026-09"
+   },
+   {
+    "commute": "False",
+    "date": "2026-08-20 12:00",
+    "name": "Gravel ride 2026-08",
+    "ride_distance": 20,
+    "ride_id": "ride-gravel-2026-08"
+   },
+   {
+    "commute": "False",
+    "date": "2026-07-20 12:00",
+    "name": "Gravel ride 2026-07",
+    "ride_distance": 20,
+    "ride_id": "ride-gravel-2026-07"
+   }
+  ],
+  "before": [
+   {
+    "commute": "False",
+    "date": "2026-10-20 12:00",
+    "name": "Gravel ride 2026-10",
+    "ride_distance": 20,
+    "ride_id": "ride-gravel-2026-10"
+   },
+   {
+    "commute": "False",
+    "date": "2026-09-20 12:00",
+    "name": "Gravel ride 2026-09",
+    "ride_distance": 20,
+    "ride_id": "ride-gravel-2026-09"
+   },
+   {
+    "commute": "False",
+    "date": "2026-08-20 12:00",
+    "name": "Gravel ride 2026-08",
+    "ride_distance": 20,
+    "ride_id": "ride-gravel-2026-08"
+   },
+   {
+    "commute": "False",
+    "date": "2026-07-20 12:00",
+    "name": "Gravel ride 2026-07",
+    "ride_distance": 20,
+    "ride_id": "ride-gravel-2026-07"
+   },
+   {
+    "commute": "False",
+    "date": "2026-06-20 12:00",
+    "name": "Gravel ride 2026-06",
+    "ride_distance": 20,
+    "ride_id": "ride-gravel-2026-06"
+   }
+  ]
+ },
+ "derived/bike/bike-road/bike_data/bike_service_status": {
+  "after": "Components need attention",
+  "before": "All components healthy"
+ },
+ "derived/bike/bike-road/bike_data/bike_total_distance": {
+  "after": 1230,
+  "before": 1100
+ },
+ "derived/bike/bike-road/component_rows": {
+  "after": [
+   {
+    "component_distance": 1230,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4770,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 420,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 2130,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 7870,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 870,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 920,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2080,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": -80,
+    "service_next_days": "-",
+    "service_status": "Service interval exceeded",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4900,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 550,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8000,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 790,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2210,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": 50,
+    "service_next_days": "-",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   }
+  ]
+ },
+ "derived/bike/bike-road/overview_row/distance": {
+  "after": 1230,
+  "before": 1100
+ },
+ "derived/bike/bike-road/overview_row/due_past_threshold_count": {
+  "after": 0,
+  "before": 1
+ },
+ "derived/bike/bike-road/overview_row/exceeded_max_count": {
+  "after": 1,
+  "before": 0
+ },
+ "derived/bike/bike-road/overview_row/service_status": {
+  "after": "Components need attention",
+  "before": "All components healthy"
+ },
+ "derived/bike/bike-road/recent_rides": {
+  "after": [
+   {
+    "commute": "False",
+    "date": "2026-11-10 12:00",
+    "name": "Road ride",
+    "ride_distance": 60,
+    "ride_id": "new:rides:3"
+   },
+   {
+    "commute": "False",
+    "date": "2026-10-10 12:00",
+    "name": "Road ride 2026-10",
+    "ride_distance": 50,
+    "ride_id": "ride-road-2026-10"
+   },
+   {
+    "commute": "False",
+    "date": "2026-09-10 12:00",
+    "name": "Road ride 2026-09",
+    "ride_distance": 50,
+    "ride_id": "ride-road-2026-09"
+   },
+   {
+    "commute": "False",
+    "date": "2026-08-10 12:00",
+    "name": "Road ride 2026-08",
+    "ride_distance": 50,
+    "ride_id": "ride-road-2026-08"
+   },
+   {
+    "commute": "False",
+    "date": "2026-07-10 12:00",
+    "name": "Road ride 2026-07",
+    "ride_distance": 50,
+    "ride_id": "ride-road-2026-07"
+   }
+  ],
+  "before": [
+   {
+    "commute": "False",
+    "date": "2026-10-10 12:00",
+    "name": "Road ride 2026-10",
+    "ride_distance": 50,
+    "ride_id": "ride-road-2026-10"
+   },
+   {
+    "commute": "False",
+    "date": "2026-09-10 12:00",
+    "name": "Road ride 2026-09",
+    "ride_distance": 50,
+    "ride_id": "ride-road-2026-09"
+   },
+   {
+    "commute": "False",
+    "date": "2026-08-10 12:00",
+    "name": "Road ride 2026-08",
+    "ride_distance": 50,
+    "ride_id": "ride-road-2026-08"
+   },
+   {
+    "commute": "False",
+    "date": "2026-07-10 12:00",
+    "name": "Road ride 2026-07",
+    "ride_distance": 50,
+    "ride_id": "ride-road-2026-07"
+   },
+   {
+    "commute": "False",
+    "date": "2026-06-10 12:00",
+    "name": "Road ride 2026-06",
+    "ride_distance": 50,
+    "ride_id": "ride-road-2026-06"
+   }
+  ]
+ },
+ "derived/bike/new:bikes:1/bike_data/bike_id": {
+  "after": "new:bikes:1",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/bike_data/bike_name": {
+  "after": "Touring bike",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/bike_data/bike_notes": {
+  "after": "Bought 2026-11",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/bike_data/bike_retired": {
+  "after": "False",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/bike_data/bike_service_status": {
+  "after": "No components registered",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/bike_data/bike_total_distance": {
+  "after": 40,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/bike_data/oldest_ride": {
+  "after": "2026-11-12 12:00",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/compliance_report/all_mandatory_present": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/compliance_report/exceeding_max_quantity": {
+  "after": "None",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/compliance_report/missing_mandatory": {
+  "after": "Chain, Rear wheel",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/compliance_report/no_max_quantity_exceeded": {
+  "after": true,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/component_rows": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/count_installed": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/count_retired": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/incidents": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/bike_id": {
+  "after": "new:bikes:1",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/bike_status": {
+  "after": "False",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/compliance_report/all_mandatory_present": {
+  "after": false,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/compliance_report/exceeding_max_quantity": {
+  "after": "None",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/compliance_report/missing_mandatory": {
+  "after": "Chain, Rear wheel",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/compliance_report/no_max_quantity_exceeded": {
+  "after": true,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/count_installed": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/distance": {
+  "after": 40,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/due_past_threshold_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/exceeded_max_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/name": {
+  "after": "Touring bike",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/overview_row/service_status": {
+  "after": "No components registered",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/plan_services_preselect": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/planned_services": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/recent_rides": {
+  "after": [
+   {
+    "commute": "False",
+    "date": "2026-11-12 12:00",
+    "name": "Touring bike first ride",
+    "ride_distance": 40,
+    "ride_id": "new:rides:2"
+   }
+  ],
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/sum_cost": {
+  "after": "No estimate",
+  "before": "<absent>"
+ },
+ "derived/bike/new:bikes:1/workplans": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/collection/coll-gravel-set/component_rows": {
+  "after": [
+   {
+    "bike": "Gravel bike",
+    "bike_id": "bike-gravel",
+    "component_distance": 247,
+    "component_id": "comp-tire-time",
+    "cost": 600,
+    "installation_status": "Installed",
+    "lifetime_status": "Due for replacement",
+    "lifetime_trigger": "time",
+    "name": "Gravel tire",
+    "service_status": "Service interval exceeded",
+    "service_trigger": "time",
+    "type": "Tire",
+    "updated_date": "2025-12-01 08:00"
+   },
+   {
+    "bike": "Gravel bike",
+    "bike_id": "bike-gravel",
+    "component_distance": 467,
+    "component_id": "comp-pads-norwegian",
+    "cost": 200,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Bremseklosser bak æøå",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Rear brake pads",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike": "Gravel bike",
+    "bike_id": "bike-gravel",
+    "component_distance": 220,
+    "component_id": "comp-tire-time",
+    "cost": 600,
+    "installation_status": "Installed",
+    "lifetime_status": "Due for replacement",
+    "lifetime_trigger": "time",
+    "name": "Gravel tire",
+    "service_status": "Service interval exceeded",
+    "service_trigger": "time",
+    "type": "Tire",
+    "updated_date": "2025-12-01 08:00"
+   },
+   {
+    "bike": "Gravel bike",
+    "bike_id": "bike-gravel",
+    "component_distance": 440,
+    "component_id": "comp-pads-norwegian",
+    "cost": 200,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Bremseklosser bak æøå",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Rear brake pads",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ]
+ },
+ "derived/collection/coll-mixed/component_rows": {
+  "after": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 2130,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "bike": "Not assigned",
+    "bike_id": null,
+    "component_distance": 300,
+    "component_id": "comp-no-history",
+    "cost": 1200,
+    "installation_status": "Not installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Spare saddle",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Saddle",
+    "updated_date": "2025-05-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "bike": "Not assigned",
+    "bike_id": null,
+    "component_distance": 300,
+    "component_id": "comp-no-history",
+    "cost": 1200,
+    "installation_status": "Not installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Spare saddle",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Saddle",
+    "updated_date": "2025-05-01 08:00"
+   }
+  ]
+ },
+ "derived/component/comp-cassette-serviced/details/component_distance": {
+  "after": 1230,
+  "before": 1100
+ },
+ "derived/component/comp-cassette-serviced/details/lifetime_percentage": {
+  "after": 20.5,
+  "before": 18.33
+ },
+ "derived/component/comp-cassette-serviced/details/lifetime_remaining": {
+  "after": 4770,
+  "before": 4900
+ },
+ "derived/component/comp-cassette-serviced/details/service_next": {
+  "after": 420,
+  "before": 550
+ },
+ "derived/component/comp-cassette-serviced/details/service_percentage": {
+  "after": 58.0,
+  "before": 45.0
+ },
+ "derived/component/comp-cassette-serviced/list_row/distance": {
+  "after": 1230,
+  "before": 1100
+ },
+ "derived/component/comp-cassette-serviced/list_row/lifetime_remaining": {
+  "after": 4770.0,
+  "before": 4900.0
+ },
+ "derived/component/comp-cassette-serviced/list_row/service_next": {
+  "after": 420.0,
+  "before": 550.0
+ },
+ "derived/component/comp-cassette-serviced/overview_row/component_distance": {
+  "after": 1230,
+  "before": 1100
+ },
+ "derived/component/comp-chain-moved/details/component_distance": {
+  "after": 920,
+  "before": 790
+ },
+ "derived/component/comp-chain-moved/details/lifetime_percentage": {
+  "after": 30.67,
+  "before": 26.33
+ },
+ "derived/component/comp-chain-moved/details/lifetime_remaining": {
+  "after": 2080,
+  "before": 2210
+ },
+ "derived/component/comp-chain-moved/details/service_next": {
+  "after": -80,
+  "before": 50
+ },
+ "derived/component/comp-chain-moved/details/service_percentage": {
+  "after": 116.0,
+  "before": 90.0
+ },
+ "derived/component/comp-chain-moved/details/service_status": {
+  "after": "Service interval exceeded",
+  "before": "Due for service"
+ },
+ "derived/component/comp-chain-moved/details/service_status_distance": {
+  "after": "Service interval exceeded",
+  "before": "Due for service"
+ },
+ "derived/component/comp-chain-moved/list_row/distance": {
+  "after": 920,
+  "before": 790
+ },
+ "derived/component/comp-chain-moved/list_row/lifetime_remaining": {
+  "after": 2080.0,
+  "before": 2210.0
+ },
+ "derived/component/comp-chain-moved/list_row/service_next": {
+  "after": -80.0,
+  "before": 50.0
+ },
+ "derived/component/comp-chain-moved/list_row/service_status": {
+  "after": "Service interval exceeded",
+  "before": "Due for service"
+ },
+ "derived/component/comp-chain-moved/overview_row/component_distance": {
+  "after": 920,
+  "before": 790
+ },
+ "derived/component/comp-chain-moved/overview_row/service_status": {
+  "after": "Service interval exceeded",
+  "before": "Due for service"
+ },
+ "derived/component/comp-chain-moved/triggers/service_status_distance": {
+  "after": "Service interval exceeded",
+  "before": "Due for service"
+ },
+ "derived/component/comp-pads-norwegian/details/component_distance": {
+  "after": 467,
+  "before": 440
+ },
+ "derived/component/comp-pads-norwegian/details/lifetime_percentage": {
+  "after": 31.13,
+  "before": 29.33
+ },
+ "derived/component/comp-pads-norwegian/details/lifetime_remaining": {
+  "after": 1033,
+  "before": 1060
+ },
+ "derived/component/comp-pads-norwegian/list_row/distance": {
+  "after": 467,
+  "before": 440
+ },
+ "derived/component/comp-pads-norwegian/list_row/lifetime_remaining": {
+  "after": 1033.0,
+  "before": 1060.0
+ },
+ "derived/component/comp-pads-norwegian/overview_row/component_distance": {
+  "after": 467,
+  "before": 440
+ },
+ "derived/component/comp-tire-time/details/component_distance": {
+  "after": 247,
+  "before": 220
+ },
+ "derived/component/comp-tire-time/list_row/distance": {
+  "after": 247,
+  "before": 220
+ },
+ "derived/component/comp-tire-time/overview_row/component_distance": {
+  "after": 247,
+  "before": 220
+ },
+ "derived/component/comp-wheel-offset/details/component_distance": {
+  "after": 2130,
+  "before": 2000
+ },
+ "derived/component/comp-wheel-offset/details/lifetime_percentage": {
+  "after": 21.3,
+  "before": 20.0
+ },
+ "derived/component/comp-wheel-offset/details/lifetime_remaining": {
+  "after": 7870,
+  "before": 8000
+ },
+ "derived/component/comp-wheel-offset/details/service_next": {
+  "after": 870,
+  "before": 1000
+ },
+ "derived/component/comp-wheel-offset/details/service_percentage": {
+  "after": 56.5,
+  "before": 50.0
+ },
+ "derived/component/comp-wheel-offset/list_row/distance": {
+  "after": 2130,
+  "before": 2000
+ },
+ "derived/component/comp-wheel-offset/list_row/lifetime_remaining": {
+  "after": 7870.0,
+  "before": 8000.0
+ },
+ "derived/component/comp-wheel-offset/list_row/service_next": {
+  "after": 870.0,
+  "before": 1000.0
+ },
+ "derived/component/comp-wheel-offset/overview_row/component_distance": {
+  "after": 2130,
+  "before": 2000
+ },
+ "derived/overview/bike_overview/bikes_data": {
+  "after": [
+   {
+    "bike_id": "bike-road",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": true,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "None",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 3,
+    "distance": 1230,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 1,
+    "name": "Road bike",
+    "service_status": "Components need attention"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 2,
+    "distance": 467,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 1,
+    "name": "Gravel bike",
+    "service_status": "Components need attention"
+   },
+   {
+    "bike_id": "bike-retired",
+    "bike_status": "True",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 0,
+    "distance": 150,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Old commuter",
+    "service_status": "No active components"
+   },
+   {
+    "bike_id": "new:bikes:1",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 0,
+    "distance": 40,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Touring bike",
+    "service_status": "No components registered"
+   }
+  ],
+  "before": [
+   {
+    "bike_id": "bike-road",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": true,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "None",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 3,
+    "distance": 1100,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 0,
+    "name": "Road bike",
+    "service_status": "All components healthy"
+   },
+   {
+    "bike_id": "bike-gravel",
+    "bike_status": "False",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 2,
+    "distance": 440,
+    "due_past_threshold_count": 1,
+    "exceeded_max_count": 1,
+    "name": "Gravel bike",
+    "service_status": "Components need attention"
+   },
+   {
+    "bike_id": "bike-retired",
+    "bike_status": "True",
+    "compliance_report": {
+     "all_mandatory_present": false,
+     "exceeding_max_quantity": "None",
+     "missing_mandatory": "Chain, Rear wheel",
+     "no_max_quantity_exceeded": true
+    },
+    "count_installed": 0,
+    "distance": 150,
+    "due_past_threshold_count": 0,
+    "exceeded_max_count": 0,
+    "name": "Old commuter",
+    "service_status": "No active components"
+   }
+  ]
+ },
+ "derived/overview/component_overview/bikes_data": {
+  "after": [
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike"
+   },
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike"
+   },
+   {
+    "bike_id": "new:bikes:1",
+    "bike_name": "Touring bike"
+   },
+   {
+    "bike_id": "bike-retired",
+    "bike_name": "Old commuter (Retired)"
+   }
+  ],
+  "before": [
+   {
+    "bike_id": "bike-gravel",
+    "bike_name": "Gravel bike"
+   },
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike"
+   },
+   {
+    "bike_id": "bike-retired",
+    "bike_name": "Old commuter (Retired)"
+   }
+  ]
+ },
+ "stored/bikes/bike-gravel/notes": {
+  "after": "None",
+  "before": null
+ },
+ "stored/bikes/bike-gravel/total_distance": {
+  "after": 467,
+  "before": 440
+ },
+ "stored/bikes/bike-road/service_status": {
+  "after": "Components need attention",
+  "before": "All components healthy"
+ },
+ "stored/bikes/bike-road/total_distance": {
+  "after": 1230,
+  "before": 1100
+ },
+ "stored/bikes/new:bikes:1/bike_id": {
+  "after": "new:bikes:1",
+  "before": "<absent>"
+ },
+ "stored/bikes/new:bikes:1/bike_name": {
+  "after": "Touring bike",
+  "before": "<absent>"
+ },
+ "stored/bikes/new:bikes:1/bike_retired": {
+  "after": "False",
+  "before": "<absent>"
+ },
+ "stored/bikes/new:bikes:1/notes": {
+  "after": "Bought 2026-11",
+  "before": "<absent>"
+ },
+ "stored/bikes/new:bikes:1/service_status": {
+  "after": "No components registered",
+  "before": "<absent>"
+ },
+ "stored/bikes/new:bikes:1/total_distance": {
+  "after": 40,
+  "before": "<absent>"
+ },
+ "stored/components/comp-cassette-serviced/component_distance": {
+  "after": 1230,
+  "before": 1100
+ },
+ "stored/components/comp-cassette-serviced/lifetime_remaining": {
+  "after": 4770,
+  "before": 4900
+ },
+ "stored/components/comp-cassette-serviced/service_next": {
+  "after": 420,
+  "before": 550
+ },
+ "stored/components/comp-chain-moved/component_distance": {
+  "after": 920,
+  "before": 790
+ },
+ "stored/components/comp-chain-moved/lifetime_remaining": {
+  "after": 2080,
+  "before": 2210
+ },
+ "stored/components/comp-chain-moved/service_next": {
+  "after": -80,
+  "before": 50
+ },
+ "stored/components/comp-chain-moved/service_status": {
+  "after": "Service interval exceeded",
+  "before": "Due for service"
+ },
+ "stored/components/comp-pads-norwegian/component_distance": {
+  "after": 467,
+  "before": 440
+ },
+ "stored/components/comp-pads-norwegian/lifetime_remaining": {
+  "after": 1033,
+  "before": 1060
+ },
+ "stored/components/comp-tire-time/component_distance": {
+  "after": 247,
+  "before": 220
+ },
+ "stored/components/comp-wheel-offset/component_distance": {
+  "after": 2130,
+  "before": 2000
+ },
+ "stored/components/comp-wheel-offset/lifetime_remaining": {
+  "after": 7870,
+  "before": 8000
+ },
+ "stored/components/comp-wheel-offset/service_next": {
+  "after": 870,
+  "before": 1000
+ },
+ "stored/rides/new:rides:1/bike_id": {
+  "after": "None",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:1/commute": {
+  "after": "True",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:1/moving_time": {
+  "after": "0:45:00",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:1/record_time": {
+  "after": "2026-11-14 12:00",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:1/ride_distance": {
+  "after": 12,
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:1/ride_id": {
+  "after": "new:rides:1",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:1/ride_name": {
+  "after": "Ride on a rental bike",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:2/bike_id": {
+  "after": "new:bikes:1",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:2/commute": {
+  "after": "False",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:2/moving_time": {
+  "after": "1:30:00",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:2/record_time": {
+  "after": "2026-11-12 12:00",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:2/ride_distance": {
+  "after": 40,
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:2/ride_id": {
+  "after": "new:rides:2",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:2/ride_name": {
+  "after": "Touring bike first ride",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:3/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:3/commute": {
+  "after": "False",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:3/moving_time": {
+  "after": "2:00:00",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:3/record_time": {
+  "after": "2026-11-10 12:00",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:3/ride_distance": {
+  "after": 60,
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:3/ride_id": {
+  "after": "new:rides:3",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:3/ride_name": {
+  "after": "Road ride",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:4/bike_id": {
+  "after": "bike-gravel",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:4/commute": {
+  "after": "False",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:4/moving_time": {
+  "after": "1:00:00",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:4/record_time": {
+  "after": "2026-11-08 12:00",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:4/ride_distance": {
+  "after": 25,
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:4/ride_id": {
+  "after": "new:rides:4",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:4/ride_name": {
+  "after": "Gravel loop",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:5/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:5/commute": {
+  "after": "False",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:5/moving_time": {
+  "after": "3:00:00",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:5/record_time": {
+  "after": "2026-06-25 09:00",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:5/ride_distance": {
+  "after": 70,
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:5/ride_id": {
+  "after": "new:rides:5",
+  "before": "<absent>"
+ },
+ "stored/rides/new:rides:5/ride_name": {
+  "after": "Long road ride",
+  "before": "<absent>"
+ },
+ "stored/rides/ride-gravel-2026-10/moving_time": {
+  "after": "1:05:00",
+  "before": "1:00:00"
+ },
+ "stored/rides/ride-gravel-2026-10/ride_distance": {
+  "after": 22,
+  "before": 20
+ },
+ "stored/rides/ride-gravel-2026-10/ride_name": {
+  "after": "Gravel ride 2026-10, corrected",
+  "before": "Gravel ride 2026-10"
+ }
+}

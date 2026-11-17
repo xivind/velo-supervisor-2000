@@ -1,0 +1,14 @@
+{
+ "config/button_sorting/bike_details": {
+  "after": [
+   "new-component",
+   "new-collection",
+   "install-existing",
+   "plan-services",
+   "complete-services",
+   "new-workplan",
+   "new-incident"
+  ],
+  "before": "<absent>"
+ }
+}

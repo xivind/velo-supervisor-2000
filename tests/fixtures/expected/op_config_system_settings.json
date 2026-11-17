@@ -1,0 +1,35 @@
+{
+ "config/button_sorting/bike_details": {
+  "after": [
+   "new-collection",
+   "new-component",
+   "install-existing",
+   "plan-services",
+   "complete-services",
+   "new-workplan",
+   "new-incident"
+  ],
+  "before": "<absent>"
+ },
+ "config/button_sorting/component_details": {
+  "after": [
+   "view-bike",
+   "update-status",
+   "update-details",
+   "edit-collection",
+   "quick-swap",
+   "duplicate",
+   "new-service",
+   "plan-services",
+   "complete-services",
+   "new-workplan",
+   "new-incident",
+   "delete"
+  ],
+  "before": "<absent>"
+ },
+ "config/verbose_logging": {
+  "after": true,
+  "before": false
+ }
+}

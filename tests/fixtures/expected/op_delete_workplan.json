@@ -1,0 +1,392 @@
+{
+ "derived/bike/bike-retired/workplans": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/bike/bike-retired/workplans/workplan_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/bike/bike-retired/workplans/workplan_ids": {
+  "after": "<absent>",
+  "before": [
+   "wp-brake-check"
+  ]
+ },
+ "derived/component/comp-pads-retired/service_history": {
+  "after": [
+   {
+    "bike_name": "Old commuter",
+    "bike_total_distance": 30,
+    "description": "Cleaned pads",
+    "distance_marker": 30,
+    "incident_id": "inc-squeal",
+    "planned_date": null,
+    "running_total": 30,
+    "service_date": "2025-04-01 08:00",
+    "service_id": "svc-pads-retired",
+    "workplan_id": null
+   }
+  ],
+  "before": [
+   {
+    "bike_name": "Old commuter",
+    "bike_total_distance": 30,
+    "description": "Cleaned pads",
+    "distance_marker": 30,
+    "incident_id": "inc-squeal",
+    "planned_date": null,
+    "running_total": 30,
+    "service_date": "2025-04-01 08:00",
+    "service_id": "svc-pads-retired",
+    "workplan_id": "wp-brake-check"
+   }
+  ]
+ },
+ "derived/component/comp-pads-retired/workplans": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/comp-pads-retired/workplans/workplan_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/component/comp-pads-retired/workplans/workplan_ids": {
+  "after": "<absent>",
+  "before": [
+   "wp-brake-check"
+  ]
+ },
+ "derived/incident/inc-squeal/incident_services": {
+  "after": [
+   {
+    "component_id": "comp-pads-retired",
+    "component_name": "Commuter brake pads",
+    "date": "2025-04-01 08:00",
+    "description": "Cleaned pads",
+    "planned_date": null,
+    "service_date": "2025-04-01 08:00",
+    "service_id": "svc-pads-retired",
+    "status": "Completed",
+    "workplan_id": null,
+    "workplan_name": null,
+    "workplan_status": null
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-pads-retired",
+    "component_name": "Commuter brake pads",
+    "date": "2025-04-01 08:00",
+    "description": "Cleaned pads",
+    "planned_date": null,
+    "service_date": "2025-04-01 08:00",
+    "service_id": "svc-pads-retired",
+    "status": "Completed",
+    "workplan_id": "wp-brake-check",
+    "workplan_name": "Brake check",
+    "workplan_status": "Done"
+   }
+  ]
+ },
+ "derived/incident/inc-squeal/incident_workplans": {
+  "after": [],
+  "before": [
+   [
+    "wp-brake-check",
+    "Brake check"
+   ]
+  ]
+ },
+ "derived/workplan/wp-brake-check/all_services_completed": {
+  "after": "<absent>",
+  "before": true
+ },
+ "derived/workplan/wp-brake-check/bike_ids": {
+  "after": "<absent>",
+  "before": [
+   "bike-retired"
+  ]
+ },
+ "derived/workplan/wp-brake-check/bike_names": {
+  "after": "<absent>",
+  "before": [
+   "Old commuter"
+  ]
+ },
+ "derived/workplan/wp-brake-check/completion_date": {
+  "after": "<absent>",
+  "before": "2025-04-01 10:00"
+ },
+ "derived/workplan/wp-brake-check/completion_notes": {
+  "after": "<absent>",
+  "before": "Pads cleaned"
+ },
+ "derived/workplan/wp-brake-check/component_bike_names/comp-pads-retired": {
+  "after": "<absent>",
+  "before": "Old commuter"
+ },
+ "derived/workplan/wp-brake-check/component_ids": {
+  "after": "<absent>",
+  "before": [
+   "comp-pads-retired"
+  ]
+ },
+ "derived/workplan/wp-brake-check/component_names": {
+  "after": "<absent>",
+  "before": [
+   "Commuter brake pads"
+  ]
+ },
+ "derived/workplan/wp-brake-check/context/bike_ids": {
+  "after": "<absent>",
+  "before": [
+   "bike-retired"
+  ]
+ },
+ "derived/workplan/wp-brake-check/context/bike_names": {
+  "after": "<absent>",
+  "before": [
+   "Old commuter"
+  ]
+ },
+ "derived/workplan/wp-brake-check/context/completed_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/workplan/wp-brake-check/context/component_ids": {
+  "after": "<absent>",
+  "before": [
+   "comp-pads-retired"
+  ]
+ },
+ "derived/workplan/wp-brake-check/context/component_names": {
+  "after": "<absent>",
+  "before": [
+   "Commuter brake pads"
+  ]
+ },
+ "derived/workplan/wp-brake-check/context/total_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/workplan/wp-brake-check/details/bike_ids": {
+  "after": "<absent>",
+  "before": [
+   "bike-retired"
+  ]
+ },
+ "derived/workplan/wp-brake-check/details/bike_names": {
+  "after": "<absent>",
+  "before": [
+   "Old commuter"
+  ]
+ },
+ "derived/workplan/wp-brake-check/details/completed_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/workplan/wp-brake-check/details/completion_date": {
+  "after": "<absent>",
+  "before": "2025-04-01 10:00"
+ },
+ "derived/workplan/wp-brake-check/details/completion_notes": {
+  "after": "<absent>",
+  "before": "Pads cleaned"
+ },
+ "derived/workplan/wp-brake-check/details/component_ids": {
+  "after": "<absent>",
+  "before": [
+   "comp-pads-retired"
+  ]
+ },
+ "derived/workplan/wp-brake-check/details/component_names": {
+  "after": "<absent>",
+  "before": [
+   "Commuter brake pads"
+  ]
+ },
+ "derived/workplan/wp-brake-check/details/description": {
+  "after": "<absent>",
+  "before": "Check the commuter brakes"
+ },
+ "derived/workplan/wp-brake-check/details/description_display": {
+  "after": "<absent>",
+  "before": "Check the commuter brakes"
+ },
+ "derived/workplan/wp-brake-check/details/due_date": {
+  "after": "<absent>",
+  "before": "2025-04-01 10:00"
+ },
+ "derived/workplan/wp-brake-check/details/elapsed_days": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "derived/workplan/wp-brake-check/details/total_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/workplan/wp-brake-check/details/workplan_id": {
+  "after": "<absent>",
+  "before": "wp-brake-check"
+ },
+ "derived/workplan/wp-brake-check/details/workplan_name": {
+  "after": "<absent>",
+  "before": "Brake check"
+ },
+ "derived/workplan/wp-brake-check/details/workplan_name_given": {
+  "after": "<absent>",
+  "before": "Brake check"
+ },
+ "derived/workplan/wp-brake-check/details/workplan_size": {
+  "after": "<absent>",
+  "before": "Small"
+ },
+ "derived/workplan/wp-brake-check/details/workplan_status": {
+  "after": "<absent>",
+  "before": "Done"
+ },
+ "derived/workplan/wp-brake-check/due_date": {
+  "after": "<absent>",
+  "before": "2025-04-01 10:00"
+ },
+ "derived/workplan/wp-brake-check/elapsed_days": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "derived/workplan/wp-brake-check/incidents": {
+  "after": "<absent>",
+  "before": [
+   {
+    "affected_bike_name": "Old commuter",
+    "affected_component_names": [
+     "Commuter brake pads"
+    ],
+    "completed_service_count": 1,
+    "elapsed_days": 12,
+    "incident_affected_bike_id": "bike-retired",
+    "incident_affected_component_ids": [
+     "comp-pads-retired"
+    ],
+    "incident_date": "2025-03-20 10:00",
+    "incident_description": "Rear brake squeals",
+    "incident_id": "inc-squeal",
+    "incident_services": [
+     {
+      "component_id": "comp-pads-retired",
+      "component_name": "Commuter brake pads",
+      "date": "2025-04-01 08:00",
+      "description": "Cleaned pads",
+      "planned_date": null,
+      "service_date": "2025-04-01 08:00",
+      "service_id": "svc-pads-retired",
+      "status": "Completed",
+      "workplan_id": "wp-brake-check",
+      "workplan_name": "Brake check",
+      "workplan_status": "Done"
+     }
+    ],
+    "incident_severity": "Monitor",
+    "incident_status": "Resolved",
+    "incident_title": "Commuter brake pads - Rear brake squeals - Old commuter",
+    "incident_workplans": [
+     [
+      "wp-brake-check",
+      "Brake check"
+     ]
+    ],
+    "planned_service_count": 0,
+    "resolution_date": "2025-04-01 10:00",
+    "resolution_notes": "Cleaned the pads"
+   }
+  ]
+ },
+ "derived/workplan/wp-brake-check/latest_service_date": {
+  "after": "<absent>",
+  "before": "2025-04-01 08:00"
+ },
+ "derived/workplan/wp-brake-check/planned_services": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/workplan/wp-brake-check/service_progress/completed": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/workplan/wp-brake-check/service_progress/total": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/workplan/wp-brake-check/services": {
+  "after": "<absent>",
+  "before": [
+   {
+    "component_id": "comp-pads-retired",
+    "component_name": "Commuter brake pads",
+    "description": "Cleaned pads",
+    "incident_id": "inc-squeal",
+    "installation_status": "Retired",
+    "planned_date": null,
+    "service_date": "2025-04-01 08:00",
+    "service_id": "svc-pads-retired",
+    "workplan_id": "wp-brake-check"
+   }
+  ]
+ },
+ "derived/workplan/wp-brake-check/workplan_description": {
+  "after": "<absent>",
+  "before": "Check the commuter brakes"
+ },
+ "derived/workplan/wp-brake-check/workplan_id": {
+  "after": "<absent>",
+  "before": "wp-brake-check"
+ },
+ "derived/workplan/wp-brake-check/workplan_size": {
+  "after": "<absent>",
+  "before": "Small"
+ },
+ "derived/workplan/wp-brake-check/workplan_status": {
+  "after": "<absent>",
+  "before": "Done"
+ },
+ "derived/workplan/wp-brake-check/workplan_title": {
+  "after": "<absent>",
+  "before": "Brake check"
+ },
+ "stored/services/svc-pads-retired/workplan_id": {
+  "after": null,
+  "before": "wp-brake-check"
+ },
+ "stored/workplans/wp-brake-check/completion_date": {
+  "after": "<absent>",
+  "before": "2025-04-01 10:00"
+ },
+ "stored/workplans/wp-brake-check/completion_notes": {
+  "after": "<absent>",
+  "before": "Pads cleaned"
+ },
+ "stored/workplans/wp-brake-check/due_date": {
+  "after": "<absent>",
+  "before": "2025-04-01 10:00"
+ },
+ "stored/workplans/wp-brake-check/workplan_description": {
+  "after": "<absent>",
+  "before": "Check the commuter brakes"
+ },
+ "stored/workplans/wp-brake-check/workplan_id": {
+  "after": "<absent>",
+  "before": "wp-brake-check"
+ },
+ "stored/workplans/wp-brake-check/workplan_name": {
+  "after": "<absent>",
+  "before": "Brake check"
+ },
+ "stored/workplans/wp-brake-check/workplan_size": {
+  "after": "<absent>",
+  "before": "Small"
+ },
+ "stored/workplans/wp-brake-check/workplan_status": {
+  "after": "<absent>",
+  "before": "Done"
+ }
+}

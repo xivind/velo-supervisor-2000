@@ -1,0 +1,786 @@
+{
+ "derived/bike/bike-road/component_rows": {
+  "after": [
+   {
+    "component_distance": 1050,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Retired",
+    "lifetime_remaining": 4950,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 600,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2026-10-01 08:00"
+   },
+   {
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8000,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 790,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2210,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": 50,
+    "service_next_days": "-",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   },
+   {
+    "component_distance": 50,
+    "component_id": "new:components:1",
+    "cost": 850,
+    "installation_status": "Installed",
+    "lifetime_remaining": 5950,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette 11-34",
+    "service_next": 950,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2026-10-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "component_distance": 1100,
+    "component_id": "comp-cassette-serviced",
+    "cost": 800,
+    "installation_status": "Installed",
+    "lifetime_remaining": 4900,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Cassette",
+    "service_next": 550,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Cassette",
+    "updated_date": "2025-01-01 08:00"
+   },
+   {
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_remaining": 8000,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_next": 1000,
+    "service_next_days": "-",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "component_distance": 790,
+    "component_id": "comp-chain-moved",
+    "cost": 400,
+    "installation_status": "Installed",
+    "lifetime_remaining": 2210,
+    "lifetime_remaining_days": "-",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Chain",
+    "service_next": 50,
+    "service_next_days": "-",
+    "service_status": "Due for service",
+    "service_trigger": "distance",
+    "type": "Chain",
+    "updated_date": "2026-04-01 08:00"
+   }
+  ]
+ },
+ "derived/bike/bike-road/count_retired": {
+  "after": 1,
+  "before": 0
+ },
+ "derived/bike/bike-road/plan_services_preselect": {
+  "after": [
+   "comp-wheel-offset",
+   "comp-chain-moved",
+   "new:components:1"
+  ],
+  "before": [
+   "comp-cassette-serviced",
+   "comp-wheel-offset",
+   "comp-chain-moved"
+  ]
+ },
+ "derived/component/comp-cassette-serviced/details/component_age_days": {
+  "after": 638,
+  "before": 684
+ },
+ "derived/component/comp-cassette-serviced/details/component_distance": {
+  "after": 1050,
+  "before": 1100
+ },
+ "derived/component/comp-cassette-serviced/details/installation_status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "derived/component/comp-cassette-serviced/details/lifetime_percentage": {
+  "after": 17.5,
+  "before": 18.33
+ },
+ "derived/component/comp-cassette-serviced/details/lifetime_remaining": {
+  "after": 4950,
+  "before": 4900
+ },
+ "derived/component/comp-cassette-serviced/details/service_next": {
+  "after": 600,
+  "before": 550
+ },
+ "derived/component/comp-cassette-serviced/details/service_percentage": {
+  "after": 40.0,
+  "before": 45.0
+ },
+ "derived/component/comp-cassette-serviced/details/updated_date": {
+  "after": "2026-10-01 08:00",
+  "before": "2025-01-01 08:00"
+ },
+ "derived/component/comp-cassette-serviced/history": {
+  "after": [
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 1050,
+    "history_id": "new:component_history:1",
+    "mileage": 1050,
+    "notes": "Worn out",
+    "update_reason": "Retired",
+    "updated_date": "2026-10-01 08:00"
+   },
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 0,
+    "history_id": "hist-cassette",
+    "mileage": 0,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 0,
+    "history_id": "hist-cassette",
+    "mileage": 0,
+    "notes": null,
+    "update_reason": "Installed",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ]
+ },
+ "derived/component/comp-cassette-serviced/list_row/distance": {
+  "after": 1050,
+  "before": 1100
+ },
+ "derived/component/comp-cassette-serviced/list_row/lifetime_remaining": {
+  "after": 4950.0,
+  "before": 4900.0
+ },
+ "derived/component/comp-cassette-serviced/list_row/service_next": {
+  "after": 600.0,
+  "before": 550.0
+ },
+ "derived/component/comp-cassette-serviced/list_row/status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "derived/component/comp-cassette-serviced/list_row/updated_date": {
+  "after": "2026-10-01 08:00",
+  "before": "2025-01-01 08:00"
+ },
+ "derived/component/comp-cassette-serviced/overview_row/component_distance": {
+  "after": 1050,
+  "before": 1100
+ },
+ "derived/component/comp-cassette-serviced/overview_row/installation_status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "derived/component/comp-cassette-serviced/overview_row/updated_date": {
+  "after": "2026-10-01 08:00",
+  "before": "2025-01-01 08:00"
+ },
+ "derived/component/comp-cassette-serviced/plan_services_preselect": {
+  "after": [],
+  "before": [
+   "comp-cassette-serviced"
+  ]
+ },
+ "derived/component/new:components:1/bike_name": {
+  "after": "Road bike",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/days_since_service": {
+  "after": "Component has never been serviced",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_age_days": {
+  "after": 46,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_distance": {
+  "after": 50,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_id": {
+  "after": "new:components:1",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_name": {
+  "after": "Cassette 11-34",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/component_type": {
+  "after": "Cassette",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/cost": {
+  "after": 850,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/installation_status": {
+  "after": "Installed",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_expected": {
+  "after": 6000,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_expected_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_percentage": {
+  "after": 0.83,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_percentage_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_remaining": {
+  "after": 5950,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_remaining_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_status_days": {
+  "after": "Not defined",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_status_distance": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/lifetime_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/offset": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_interval": {
+  "after": 1000,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_interval_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_next": {
+  "after": 950,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_next_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_percentage": {
+  "after": 5.0,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_percentage_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_status_days": {
+  "after": "Not defined",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_status_distance": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/service_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/threshold_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/threshold_km": {
+  "after": 100,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/details/updated_date": {
+  "after": "2026-10-01 08:00",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/history": {
+  "after": [
+   {
+    "bike_id": "bike-road",
+    "bike_name": "Road bike",
+    "bike_total_distance": 1050,
+    "history_id": "new:component_history:2",
+    "mileage": 0,
+    "notes": "Worn out",
+    "update_reason": "Installed",
+    "updated_date": "2026-10-01 08:00"
+   }
+  ],
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/incidents": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/bike": {
+  "after": "Road bike",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/component_id": {
+  "after": "new:components:1",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/cost": {
+  "after": 850,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/distance": {
+  "after": 50,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/lifetime_remaining": {
+  "after": 5950.0,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/lifetime_remaining_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/lifetime_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/name": {
+  "after": "Cassette 11-34",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/service_next": {
+  "after": 950.0,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/service_next_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/service_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/status": {
+  "after": "Installed",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/threshold_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/threshold_km": {
+  "after": 100,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/type": {
+  "after": "Cassette",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/list_row/updated_date": {
+  "after": "2026-10-01 08:00",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/oldest_history_date": {
+  "after": "2026-10-01 08:00",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/bike": {
+  "after": "Road bike",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/component_distance": {
+  "after": 50,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/component_id": {
+  "after": "new:components:1",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/cost": {
+  "after": 850,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/installation_status": {
+  "after": "Installed",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/lifetime_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/lifetime_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/name": {
+  "after": "Cassette 11-34",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/service_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/service_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/type": {
+  "after": "Cassette",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/overview_row/updated_date": {
+  "after": "2026-10-01 08:00",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/plan_services_preselect": {
+  "after": [
+   "new:components:1"
+  ],
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/planned_services": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/service_history": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/lifetime_status_days": {
+  "after": "Not defined",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/lifetime_status_distance": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/lifetime_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/service_status_days": {
+  "after": "Not defined",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/service_status_distance": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/triggers/service_trigger": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component/new:components:1/workplans": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/component_type/Cassette/in_use": {
+  "after": 2,
+  "before": 1
+ },
+ "derived/overview/component_overview/count_retired": {
+  "after": 2,
+  "before": 1
+ },
+ "derived/workplan/wp-drivetrain/services": {
+  "after": [
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "description": "Deep clean",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Retired",
+    "planned_date": null,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "workplan_id": "wp-drivetrain"
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-cassette-serviced",
+    "component_name": "Cassette",
+    "description": "Deep clean",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "planned_date": null,
+    "service_date": "2026-02-01 08:00",
+    "service_id": "svc-cassette-2",
+    "workplan_id": "wp-drivetrain"
+   }
+  ]
+ },
+ "stored/component_history/new:component_history:1/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/component_id": {
+  "after": "comp-cassette-serviced",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/component_name": {
+  "after": "Cassette",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/distance_marker": {
+  "after": 1050,
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/history_id": {
+  "after": "new:component_history:1",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/notes": {
+  "after": "Worn out",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/update_reason": {
+  "after": "Retired",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:1/updated_date": {
+  "after": "2026-10-01 08:00",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/component_id": {
+  "after": "new:components:1",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/component_name": {
+  "after": "Cassette 11-34",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/distance_marker": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/history_id": {
+  "after": "new:component_history:2",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/notes": {
+  "after": "Worn out",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/update_reason": {
+  "after": "Installed",
+  "before": "<absent>"
+ },
+ "stored/component_history/new:component_history:2/updated_date": {
+  "after": "2026-10-01 08:00",
+  "before": "<absent>"
+ },
+ "stored/component_types/Cassette/in_use": {
+  "after": 2,
+  "before": 1
+ },
+ "stored/components/comp-cassette-serviced/component_distance": {
+  "after": 1050,
+  "before": 1100
+ },
+ "stored/components/comp-cassette-serviced/installation_status": {
+  "after": "Retired",
+  "before": "Installed"
+ },
+ "stored/components/comp-cassette-serviced/lifetime_remaining": {
+  "after": 4950,
+  "before": 4900
+ },
+ "stored/components/comp-cassette-serviced/service_next": {
+  "after": 600,
+  "before": 550
+ },
+ "stored/components/comp-cassette-serviced/updated_date": {
+  "after": "2026-10-01 08:00",
+  "before": "2025-01-01 08:00"
+ },
+ "stored/components/new:components:1/bike_id": {
+  "after": "bike-road",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/component_distance": {
+  "after": 50,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/component_distance_offset": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/component_id": {
+  "after": "new:components:1",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/component_name": {
+  "after": "Cassette 11-34",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/component_type": {
+  "after": "Cassette",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/cost": {
+  "after": 850,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/installation_status": {
+  "after": "Installed",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/lifetime_expected": {
+  "after": 6000,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/lifetime_expected_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/lifetime_remaining": {
+  "after": 5950,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/lifetime_remaining_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/lifetime_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/service_interval": {
+  "after": 1000,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/service_interval_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/service_next": {
+  "after": 950,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/service_next_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/service_status": {
+  "after": "OK",
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/threshold_days": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/threshold_km": {
+  "after": 100,
+  "before": "<absent>"
+ },
+ "stored/components/new:components:1/updated_date": {
+  "after": "2026-10-01 08:00",
+  "before": "<absent>"
+ }
+}

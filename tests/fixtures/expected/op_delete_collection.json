@@ -1,0 +1,342 @@
+{
+ "derived/collection/coll-gravel-set/collection_data/bike_id": {
+  "after": "<absent>",
+  "before": "bike-gravel"
+ },
+ "derived/collection/coll-gravel-set/collection_data/bike_name": {
+  "after": "<absent>",
+  "before": "Gravel bike"
+ },
+ "derived/collection/coll-gravel-set/collection_data/collection_id": {
+  "after": "<absent>",
+  "before": "coll-gravel-set"
+ },
+ "derived/collection/coll-gravel-set/collection_data/collection_name": {
+  "after": "<absent>",
+  "before": "Gravel set"
+ },
+ "derived/collection/coll-gravel-set/collection_data/comment": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/collection/coll-gravel-set/collection_data/component_count": {
+  "after": "<absent>",
+  "before": 2
+ },
+ "derived/collection/coll-gravel-set/collection_data/components": {
+  "after": "<absent>",
+  "before": "[\"comp-tire-time\", \"comp-pads-norwegian\"]"
+ },
+ "derived/collection/coll-gravel-set/collection_data/updated_date": {
+  "after": "<absent>",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/collection/coll-gravel-set/component_rows": {
+  "after": "<absent>",
+  "before": [
+   {
+    "bike": "Gravel bike",
+    "bike_id": "bike-gravel",
+    "component_distance": 220,
+    "component_id": "comp-tire-time",
+    "cost": 600,
+    "installation_status": "Installed",
+    "lifetime_status": "Due for replacement",
+    "lifetime_trigger": "time",
+    "name": "Gravel tire",
+    "service_status": "Service interval exceeded",
+    "service_trigger": "time",
+    "type": "Tire",
+    "updated_date": "2025-12-01 08:00"
+   },
+   {
+    "bike": "Gravel bike",
+    "bike_id": "bike-gravel",
+    "component_distance": 440,
+    "component_id": "comp-pads-norwegian",
+    "cost": 200,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Bremseklosser bak æøå",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Rear brake pads",
+    "updated_date": "2025-01-01 08:00"
+   }
+  ]
+ },
+ "derived/collection/coll-gravel-set/plan_services_preselect": {
+  "after": "<absent>",
+  "before": [
+   "comp-tire-time",
+   "comp-pads-norwegian"
+  ]
+ },
+ "derived/collection/coll-gravel-set/status/actual_component_bike_id": {
+  "after": "<absent>",
+  "before": "bike-gravel"
+ },
+ "derived/collection/coll-gravel-set/status/actual_component_bike_name": {
+  "after": "<absent>",
+  "before": "Gravel bike"
+ },
+ "derived/collection/coll-gravel-set/status/bike_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/collection/coll-gravel-set/status/bike_names_list": {
+  "after": "<absent>",
+  "before": [
+   "Gravel bike"
+  ]
+ },
+ "derived/collection/coll-gravel-set/status/blocks_operations": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/status/can_display_bike": {
+  "after": "<absent>",
+  "before": true
+ },
+ "derived/collection/coll-gravel-set/status/collection_bike_mismatch": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/status/has_different_bikes": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/status/has_mixed_statuses": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/status/has_retired": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/status/installed_count": {
+  "after": "<absent>",
+  "before": 2
+ },
+ "derived/collection/coll-gravel-set/status/is_empty": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/status/not_installed_count": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "derived/collection/coll-gravel-set/status/retired_count": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "derived/collection/coll-gravel-set/status/status": {
+  "after": "<absent>",
+  "before": "healthy"
+ },
+ "derived/collection/coll-gravel-set/summary/bike_id": {
+  "after": "<absent>",
+  "before": "bike-gravel"
+ },
+ "derived/collection/coll-gravel-set/summary/bike_name": {
+  "after": "<absent>",
+  "before": "Gravel bike"
+ },
+ "derived/collection/coll-gravel-set/summary/collection_bike_mismatch": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/summary/collection_id": {
+  "after": "<absent>",
+  "before": "coll-gravel-set"
+ },
+ "derived/collection/coll-gravel-set/summary/collection_name": {
+  "after": "<absent>",
+  "before": "Gravel set"
+ },
+ "derived/collection/coll-gravel-set/summary/comment": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/collection/coll-gravel-set/summary/component_details": {
+  "after": "<absent>",
+  "before": [
+   {
+    "id": "comp-tire-time",
+    "name": "Gravel tire"
+   },
+   {
+    "id": "comp-pads-norwegian",
+    "name": "Bremseklosser bak æøå"
+   }
+  ]
+ },
+ "derived/collection/coll-gravel-set/summary/components": {
+  "after": "<absent>",
+  "before": "[\"comp-tire-time\", \"comp-pads-norwegian\"]"
+ },
+ "derived/collection/coll-gravel-set/summary/status": {
+  "after": "<absent>",
+  "before": "healthy"
+ },
+ "derived/collection/coll-gravel-set/summary/updated_date": {
+  "after": "<absent>",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/collection/coll-gravel-set/warnings/actual_component_bike_id": {
+  "after": "<absent>",
+  "before": "bike-gravel"
+ },
+ "derived/collection/coll-gravel-set/warnings/actual_component_bike_name": {
+  "after": "<absent>",
+  "before": "Gravel bike"
+ },
+ "derived/collection/coll-gravel-set/warnings/bike_count": {
+  "after": "<absent>",
+  "before": 1
+ },
+ "derived/collection/coll-gravel-set/warnings/bike_names_list": {
+  "after": "<absent>",
+  "before": [
+   "Gravel bike"
+  ]
+ },
+ "derived/collection/coll-gravel-set/warnings/blocks_operations": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/warnings/can_display_bike": {
+  "after": "<absent>",
+  "before": true
+ },
+ "derived/collection/coll-gravel-set/warnings/collection_bike_mismatch": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/warnings/has_different_bikes": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/warnings/has_mixed_statuses": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/warnings/has_retired": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/warnings/installed_count": {
+  "after": "<absent>",
+  "before": 2
+ },
+ "derived/collection/coll-gravel-set/warnings/is_empty": {
+  "after": "<absent>",
+  "before": false
+ },
+ "derived/collection/coll-gravel-set/warnings/not_installed_count": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "derived/collection/coll-gravel-set/warnings/retired_count": {
+  "after": "<absent>",
+  "before": 0
+ },
+ "derived/collection/coll-gravel-set/warnings/status": {
+  "after": "<absent>",
+  "before": "healthy"
+ },
+ "derived/overview/bike_overview/assigned_collections": {
+  "after": [
+   "bike-road"
+  ],
+  "before": [
+   "bike-road",
+   "bike-gravel"
+  ]
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-pads-norwegian/bike_id": {
+  "after": "<absent>",
+  "before": "bike-gravel"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-pads-norwegian/collection_id": {
+  "after": "<absent>",
+  "before": "coll-gravel-set"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-pads-norwegian/collection_name": {
+  "after": "<absent>",
+  "before": "Gravel set"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-pads-norwegian/comment": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-pads-norwegian/components": {
+  "after": "<absent>",
+  "before": "[\"comp-tire-time\", \"comp-pads-norwegian\"]"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-pads-norwegian/updated_date": {
+  "after": "<absent>",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-tire-time/bike_id": {
+  "after": "<absent>",
+  "before": "bike-gravel"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-tire-time/collection_id": {
+  "after": "<absent>",
+  "before": "coll-gravel-set"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-tire-time/collection_name": {
+  "after": "<absent>",
+  "before": "Gravel set"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-tire-time/comment": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-tire-time/components": {
+  "after": "<absent>",
+  "before": "[\"comp-tire-time\", \"comp-pads-norwegian\"]"
+ },
+ "derived/overview/component_collection_mapping/component_collection_data/comp-tire-time/updated_date": {
+  "after": "<absent>",
+  "before": "2025-12-01 08:00"
+ },
+ "derived/overview/component_collection_mapping/component_collection_names/comp-pads-norwegian": {
+  "after": "<absent>",
+  "before": "Gravel set"
+ },
+ "derived/overview/component_collection_mapping/component_collection_names/comp-tire-time": {
+  "after": "<absent>",
+  "before": "Gravel set"
+ },
+ "stored/collections/coll-gravel-set/bike_id": {
+  "after": "<absent>",
+  "before": "bike-gravel"
+ },
+ "stored/collections/coll-gravel-set/collection_id": {
+  "after": "<absent>",
+  "before": "coll-gravel-set"
+ },
+ "stored/collections/coll-gravel-set/collection_name": {
+  "after": "<absent>",
+  "before": "Gravel set"
+ },
+ "stored/collections/coll-gravel-set/comment": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/collections/coll-gravel-set/components": {
+  "after": "<absent>",
+  "before": "[\"comp-tire-time\", \"comp-pads-norwegian\"]"
+ },
+ "stored/collections/coll-gravel-set/sub_collections": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/collections/coll-gravel-set/updated_date": {
+  "after": "<absent>",
+  "before": "2025-12-01 08:00"
+ }
+}

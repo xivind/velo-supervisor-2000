@@ -1,0 +1,18 @@
+{
+ "derived/component_type/Chain/suggested_lifetime_expected": {
+  "after": 2500,
+  "before": 3000
+ },
+ "derived/component_type/Chain/suggested_service_interval": {
+  "after": 400,
+  "before": 500
+ },
+ "stored/component_types/Chain/expected_lifetime": {
+  "after": 2500,
+  "before": 3000
+ },
+ "stored/component_types/Chain/service_interval": {
+  "after": 400,
+  "before": 500
+ }
+}

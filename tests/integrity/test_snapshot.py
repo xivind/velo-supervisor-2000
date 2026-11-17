@@ -2,7 +2,7 @@ import json
 import sqlite3
 
 from conftest import insert
-from integrity.snapshot import dumps, normalise_new_ids, stored_state
+from integrity.snapshot import dumps, new_id_map, normalise_new_ids, replace_ids, stored_state
 
 
 def test_snapshot_covers_every_table_and_column(db_copy):
@@ -77,3 +77,20 @@ def test_normalise_new_ids_numbers_by_rowid_order(db_copy):
     bikes = normalise_new_ids(stored_state(db_copy), baseline)["bikes"]
     assert list(bikes)[-2:] == ["new:bikes:1", "new:bikes:2"]
     assert bikes["new:bikes:1"]["bike_id"] == "new:bikes:1"
+
+
+def test_new_id_map_labels_new_keys_per_table(db_copy):
+    baseline = {key for rows in stored_state(db_copy).values() for key in rows}
+    insert(db_copy, "bikes", bike_id="zzz")
+    insert(db_copy, "components", component_id="c9", component_name="Chain")
+    assert new_id_map(stored_state(db_copy), baseline) == {"zzz": "new:bikes:1", "c9": "new:components:1"}
+
+
+def test_replace_ids_walks_keys_values_lists_and_tuples():
+    new_ids = {"c9": "new:components:1"}
+    value = {"c9": {"rows": [("c9", "c9 chain", 3)], "ids": '["c9", "b1"]', "nested": {"key": "c9"}},
+             "other": ["c90", None, 1.5]}
+    assert replace_ids(value, new_ids) == {
+        "new:components:1": {"rows": [("new:components:1", "c9 chain", 3)],
+                             "ids": '["new:components:1", "b1"]', "nested": {"key": "new:components:1"}},
+        "other": ["c90", None, 1.5]}

@@ -1,0 +1,109 @@
+{
+ "derived/bike/bike-road/planned_services": {
+  "after": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   }
+  ],
+  "before": [
+   {
+    "component_id": "comp-chain-moved",
+    "component_name": "Chain",
+    "description": "Replace chain",
+    "effective_planned_date": "2026-11-01 10:00",
+    "incident_id": "inc-drivetrain",
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-01-01 08:00",
+    "planned_date": null,
+    "service_id": "svc-chain-planned",
+    "workplan_id": "wp-drivetrain",
+    "workplan_name": "Chain (+1 more) - Drivetrain overhaul - Road bike"
+   },
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ]
+ },
+ "derived/component/comp-wheel-offset/planned_services": {
+  "after": null,
+  "before": [
+   {
+    "component_id": "comp-wheel-offset",
+    "component_name": "Rear wheel",
+    "description": "True rear wheel",
+    "effective_planned_date": "2026-10-15 10:00",
+    "incident_id": null,
+    "installation_status": "Installed",
+    "oldest_history_date": "2025-03-01 08:00",
+    "planned_date": "2026-10-15 10:00",
+    "service_id": "svc-wheel-planned",
+    "workplan_id": null,
+    "workplan_name": null
+   }
+  ]
+ },
+ "stored/services/svc-wheel-planned/bike_id": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-wheel-planned/component_id": {
+  "after": "<absent>",
+  "before": "comp-wheel-offset"
+ },
+ "stored/services/svc-wheel-planned/component_name": {
+  "after": "<absent>",
+  "before": "Rear wheel"
+ },
+ "stored/services/svc-wheel-planned/description": {
+  "after": "<absent>",
+  "before": "True rear wheel"
+ },
+ "stored/services/svc-wheel-planned/distance_marker": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-wheel-planned/incident_id": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-wheel-planned/planned_date": {
+  "after": "<absent>",
+  "before": "2026-10-15 10:00"
+ },
+ "stored/services/svc-wheel-planned/service_date": {
+  "after": "<absent>",
+  "before": null
+ },
+ "stored/services/svc-wheel-planned/service_id": {
+  "after": "<absent>",
+  "before": "svc-wheel-planned"
+ },
+ "stored/services/svc-wheel-planned/status": {
+  "after": "<absent>",
+  "before": "Planned"
+ },
+ "stored/services/svc-wheel-planned/workplan_id": {
+  "after": "<absent>",
+  "before": null
+ }
+}

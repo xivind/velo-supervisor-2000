@@ -1,0 +1,194 @@
+{
+ "derived/bike/bike-gravel/incidents": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/bike/bike-gravel/incidents/incident_count": {
+  "after": 1,
+  "before": "<absent>"
+ },
+ "derived/bike/bike-gravel/incidents/incident_ids": {
+  "after": [
+   "new:incidents:1"
+  ],
+  "before": "<absent>"
+ },
+ "derived/component/comp-tire-time/incidents": {
+  "after": "<absent>",
+  "before": null
+ },
+ "derived/component/comp-tire-time/incidents/incident_count": {
+  "after": 1,
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/affected_bike_name": {
+  "after": "Gravel bike",
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/affected_component_names": {
+  "after": [
+   "Gravel tire"
+  ],
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/completed_service_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/elapsed_days": {
+  "after": 6,
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/incident_affected_bike_id": {
+  "after": "bike-gravel",
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/incident_affected_component_ids": {
+  "after": [
+   "comp-tire-time"
+  ],
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/incident_date": {
+  "after": "2026-11-10 10:00",
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/incident_description": {
+  "after": "Sidewall cut",
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/incident_id": {
+  "after": "new:incidents:1",
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/incident_services": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/incident_severity": {
+  "after": "Priority",
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/incident_status": {
+  "after": "Open",
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/incident_title": {
+  "after": "Gravel tire - Sidewall cut - Gravel bike",
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/incident_workplans": {
+  "after": [],
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/planned_service_count": {
+  "after": 0,
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/resolution_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/incident/new:incidents:1/resolution_notes": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "derived/overview/bike_overview/open_incidents/bike_incidents/bike-gravel/incident_count": {
+  "after": 1,
+  "before": "<absent>"
+ },
+ "derived/overview/bike_overview/open_incidents/bike_incidents/bike-gravel/incident_ids": {
+  "after": [
+   "new:incidents:1"
+  ],
+  "before": "<absent>"
+ },
+ "derived/overview/bike_overview/open_incidents/component_incidents/comp-tire-time/incident_count": {
+  "after": 1,
+  "before": "<absent>"
+ },
+ "derived/overview/incident_reports/service_incident_options": {
+  "after": [
+   {
+    "incident_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_id": "inc-drivetrain",
+    "incident_status": "Open",
+    "incident_title": "Chain (+1 more) - Chain skips under load - Road bike"
+   },
+   {
+    "incident_component_ids": [
+     "comp-pads-retired"
+    ],
+    "incident_id": "inc-squeal",
+    "incident_status": "Resolved",
+    "incident_title": "Commuter brake pads - Rear brake squeals - Old commuter"
+   },
+   {
+    "incident_component_ids": [
+     "comp-tire-time"
+    ],
+    "incident_id": "new:incidents:1",
+    "incident_status": "Open",
+    "incident_title": "Gravel tire - Sidewall cut - Gravel bike"
+   }
+  ],
+  "before": [
+   {
+    "incident_component_ids": [
+     "comp-chain-moved",
+     "comp-cassette-serviced"
+    ],
+    "incident_id": "inc-drivetrain",
+    "incident_status": "Open",
+    "incident_title": "Chain (+1 more) - Chain skips under load - Road bike"
+   },
+   {
+    "incident_component_ids": [
+     "comp-pads-retired"
+    ],
+    "incident_id": "inc-squeal",
+    "incident_status": "Resolved",
+    "incident_title": "Commuter brake pads - Rear brake squeals - Old commuter"
+   }
+  ]
+ },
+ "stored/incidents/new:incidents:1/incident_affected_bike_id": {
+  "after": "bike-gravel",
+  "before": "<absent>"
+ },
+ "stored/incidents/new:incidents:1/incident_affected_component_ids": {
+  "after": "[\"comp-tire-time\"]",
+  "before": "<absent>"
+ },
+ "stored/incidents/new:incidents:1/incident_date": {
+  "after": "2026-11-10 10:00",
+  "before": "<absent>"
+ },
+ "stored/incidents/new:incidents:1/incident_description": {
+  "after": "Sidewall cut",
+  "before": "<absent>"
+ },
+ "stored/incidents/new:incidents:1/incident_id": {
+  "after": "new:incidents:1",
+  "before": "<absent>"
+ },
+ "stored/incidents/new:incidents:1/incident_severity": {
+  "after": "Priority",
+  "before": "<absent>"
+ },
+ "stored/incidents/new:incidents:1/incident_status": {
+  "after": "Open",
+  "before": "<absent>"
+ },
+ "stored/incidents/new:incidents:1/resolution_date": {
+  "after": null,
+  "before": "<absent>"
+ },
+ "stored/incidents/new:incidents:1/resolution_notes": {
+  "after": null,
+  "before": "<absent>"
+ }
+}

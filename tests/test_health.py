@@ -1,85 +1,116 @@
-"""Health check: errors logged the last 24 hours or a failing database make the app unhealthy, warnings do not"""
+"""The health rule: an error logged in the last 24 hours, a failing database or a missing database
+file make the app unhealthy; warnings and lower levels do not (#103).
 
+The app fixture binds the modules to the synthetic dataset. Recorder tests log through a logger
+whose only handler is utils.ERROR_RECORDER; the /health tests import main, which adds the
+recorder to the root logger, as at startup.
+"""
+import importlib
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
+
+import pytest
+import time_machine
+
+from integrity.clock import FIXED_NOW
 
 
-def recording_logger(modules):
-    logger = logging.getLogger("test_health")
-    logger.handlers = [modules.utils.ERROR_RECORDER]
-    logger.propagate = False
-    logger.setLevel(logging.DEBUG)
-    return logger
+@pytest.fixture
+def recorder(app):
+    return app.utils.ERROR_RECORDER
 
 
-def test_recorder_keeps_errors_and_ignores_lower_levels(modules):
-    logger = recording_logger(modules)
+@pytest.fixture
+def logger(recorder):
+    test_logger = logging.getLogger("test_health")
+    test_logger.handlers = [recorder]
+    test_logger.propagate = False
+    test_logger.setLevel(logging.DEBUG)
+    yield test_logger
+    test_logger.handlers = []
+
+
+@pytest.fixture
+def database(app):
+    return importlib.import_module("velo_supervisor.database_model").database
+
+
+def test_recorder_keeps_errors_and_ignores_lower_levels(logger, recorder):
     logger.info("Ride sync started")
     logger.warning("Validation of history record failed: Invalid date format")
     logger.error("Bulk update of database failed")
-
-    recent_errors = modules.utils.ERROR_RECORDER.read_recent_errors(24)
-    assert [message for _, message in recent_errors] == ["Bulk update of database failed"]
+    assert [message for _, message in recorder.read_recent_errors(24)] == ["Bulk update of database failed"]
 
 
-def test_recorder_keeps_errors_even_when_handler_level_is_reset(modules):
+def test_recorder_keeps_ignoring_lower_levels_when_handler_level_is_reset(logger, recorder):
     """lifespan in main.py sets every root handler to INFO or DEBUG at startup"""
-    modules.utils.ERROR_RECORDER.setLevel(logging.DEBUG)
-    logger = recording_logger(modules)
+    recorder.setLevel(logging.DEBUG)
     logger.debug("Component distance update successful")
     logger.warning("Collection validation failed")
+    assert recorder.read_recent_errors(24) == []
 
-    assert modules.utils.ERROR_RECORDER.read_recent_errors(24) == []
 
-
-def test_recorder_includes_exception_in_message(modules):
-    logger = recording_logger(modules)
+def test_recorder_includes_exception_in_message(logger, recorder):
     try:
         raise AttributeError("'NoneType' object has no attribute 'bike_name'")
     except AttributeError:
         logger.exception("An error occurred")
-
-    _, message = modules.utils.ERROR_RECORDER.read_recent_errors(24)[0]
-    assert message == "An error occurred: AttributeError: 'NoneType' object has no attribute 'bike_name'"
-
-
-def test_healthy_without_errors_and_with_working_database(modules):
-    success, message = modules.business_logic.check_database_connection()
-    assert success and message == "ok"
-
-    healthy, health_status = modules.utils.get_health_status(success, message)
-    assert healthy
-    assert health_status == {"status": "healthy", "database": "ok", "latest_errors": []}
+    assert [message for _, message in recorder.read_recent_errors(24)] == [
+        "An error occurred: AttributeError: 'NoneType' object has no attribute 'bike_name'"]
 
 
-def test_error_makes_app_unhealthy_for_24_hours(modules):
-    recorder = modules.utils.ERROR_RECORDER
-    recorder.errors.append((datetime.now() - timedelta(hours=25), "An error occurred refreshing tokens: expired"))
-    assert modules.utils.get_health_status(True, "ok")[0]
-
-    recorder.errors.append((datetime.now() - timedelta(hours=23), "An error occurred refreshing tokens: expired"))
-    healthy, health_status = modules.utils.get_health_status(True, "ok")
-    assert not healthy
-    assert health_status["status"] == "unhealthy"
-    assert [error["message"] for error in health_status["latest_errors"]] == ["An error occurred refreshing tokens: expired"]
+def test_healthy_without_errors_and_with_working_database(app):
+    """The recalculation of the dataset logs no error, so the fixture starts healthy"""
+    database_check = app.business_logic.check_database_connection()
+    assert database_check == (True, "ok")
+    assert app.utils.get_health_status(*database_check) == (
+        True, {"status": "healthy", "database": "ok", "latest_errors": []})
 
 
-def test_failing_database_makes_app_unhealthy(modules, tmp_path):
+def test_error_makes_app_unhealthy_for_24_hours(app, logger):
+    """An error logged at the frozen now counts until 24 hours have passed"""
+    logger.error("An error occurred refreshing tokens: expired")
+    healthy, health_status = app.utils.get_health_status(True, "ok")
+    assert healthy is False
+    assert health_status == {"status": "unhealthy", "database": "ok",
+                             "latest_errors": [{"time": "2026-11-16 12:00:00",
+                                                "message": "An error occurred refreshing tokens: expired"}]}
+
+    with time_machine.travel(FIXED_NOW + timedelta(hours=23, minutes=59), tick=False):
+        assert app.utils.get_health_status(True, "ok")[0] is False
+    with time_machine.travel(FIXED_NOW + timedelta(hours=24, minutes=1), tick=False):
+        assert app.utils.get_health_status(True, "ok") == (
+            True, {"status": "healthy", "database": "ok", "latest_errors": []})
+
+
+def test_failing_database_makes_app_unhealthy(app, database, tmp_path):
     not_a_database = tmp_path / "not_a_database.sqlite"
     not_a_database.write_text("this is not a database", encoding="utf-8")
-    modules.database_model.database.init(str(not_a_database))
+    database.init(str(not_a_database))
 
-    success, message = modules.business_logic.check_database_connection()
-    assert not success and message == "Database check failed: file is not a database"
+    database_check = app.business_logic.check_database_connection()
+    assert database_check == (False, "Database check failed: file is not a database")
+    healthy, health_status = app.utils.get_health_status(*database_check)
+    assert healthy is False
+    assert (health_status["status"], health_status["database"]) == (
+        "unhealthy", "Database check failed: file is not a database")
 
-    healthy, health_status = modules.utils.get_health_status(success, message)
-    assert not healthy
-    assert health_status["database"] == message
 
-
-def test_missing_database_file_makes_app_unhealthy(modules, tmp_path):
+def test_missing_database_file_makes_app_unhealthy(app, database, tmp_path):
     """SQLite creates an empty file for a wrong path, e.g. a missing Docker mount"""
-    modules.database_model.database.init(str(tmp_path / "missing.sqlite"))
+    database.init(str(tmp_path / "missing.sqlite"))
+    database_check = app.business_logic.check_database_connection()
+    assert database_check == (False, "Database check failed: no such table: bikes")
+    assert app.utils.get_health_status(*database_check)[0] is False
 
-    success, message = modules.business_logic.check_database_connection()
-    assert not success and message == "Database check failed: no such table: bikes"
+
+def test_health_route_answers_200_when_healthy_and_503_after_an_error(client):
+    """An error logged anywhere reaches the recorder through the root logger"""
+    response = client.get("/health")
+    assert (response.status_code, response.json()["status"]) == (200, "healthy")
+
+    logging.getLogger("velo_supervisor").error("Strava API request failed")
+    response = client.get("/health")
+    assert response.status_code == 503
+    assert response.json()["latest_errors"] == [{"time": "2026-11-16 12:00:00",
+                                                 "message": "Strava API request failed"}]

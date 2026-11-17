@@ -1,0 +1,100 @@
+{
+ "derived/collection/coll-mixed/component_rows": {
+  "after": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "bike": "Not assigned",
+    "bike_id": null,
+    "component_distance": 300,
+    "component_id": "comp-no-history",
+    "cost": 1200,
+    "installation_status": "Not installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Spare saddle",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Bottle cage",
+    "updated_date": "2025-05-01 08:00"
+   }
+  ],
+  "before": [
+   {
+    "bike": "Road bike",
+    "bike_id": "bike-road",
+    "component_distance": 2000,
+    "component_id": "comp-wheel-offset",
+    "cost": 2500,
+    "installation_status": "Installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Rear wheel",
+    "service_status": "OK",
+    "service_trigger": null,
+    "type": "Rear wheel",
+    "updated_date": "2025-03-01 08:00"
+   },
+   {
+    "bike": "Not assigned",
+    "bike_id": null,
+    "component_distance": 300,
+    "component_id": "comp-no-history",
+    "cost": 1200,
+    "installation_status": "Not installed",
+    "lifetime_status": "OK",
+    "lifetime_trigger": null,
+    "name": "Spare saddle",
+    "service_status": "Not defined",
+    "service_trigger": null,
+    "type": "Saddle",
+    "updated_date": "2025-05-01 08:00"
+   }
+  ]
+ },
+ "derived/component/comp-no-history/details/component_type": {
+  "after": "Bottle cage",
+  "before": "Saddle"
+ },
+ "derived/component/comp-no-history/list_row/type": {
+  "after": "Bottle cage",
+  "before": "Saddle"
+ },
+ "derived/component/comp-no-history/overview_row/type": {
+  "after": "Bottle cage",
+  "before": "Saddle"
+ },
+ "derived/component_type/Bottle cage/in_use": {
+  "after": 1,
+  "before": 0
+ },
+ "derived/component_type/Saddle/in_use": {
+  "after": 0,
+  "before": 1
+ },
+ "stored/component_types/Bottle cage/in_use": {
+  "after": 1,
+  "before": 0
+ },
+ "stored/component_types/Saddle/in_use": {
+  "after": 0,
+  "before": 1
+ },
+ "stored/components/comp-no-history/component_type": {
+  "after": "Bottle cage",
+  "before": "Saddle"
+ }
+}
