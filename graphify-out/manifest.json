@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-11-15-rewrite-roadmap-design.md": {
-    "mtime": 1794926699.868585,
-    "seen": 1794926700.6010022,
-    "ast_hash": "21cbc1461c3674b2d04f01a24ac4f185",
+    "mtime": 1794928436.9455786,
+    "seen": 1794928437.8242457,
+    "ast_hash": "d7825418ae0412c215f13d1ac8b8bbc7",
     "semantic_hash": ""
   },
   "scripts/integrity/__init__.py": {
@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   ".handovers/stages/stage-1-foundation-handover.md": {
-    "mtime": 1794926699.867585,
-    "seen": 1794926700.600998,
-    "ast_hash": "387479e27fe4636c82b1d20762f7e6ee",
+    "mtime": 1794928436.9445784,
+    "seen": 1794928437.8242416,
+    "ast_hash": "6a486ac8872b9a395193e08d4aebdb44",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-11-16-stage-1-foundation.md": {
@@ -999,6 +999,30 @@
     "mtime": 1794926699.876585,
     "seen": 1794926700.6009812,
     "ast_hash": "b0269f82df5554c1b0a4cf3ae22f42d0",
+    "semantic_hash": ""
+  },
+  "tests/fixtures/component_type_defaults.json": {
+    "mtime": 1794926699.875585,
+    "seen": 1794928437.8241403,
+    "ast_hash": "ea72b7ea1e1cde97a0c8ae25997ab8b4",
+    "semantic_hash": ""
+  },
+  "tests/test_template_db.py": {
+    "mtime": 1794926699.876585,
+    "seen": 1794928437.8242235,
+    "ast_hash": "6875b2e15ba3534245992ed6172c0fa7",
+    "semantic_hash": ""
+  },
+  ".github/dependabot.yml": {
+    "mtime": 1794926699.867585,
+    "seen": 1794928437.8242335,
+    "ast_hash": "e7241fa5224be174a0ea5ec5ecaf49d1",
+    "semantic_hash": ""
+  },
+  ".github/release.yml": {
+    "mtime": 1794926699.867585,
+    "seen": 1794928437.8242345,
+    "ast_hash": "74263755d859255de2c2de54f8e4ad6d",
     "semantic_hash": ""
   }
 }
