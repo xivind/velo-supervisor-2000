@@ -69,6 +69,9 @@ def main() -> int:
     parser.add_argument("--db", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path)
     args = parser.parse_args()
+    if args.out_dir and args.out_dir.resolve().is_relative_to(REPO_ROOT):
+        print(f"Refusing --out-dir inside the repository ({REPO_ROOT}): outputs hold production data", file=sys.stderr)
+        return 2
     with tempfile.TemporaryDirectory() as temp:
         out_dir = args.out_dir or Path(temp) / "out"
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -77,8 +80,12 @@ def main() -> int:
         archive = subprocess.run(["git", "archive", args.ref], cwd=REPO_ROOT, check=True, capture_output=True).stdout
         subprocess.run(["tar", "-x", "-C", str(export)], input=archive, check=True)
         left_out, right_out = out_dir / "left.json", out_dir / "right.json"
-        _run_extract(export, args.db, left_out)
-        _run_extract(REPO_ROOT, args.db, right_out)
+        try:
+            _run_extract(export, args.db, left_out)
+            _run_extract(REPO_ROOT, args.db, right_out)
+        except subprocess.CalledProcessError as error:
+            print(f"Extraction failed: {error}", file=sys.stderr)
+            return 2
         left = json.loads(left_out.read_text(encoding="utf-8"))
         right = json.loads(right_out.read_text(encoding="utf-8"))
     differences = diff(left, right)

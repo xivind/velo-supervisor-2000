@@ -373,10 +373,13 @@ def test_validate_collection_refuses_installing_without_bike(app, operation_delt
 
 
 def test_validate_collection_refuses_retiring_with_planned_services(app, operation_delta):
-    """Setup: coll-mixed reduced to the rear wheel, which has svc-wheel-planned. Refused before any
-    member changes
+    """Setup: coll-mixed reduced to the cassette, which has no planned service, and the rear wheel, which
+    has svc-wheel-planned. The cassette comes first so a check inside a per-member loop would already have
+    changed it; refused before any member changes
     """
-    assert app.business_logic.update_collection(IDS.coll_mixed, "Mixed parts", [IDS.comp_wheel_offset], None)[0]
+    assert app.business_logic.update_collection(
+        IDS.coll_mixed, "Mixed parts", [IDS.comp_cassette_serviced, IDS.comp_wheel_offset], None
+    )[0]
     assert_refused_after_setup(
         operation_delta,
         lambda: app.business_logic.change_collection_status(

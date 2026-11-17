@@ -1,3 +1,7 @@
+import subprocess
+import sys
+
+from integrity import compare
 from integrity.compare import diff, present_on_both_sides
 
 
@@ -50,3 +54,21 @@ def test_present_on_both_sides_covers_failures_and_both_error_shapes():
     assert "derived/overview/bike_overview: ValueError: x" in lines
     assert "derived/bike/b1: KeyError: y" in lines
     assert len(lines) == 3
+
+
+def test_out_dir_inside_repository_is_refused(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["compare.py", "--ref", "HEAD", "--db", "x.sqlite", "--out-dir", "tests/outputs"])
+    assert compare.main() == 2
+    assert "inside the repository" in capsys.readouterr().err
+
+
+def test_crashed_extract_exits_with_code_2(monkeypatch, tmp_path, capsys):
+    def crash(checkout, db, out):
+        raise subprocess.CalledProcessError(1, "extract")
+
+    monkeypatch.setattr(compare, "_run_extract", crash)
+    monkeypatch.setattr(
+        sys, "argv", ["compare.py", "--ref", "HEAD", "--db", "x.sqlite", "--out-dir", str(tmp_path / "out")]
+    )
+    assert compare.main() == 2
+    assert "Extraction failed" in capsys.readouterr().err

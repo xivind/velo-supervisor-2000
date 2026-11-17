@@ -5,7 +5,7 @@ Not requested:
 - /get_filtered_log: reads the fixed path /data/logs/app.log
 - /health: covered by test_health.py
 - /incident_reports/{id}: there is no incident detail route; incidents render on /incident_reports
-- POST routes: covered by the characterisation tests
+- POST routes: operations are tested at service level; route wiring (form -> service) is untested until Stage 4
 
 The client is used without a with block, so the lifespan and the scheduler do not start.
 """
