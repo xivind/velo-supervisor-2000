@@ -7,6 +7,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -18,8 +19,23 @@ jobs:
       - run: uv run pytest --cov=velo_supervisor --cov-report=term
       - run: uv run coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
 
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.13.8"
+      - run: uv sync --locked
+      - run: uv run ruff check
+      - run: uv run ruff format --check
+
   docker:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -37,7 +53,7 @@ jobs:
       - name: Check health
         run: |
           for i in $(seq 1 30); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health || true)
+            code=$(curl -s --max-time 10 -o /dev/null -w '%{http_code}' http://localhost:8000/health || true)
             [ "$code" = "200" ] && exit 0
             sleep 2
           done
@@ -46,12 +62,17 @@ jobs:
           exit 1
       - name: Check footer version
         run: |
-          version=$(curl -s http://localhost:8000/ | grep -o 'Version:</strong> [^<]*' | sed 's/Version:<\/strong> //' | head -n 1)
+          version=$(curl -s --max-time 10 http://localhost:8000/ | grep -o 'Version:</strong> [^<]*' | sed 's/Version:<\/strong> //' | head -n 1)
           echo "Footer version: $version"
           expected=$(git describe --tags --abbrev=0 | sed -E 's/^v//' | cut -d. -f1,2)
           echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+' || { echo "Version malformed"; docker logs vs2000; exit 1; }
-          case "$version" in "$expected".*) ;; *) echo "Version $version does not start with $expected"; exit 1;; esac
+          case "$version" in "$expected".*) ;; *) echo "Version $version does not start with $expected"; docker logs vs2000; exit 1;; esac
           echo "$version" | grep -Eq '\.d[0-9]{8}$' && { echo "Version $version has a dirty-tree suffix"; docker logs vs2000; exit 1; }
           if tag=$(git describe --tags --exact-match 2>/dev/null); then
-            [ "$version" = "${tag#v}" ] || { echo "Version $version does not equal tag $tag"; exit 1; }
+            [ "$version" = "${tag#v}" ] || { echo "Version $version does not equal tag $tag"; docker logs vs2000; exit 1; }
           fi
+      - name: Check container user
+        run: |
+          uid=$(docker exec vs2000 id -u)
+          echo "Container UID: $uid"
+          [ "$uid" = "1000" ] || { echo "Container runs as UID $uid, expected 1000"; docker logs vs2000; exit 1; }

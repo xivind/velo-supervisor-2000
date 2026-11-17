@@ -21,12 +21,17 @@ dev = [
     "httpx2>=2.16.2",
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
+    "ruff>=0.17.5",
     "time-machine>=3.6.0",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["scripts"]
+
+[tool.ruff]
+include = ["tests/**/*.py", "scripts/**/*.py"]
+line-length = 120
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/velo_supervisor"]
