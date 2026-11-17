@@ -2,15 +2,17 @@
 
 FakeOAuth2Session (fake_oauth.py) replaces requests_oauthlib.OAuth2Session in strava.py and
 answers from tests/fixtures/strava. Page 1 of the activities holds November 2026 activities
-newest first: rides on bike-road (60 km), bike-gravel (25 km), the new bike-touring (40 km)
-and without gear (12 km), plus a Run and a VirtualRide. Page 2 holds a missed road ride of
-70 km on 2026-06-25, a corrected copy of ride-gravel-2026-10 (22 km instead of 20) and a
-Walk; page 3 is empty. Strava IDs are integers; the corrected ride carries the dataset's
+newest first: rides on bike-road (60 km), bike-gravel (25 km, a GravelRide), the new
+bike-touring (40 km) and without gear (12 km), plus a Run and a VirtualRide. Page 2 holds a
+missed road ride of 70 km on 2026-06-25, a corrected copy of ride-gravel-2026-10 (22 km
+instead of 20) and a Walk; page 3 is empty. Activities carry type and sport_type, as Strava
+sends them. Strava IDs are integers; the corrected ride carries the dataset's
 string ID so that it replaces the stored ride. Ride IDs that are not in the dataset show as new:rides:<n> in the
 deltas, numbered in row order, and new bikes as new:bikes:<n>.
 """
 
 import asyncio
+import importlib
 import json
 import logging
 import sys
@@ -36,18 +38,41 @@ TOKEN = {
 }
 PAGE1_RIDES = ["9100000004", "9100000003", "9100000001", "9100000002"]
 PAGE2_RIDES = ["ride-gravel-2026-10", "9000000001"]
+SPORT_TYPES = [
+    ("Ride", True),
+    ("MountainBikeRide", True),
+    ("GravelRide", True),
+    ("EBikeRide", False),
+    ("EMountainBikeRide", False),
+    ("VirtualRide", False),
+    ("Velomobile", False),
+    ("Handcycle", False),
+]
 
 
-def _write_token(app, expires_in):
-    """Write the token file the app config names, expiring expires_in seconds after FIXED_NOW"""
+def _write_token(path, expires_in):
+    """Write a token file at path, expiring expires_in seconds after FIXED_NOW"""
     token = {**TOKEN, "expires_at": int(FIXED_NOW.timestamp()) + expires_in}
-    Path(app.bl_module.strava.oauth_file).write_text(json.dumps(token), encoding="utf-8")
+    Path(path).write_text(json.dumps(token), encoding="utf-8")
 
 
 def _install(app, monkeypatch, refresh_error=None):
     session = new_session_class(refresh_error)
     monkeypatch.setattr(sys.modules[type(app.bl_module.strava).__module__], "OAuth2Session", session)
     return session
+
+
+def _bare_strava(tmp_path, monkeypatch, activities):
+    """A Strava instance without the app or dataset, behind a valid token, that receives activities as page 1"""
+    module = importlib.import_module("velo_supervisor.strava")
+    token_file = tmp_path / "strava_tokens.json"
+    _write_token(token_file, 3600)
+    monkeypatch.setattr(module, "OAuth2Session", new_session_class(activities=activities))
+    return module.Strava(str(token_file))
+
+
+def _sport_type_activity(sport_type):
+    return next(activity for activity in load_fixture("sport_types") if activity["sport_type"] == sport_type)
 
 
 def _urls(session):
@@ -65,7 +90,7 @@ def _errors(caplog):
 @pytest.fixture
 def session(app, monkeypatch):
     """A fake session behind a token that is valid for another hour"""
-    _write_token(app, 3600)
+    _write_token(app.bl_module.strava.oauth_file, 3600)
     return _install(app, monkeypatch)
 
 
@@ -119,17 +144,55 @@ def test_ride_without_gear_is_stored(app, session):
     assert _gear_requested(session) == {IDS.bike_road, IDS.bike_gravel, "bike-touring"}
 
 
-def test_non_ride_activities_follow_current_behaviour(app, session, caplog):
-    """Every activity whose type is not exactly "Ride" is skipped with a warning and never stored,
-    VirtualRide included, even with a bike as gear. The Run's gear is not requested.
+def test_activities_not_counted_are_skipped(app, session, caplog):
+    """Activities whose sport_type is not counted are skipped with a warning naming it and never
+    stored, VirtualRide included, even with a bike as gear. The Run's gear is not requested.
     """
     caplog.set_level(logging.WARNING)
     asyncio.run(app.business_logic.update_rides_bulk("all"))
     rides = stored_state(app.db_path)["rides"]
     assert not {"9100000005", "9100000006", "9000000002"} & set(rides)
-    skipped = [record for record in caplog.records if record.getMessage() == "Activity is not of type Ride. Skipping."]
-    assert len(skipped) == 3
+    skipped = [record.getMessage() for record in caplog.records if record.getMessage().endswith("Skipping.")]
+    assert skipped == [
+        "Activity of sport type Run is not counted. Skipping.",
+        "Activity of sport type VirtualRide is not counted. Skipping.",
+        "Activity of sport type Walk is not counted. Skipping.",
+    ]
     assert "g-shoes" not in _gear_requested(session)
+
+
+@pytest.mark.parametrize("with_type", [True, False], ids=["with-type", "without-type"])
+@pytest.mark.parametrize(("sport_type", "counted"), SPORT_TYPES)
+def test_sport_type_decides_what_counts(tmp_path, monkeypatch, caplog, sport_type, counted, with_type):
+    """Only Ride, MountainBikeRide and GravelRide count towards component distance (#12): they are
+    kept as rides and their gear collected as a recent bike. EBikeRide, EMountainBikeRide,
+    VirtualRide, Velomobile and Handcycle are left out, gear or not. The decision reads
+    sport_type alone, so it holds when Strava stops sending the deprecated type.
+    """
+    activity = _sport_type_activity(sport_type)
+    if not with_type:
+        activity = {key: value for key, value in activity.items() if key != "type"}
+    strava = _bare_strava(tmp_path, monkeypatch, [activity])
+    asyncio.run(strava.get_rides("recent"))
+    assert _errors(caplog) == []
+    if counted:
+        assert [ride["ride_id"] for ride in strava.payload_rides] == [activity["id_str"]]
+        assert strava.bike_ids_recent_rides == {activity["gear_id"]}
+    else:
+        assert strava.payload_rides == []
+        assert strava.bike_ids_recent_rides == set()
+
+
+def test_64_bit_activity_id_is_kept_exactly(tmp_path, monkeypatch):
+    """Strava activity IDs may exceed 2**53 from 2027-06-01 (#12). The trail ride's ID is 2**53 + 1,
+    the first integer a double cannot hold. Python parses JSON integers exactly, so ride_id
+    holds the same digits as Strava's id_str, and the rides table stores it as text.
+    """
+    activity = _sport_type_activity("MountainBikeRide")
+    strava = _bare_strava(tmp_path, monkeypatch, [activity])
+    asyncio.run(strava.get_rides("all"))
+    assert activity["id"] == 2**53 + 1
+    assert strava.payload_rides[0]["ride_id"] == activity["id_str"] == "9007199254740993"
 
 
 def test_expired_token_is_refreshed_and_saved(app, monkeypatch, caplog):
@@ -137,7 +200,7 @@ def test_expired_token_is_refreshed_and_saved(app, monkeypatch, caplog):
     client credentials. The token file then holds the whole refresh response (expires_in
     included) plus the client credentials, and the activities are fetched with the new token.
     """
-    _write_token(app, -60)
+    _write_token(app.bl_module.strava.oauth_file, -60)
     session = _install(app, monkeypatch)
     strava = app.bl_module.strava
     asyncio.run(strava.get_rides("recent"))
@@ -155,7 +218,7 @@ def test_failed_refresh_is_logged_and_the_old_token_used(app, monkeypatch, caplo
     """When the refresh raises, the error is logged, the token file is left as it was and the
     activities are still requested with the expired token.
     """
-    _write_token(app, -60)
+    _write_token(app.bl_module.strava.oauth_file, -60)
     before = Path(app.bl_module.strava.oauth_file).read_text(encoding="utf-8")
     session = _install(app, monkeypatch, refresh_error=ConnectionError("synthetic outage"))
     asyncio.run(app.bl_module.strava.get_rides("recent"))
