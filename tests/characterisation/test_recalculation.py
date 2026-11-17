@@ -5,6 +5,7 @@ it is today. Tests that need rows the dataset lacks insert them into the test's 
 database and recalculate again, so the shared expected file stays recorded from the
 untouched dataset.
 """
+
 import json
 import sqlite3
 
@@ -14,8 +15,9 @@ from integrity.derived import derived_values
 from integrity.recalculate import recalculate
 from integrity.snapshot import stored_state
 
-NO_HISTORY_FAILURE = (f"process_history_records:{IDS.comp_no_history}: "
-                      "No history records found for component: Spare saddle")
+NO_HISTORY_FAILURE = (
+    f"process_history_records:{IDS.comp_no_history}: No history records found for component: Spare saddle"
+)
 UNBOUND_STATUS = "cannot access local variable 'service_status' where it is not associated with a value"
 
 
@@ -25,20 +27,34 @@ def _insert(app, table, rows):
         columns = list(rows[0])
         connection.executemany(
             f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({', '.join('?' for _ in columns)})",
-            [[row[column] for column in columns] for row in rows])
+            [[row[column] for column in columns] for row in rows],
+        )
         connection.commit()
     finally:
         connection.close()
 
 
 def _bike(bike_id, name):
-    return {"bike_id": bike_id, "bike_name": name, "bike_retired": "False", "service_status": None,
-            "total_distance": 0.0, "notes": None}
+    return {
+        "bike_id": bike_id,
+        "bike_name": name,
+        "bike_retired": "False",
+        "service_status": None,
+        "total_distance": 0.0,
+        "notes": None,
+    }
 
 
 def _ride(ride_id, bike_id, record_time, distance):
-    return {"ride_id": ride_id, "bike_id": bike_id, "record_time": record_time, "ride_name": ride_id,
-            "ride_distance": distance, "moving_time": "1:00:00", "commute": "False"}
+    return {
+        "ride_id": ride_id,
+        "bike_id": bike_id,
+        "record_time": record_time,
+        "ride_name": ride_id,
+        "ride_distance": distance,
+        "moving_time": "1:00:00",
+        "commute": "False",
+    }
 
 
 def _stored(app):
@@ -70,15 +86,30 @@ def test_moved_component_distance_sums_rides_on_both_bikes(app):
     the months off and do not count.
     """
     stored = _stored(app)
-    markers = {history_id: stored["component_history"][history_id]["distance_marker"]
-               for history_id in (IDS.hist_chain_road_1, IDS.hist_chain_off_road, IDS.hist_chain_gravel,
-                                  IDS.hist_chain_off_gravel, IDS.hist_chain_road_2)}
-    assert markers == {IDS.hist_chain_road_1: 0, IDS.hist_chain_off_road: 300, IDS.hist_chain_gravel: 300,
-                       IDS.hist_chain_off_gravel: 440, IDS.hist_chain_road_2: 440}
+    markers = {
+        history_id: stored["component_history"][history_id]["distance_marker"]
+        for history_id in (
+            IDS.hist_chain_road_1,
+            IDS.hist_chain_off_road,
+            IDS.hist_chain_gravel,
+            IDS.hist_chain_off_gravel,
+            IDS.hist_chain_road_2,
+        )
+    }
+    assert markers == {
+        IDS.hist_chain_road_1: 0,
+        IDS.hist_chain_off_road: 300,
+        IDS.hist_chain_gravel: 300,
+        IDS.hist_chain_off_gravel: 440,
+        IDS.hist_chain_road_2: 440,
+    }
     chain = stored["components"][IDS.comp_chain_moved]
     assert (chain["component_distance"], chain["lifetime_remaining"], chain["lifetime_status"]) == (790, 2210, "OK")
     assert (chain["bike_id"], chain["installation_status"], chain["updated_date"]) == (
-        IDS.bike_road, "Installed", "2026-04-01 08:00")
+        IDS.bike_road,
+        "Installed",
+        "2026-04-01 08:00",
+    )
 
 
 def test_offset_added_to_distance(app):
@@ -109,13 +140,24 @@ def test_no_history_uses_alternate_method(app, recalculation_failures):
     nothing.
     """
     assert recalculation_failures == [NO_HISTORY_FAILURE]
-    fields = ("component_distance", "lifetime_remaining", "lifetime_status", "service_next", "service_status",
-              "lifetime_remaining_days", "service_next_days")
+    fields = (
+        "component_distance",
+        "lifetime_remaining",
+        "lifetime_status",
+        "service_next",
+        "service_status",
+        "lifetime_remaining_days",
+        "service_next_days",
+    )
     expected = (300, 19700, "OK", None, "Not defined", None, None)
     saddle = _stored(app)["components"][IDS.comp_no_history]
     assert tuple(saddle[field] for field in fields) == expected
-    assert app.business_logic.update_component_lifetime_service_alternate(
-        "update", IDS.comp_no_history, 20000, None, None)[0] is True
+    assert (
+        app.business_logic.update_component_lifetime_service_alternate(
+            "update", IDS.comp_no_history, 20000, None, None
+        )[0]
+        is True
+    )
     saddle = _stored(app)["components"][IDS.comp_no_history]
     assert tuple(saddle[field] for field in fields) == expected
 
@@ -132,8 +174,12 @@ def test_retired_component_counts_days_to_retirement(app):
     """
     stored = _stored(app)
     pads = stored["components"][IDS.comp_pads_retired]
-    assert (pads["component_distance"], pads["lifetime_remaining"], pads["lifetime_remaining_days"],
-            pads["lifetime_status"]) == (90, 1410, 92, "OK")
+    assert (
+        pads["component_distance"],
+        pads["lifetime_remaining"],
+        pads["lifetime_remaining_days"],
+        pads["lifetime_status"],
+    ) == (90, 1410, 92, "OK")
     assert (pads["service_next"], pads["service_next_days"], pads["service_status"]) == (440, None, "OK")
     assert stored["component_history"][IDS.hist_pads_retired]["distance_marker"] == 90
     pads_service = stored["services"][IDS.svc_pads_retired]
@@ -152,11 +198,16 @@ def test_service_resets_interval(app):
     stored = _stored(app)
     cassette = stored["components"][IDS.comp_cassette_serviced]
     assert (cassette["component_distance"], cassette["lifetime_remaining"], cassette["lifetime_status"]) == (
-        1100, 4900, "OK")
+        1100,
+        4900,
+        "OK",
+    )
     assert (cassette["service_next"], cassette["service_status"]) == (550, "OK")
     services = stored["services"]
-    markers = {service_id: (services[service_id]["distance_marker"], services[service_id]["bike_id"])
-               for service_id in (IDS.svc_cassette_1, IDS.svc_cassette_2)}
+    markers = {
+        service_id: (services[service_id]["distance_marker"], services[service_id]["bike_id"])
+        for service_id in (IDS.svc_cassette_1, IDS.svc_cassette_2)
+    }
     assert markers == {IDS.svc_cassette_1: (250, IDS.bike_road), IDS.svc_cassette_2: (400, IDS.bike_road)}
 
 
@@ -172,10 +223,15 @@ def test_services_across_installation_periods(app):
     """
     stored = _stored(app)
     services = stored["services"]
-    markers = {service_id: (services[service_id]["distance_marker"], services[service_id]["bike_id"])
-               for service_id in (IDS.svc_chain_1, IDS.svc_chain_2, IDS.svc_chain_planned)}
-    assert markers == {IDS.svc_chain_1: (150, IDS.bike_road), IDS.svc_chain_2: (190, IDS.bike_gravel),
-                       IDS.svc_chain_planned: (None, None)}
+    markers = {
+        service_id: (services[service_id]["distance_marker"], services[service_id]["bike_id"])
+        for service_id in (IDS.svc_chain_1, IDS.svc_chain_2, IDS.svc_chain_planned)
+    }
+    assert markers == {
+        IDS.svc_chain_1: (150, IDS.bike_road),
+        IDS.svc_chain_2: (190, IDS.bike_gravel),
+        IDS.svc_chain_planned: (None, None),
+    }
     chain = stored["components"][IDS.comp_chain_moved]
     assert (chain["service_next"], chain["service_status"]) == (50, "Due for service")
 
@@ -193,10 +249,17 @@ def test_time_based_intervals_count_days_to_now(app):
     """
     stored = _stored(app)
     tire = stored["components"][IDS.comp_tire_time]
-    assert (tire["component_distance"], tire["lifetime_remaining"], tire["lifetime_remaining_days"],
-            tire["lifetime_status"]) == (220, None, 15, "Due for replacement")
+    assert (
+        tire["component_distance"],
+        tire["lifetime_remaining"],
+        tire["lifetime_remaining_days"],
+        tire["lifetime_status"],
+    ) == (220, None, 15, "Due for replacement")
     assert (tire["service_next"], tire["service_next_days"], tire["service_status"]) == (
-        None, -17, "Service interval exceeded")
+        None,
+        -17,
+        "Service interval exceeded",
+    )
     assert stored["services"][IDS.svc_tire]["distance_marker"] == 160
 
 
@@ -238,7 +301,14 @@ def test_component_type_counts_include_every_installation_status(app):
     """in_use counts every component of the type, installed, not installed or retired"""
     types = _stored(app)["component_types"]
     assert {name: row["in_use"] for name, row in types.items()} == {
-        "Chain": 1, "Cassette": 1, "Rear wheel": 1, "Tire": 1, "Rear brake pads": 2, "Saddle": 1, "Bottle cage": 0}
+        "Chain": 1,
+        "Cassette": 1,
+        "Rear wheel": 1,
+        "Tire": 1,
+        "Rear brake pads": 2,
+        "Saddle": 1,
+        "Bottle cage": 0,
+    }
 
 
 def test_ride_at_install_and_service_timestamps_counts_on_both_sides(app):
@@ -253,17 +323,44 @@ def test_ride_at_install_and_service_timestamps_counts_on_both_sides(app):
     since that service (#373).
     """
     _insert(app, "bikes", [_bike("bike-boundary", "Boundary bike")])
-    _insert(app, "rides", [_ride("ride-boundary-install", "bike-boundary", "2026-01-01 08:00", 1.0),
-                           _ride("ride-boundary-feb", "bike-boundary", "2026-02-10 12:00", 2.0),
-                           _ride("ride-boundary-service", "bike-boundary", "2026-03-01 08:00", 4.0),
-                           _ride("ride-boundary-apr", "bike-boundary", "2026-04-10 12:00", 8.0)])
-    _insert(app, "components", [component("comp-boundary", "bike-boundary", "Boundary chain", "Chain", "Installed",
-                                          "2026-01-01 08:00", 0, lifetime_expected=3000, service_interval=500,
-                                          threshold_km=100)])
-    _insert(app, "component_history", [history("hist-boundary", "comp-boundary", "bike-boundary", "Boundary chain",
-                                               "2026-01-01 08:00", "Installed")])
-    _insert(app, "services", [service("svc-boundary", "comp-boundary", "Boundary chain", "Lubed", "Completed",
-                                      "2026-03-01 08:00")])
+    _insert(
+        app,
+        "rides",
+        [
+            _ride("ride-boundary-install", "bike-boundary", "2026-01-01 08:00", 1.0),
+            _ride("ride-boundary-feb", "bike-boundary", "2026-02-10 12:00", 2.0),
+            _ride("ride-boundary-service", "bike-boundary", "2026-03-01 08:00", 4.0),
+            _ride("ride-boundary-apr", "bike-boundary", "2026-04-10 12:00", 8.0),
+        ],
+    )
+    _insert(
+        app,
+        "components",
+        [
+            component(
+                "comp-boundary",
+                "bike-boundary",
+                "Boundary chain",
+                "Chain",
+                "Installed",
+                "2026-01-01 08:00",
+                0,
+                lifetime_expected=3000,
+                service_interval=500,
+                threshold_km=100,
+            )
+        ],
+    )
+    _insert(
+        app,
+        "component_history",
+        [history("hist-boundary", "comp-boundary", "bike-boundary", "Boundary chain", "2026-01-01 08:00", "Installed")],
+    )
+    _insert(
+        app,
+        "services",
+        [service("svc-boundary", "comp-boundary", "Boundary chain", "Lubed", "Completed", "2026-03-01 08:00")],
+    )
     assert recalculate(app) == [NO_HISTORY_FAILURE]
     stored = _stored(app)
     chain = stored["components"]["comp-boundary"]
@@ -278,15 +375,24 @@ def test_bike_with_only_unrated_components_is_maintenance_not_defined(app):
     """
     _insert(app, "bikes", [_bike("bike-cage", "Cage bike")])
     _insert(app, "rides", [_ride("ride-cage", "bike-cage", "2026-02-10 12:00", 30.0)])
-    _insert(app, "components", [component("comp-cage", "bike-cage", "Cage", "Bottle cage", "Installed",
-                                          "2026-01-01 08:00", 0)])
-    _insert(app, "component_history", [history("hist-cage", "comp-cage", "bike-cage", "Cage", "2026-01-01 08:00",
-                                               "Installed")])
+    _insert(
+        app,
+        "components",
+        [component("comp-cage", "bike-cage", "Cage", "Bottle cage", "Installed", "2026-01-01 08:00", 0)],
+    )
+    _insert(
+        app,
+        "component_history",
+        [history("hist-cage", "comp-cage", "bike-cage", "Cage", "2026-01-01 08:00", "Installed")],
+    )
     assert recalculate(app) == [NO_HISTORY_FAILURE]
     stored = _stored(app)
     cage = stored["components"]["comp-cage"]
     assert (cage["component_distance"], cage["lifetime_status"], cage["service_status"]) == (
-        30, "Not defined", "Not defined")
+        30,
+        "Not defined",
+        "Not defined",
+    )
     assert stored["bikes"]["bike-cage"]["service_status"] == "Maintenance not defined"
 
 
@@ -297,16 +403,40 @@ def test_bike_left_without_components_is_no_components_registered(app):
     """
     _insert(app, "bikes", [_bike("bike-empty", "Empty bike")])
     _insert(app, "rides", [_ride("ride-empty", "bike-empty", "2026-02-10 12:00", 30.0)])
-    _insert(app, "components", [component("comp-loose", None, "Loose saddle", "Saddle", "Not installed",
-                                          "2026-03-01 08:00", 0, lifetime_expected=20000, threshold_km=200)])
-    _insert(app, "component_history", [
-        history("hist-loose-on", "comp-loose", "bike-empty", "Loose saddle", "2026-01-01 08:00", "Installed"),
-        history("hist-loose-off", "comp-loose", "bike-empty", "Loose saddle", "2026-03-01 08:00", "Not installed")])
+    _insert(
+        app,
+        "components",
+        [
+            component(
+                "comp-loose",
+                None,
+                "Loose saddle",
+                "Saddle",
+                "Not installed",
+                "2026-03-01 08:00",
+                0,
+                lifetime_expected=20000,
+                threshold_km=200,
+            )
+        ],
+    )
+    _insert(
+        app,
+        "component_history",
+        [
+            history("hist-loose-on", "comp-loose", "bike-empty", "Loose saddle", "2026-01-01 08:00", "Installed"),
+            history("hist-loose-off", "comp-loose", "bike-empty", "Loose saddle", "2026-03-01 08:00", "Not installed"),
+        ],
+    )
     assert recalculate(app) == [NO_HISTORY_FAILURE]
     stored = _stored(app)
     loose = stored["components"]["comp-loose"]
     assert (loose["bike_id"], loose["component_distance"], loose["lifetime_remaining"], loose["lifetime_status"]) == (
-        None, 30, 19970, "OK")
+        None,
+        30,
+        19970,
+        "OK",
+    )
     assert stored["bikes"]["bike-empty"]["service_status"] == "No components registered"
 
 
@@ -316,16 +446,36 @@ def test_lifetime_reached_exactly_is_exceeded(app):
     22 x 50 = 1100 km, remaining 1100 - 1100 = 0: "Lifetime exceeded"; bike-road becomes
     "Components need attention" although cassette and wheel are OK.
     """
-    _insert(app, "components", [component("comp-worn-pads", IDS.bike_road, "Worn pads", "Rear brake pads",
-                                          "Installed", "2025-01-01 08:00", 0, lifetime_expected=1100,
-                                          threshold_km=100)])
-    _insert(app, "component_history", [history("hist-worn-pads", "comp-worn-pads", IDS.bike_road, "Worn pads",
-                                               "2025-01-01 08:00", "Installed")])
+    _insert(
+        app,
+        "components",
+        [
+            component(
+                "comp-worn-pads",
+                IDS.bike_road,
+                "Worn pads",
+                "Rear brake pads",
+                "Installed",
+                "2025-01-01 08:00",
+                0,
+                lifetime_expected=1100,
+                threshold_km=100,
+            )
+        ],
+    )
+    _insert(
+        app,
+        "component_history",
+        [history("hist-worn-pads", "comp-worn-pads", IDS.bike_road, "Worn pads", "2025-01-01 08:00", "Installed")],
+    )
     assert recalculate(app) == [NO_HISTORY_FAILURE]
     stored = _stored(app)
     pads = stored["components"]["comp-worn-pads"]
     assert (pads["component_distance"], pads["lifetime_remaining"], pads["lifetime_status"]) == (
-        1100, 0, "Lifetime exceeded")
+        1100,
+        0,
+        "Lifetime exceeded",
+    )
     assert stored["bikes"][IDS.bike_road]["service_status"] == "Components need attention"
 
 
@@ -333,33 +483,78 @@ def test_collection_with_retired_member_needs_attention(app):
     """A retired member blocks operations: retired pads plus the installed gravel pads, collection
     on bike-gravel. One installed bike, matching the collection's, so no mismatch.
     """
-    _insert(app, "collections", [{"collection_id": "coll-retired", "collection_name": "With retired",
-                                  "components": json.dumps([IDS.comp_pads_retired, IDS.comp_pads_norwegian]),
-                                  "bike_id": IDS.bike_gravel, "sub_collections": None,
-                                  "updated_date": "2026-01-01 08:00", "comment": None}])
+    _insert(
+        app,
+        "collections",
+        [
+            {
+                "collection_id": "coll-retired",
+                "collection_name": "With retired",
+                "components": json.dumps([IDS.comp_pads_retired, IDS.comp_pads_norwegian]),
+                "bike_id": IDS.bike_gravel,
+                "sub_collections": None,
+                "updated_date": "2026-01-01 08:00",
+                "comment": None,
+            }
+        ],
+    )
     status = derived_values(app)["collection"]["coll-retired"]["status"]
-    assert status == {"is_empty": False, "has_retired": True, "has_mixed_statuses": False,
-                      "has_different_bikes": False, "collection_bike_mismatch": False, "blocks_operations": True,
-                      "can_display_bike": False, "retired_count": 1, "installed_count": 1, "not_installed_count": 0,
-                      "bike_count": 1, "bike_names_list": ["Gravel bike"], "actual_component_bike_id": IDS.bike_gravel,
-                      "actual_component_bike_name": "Gravel bike", "status": "needs_attention"}
+    assert status == {
+        "is_empty": False,
+        "has_retired": True,
+        "has_mixed_statuses": False,
+        "has_different_bikes": False,
+        "collection_bike_mismatch": False,
+        "blocks_operations": True,
+        "can_display_bike": False,
+        "retired_count": 1,
+        "installed_count": 1,
+        "not_installed_count": 0,
+        "bike_count": 1,
+        "bike_names_list": ["Gravel bike"],
+        "actual_component_bike_id": IDS.bike_gravel,
+        "actual_component_bike_name": "Gravel bike",
+        "status": "needs_attention",
+    }
 
 
 def test_collection_with_members_on_different_bikes_needs_attention(app):
     """Members installed on two bikes block operations and no single bike is shown: the chain on
     bike-road and the tire on bike-gravel, collection on bike-road (one of them, so no mismatch).
     """
-    _insert(app, "collections", [{"collection_id": "coll-split", "collection_name": "Split",
-                                  "components": json.dumps([IDS.comp_chain_moved, IDS.comp_tire_time]),
-                                  "bike_id": IDS.bike_road, "sub_collections": None,
-                                  "updated_date": "2026-01-01 08:00", "comment": None}])
+    _insert(
+        app,
+        "collections",
+        [
+            {
+                "collection_id": "coll-split",
+                "collection_name": "Split",
+                "components": json.dumps([IDS.comp_chain_moved, IDS.comp_tire_time]),
+                "bike_id": IDS.bike_road,
+                "sub_collections": None,
+                "updated_date": "2026-01-01 08:00",
+                "comment": None,
+            }
+        ],
+    )
     status = derived_values(app)["collection"]["coll-split"]["status"]
-    assert status == {"is_empty": False, "has_retired": False, "has_mixed_statuses": False,
-                      "has_different_bikes": True, "collection_bike_mismatch": False, "blocks_operations": True,
-                      "can_display_bike": False, "retired_count": 0, "installed_count": 2, "not_installed_count": 0,
-                      "bike_count": 2, "bike_names_list": ["Gravel bike", "Road bike"],
-                      "actual_component_bike_id": None, "actual_component_bike_name": None,
-                      "status": "needs_attention"}
+    assert status == {
+        "is_empty": False,
+        "has_retired": False,
+        "has_mixed_statuses": False,
+        "has_different_bikes": True,
+        "collection_bike_mismatch": False,
+        "blocks_operations": True,
+        "can_display_bike": False,
+        "retired_count": 0,
+        "installed_count": 2,
+        "not_installed_count": 0,
+        "bike_count": 2,
+        "bike_names_list": ["Gravel bike", "Road bike"],
+        "actual_component_bike_id": None,
+        "actual_component_bike_name": None,
+        "status": "needs_attention",
+    }
 
 
 def test_bike_with_only_due_component_fails_status_update(app):
@@ -373,19 +568,42 @@ def test_bike_with_only_due_component_fails_status_update(app):
     """
     _insert(app, "bikes", [_bike("bike-due", "Due bike")])
     _insert(app, "rides", [_ride("ride-due", "bike-due", "2026-06-10 12:00", 450.0)])
-    _insert(app, "components", [component("comp-due-chain", "bike-due", "Due chain", "Chain", "Installed",
-                                          "2026-06-01 08:00", 0, lifetime_expected=3000, service_interval=500,
-                                          threshold_km=100)])
-    _insert(app, "component_history", [history("hist-due-chain", "comp-due-chain", "bike-due", "Due chain",
-                                               "2026-06-01 08:00", "Installed")])
+    _insert(
+        app,
+        "components",
+        [
+            component(
+                "comp-due-chain",
+                "bike-due",
+                "Due chain",
+                "Chain",
+                "Installed",
+                "2026-06-01 08:00",
+                0,
+                lifetime_expected=3000,
+                service_interval=500,
+                threshold_km=100,
+            )
+        ],
+    )
+    _insert(
+        app,
+        "component_history",
+        [history("hist-due-chain", "comp-due-chain", "bike-due", "Due chain", "2026-06-01 08:00", "Installed")],
+    )
     assert recalculate(app) == [
         f'distance_iterator:all_bikes: {{"{UNBOUND_STATUS}"}}',
         f"process_history_records:comp-due-chain: Error processing history records for Due chain: {UNBOUND_STATUS}",
-        NO_HISTORY_FAILURE]
+        NO_HISTORY_FAILURE,
+    ]
     stored = _stored(app)
     chain = stored["components"]["comp-due-chain"]
     assert (chain["component_distance"], chain["lifetime_status"], chain["service_next"], chain["service_status"]) == (
-        450, "OK", 50, "Due for service")
+        450,
+        "OK",
+        50,
+        "Due for service",
+    )
     assert stored["bikes"]["bike-due"]["service_status"] is None
 
 
@@ -401,19 +619,43 @@ def test_bike_with_only_not_installed_component_fails_status_update(app):
     """
     _insert(app, "bikes", [_bike("bike-spare", "Spare bike")])
     _insert(app, "rides", [_ride("ride-spare", "bike-spare", "2026-02-10 12:00", 100.0)])
-    _insert(app, "components", [component("comp-spare-wheel", "bike-spare", "Spare wheel", "Rear wheel",
-                                          "Not installed", "2026-03-01 08:00", 0, lifetime_expected=10000,
-                                          threshold_km=200)])
-    _insert(app, "component_history", [
-        history("hist-spare-on", "comp-spare-wheel", "bike-spare", "Spare wheel", "2026-01-01 08:00", "Installed"),
-        history("hist-spare-off", "comp-spare-wheel", "bike-spare", "Spare wheel", "2026-03-01 08:00",
-                "Not installed")])
+    _insert(
+        app,
+        "components",
+        [
+            component(
+                "comp-spare-wheel",
+                "bike-spare",
+                "Spare wheel",
+                "Rear wheel",
+                "Not installed",
+                "2026-03-01 08:00",
+                0,
+                lifetime_expected=10000,
+                threshold_km=200,
+            )
+        ],
+    )
+    _insert(
+        app,
+        "component_history",
+        [
+            history("hist-spare-on", "comp-spare-wheel", "bike-spare", "Spare wheel", "2026-01-01 08:00", "Installed"),
+            history(
+                "hist-spare-off", "comp-spare-wheel", "bike-spare", "Spare wheel", "2026-03-01 08:00", "Not installed"
+            ),
+        ],
+    )
     assert recalculate(app) == [
         NO_HISTORY_FAILURE,
-        "process_history_records:comp-spare-wheel: Error processing history records for Spare wheel: "
-        f"{UNBOUND_STATUS}"]
+        f"process_history_records:comp-spare-wheel: Error processing history records for Spare wheel: {UNBOUND_STATUS}",
+    ]
     stored = _stored(app)
     wheel = stored["components"]["comp-spare-wheel"]
     assert (wheel["bike_id"], wheel["component_distance"], wheel["lifetime_remaining"], wheel["lifetime_status"]) == (
-        "bike-spare", 100, 9900, "OK")
+        "bike-spare",
+        100,
+        9900,
+        "OK",
+    )
     assert stored["bikes"]["bike-spare"]["service_status"] is None

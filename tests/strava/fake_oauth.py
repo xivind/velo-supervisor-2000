@@ -10,8 +10,10 @@ Routing by URL:
 Any other URL, or gear without a file, raises LookupError, which strava.py catches and logs as
 an error. Subclass per test (see new_session_class) so calls and refreshes start empty.
 """
+
 import json
 from pathlib import Path
+from typing import ClassVar
 from urllib.parse import parse_qs, urlparse
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "strava"
@@ -33,8 +35,8 @@ class FakeResponse:
 
 
 class FakeOAuth2Session:
-    calls = []
-    refreshes = []
+    calls: ClassVar[list] = []
+    refreshes: ClassVar[list] = []
     refresh_error = None
 
     def __init__(self, client_id, token=None):
@@ -68,5 +70,6 @@ class FakeOAuth2Session:
 
 def new_session_class(refresh_error=None):
     """A FakeOAuth2Session subclass with its own empty call records"""
-    return type("FakeOAuth2Session", (FakeOAuth2Session,),
-                {"calls": [], "refreshes": [], "refresh_error": refresh_error})
+    return type(
+        "FakeOAuth2Session", (FakeOAuth2Session,), {"calls": [], "refreshes": [], "refresh_error": refresh_error}
+    )

@@ -1,4 +1,5 @@
 """The starting database for new installs carries the approved component type defaults and no usage."""
+
 import json
 import sqlite3
 from pathlib import Path

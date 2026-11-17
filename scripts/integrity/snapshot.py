@@ -1,5 +1,4 @@
 import json
-import re
 import sqlite3
 from pathlib import Path
 
@@ -14,8 +13,12 @@ def stored_state(db_path: Path) -> dict[str, dict[str, dict]]:
     """Read every table and column straight from SQLite, keyed table, primary key, column"""
     connection = sqlite3.connect(db_path)
     try:
-        tables = [row[0] for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name")]
+        tables = [
+            row[0]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+            )
+        ]
         state = {}
         for table in tables:
             info = connection.execute(f'PRAGMA table_info("{table}")').fetchall()
@@ -82,9 +85,13 @@ def normalise_new_ids(state: dict, baseline_ids: set[str]) -> dict:
     only for the rows of the table that owns the new ID.
     """
     new_ids = new_id_map(state, baseline_ids)
-    return {table: {new_ids.get(key, key): {column: replace_ids(value, new_ids) for column, value in row.items()}
-                    for key, row in rows.items()}
-            for table, rows in state.items()}
+    return {
+        table: {
+            new_ids.get(key, key): {column: replace_ids(value, new_ids) for column, value in row.items()}
+            for key, row in rows.items()
+        }
+        for table, rows in state.items()
+    }
 
 
 def dumps(state: dict) -> str:

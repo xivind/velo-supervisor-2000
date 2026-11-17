@@ -9,8 +9,12 @@ def test_snapshot_covers_every_table_and_column(db_copy):
     insert(db_copy, "bikes", bike_id="b1", bike_name="Bike")
     state = stored_state(db_copy)
     connection = sqlite3.connect(db_copy)
-    tables = {row[0] for row in connection.execute(
-        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")}
+    tables = {
+        row[0]
+        for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
+        )
+    }
     assert set(state) == tables
     for table in tables:
         columns = {row[1] for row in connection.execute(f'PRAGMA table_info("{table}")')}
@@ -51,8 +55,7 @@ def test_normalise_new_ids_is_stable(tmp_path, db_copy):
         path = tmp_path / f"{suffix}.sqlite"
         path.write_bytes(db_copy.read_bytes())
         insert(path, "components", component_id=f"comp-{suffix}")
-        insert(path, "collections", collection_id=f"col-{suffix}",
-               components=json.dumps([f"comp-{suffix}", "old1"]))
+        insert(path, "collections", collection_id=f"col-{suffix}", components=json.dumps([f"comp-{suffix}", "old1"]))
         states.append(normalise_new_ids(stored_state(path), baseline))
     assert states[0] == states[1]
     collection = states[0]["collections"]["new:collections:1"]
@@ -88,9 +91,15 @@ def test_new_id_map_labels_new_keys_per_table(db_copy):
 
 def test_replace_ids_walks_keys_values_lists_and_tuples():
     new_ids = {"c9": "new:components:1"}
-    value = {"c9": {"rows": [("c9", "c9 chain", 3)], "ids": '["c9", "b1"]', "nested": {"key": "c9"}},
-             "other": ["c90", None, 1.5]}
+    value = {
+        "c9": {"rows": [("c9", "c9 chain", 3)], "ids": '["c9", "b1"]', "nested": {"key": "c9"}},
+        "other": ["c90", None, 1.5],
+    }
     assert replace_ids(value, new_ids) == {
-        "new:components:1": {"rows": [("new:components:1", "c9 chain", 3)],
-                             "ids": '["new:components:1", "b1"]', "nested": {"key": "new:components:1"}},
-        "other": ["c90", None, 1.5]}
+        "new:components:1": {
+            "rows": [("new:components:1", "c9 chain", 3)],
+            "ids": '["new:components:1", "b1"]',
+            "nested": {"key": "new:components:1"},
+        },
+        "other": ["c90", None, 1.5],
+    }

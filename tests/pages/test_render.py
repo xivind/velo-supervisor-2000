@@ -9,9 +9,9 @@ Not requested:
 
 The client is used without a with block, so the lifespan and the scheduler do not start.
 """
-import pytest
 
-from fixtures.dataset import IDS, BIKES, COMPONENTS, COLLECTIONS, INCIDENTS, WORKPLANS
+import pytest
+from fixtures.dataset import BIKES, COLLECTIONS, COMPONENTS, INCIDENTS, WORKPLANS
 
 OVERVIEW_PAGES = [
     ("/", "Road bike"),
@@ -40,8 +40,11 @@ def test_every_overview_page_renders(client, path, expected_text):
     assert expected_text in response.text
 
 
-@pytest.mark.parametrize("route, resource_id, expected_text", DETAIL_PAGES,
-                         ids=[route.format(resource_id) for route, resource_id, _ in DETAIL_PAGES])
+@pytest.mark.parametrize(
+    "route, resource_id, expected_text",
+    DETAIL_PAGES,
+    ids=[route.format(resource_id) for route, resource_id, _ in DETAIL_PAGES],
+)
 def test_every_detail_page_renders(client, route, resource_id, expected_text):
     response = client.get(route.format(resource_id))
     assert response.status_code == 200

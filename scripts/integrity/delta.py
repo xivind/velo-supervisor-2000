@@ -23,6 +23,8 @@ def snapshot_delta(before: dict, after: dict) -> dict:
     or removed None stays apart from a None that changed. Paths are sorted.
     """
     old, new = _leaves(before, "", {}), _leaves(after, "", {})
-    return {path: {"before": old.get(path, ABSENT), "after": new.get(path, ABSENT)}
-            for path in sorted(set(old) | set(new))
-            if old.get(path, ABSENT) != new.get(path, ABSENT)}
+    return {
+        path: {"before": old.get(path, ABSENT), "after": new.get(path, ABSENT)}
+        for path in sorted(set(old) | set(new))
+        if old.get(path, ABSENT) != new.get(path, ABSENT)
+    }

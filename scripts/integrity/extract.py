@@ -2,8 +2,8 @@ import argparse
 import shutil
 import sys
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -15,8 +15,7 @@ from integrity.recalculate import recalculate
 from integrity.snapshot import dumps, new_id_map, normalise_new_ids, replace_ids, stored_state
 
 
-def extract(checkout: Path, db_path: Path,
-            scenario: Callable[[AppModules], None] | None = None) -> dict:
+def extract(checkout: Path, db_path: Path, scenario: Callable[[AppModules], None] | None = None) -> dict:
     """Run one checkout against a copy of db_path and return its stored and derived state.
 
     The scenario runs after the baseline recalculation and is never followed by another
@@ -33,9 +32,11 @@ def extract(checkout: Path, db_path: Path,
             if scenario is not None:
                 scenario(app)
             stored = stored_state(db_copy)
-            return {"stored": normalise_new_ids(stored, baseline_ids),
-                    "derived": replace_ids(derived_values(app), new_id_map(stored, baseline_ids)),
-                    "recalculation_failures": failures}
+            return {
+                "stored": normalise_new_ids(stored, baseline_ids),
+                "derived": replace_ids(derived_values(app), new_id_map(stored, baseline_ids)),
+                "recalculation_failures": failures,
+            }
 
 
 def main():

@@ -1,5 +1,4 @@
 import pytest
-
 from fixtures import expected
 
 
@@ -20,7 +19,8 @@ def test_missing_file_is_recorded_when_asked(expected_dir, monkeypatch):
     monkeypatch.setenv("RECORD_EXPECTED", "1")
     expected.assert_matches_expected("case", {"name": "æøå", "b": [1, 2]})
     assert (expected_dir / "case.json").read_text(encoding="utf-8") == (
-        '{\n "b": [\n  1,\n  2\n ],\n "name": "æøå"\n}\n')
+        '{\n "b": [\n  1,\n  2\n ],\n "name": "æøå"\n}\n'
+    )
     expected.assert_matches_expected("case", {"b": [1, 2], "name": "æøå"})
 
 

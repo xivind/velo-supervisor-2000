@@ -1,14 +1,13 @@
 """Shared fixtures: fixed clock, synthetic dataset, app modules bound to it, snapshots, a test client"""
 
-import sys
-import json
 import importlib
+import json
 import logging
+import sys
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
-
 from fixtures.dataset import build_dataset
 from fixtures.expected import assert_matches_expected
 from integrity.clock import frozen_clock
@@ -78,8 +77,10 @@ def snapshot_now(app):
 
     def take():
         stored = stored_state(app.db_path)
-        return {"stored": normalise_new_ids(stored, baseline_ids),
-                "derived": replace_ids(derived_values(app), new_id_map(stored, baseline_ids))}
+        return {
+            "stored": normalise_new_ids(stored, baseline_ids),
+            "derived": replace_ids(derived_values(app), new_id_map(stored, baseline_ids)),
+        }
 
     return take
 
@@ -90,8 +91,11 @@ def config_contents(app):
     """
     config = json.loads(app.utils.config_path().read_text(encoding="utf-8"))
     workdir = str(app.db_path.parent)
-    return {key: value for key, value in config.items()
-            if not (key in ("db_path", "strava_tokens") and value.startswith(workdir))}
+    return {
+        key: value
+        for key, value in config.items()
+        if not (key in ("db_path", "strava_tokens") and value.startswith(workdir))
+    }
 
 
 @pytest.fixture
