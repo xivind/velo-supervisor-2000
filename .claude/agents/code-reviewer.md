@@ -56,7 +56,7 @@ For each issue:
 Full rules in CLAUDE.md ("CI and workflow", "Git Workflow Rules"). For this role:
 - Tests (`uv run pytest -q`) and lint (`uv run ruff check && uv run ruff format --check`, scope `tests/` + `scripts/`) pass locally, and CI is green
 - No expected-result file in `tests/fixtures/expected/` was edited. A changed one must be deleted and re-recorded with `RECORD_EXPECTED=1`, with a documented reason; reject it otherwise
-- A change touching calculations comes with a `scripts/integrity/compare.py --ref master` result; any difference traces to a documented feature change
+- A change touching calculations comes with a `scripts/integrity/compare.py --ref master --db <copy>` result; any difference traces to a documented feature change
 - Pull requests come from a feature branch off `dev`; commits say "Refs #N", never "Closes"/"Fixes"; a migration carries the `breaking-change` label
 - Bugs found during review become issues on the Sprintboard (project #2) with a Priority
 

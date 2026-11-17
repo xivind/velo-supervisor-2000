@@ -2,7 +2,7 @@
 
 **Feature/Task:** Stage 1 Foundation (rewrite): layout, Docker, CI, release flow, tests, integrity comparison
 **Date:** 2026-11-17
-**Status:** Complete (release backfill pending, see Open items)
+**Status:** Complete (release backfill pending, see Blockers / Open Questions)
 
 ## Context
 Stage 1 built the safety net later stages lean on: a result extractor and comparison against `master`, characterisation and rule tests, CI and a new release flow, on a standard src layout. No calculation logic changed. PRs #368, #370, #379 and this branch (`feature/stage1-finish`).
@@ -71,12 +71,15 @@ UI-only behaviour from the #351 spec, findings and manual protocol (git history 
 
 ## Next Steps
 1. Stage 4 route tests must cover two rules held only by routes today: workplan due date is required (`Form(...)`, no backend check); empty optional form fields are accepted on uninstall.
-2. Switch-over on the Pi (Stage 6, also in the roadmap): move `config.json` to `/data/config.json` (container paths as in `config/config.json.example`); make `/data`, `/data/logs` and `/secrets` writable by UID 1000 and check `strava_tokens.json` ownership after sync-strava/update-strava run (if they rewrite it as root, token refresh fails); `git pull` so the tag reaches the build; switch on required checks `test`, `lint`, `docker` for `master`.
+2. Switch-over on the Pi (Stage 6, also in the roadmap): move `config.json` to `/data/config.json` (container paths as in `config/config.json.example`); `chown -R 1000:1000` `/data` (including root-owned `/data/logs/app.log*`, which otherwise crash-loop the container at log config load) and `/secrets`; check `strava_tokens.json` ownership after sync-strava/update-strava run (if they rewrite it as root, token refresh fails); `git pull` so the tag reaches the build; run the migration with `docker exec -it velo-supervisor-2000 python -m velo_supervisor.db_migration` (or `uv run python -m ...` from a checkout); switch on required checks `test`, `lint`, `docker` for `master`.
+3. Right after the next `dev` -> `staging` merge: switch on required checks `test`, `lint`, `docker` for `staging` (pending).
+4. Stage 3/4 extractor guidance: (a) the stored layer and every expected file are keyed by raw table and column names, so a schema change needs a projection in `snapshot.stored_state` back onto master's tables and columns, or a documented re-record agreed with the user; (b) `compare.py` runs the working tree's `derived.py` against both sides, so derived-mapping changes must keep reading master's flat layout (branch on `AppModules.layout`); (c) when tables change, add a primary-key uniqueness assert in `stored_state` (it takes the first PK column and keys a PK-less table by its row JSON).
+5. Stage 3/4 prerequisite: a CI test that extracts `git archive origin/master` and the working tree on the synthetic dataset and diffs them (fast master comparison on every PR; CI has fetch-depth 0). `tests/strava/` is a package named `strava` and would shadow master's flat `strava` module in an in-process flat-layout test: run it in a subprocess or rename the test package.
 
 ## Blockers / Open Questions
 - [PENDING] Release backfill: GitHub Releases for the existing tags wait for the maintainer's decision on moving the misplaced tags.
 - [PENDING] graphify: 63 of 144 curated community labels were lost in the move; relabelling calls the LLM backend, so it waits for the user.
-- Deferred minors worth a later look: `compare.py` exits 1 on a crash as on differences (use 2) and does not refuse an `--out-dir` inside the repo; `stored_state` could open the database read-only; new-ID normalisation is keyed by bare value, so one new ID in two tables collapses; the collection-retire refusal test uses one member and no longer proves the sibling stays installed; `create-container-vs2000.sh` has no `set -e`.
+- Deferred minors worth a later look: `stored_state` could open the database read-only; new-ID normalisation is keyed by bare value, so one new ID in two tables collapses; `create-container-vs2000.sh` has no `set -e`.
 
 ## References
 - Spec: `docs/superpowers/specs/2026-11-16-stage-1-foundation-design.md`; roadmap: `docs/superpowers/specs/2026-11-15-rewrite-roadmap-design.md`
