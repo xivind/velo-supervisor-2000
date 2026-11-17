@@ -83,7 +83,7 @@ Every stage ends with CLAUDE.md and the agent files in `.claude/agents/` updated
 
 ### Stage 1: Foundation
 
-**Status:** Delivered 2026-11-17; the release backfill for existing tags is pending. Handover: [stage-1-foundation-handover.md](../../../.handovers/stages/stage-1-foundation-handover.md)
+**Status:** Delivered 2026-11-17, including the release backfill. Handover: [stage-1-foundation-handover.md](../../../.handovers/stages/stage-1-foundation-handover.md)
 
 **Purpose:** a safety net that proves later stages didn't change the logic.
 
