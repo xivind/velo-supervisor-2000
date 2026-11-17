@@ -531,6 +531,21 @@ def test_validate_service_record_refuses_date_after_done_workplan(app, operation
     assert operation_delta() == {}
 
 
+def test_validate_service_record_refuses_empty_service_date(app, operation_delta):
+    """Completing needs a service date, both in the complete services modal and when the service
+    form switches a planned service to completed
+    """
+    empty_date = "Date cannot be empty. Expected format: YYYY-MM-DD HH:MM (e.g., 2024-12-14 23:34)"
+    success, message = app.business_logic.complete_services([IDS.svc_wheel_planned], "")
+    assert success is False
+    assert message["failed_components"] == [{"name": "Rear wheel", "error": empty_date}]
+    result = app.business_logic.update_service_record(
+        IDS.comp_wheel_offset, IDS.svc_wheel_planned, None, "True rear wheel", None, "Completed"
+    )
+    assert result == (False, empty_date)
+    assert operation_delta() == {}
+
+
 def test_validate_service_record_accepts_valid_input(app):
     result = app.business_logic.validate_service_record(
         "create service", IDS.comp_chain_moved, "svc-new", "2026-11-01 08:00"
@@ -624,3 +639,32 @@ def test_validate_workplan_completion_refuses_date_before_latest_service(app, op
 def test_validate_workplan_completion_accepts_valid_input(app):
     result = app.business_logic.validate_workplan_completion(IDS.wp_brake_check, "2025-04-01 10:00")
     assert result == (True, "Workplan can be completed")
+
+
+def test_refusals_leave_the_app_healthy(app, client):
+    """A refusal is logged as a warning, not an error, so it does not make the app unhealthy (#103).
+    One refusal per validator, plus bulk and orchestrating callers that repeat a refusal from
+    below them.
+    """
+    logic = app.business_logic
+    refusals = [
+        lambda: logic.create_history_record(IDS.comp_chain_moved, "Not installed", IDS.bike_road, "2026-11-20 08:00"),
+        lambda: logic.create_history_record(IDS.comp_chain_moved, "Retired", IDS.bike_road, "2026-11-01 08:00"),
+        lambda: logic.quick_swap_orchestrator(IDS.comp_chain_moved, "Retired", "2026-11-01 08:00", None, NEW_CHAIN),
+        lambda: logic.quick_swap_orchestrator(
+            IDS.comp_chain_moved, "Not installed", "2026-11-01 08:00", IDS.comp_no_history, None
+        ),
+        lambda: logic.change_collection_status(IDS.coll_mixed, "Not installed", "2026-11-01 08:00", None),
+        lambda: logic.create_service_record(IDS.comp_chain_moved, "2026-11-20 08:00", "Waxed"),
+        lambda: logic.create_planned_services([IDS.comp_chain_moved], "Replace chain", IDS.wp_drivetrain),
+        lambda: logic.complete_services([IDS.svc_wheel_planned], "2026-11-20 08:00"),
+        lambda: logic.update_workplan(
+            IDS.wp_drivetrain, None, "Done", None, None, "2026-11-01 10:00", None, None, "partial"
+        ),
+        lambda: logic.modify_component_type("Chainring", "15000", "", "", "", "0", "", "No", "1", "create"),
+        lambda: logic.delete_record("Workplans", IDS.wp_drivetrain),
+    ]
+    for refusal in refusals:
+        assert refusal()[0] is False
+    response = client.get("/health")
+    assert (response.status_code, response.json()["latest_errors"]) == (200, [])

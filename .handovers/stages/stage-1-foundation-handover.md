@@ -41,6 +41,21 @@ Same command, `--out-dir <scratchpad>/phase-b-end`. "identical", same row counts
 - `/data`, `/data/logs` and `/secrets` writable by UID 1000. `strava_tokens.json` in `/secrets` is shared with the sync-strava and update-strava containers: if they rewrite it as root, VS2000 can no longer refresh the token. Check ownership after their next run.
 - Turn on required checks for `master` branch protection.
 
+## Stage 2 parity checklist (from removed docs)
+UI-only behaviour from the #351 spec, findings and manual protocol (git history before the Task 18 deletion commit). The backend rules behind them are in `tests/rules/`.
+- Plan services modal preselects: component (itself), bike (installed, non-retired), collection (members), incident (its components, no workplan), workplan (workplan locked, no components). Retired components are not listed.
+- Date pickers: planned date and due date accept future dates; service, completion and resolution dates do not. Invalid or missing dates are refused before any request. One save through every form with a date field.
+- Complete services modal: planned services listed ticked as "component: description", date defaults to now, retired rows disabled; the row ✅ lists only that service. "Complete services" sits in the button row on bike and component details, disabled when nothing is planned or the component is retired.
+- Planned services tables (bike, component, workplan details): "Due date" shows the effective planned date, ❗ when passed; ✅ ✍ 🗑 row actions on all three; the row opens the component.
+- Workplan details: bike and component badges, progress wheel "n/m", bike per component in parentheses or "(Not assigned)"; banners for no services, all services completed, and completed on <date> (actions disabled); "Complete workplan" disabled while planned services remain; close-linked-incidents checkbox; "Edit details" label.
+- Workplans list: "Workplan name" column, search also matches component names, centred progress wheel with a checkmark at 100%.
+- Workplan modal: no bike or component selects; optional name (empty gives the generated title); due date required; from an incident (📝) the description is prefilled and its components are ticked checkboxes, "Components transferred from incident".
+- Incident modal: no workplan dropdown (#345); read-only linked services (component link, "Service link" that opens the service modal, service status, date, workplan link with Open/Completed), names escaped; resolving with planned services shows a warning but saves; the status radios fill and clear the resolution date.
+- Incidents list: workplan column "N workplans" or "No workplan" plus progress wheel; 📝 and 🧑‍🔧 disabled on resolved incidents (the backend does not block planning for them).
+- Service record modal: Planned hides the service date and shows the planned date; workplan options are Planned workplans and incident options Open incidents naming the component, plus the linked one with its name even when Done or Resolved; "View workplan" and "View incident" links; `#incident-<id>` opens that incident.
+- Notes: installation history Notes column ("-" when blank); "Notes for status change" on status change, quick swap and collection status change (with the "same note on every component" line); the edit installation record modal edits the note, status read-only.
+- Uninstalling from the status modal with no bike selected submits (empty optional form fields are accepted).
+
 ## Next Steps
 Task 4 onwards per plan.
 

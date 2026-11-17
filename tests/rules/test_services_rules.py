@@ -289,3 +289,57 @@ def test_completing_in_done_workplan_only_up_to_its_completion_date(app, snapsho
     assert success, message
     completed = snapshot_now()["stored"]["services"][planned_id]
     assert (completed["status"], completed["service_date"]) == ("Completed", "2025-03-01 08:00")
+
+
+def test_planned_services_outside_workplans_may_repeat(app, snapshot_now):
+    """The rear wheel's svc-wheel-planned is in no workplan, so a second one outside any workplan
+    is planned too
+    """
+    success, message = app.business_logic.create_planned_services([IDS.comp_wheel_offset], "Check spoke tension")
+    assert success, message
+    planned = snapshot_now()["derived"]["component"][IDS.comp_wheel_offset]["planned_services"]
+    assert sorted((row["description"], row["workplan_id"]) for row in planned) == [
+        ("Check spoke tension", None),
+        ("True rear wheel", None),
+    ]
+
+
+def test_editing_completed_service_keeps_date_rules(app, operation_delta):
+    """svc-chain-2 cannot be moved into the future or to before the chain's first installation
+    (2025-01-01 08:00)
+    """
+    edit = app.business_logic.update_service_record
+    assert edit(IDS.comp_chain_moved, IDS.svc_chain_2, "2026-11-20 08:00", "Waxed", None, "Completed") == (
+        False,
+        "Service date cannot be in the future. Component: Chain",
+    )
+    assert edit(IDS.comp_chain_moved, IDS.svc_chain_2, "2024-12-01 08:00", "Waxed", None, "Completed") == (
+        False,
+        "Service date cannot be at or before component creation date 2025-01-01 08:00. Component: Chain",
+    )
+    assert operation_delta() == {}
+
+
+def test_reverting_service_in_done_workplan_leaves_workplan_done(app, snapshot_now):
+    """Setup: a completed cassette service on 2025-03-01 08:00 in wp-brake-check (Done, completed
+    2025-04-01 10:00). Reverting it to planned leaves the workplan Done with its completion date,
+    now holding a planned service.
+    """
+    assert app.business_logic.create_service_record(
+        IDS.comp_cassette_serviced, "2025-03-01 08:00", "Spring clean", IDS.wp_brake_check
+    )[0]
+    (service_id,) = [
+        service.service_id
+        for service in app.database_manager.read_subset_service_history(IDS.comp_cassette_serviced)
+        if service.service_date == "2025-03-01 08:00"
+    ]
+    success, message = app.business_logic.update_service_record(
+        IDS.comp_cassette_serviced, service_id, None, "Spring clean", IDS.wp_brake_check, "Planned"
+    )
+    assert success, message
+    snapshot = snapshot_now()
+    workplan = snapshot["stored"]["workplans"][IDS.wp_brake_check]
+    assert (workplan["workplan_status"], workplan["completion_date"]) == ("Done", "2025-04-01 10:00")
+    assert [row["service_id"] for row in snapshot["derived"]["workplan"][IDS.wp_brake_check]["planned_services"]] == [
+        "new:services:1"
+    ]

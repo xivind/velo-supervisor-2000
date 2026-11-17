@@ -273,3 +273,22 @@ def test_page_values_with_planned_and_completed_services(snapshot_now):
         IDS.comp_tire_time,
         IDS.comp_pads_norwegian,
     ]
+
+
+def test_reopening_done_workplan_leaves_its_services(app, operation_delta):
+    """wp-brake-check set back to Planned: only the workplan row changes, svc-pads-retired keeps its
+    status, date and link
+    """
+    assert app.business_logic.update_workplan(
+        IDS.wp_brake_check,
+        "2025-04-01 10:00",
+        "Planned",
+        "Small",
+        "Check the commuter brakes",
+        None,
+        None,
+        None,
+        None,
+        "Brake check",
+    )[0]
+    assert {path.split("/")[1] for path in operation_delta() if path.startswith("stored/")} == {"workplans"}
