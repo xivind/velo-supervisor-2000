@@ -81,7 +81,7 @@ def test_create_planned_services(app, operation_delta):
 def test_create_planned_services_partial_failure(app, operation_delta):
     """The chain already has a planned service in wp-drivetrain, so only the cassette gets one.
 
-    The result is False although the cassette's service is stored.
+    The result is False although the cassette's service is stored (#376).
     """
     success, message = app.business_logic.create_planned_services(
         [IDS.comp_chain_moved, IDS.comp_cassette_serviced], "Check wear", IDS.wp_drivetrain, None, None)
@@ -216,6 +216,33 @@ def test_create_workplan_from_incident_with_selection(app, operation_delta):
     assert (success, message) == (
         True, f"Created new workplan with id {workplan_id} and planned 1 service(s) from incident")
     assert_matches_expected("op_workplan_create_from_incident_selection", operation_delta())
+
+
+def test_create_workplan_from_incident_with_retired_component(app, operation_delta):
+    """A workplan from inc-squeal, whose only component is the retired pads: the workplan is stored
+    and the result is True, but no service is planned, since a retired component cannot get one;
+    the message says not all could be created (#376).
+    """
+    success, message, workplan_id = app.business_logic.create_workplan(
+        "2026-12-01 10:00", "Planned", "Small", "Brake follow-up", None, None, None, IDS.inc_squeal, None)
+    assert _new_ids(app, "workplans") == [workplan_id]
+    assert _new_ids(app, "services") == []
+    assert (success, message) == (
+        True, f"Created new workplan with id {workplan_id}. Not all planned services from the incident could be "
+              "created, check the planned services on the workplan")
+    assert_matches_expected("op_workplan_create_from_incident_retired", operation_delta())
+
+
+def test_create_workplan_from_incident_with_no_matching_selection(app, operation_delta):
+    """A selection with none of inc-drivetrain's components plans nothing; the workplan is stored"""
+    success, message, workplan_id = app.business_logic.create_workplan(
+        "2026-12-01 10:00", "Planned", "Small", "Tire only", None, None, None, IDS.inc_drivetrain,
+        [IDS.comp_tire_time])
+    assert _new_ids(app, "workplans") == [workplan_id]
+    assert _new_ids(app, "services") == []
+    assert (success, message) == (
+        True, f"Created new workplan with id {workplan_id}. No components were selected, so no services were planned")
+    assert_matches_expected("op_workplan_create_from_incident_no_selection", operation_delta())
 
 
 def test_update_workplan(app, operation_delta):
