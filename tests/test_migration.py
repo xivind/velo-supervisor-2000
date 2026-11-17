@@ -188,6 +188,11 @@ def test_migration_converts_old_model(old_db):
     assert "workplan_name" in columns(old_db, "workplans")
     assert not {"workplan_affected_component_ids", "workplan_affected_bike_id"} & columns(old_db, "workplans")
     assert "workplan_id" not in columns(old_db, "incidents")
+    assert query(old_db, "SELECT workplan_id, workplan_name FROM workplans ORDER BY workplan_id") == [
+        ("wp-emergency", None),
+        ("wp-last-year", None),
+        ("wp-spring", None),
+    ]
 
     assert query(old_db, "SELECT status, incident_id FROM services WHERE service_id = 'svc-in-plan'") == [
         ("Completed", None)

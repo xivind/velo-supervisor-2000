@@ -90,6 +90,18 @@ def test_error_makes_app_unhealthy_for_24_hours(app, logger):
         )
 
 
+def test_health_status_lists_the_last_three_errors_cut_at_300_characters(app, logger):
+    """The status shows only the newest three errors, oldest first, each cut at 300 characters"""
+    messages = [f"Error {number}: " + "x" * 400 for number in range(1, 5)]
+    for message in messages:
+        logger.error(message)
+    healthy, health_status = app.utils.get_health_status(True, "ok")
+    assert healthy is False
+    assert health_status["latest_errors"] == [
+        {"time": "2026-11-16 12:00:00", "message": message[:300]} for message in messages[1:]
+    ]
+
+
 def test_failing_database_makes_app_unhealthy(app, database, tmp_path):
     not_a_database = tmp_path / "not_a_database.sqlite"
     not_a_database.write_text("this is not a database", encoding="utf-8")
