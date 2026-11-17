@@ -1,45 +1,58 @@
 # Stage 1 Foundation Handover
 
-**Feature/Task:** Stage 1 Foundation (rewrite), integrity extractor
-**Date:** 2026-11-16
-**Status:** In Progress
+**Feature/Task:** Stage 1 Foundation (rewrite): layout, Docker, CI, release flow, tests, integrity comparison
+**Date:** 2026-11-17
+**Status:** Complete (release backfill pending, see Open items)
 
 ## Context
-Stage 1 builds the integrity extractor and compare tools that prove later restructuring leaves results unchanged. Finalised in Task 19.
+Stage 1 built the safety net later stages lean on: a result extractor and comparison against `master`, characterisation and rule tests, CI and a new release flow, on a standard src layout. No calculation logic changed. PRs #368, #370, #379 and this branch (`feature/stage1-finish`).
 
 ## Deliverables
-- `scripts/integrity/extract.py` - extract(checkout, db, scenario) and CLI
-- `scripts/integrity/compare.py` - diff, summary, "Present on both sides"
-- `tests/integrity/test_compare.py`
-
-## Progress log
-
-### Task 3, step 5: failing-comparison proof
-Exported `master` twice with `git archive`; in one copy changed `total_distance = current_distance + distance_offset` to `+ distance_offset + 1` in `update_component_distance`. Ran `scripts/integrity/extract.py --checkout <export> --db <prod copy> --out <json>` on both and `compare.diff`. Outcome: 4739 differences, 1207 in stored values; component distances shifted by 1 km. The comparison detects the change.
-
-### Task 3, step 6: baseline dev vs master
-`uv run python scripts/integrity/compare.py --ref master --db <prod copy> --out-dir <scratchpad>/baseline`. Exit code 0, "identical". Rows per table: bikes 17, collections 14, component_history 1035, component_types 50, components 638, incidents 15, rides 7449, services 228, workplans 12.
-
-Present on both sides: 10 components without installation history, handled by process_history_records' 'No history records' path, identical on both sides. No derived errors.
-
-### Task 4, step 9: src layout vs master
-`uv run python scripts/integrity/compare.py --ref master --db <prod copy> --out-dir <scratchpad>/after-move`. Exit code 0, "identical". Rows per table: bikes 17, collections 14, component_history 1035, component_types 50, components 638, incidents 15, rides 7449, services 228, workplans 12, same as the baseline.
-
-Present on both sides: the same 10 `process_history_records` 'No history records' lines. No derived errors.
-
-### End of Phase B (after Tasks 5-7: version from git tag, config from `VELO_SUPERVISOR_CONFIG`, new Docker image)
-Same command, `--out-dir <scratchpad>/phase-b-end`. "identical", same row counts, same 10 lines present on both sides, no derived errors. CI run 43971553671: `test` and `docker` green; footer version `0.5.1.dev90+g6b451009a`.
+- `src/velo_supervisor/` package (templates, static), `config/` starting files, `Dockerfile` (multi-stage, UID 1000, `VELO_SUPERVISOR_CONFIG=/data/config.json`), version from the git tag (hatch-vcs)
+- `scripts/integrity/`: `extract.py` (stored + derived state as JSON, fixed clock), `compare.py` (ref vs working tree), `delta.py`
+- `tests/`: characterisation, rules, pages, strava, integrity, `test_*.py`; dataset builder and expected files in `tests/fixtures/` (see `tests/README.md`)
+- `.github/workflows/tests.yml` (test, lint, docker), `dependabot.yml`, `release.yml`; branch protection on `master` and `staging`
+- Docs: README, `tests/README.md`, CLAUDE.md (incl. "CI and workflow"), every `.claude/agents/*.md`, `.handovers/CLAUDE.md`, roadmap
 
 ## Decisions Made
-1. `extract` output carries `recalculation_failures`, so a failure shows in a diff.
-2. `db_migration.py` does not read `config.json` (it searches for the database file and asks), so it needed no change for the config location; the spec said otherwise. README line 150 is corrected in Task 17.
-3. The Docker build stage restores tracked files hidden by `.dockerignore` before `uv sync`, so the version has no dirty-tree suffix; CI fails on a dirty suffix and, on a tag, requires the version to equal the tag.
-4. Curated graphify community labels (63 of 144 lost in the move) are relabelled once in Task 19.
+1. Operation expected files hold deltas (before/after per changed path, `<absent>` marker), and each test first asserts its "before" equals `recalculation.json`. Full snapshots per operation were 2.3 MB and unreviewable for one maintainer.
+2. Recalculation failures are data: `extract` returns sorted `recalculation_failures` lines, and `compare.py` lists failures and derived errors "present on both sides", so an identical failure is seen rather than silently equal.
+3. IDs created during a scenario are normalised to `new:<table>:<n>` in both the stored and the derived layer, so outputs repeat.
+4. The Docker build restores tracked files hidden by `.dockerignore` before `uv sync`, so a tagged build shows a plain `0.5.x` without a dirty-tree suffix; CI fails on a dirty suffix and checks tag equality.
+5. Releases are made on the GitHub Releases page, not a custom workflow (spec choice). Found: every existing tag points at the commit before its release content.
+6. `db_migration` does not read `config.json` (it searches home folders and asks), so the config location needed no change there; the spec said otherwise.
+7. Required checks can only be switched on where the workflow exists: `staging` after the next `dev` → `staging` merge, `master` at switch-over (Stage 6). Both require PRs, 0 approvals, admins included.
+8. User decisions: all old tests rewritten (32 mapped), legacy docs and handovers deleted once covered; `httpx2` as dev dependency (starlette TestClient); issue references in docstrings, not comments.
 
-## Switch-over steps for the Pi (Stage 6)
-- Move `config.json` to `/data/config.json`.
-- `/data`, `/data/logs` and `/secrets` writable by UID 1000. `strava_tokens.json` in `/secrets` is shared with the sync-strava and update-strava containers: if they rewrite it as root, VS2000 can no longer refresh the token. Check ownership after their next run.
-- Turn on required checks for `master` branch protection.
+## Comparison against master (production copy, recalculation + derived values)
+| Point | Result |
+|---|---|
+| Baseline, before the move (Task 3) | identical |
+| After the src move (Task 4), and end of Phase B | identical |
+| End of stage (2026-11-17, HEAD of `feature/stage1-finish`) | identical |
+
+Every run: same row counts (bikes 17, collections 14, component_history 1035, component_types 50, components 638, incidents 15, rides 7449, services 228, workplans 12); the same 10 `process_history_records` "No history records" failures on both sides; no derived errors. A mutation proof (+1 km in `update_component_distance`) gave 4739 differences.
+
+## Using the extractor and comparison
+- `uv run python scripts/integrity/compare.py --ref master --db <copy> --out-dir <folder outside the repo>`; exit 0 and "identical" means no difference. Run it whenever a change touches calculations, and at the end of Stages 4 and 6.
+- Never commit the database copy or its outputs. Record counts and kinds only in public files.
+- Expected files are never overwritten: a missing file is recorded only with `RECORD_EXPECTED=1`; changing one means deleting it by hand with a documented reason (issue or feature).
+
+## Issues opened
+#369 (config lost on redeploy; addressed on `dev` by config on `/data`), #371, #372, #373, #374, #375, #376, #377, #378, #380 (template `in_use`; addressed on `dev`). All on the Sprintboard with P0. Bugs are pinned as the code behaves, with the issue in the test docstring. #12 decided: count only `Ride`, `MountainBikeRide` and `GravelRide` (by `sport_type`); done as its own change right after Stage 1.
+
+## Coverage (287 tests, total 80%)
+| Module | Cover | Uncovered |
+|---|---|---|
+| business_logic | 89% | error and `except` branches; quick swap and collection status failure paths; time-based fallbacks in `update_component_lifetime_service_alternate`; compliance warning in `modify_component_details` |
+| database_manager | 88% | `except` branches of `write_*`; `write_delete_record` not-found/invalid paths; `read_workplans_by_incident` |
+| db_migration | 58% | interactive path finding and prompts; legacy migrations the template has already passed |
+| main | 50% | POST route handlers (operations are tested at service level), `lifespan`, `delete_record` route |
+| scheduler | 21% | not tested (jobs, start, stop) |
+| strava | 81% | token refresh in `get_bikes`/`get_athlete_bikes`, error branches |
+| utils | 92% | `read_filtered_logs` (fixed `/data/logs` path), some date validation branches |
+| middleware | 92% | `handle_exception` branch |
+| database_model | 100% | none |
 
 ## Stage 2 parity checklist (from removed docs)
 UI-only behaviour from the #351 spec, findings and manual protocol (git history before the Task 18 deletion commit). The backend rules behind them are in `tests/rules/`.
@@ -57,10 +70,14 @@ UI-only behaviour from the #351 spec, findings and manual protocol (git history 
 - Uninstalling from the status modal with no bike selected submits (empty optional form fields are accepted).
 
 ## Next Steps
-Task 4 onwards per plan.
+1. Stage 4 route tests must cover two rules held only by routes today: workplan due date is required (`Form(...)`, no backend check); empty optional form fields are accepted on uninstall.
+2. Switch-over on the Pi (Stage 6, also in the roadmap): move `config.json` to `/data/config.json` (container paths as in `config/config.json.example`); make `/data`, `/data/logs` and `/secrets` writable by UID 1000 and check `strava_tokens.json` ownership after sync-strava/update-strava run (if they rewrite it as root, token refresh fails); `git pull` so the tag reaches the build; switch on required checks `test`, `lint`, `docker` for `master`.
 
 ## Blockers / Open Questions
-None.
+- [PENDING] Release backfill: GitHub Releases for the existing tags wait for the maintainer's decision on moving the misplaced tags.
+- [PENDING] graphify: 63 of 144 curated community labels were lost in the move; relabelling calls the LLM backend, so it waits for the user.
+- Deferred minors worth a later look: `compare.py` exits 1 on a crash as on differences (use 2) and does not refuse an `--out-dir` inside the repo; `stored_state` could open the database read-only; new-ID normalisation is keyed by bare value, so one new ID in two tables collapses; the collection-retire refusal test uses one member and no longer proves the sibling stays installed; `create-container-vs2000.sh` has no `set -e`.
 
 ## References
-- Spec: `docs/superpowers/specs/2026-11-16-stage-1-foundation-design.md`
+- Spec: `docs/superpowers/specs/2026-11-16-stage-1-foundation-design.md`; roadmap: `docs/superpowers/specs/2026-11-15-rewrite-roadmap-design.md`
+- Issues #364, #121, #11, #356
