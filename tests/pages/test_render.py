@@ -9,11 +9,7 @@ Not requested:
 
 The client is used without a with block, so the lifespan and the scheduler do not start.
 """
-import importlib
-import logging
-
 import pytest
-from fastapi.testclient import TestClient
 
 from fixtures.dataset import IDS, BIKES, COMPONENTS, COLLECTIONS, INCIDENTS, WORKPLANS
 
@@ -35,16 +31,6 @@ DETAIL_PAGES = (
 )
 
 DETAIL_ROUTES = ["/bike_details/{}", "/component_details/{}", "/collection_details/{}", "/workplan_details/{}"]
-
-
-@pytest.fixture
-def client(app):
-    root_handlers = list(logging.getLogger().handlers)
-    main = importlib.import_module("velo_supervisor.main")
-    yield TestClient(main.app, raise_server_exceptions=False)
-    for handler in list(logging.getLogger().handlers):
-        if handler not in root_handlers:
-            logging.getLogger().removeHandler(handler)
 
 
 @pytest.mark.parametrize("path, expected_text", OVERVIEW_PAGES, ids=[path for path, _ in OVERVIEW_PAGES])
