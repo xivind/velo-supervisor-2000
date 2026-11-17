@@ -2,7 +2,7 @@
 
 **Feature/Task:** Stage 1 Foundation (rewrite): layout, Docker, CI, release flow, tests, integrity comparison
 **Date:** 2026-11-17
-**Status:** Complete (release backfill pending, see Blockers / Open Questions)
+**Status:** Complete
 
 ## Context
 Stage 1 built the safety net later stages lean on: a result extractor and comparison against `master`, characterisation and rule tests, CI and a new release flow, on a standard src layout. No calculation logic changed. PRs #368, #370, #379 and this branch (`feature/stage1-finish`).
@@ -41,7 +41,7 @@ Every run: same row counts (bikes 17, collections 14, component_history 1035, co
 ## Issues opened
 #369 (config lost on redeploy; addressed on `dev` by config on `/data`), #371, #372, #373, #374, #375, #376, #377, #378, #380 (template `in_use`; addressed on `dev`). All on the Sprintboard with P0. Bugs are pinned as the code behaves, with the issue in the test docstring. #12 decided: count only `Ride`, `MountainBikeRide` and `GravelRide` (by `sport_type`); done as its own change right after Stage 1.
 
-## Coverage (287 tests, total 80%)
+## Coverage (289 tests, total 80%)
 | Module | Cover | Uncovered |
 |---|---|---|
 | business_logic | 89% | error and `except` branches; quick swap and collection status failure paths; time-based fallbacks in `update_component_lifetime_service_alternate`; compliance warning in `modify_component_details` |
@@ -77,8 +77,8 @@ UI-only behaviour from the #351 spec, findings and manual protocol (git history 
 5. Stage 3/4 prerequisite: a CI test that extracts `git archive origin/master` and the working tree on the synthetic dataset and diffs them (fast master comparison on every PR; CI has fetch-depth 0). `tests/strava/` is a package named `strava` and would shadow master's flat `strava` module in an in-process flat-layout test: run it in a subprocess or rename the test package.
 
 ## Blockers / Open Questions
-- [PENDING] Release backfill: GitHub Releases for the existing tags wait for the maintainer's decision on moving the misplaced tags.
-- [PENDING] graphify: 63 of 144 curated community labels were lost in the move; relabelling calls the LLM backend, so it waits for the user.
+- [DONE 2026-11-17] Release backfill: every tag had been created one release early (tag, then merge). With the maintainer's approval 13 tags were moved to the first master commit that contains their release (README numbering wins), v0.4.6 was created at #315, v0.1.0 kept; 15 GitHub Releases published, v0.5.0 latest. Old clones need `git fetch --tags --force`.
+- [DONE 2026-11-17] graphify: communities relabelled with descriptive names (183 communities) via `graphify label . --backend=claude-cli`; without a backend it falls back to file names.
 - Deferred minors worth a later look: `stored_state` could open the database read-only; new-ID normalisation is keyed by bare value, so one new ID in two tables collapses; `create-container-vs2000.sh` has no `set -e`.
 
 ## References
