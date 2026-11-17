@@ -40,4 +40,13 @@ You are the Lead Architect for Velo Supervisor 2000. Read CLAUDE.md for project 
 - **Appropriate simplicity**: Single-user app - don't over-engineer
 - **Justify new code**: Explain why existing methods are insufficient
 
+## CI and workflow
+
+Full rules in CLAUDE.md ("CI and workflow", "Git Workflow Rules"). For this role:
+- Calculations stay as they are unless a documented feature change says otherwise. Name that change and its issue in the design
+- Each task names the tests it adds or keeps green (`tests/characterisation`, `rules`, `pages`, `strava`) and, if it touches calculations, a `scripts/integrity/compare.py --ref master --db <copy>` run
+- A change to an expected-result file is planned as: delete by hand with the reason, re-record with `RECORD_EXPECTED=1`
+- Schema changes need a migration; its pull request gets the `breaking-change` label
+- New issues go on the Sprintboard (project #2) with a Priority
+
 Handoff to: @ux-designer (to update v2), then @database-expert or @fullstack-developer.

@@ -16,7 +16,7 @@ Starting files are in `config/`. Keep your own copies outside the repo, and dont
   - Local: `config.json` in the project root (it is in .gitignore, so it will not be synced to remote)
   - Docker: `/data/config.json` inside the container, set by the environment variable `VELO_SUPERVISOR_CONFIG`
 - **Step 4 (local):** Install [uv](https://docs.astral.sh/uv/) and run `uv sync` from the project root. This creates a virtual Python 3.12 environment in `.venv` and installs the packages from `uv.lock`. Start the program from the project root with `uv run uvicorn velo_supervisor.main:app --log-config config/uvicorn_log_config.ini`. It serves on http://localhost:8000
-- **Step 4 (Docker):** The `Dockerfile` is in the project root. The script `scripts/create-container-vs2000.sh` builds the image and starts a container, and is meant as inspiration, so modify it to your liking. The container runs as UID 1000, so the folder mounted on `/data` (database, `config.json` and logs) must be writable by that user. The Strava tokens are mounted on `/secrets`. A health check calls `/health` every 10 minutes and reports unhealthy if an error was logged in the last 24 hours or the database cant be read
+- **Step 4 (Docker):** The `Dockerfile` is in the project root. The script `scripts/create-container-vs2000.sh` builds the image and starts a container, and is meant as inspiration, so modify it to your liking. The container runs as UID 1000, so the folder mounted on `/data` (database, `config.json` and logs) must be writable by that user. The `config.json` in `/data` keeps the container paths from `config/config.json.example` (`/data/...` for the database, `/secrets/...` for the tokens). The Strava tokens are mounted on `/secrets`. A health check calls `/health` every 10 minutes and reports unhealthy if an error was logged in the last 24 hours or the database cant be read
 - **Step 5:** On startup the program will call Stravas APIs and get the last 200 rides and related bikes, but since this is the first time you run the program, you need to manually fetch all ride data and all bikes. This is done by navigating to the `CONFIG` tab and click the button `Get all rides`
 - **Step 6:** You are all set and can now register your first components. The rest will hopefully be self explanatory
 
@@ -24,7 +24,7 @@ Starting files are in `config/`. Keep your own copies outside the repo, and dont
 Some releases change the database schema. These are marked as breaking changes in the [release notes](https://github.com/xivind/velo-supervisor-2000/releases). Backup the database first, then run the migration script from the project root:
 
 ```bash
-python -m velo_supervisor.db_migration
+uv run python -m velo_supervisor.db_migration
 ```
 
 The script does not read `config.json`. It searches the home folders of the current user for the database and asks you to confirm, or to enter the path manually. Release notes also say when you need to clear the browser cache (Ctrl + Shift + R) after updating the server.
@@ -64,4 +64,4 @@ To release, go to the [Releases page](https://github.com/xivind/velo-supervisor-
 4. Edit the notes, then publish
 
 ## Changelog
-See the [Releases page](https://github.com/xivind/velo-supervisor-2000/releases) for release notes for every version. To see whats coming, check out the [project board](https://github.com/users/xivind/projects/2/views/1). Items marked as P0 are planned for the next release.
+See the [Releases page](https://github.com/xivind/velo-supervisor-2000/releases) for release notes for every version. To see whats coming, check out the [project board](https://github.com/users/xivind/projects/2/views/1).

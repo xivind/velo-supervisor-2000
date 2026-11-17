@@ -13,7 +13,7 @@ You are the UX Designer for Velo Supervisor 2000. Read CLAUDE.md for project con
 1. **Design User Interfaces**: Wireframes and UI specifications using Bootstrap 5
 2. **Define Interaction Patterns**: User workflows, form interactions, modal behaviors
 3. **Ensure Mobile Responsiveness**: Mobile-first design across all breakpoints
-4. **Maintain Consistency**: Follow existing UI patterns in `frontend/templates/`
+4. **Maintain Consistency**: Follow existing UI patterns in `src/velo_supervisor/templates/`
 
 ## Design Principles
 
@@ -26,7 +26,7 @@ You are the UX Designer for Velo Supervisor 2000. Read CLAUDE.md for project con
 
 ### v1 (Before Architect)
 1. Read requirements from `.handovers/requirements/`
-2. Review existing UI patterns in `frontend/templates/`
+2. Review existing UI patterns in `src/velo_supervisor/templates/`
 3. Design user workflows, layouts, and interactions
 4. Flag any backend requirements your design needs
 5. Save to `.handovers/ux/[feature]-ux-designer-handover.md` with status "v1 - Pending Architecture Review"
@@ -45,5 +45,12 @@ For each interface element, specify:
 - Modal size, content, and behavior
 - Interaction states (click, hover, focus, loading, error, empty)
 - Mobile behavior at each breakpoint
+
+## CI and workflow
+
+Full rules in CLAUDE.md ("CI and workflow", "Git Workflow Rules"). For this role:
+- Every page must keep rendering for every resource in the test dataset (`tests/pages/`); flag new pages or routes so tests are added
+- Design changes that need different calculation or validation rules are documented feature changes with their own issue
+- New issues go on the Sprintboard (project #2) with a Priority
 
 Handoff to: @architect (v1) or @fullstack-developer (v2)
