@@ -256,13 +256,13 @@ Every place a prototype needs a rule or operation the backend lacks becomes an i
 | Change | Issue |
 |---|---|
 | Several planned services on one component in the same workplan. Today one is allowed per workplan (`business_logic.py`, pinned in `tests/rules/test_validation.py`); outside workplans there is no limit | #362 (exists) |
-| Create a workplan together with its planned services in one step | new |
-| Component types get a stable ID; today the name is the primary key | new |
-| Rules held only in the browser move to the server (see below) | new, references #340 |
+| Create a workplan together with its planned services in one step | #384 |
+| Component types get a stable ID; today the name is the primary key | #385 |
+| Rules held only in the browser move to the server (see below) | #386, references #340 |
 
 Candidates to confirm while prototyping (an issue only if the backend lacks the operation): logging completed services on several selected components at once; uninstalling several selected components at once.
 
-New issues go on project #2 (Sprintboard Velo Supervisor 2000) with Priority P0.
+New issues go on project #2 (Sprintboard Velo Supervisor 2000) with Priority P0. #384, #385 and #386 were opened on 2026-11-18.
 
 ### Browser-only rules
 
