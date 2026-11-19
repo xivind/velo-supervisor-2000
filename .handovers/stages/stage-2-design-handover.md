@@ -55,5 +55,11 @@ Stage 2 decides how the new app looks and works on phone and desktop. Spec: [202
 ## Issues opened
 #389 log a completed service on several components, #390 change the status of several components, uninstall or retire (Task 5: the backend has neither; P0, Ready, 2026-11-19). Known from the spec: #362, #384, #385, #386.
 
-## Next steps
-1. Task 5: all 21 artboards of `VS2000 Bike` built (phone, plus desktop artboards that reuse the phone file at 1440 px). Waiting for the user's approval. Parity: 36 rows covered, open ones carry notes for Tasks 7 and 8.
+## Next steps (resume here)
+State on 2026-11-20: Tasks 1–4 done. Task 5 is in review with the user, not yet approved; the user wants more refinement rounds on the Bike canvas before Task 6. Parity: 38 rows covered.
+
+1. Read this handover, the spec, the plan (Task 5 onwards) and the design system README: `Artifact` action `read`, url https://claude.ai/artifact/5sXBCurwjzfyN3YtktBKYA, path `project/README.md`. It holds every rule agreed so far (colours, urgency scale, icons, badges, lists, notifications, writing).
+2. Edit the canvas from its published files, never from memory or an old scratch copy: `read` https://claude.ai/artifact/M1EcSUWYykgdZA7TuHF2N4 with path `project/canvas.json` and each `project/<Name>.dc.html` you change, edit the saved copy, publish to the same url with `root` set to the folder holding `project/`.
+3. Canvas structure: each screen is one responsive `.dc.html` (phone layout, desktop from 900 px). `<Name>-Desktop.dc.html`, `Drawer` and `Component-Retired*` are thin wrappers that `<dc-import>` the screen with props (`desk`, `start="drawer"`, `retired`). Change the screen, not the wrapper. Links between screens go through `L(name)`, which adds `-Desktop` when `desk` is set.
+4. Every agreed rule also goes into the design system README (and the index `lastChange`), and into Decisions here. Keep the dataset in step via the generator (now only in git history of `docs/design/prototype-data.json`; rebuild by editing the JSON directly if the scratch script is gone).
+5. When the user approves the canvas: set its row above to approved with the date, flip the parity rows it covers, then Task 6 (profile v1) and the Phase A pull request with "Refs #194, #363".
