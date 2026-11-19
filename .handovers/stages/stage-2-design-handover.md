@@ -10,8 +10,6 @@ Stage 2 decides how the new app looks and works on phone and desktop. Spec: [202
 ## Status
 | Phase | Branch | Tasks | State |
 |---|---|---|---|
-| Design system `Velo Supervisor 2000` | https://claude.ai/artifact/5sXBCurwjzfyN3YtktBKYA | 2026-11-19 | v0 2026-11-19 |
-| Profile v0 preview (throwaway) | https://claude.ai/artifact/KrpinpiaJcbJwWcyVxLbM9 | 2026-11-19 | v0 choices 2026-11-19 |
 | A | `feature/stage2-bike` | 1–6 | Tasks 1–3 done |
 | B | `feature/stage2-screens` | 7–9 | not started |
 | C | `feature/stage2-closeout` | 10 | not started |
@@ -20,6 +18,7 @@ Stage 2 decides how the new app looks and works on phone and desktop. Spec: [202
 | Name | URL | Created | Approved |
 |---|---|---|---|
 | Design system `Velo Supervisor 2000` | https://claude.ai/artifact/5sXBCurwjzfyN3YtktBKYA | 2026-11-19 | v0 2026-11-19 |
+| Canvas `VS2000 Bike directions` | https://claude.ai/artifact/4RySowQHAvzuoK7Yb1qPG5 | 2026-11-19 | |
 | Profile v0 preview (throwaway) | https://claude.ai/artifact/KrpinpiaJcbJwWcyVxLbM9 | 2026-11-19 | v0 choices 2026-11-19 |
 
 ## Approvals
