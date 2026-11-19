@@ -1579,6 +1579,20 @@
    "resolution_notes": null
   },
   {
+   "incident_id": "inc-rotor",
+   "incident_date": "2026-11-13 08:00",
+   "incident_status": "Open",
+   "incident_severity": "Monitor",
+   "incident_affected_component_ids": [
+    "comp-r08",
+    "comp-r17"
+   ],
+   "incident_affected_bike_id": null,
+   "incident_description": "Rear rotor rubs at speed",
+   "resolution_date": null,
+   "resolution_notes": null
+  },
+  {
    "incident_id": "inc-skip",
    "incident_date": "2026-07-10 08:00",
    "incident_status": "Resolved",
