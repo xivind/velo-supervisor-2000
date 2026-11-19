@@ -19,7 +19,7 @@ PAIRS: list[tuple[str, str, float]] = [
     ("ink-muted", "surface-raised", 4.5),
     ("on-accent", "accent", 4.5),
     ("accent", "surface", 3.0),
-    *[(f"status-{s}", f"status-{s}-tint", 4.5) for s in STATUSES],
+    *[(f"status-{s}-text", f"status-{s}-tint", 4.5) for s in STATUSES],
     *[(a, b, 1.3) for i, a in enumerate(TOLD_APART) for b in TOLD_APART[i + 1 :]],
 ]
 

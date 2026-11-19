@@ -10,15 +10,20 @@ VALID = {
     "on-accent": "#ffffff",
     "accent-tint": "#fff1e6",
     "status-ok": "#1a7f37",
-    "status-ok-tint": "#e6f6ea",
-    "status-due": "#8a4b00",
-    "status-due-tint": "#fff4d6",
-    "status-exceeded": "#7a0e1c",
-    "status-exceeded-tint": "#ffebe9",
-    "status-undefined": "#57606a",
-    "status-undefined-tint": "#eef0f2",
-    "status-retired": "#4b5159",
-    "status-retired-tint": "#e8eaed",
+    "status-ok-tint": "#ecf8ef",
+    "status-ok-text": "#1a7f37",
+    "status-due": "#e5a000",
+    "status-due-tint": "#fdf1cc",
+    "status-due-text": "#8a5a00",
+    "status-exceeded": "#a8201a",
+    "status-exceeded-tint": "#fbe9e7",
+    "status-exceeded-text": "#a8201a",
+    "status-undefined": "#59616b",
+    "status-undefined-tint": "#eceef1",
+    "status-undefined-text": "#59616b",
+    "status-retired": "#59616b",
+    "status-retired-tint": "#eceef1",
+    "status-retired-text": "#59616b",
 }
 
 
@@ -71,6 +76,12 @@ def test_check_reads_plain_string_value():
     assert check(tokens) == []
 
 
-def test_pairs_cover_every_status():
-    names = {fg for fg, _, _ in PAIRS}
-    assert {"status-ok", "status-due", "status-exceeded", "status-undefined", "status-retired"} <= names
+def test_pairs_cover_every_status_badge():
+    pairs = {(fg, bg) for fg, bg, _ in PAIRS}
+    for status in ("ok", "due", "exceeded", "undefined", "retired"):
+        assert (f"status-{status}-text", f"status-{status}-tint") in pairs
+
+
+def test_check_reports_unreadable_badge_text():
+    tokens = tokens_with(**{"status-due-text": "#e5a000"})
+    assert any("status-due-text/status-due-tint" in m for m in check(tokens))
