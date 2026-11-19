@@ -1420,10 +1420,10 @@
    "service_date": null,
    "distance_marker": null,
    "description": "Bleed both brakes",
-   "workplan_id": null,
+   "workplan_id": "wp-brakes",
    "status": "Planned",
    "incident_id": "inc-brakes",
-   "planned_date": "2026-11-21 08:00"
+   "planned_date": null
   },
   {
    "service_id": "svc-p05",
@@ -1433,10 +1433,10 @@
    "service_date": null,
    "distance_marker": null,
    "description": "Replace rear brake pads",
-   "workplan_id": null,
+   "workplan_id": "wp-brakes",
    "status": "Planned",
    "incident_id": "inc-brakes",
-   "planned_date": "2026-11-21 08:00"
+   "planned_date": null
   },
   {
    "service_id": "svc-p06",
@@ -1531,6 +1531,16 @@
   }
  ],
  "workplans": [
+  {
+   "workplan_id": "wp-brakes",
+   "workplan_name": "Brake service",
+   "due_date": "2026-11-12 08:00",
+   "workplan_status": "Planned",
+   "workplan_size": "Small",
+   "workplan_description": "Bleed and new rear pads; overdue on purpose for the prototypes.",
+   "completion_date": null,
+   "completion_notes": null
+  },
   {
    "workplan_id": "wp-winter",
    "workplan_name": "Drivetrain and tires before winter",
