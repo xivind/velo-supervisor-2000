@@ -42,7 +42,7 @@ Everything the old UI on `master` does that a user can see or trigger, and where
 | P-026 | Banner: unfinished workplans | `bike_details.html` | | open | Count in the top |
 | P-027 | Banner: component type compliance (missing mandatory, over max quantity) | `bike_details.html` | | open | Compliance count in the top |
 | P-028 | Components table: name, collection, type, distance, lifetime, service, km to go, days to go; trigger markers | `bike_details.html` | | open | Rows most urgent first |
-| P-029 | Components table: show installed / show retired filters and search | `bike_details.html` 240 | | open | |
+| P-029 | Components table: show installed / show retired filters and search | `bike_details.html` 240 | | open | Retired toggle on the Bike page (user, 2026-11-19); search in Inventory |
 | P-030 | Components table: sortable columns | `main.js` 3018 | | open | |
 | P-031 | Component row markers: in a workplan, open incident, in a collection | `bike_details.html` | | open | Badges |
 | P-032 | Component row actions: change status, quick swap, delete | `bike_details.html` | | open | |
