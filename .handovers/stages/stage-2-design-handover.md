@@ -10,7 +10,7 @@ Stage 2 decides how the new app looks and works on phone and desktop. Spec: [202
 ## Status
 | Phase | Branch | Tasks | State |
 |---|---|---|---|
-| A | `feature/stage2-bike` | 1–6 | Task 1 done |
+| A | `feature/stage2-bike` | 1–6 | Tasks 1–2 done |
 | B | `feature/stage2-screens` | 7–9 | not started |
 | C | `feature/stage2-closeout` | 10 | not started |
 
@@ -32,9 +32,11 @@ Stage 2 decides how the new app looks and works on phone and desktop. Spec: [202
 ## Prototype dataset
 `docs/design/prototype-data.json`, made up. Road bike: 24 installed (3 exceeded, one by time with 2,400 km left; 4 due; 3 Not defined), one compliance issue (no Bell), the 55-character æøå chain name. Gravel bike: 10 installed, 2 collections, tires due by time. Old commuter retired; `Empty frame` has no components. 3 spares, 4 retired, 2 workplans, 6 planned and 6 completed services, 3 incidents (2 open), 15 rides.
 
+## Parity checklist
+`docs/design/parity-checklist.md`: 111 rows, 7 browser-only (posted on #386: https://github.com/xivind/velo-supervisor-2000/issues/386#issuecomment-7019679746). Found: Export dataset and Reset database are empty links on `master` with no route behind them (P-092), so drawing them in Config needs a feature issue (Task 9). Creating a workplan from an incident already creates its planned services in one step (P-112); #384 widens that.
+
 ## Issues opened
 None yet. Known from the spec: #362, #384, #385, #386.
 
 ## Next steps
-1. Task 2: parity inventory in `docs/design/parity-checklist.md`; browser-only list to #386.
-2. Task 3: token checker, profile v0 proposal to the user, Design System artifact.
+1. Task 3: token checker, profile v0 proposal to the user, Design System artifact.
