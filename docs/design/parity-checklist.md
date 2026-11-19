@@ -74,7 +74,7 @@ Everything the old UI on `master` does that a user can see or trigger, and where
 | ID | Old behaviour | Where on master | New design | State | Note |
 |---|---|---|---|---|---|
 | P-060 | All components: name, type, distance, status, lifetime, service, bike; markers | `component_overview.html`, `/component_overview` | | open | Inventory components list |
-| P-061 | Filters installed / not installed / retired, search, sort | `component_overview.html` 142 | | open | |
+| P-061 | Filters installed / not installed / retired, search, sort | `component_overview.html` 142 | | open | Three switches in the list toolbar (Task 7) |
 | P-062 | Row actions: change status, quick swap | `component_overview.html` | | open | |
 | P-063 | Collections table: name, components, bike, updated, health marker, delete; search | `component_overview.html` 46 | | open | Inventory collections list |
 | P-064 | Buttons: new collection, new component, new workplan, new incident | `component_overview.html` | | open | |

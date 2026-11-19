@@ -38,9 +38,10 @@ Stage 2 decides how the new app looks and works on phone and desktop. Spec: [202
 5. Status icons (Lucide): OK `circle-check`, Due `triangle-alert`, Exceeded `octagon-alert`, Not defined `circle-dashed` (user asked for a clearer one than a minus), Retired `archive`, time trigger `clock`.
 6. Badges mark exceptions (user, 2026-11-19): an active bike shows no badge, a retired bike shows the Retired badge, a ride shows Commute only when it is one.
 7. Green, amber and red are one urgency scale (user, 2026-11-19): component status and incident severity (Monitor green, Priority amber, Critical red, Resolved grey), nothing else. Sentence case for all labels.
-8. The Bike page component list gets a "Show retired components" toggle, off by default, for components retired while on the bike (user, 2026-11-19). This narrows the spec's drop of retired components from the bike page: they stay out of the default list and the top counts.
+8. The Bike page component list gets a "Show retired" switch, off by default, for components retired while on the bike (user, 2026-11-19). This narrows the spec's drop of retired components from the bike page: they stay out of the default list and the top counts.
 9. The selection bar offers Plan service, Log service and Change status (Not installed or Retired); #390 widened to cover retiring. Single-component actions (quick swap, edit, duplicate, delete, status) live on the component view.
-10. The dataset carries master's two computed triggers, `service_trigger` and `lifetime_trigger`, rather than one `trigger`, and an `about` block with the fixed "today" (2026-11-16 12:00). Lists master stores as JSON text are plain lists.
+10. Badges are as wide as their text, also in lists. List filters are switches in a grey toolbar strip above the list; Inventory gets Installed, Not installed and Retired switches (Task 7).
+11. The dataset carries master's two computed triggers, `service_trigger` and `lifetime_trigger`, rather than one `trigger`, and an `about` block with the fixed "today" (2026-11-16 12:00). Lists master stores as JSON text are plain lists.
 
 ## Prototype dataset
 `docs/design/prototype-data.json`, made up. Road bike: 24 installed (3 exceeded, one by time with 2,400 km left; 4 due; 3 Not defined), one compliance issue (no Bell), the 55-character æøå chain name. Gravel bike: 10 installed, 2 collections, tires due by time. Old commuter retired; `Empty frame` has no components. 3 spares, 4 retired, 2 workplans, 6 planned and 6 completed services, 3 incidents (2 open), 15 rides.
