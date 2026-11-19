@@ -12,7 +12,7 @@ Everything the old UI on `master` does that a user can see or trigger, and where
 |---|---|---|---|---|---|
 | P-001 | Bike overview: a card per bike with name, status and distance; links to the bike | `index.html`, `/` | VS2000 Bike: Bikes | covered | Becomes the bike list in Bike |
 | P-002 | Bike overview: "Show retired bikes" toggle | `index.html` | VS2000 Bike: Bikes (active, then retired) | covered | Bike list: active first, retired after |
-| P-003 | Bike overview: card marks open workplans, open incidents and collections per bike | `index.html` |  | open | Bike list shows status counts; workplan and incident markers still to add |
+| P-003 | Bike overview: card marks open workplans, open incidents and collections per bike | `index.html` | VS2000 Bike: Bikes (status, planned, workplan, incident and collection counts) | covered |  |
 | P-004 | Menu with the main pages, current page highlighted | `menu.html` | VS2000 Bike: Main (side menu), Drawer | covered | Becomes the left menu / phone drawer |
 | P-005 | Footer: version and last Strava pull | `footer.html` | VS2000 Bike: Main, Drawer (menu foot) | covered | Moves to the menu foot |
 | P-006 | Footer: "Submit issue" link | `footer.html` |  | dropped | Spec: decided drop |
@@ -44,7 +44,7 @@ Everything the old UI on `master` does that a user can see or trigger, and where
 | P-028 | Components table: name, collection, type, distance, lifetime, service, km to go, days to go; trigger markers | `bike_details.html` | VS2000 Bike: Main (components) | covered | Rows most urgent first |
 | P-029 | Components table: show installed / show retired filters and search | `bike_details.html` 240 | VS2000 Bike: Main (Show retired switch); search in Inventory | covered | Retired toggle on the Bike page (user, 2026-11-19); search in Inventory |
 | P-030 | Components table: sortable columns | `main.js` 3018 |  | open | Sorting: Inventory (Task 7) |
-| P-031 | Component row markers: in a workplan, open incident, in a collection | `bike_details.html` |  | open | Badges; Row markers for workplan, incident, collection not yet on Bike rows |
+| P-031 | Component row markers: in a workplan, open incident, in a collection | `bike_details.html` | VS2000 Bike: Main (row markers) | covered | Badges |
 | P-032 | Component row actions: change status, quick swap, delete | `bike_details.html` | VS2000 Bike: Component (more sheet), Swap | covered |  |
 | P-033 | Planned services table: due date (effective planned date, mark when passed), complete, edit, delete per row | `bike_details.html` |  | open | Per-row complete, edit, delete: service view (Task 8) |
 | P-034 | Incidents table: severity, date, description, days open, workplans with progress | `bike_details.html` |  | open | Workplans per incident: incident view (Task 8) |
