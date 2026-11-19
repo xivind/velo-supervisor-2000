@@ -35,7 +35,8 @@ Stage 2 decides how the new app looks and works on phone and desktop. Spec: [202
 3. Profile v0 (user): accent `#1d4ed8`, Inter, light only. One colour per status for wear bars, rings and swatches (OK `#1a7f37`, Due `#e5a000`, Exceeded `#a8201a`); badges are a pale tint of it with text in the same hue. Due text is a darker amber (`#8a5a00`) to read on its tint. Trade-off: an amber bar is 2.2:1 on white, so the figure beside a bar always carries the value.
 4. Token names add `status-<level>-text` (badge text) beside `status-<level>` (fill) and `-tint`; the checker tests text on tint. The plan assumed `status-<level>` as badge text.
 5. Status icons (Lucide): OK `circle-check`, Due `triangle-alert`, Exceeded `octagon-alert`, Not defined `circle-dashed` (user asked for a clearer one than a minus), Retired `archive`, time trigger `clock`.
-6. The dataset carries master's two computed triggers, `service_trigger` and `lifetime_trigger`, rather than one `trigger`, and an `about` block with the fixed "today" (2026-11-16 12:00). Lists master stores as JSON text are plain lists.
+6. Badges mark exceptions (user, 2026-11-19): an active bike shows no badge, a retired bike shows the Retired badge; green means a component is OK and nothing else.
+7. The dataset carries master's two computed triggers, `service_trigger` and `lifetime_trigger`, rather than one `trigger`, and an `about` block with the fixed "today" (2026-11-16 12:00). Lists master stores as JSON text are plain lists.
 
 ## Prototype dataset
 `docs/design/prototype-data.json`, made up. Road bike: 24 installed (3 exceeded, one by time with 2,400 km left; 4 due; 3 Not defined), one compliance issue (no Bell), the 55-character æøå chain name. Gravel bike: 10 installed, 2 collections, tires due by time. Old commuter retired; `Empty frame` has no components. 3 spares, 4 retired, 2 workplans, 6 planned and 6 completed services, 3 incidents (2 open), 15 rides.
