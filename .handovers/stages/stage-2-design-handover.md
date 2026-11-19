@@ -19,6 +19,7 @@ Stage 2 decides how the new app looks and works on phone and desktop. Spec: [202
 |---|---|---|---|
 | Design system `Velo Supervisor 2000` | https://claude.ai/artifact/5sXBCurwjzfyN3YtktBKYA | 2026-11-19 | v0 2026-11-19 |
 | Canvas `VS2000 Bike directions` | https://claude.ai/artifact/4RySowQHAvzuoK7Yb1qPG5 | 2026-11-19 | A chosen 2026-11-19 |
+| Canvas `VS2000 Bike` | https://claude.ai/artifact/M1EcSUWYykgdZA7TuHF2N4 | 2026-11-19 | |
 | Profile v0 preview (throwaway) | https://claude.ai/artifact/KrpinpiaJcbJwWcyVxLbM9 | 2026-11-19 | v0 choices 2026-11-19 |
 
 ## Approvals
@@ -45,7 +46,7 @@ Stage 2 decides how the new app looks and works on phone and desktop. Spec: [202
 `docs/design/parity-checklist.md`: 111 rows, 7 browser-only (posted on #386: https://github.com/xivind/velo-supervisor-2000/issues/386#issuecomment-7019679746). Found: Export dataset and Reset database are empty links on `master` with no route behind them (P-092), so drawing them in Config needs a feature issue (Task 9). Creating a workplan from an incident already creates its planned services in one step (P-112); #384 widens that.
 
 ## Issues opened
-None yet. Known from the spec: #362, #384, #385, #386.
+#389 log a completed service on several components, #390 uninstall several components (Task 5: the backend has neither; P0, Ready, 2026-11-19). Known from the spec: #362, #384, #385, #386.
 
 ## Next steps
 1. Task 5: canvas `VS2000 Bike` in direction A: bike list and switcher, top, all lists, component view, empty states, drawer, workshop flows.
