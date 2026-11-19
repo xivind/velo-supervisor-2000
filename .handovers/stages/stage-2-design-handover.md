@@ -53,4 +53,4 @@ Stage 2 decides how the new app looks and works on phone and desktop. Spec: [202
 #389 log a completed service on several components, #390 change the status of several components, uninstall or retire (Task 5: the backend has neither; P0, Ready, 2026-11-19). Known from the spec: #362, #384, #385, #386.
 
 ## Next steps
-1. Task 5: canvas `VS2000 Bike` in direction A: bike list and switcher, top, all lists, component view, empty states, drawer, workshop flows.
+1. Task 5: all 21 artboards of `VS2000 Bike` built (phone, plus desktop artboards that reuse the phone file at 1440 px). Waiting for the user's approval. Parity: 36 rows covered, open ones carry notes for Tasks 7 and 8.
