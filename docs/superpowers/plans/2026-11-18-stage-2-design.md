@@ -21,6 +21,7 @@
 - Rules that protect data (spec, Constraints) are never relaxed on a canvas. A canvas that needs a rule or operation the backend lacks gets a feature issue first.
 - New issues: project #2 "Sprintboard Velo Supervisor 2000", Priority P0, Status Ready. Commit messages use "Refs #N", never "Closes" or "Fixes".
 - Approval is the user's alone, per canvas. @thomiz's review never blocks a task. Every approval is recorded in the handover with its date.
+- The handover stays within CLAUDE.md's 100 lines. Detail belongs in the parity checklist and the design system, not the handover.
 - Canvas and design-system files are built in the session scratchpad, never in the repo, and published with the Artifact tool. Every canvas and design-system URL is written into the handover as soon as it exists, because sessions are fresh.
 - Where `.claude/agents/ux-designer.md` conflicts with the spec (Bootstrap-first, follow existing templates), the spec wins. That file is updated in Task 10.
 - Commits and pushes: the user authorised committing on the Stage 2 feature branches, pushing them and opening pull requests to `dev`. Never commit to `dev`, `staging` or `master`, never merge. Each phase starts from `dev` after the user has merged the previous phase.
@@ -28,7 +29,7 @@
 
 ## Review Focus
 
-1. **Long names with æ, ø, å** (a 60-character Norwegian component name, as in real use). Expected: the row wraps or truncates cleanly on a 390 px phone, and the full name shows in the item view. Pinned by the dataset (Task 1) and checked on every list artboard (Tasks 4, 5, 7).
+1. **Long names with æ, ø, å** (a 55-character Norwegian component name, as in real use). Expected: the row wraps or truncates cleanly on a 390 px phone, and the full name shows in the item view. Pinned by the dataset (Task 1) and checked on every list artboard (Tasks 4, 5, 7).
 2. **Empty states:** a bike with no components, no planned services, no open incidents. Expected: a short explanation and the action that fills it, not a blank area. Pinned by the dataset's empty bike (Task 1) and its artboards (Tasks 5, 7, 8).
 3. **"Not defined" components** (no interval or lifetime set). Expected: shown with their own badge, sorted after OK, never shown as OK. Pinned by the dataset (Task 1) and the sort check (Task 4).
 4. **A component overdue by days with plenty of km left.** Expected: sorted among the exceeded ones, with the badge saying time triggered it. Pinned by the dataset (Task 1) and the sort check (Task 4).
@@ -46,18 +47,19 @@
 
 **Interfaces:**
 - Produces: the handover with sections `Status`, `Canvases and design system` (table: name, URL, created, approved), `Approvals` (date, what), `Decisions`, `Issues opened`, `Next steps`. Every later task appends to it.
-- Produces: `prototype-data.json` with top-level keys `bikes`, `components`, `services`, `workplans`, `incidents`, `collections`, `rides`, each a list of objects whose field names match `master`'s table columns (`bike_id`, `bike_name`, `component_name`, `component_type`, `installation_status`, `service_status`, `lifetime_status`, `service_next`, `lifetime_remaining`, `service_next_days`, `lifetime_remaining_days`, …) plus a display-only `trigger` (`distance`, `time`, `both`, or null).
+- Produces: `prototype-data.json` with top-level keys `bikes`, `components`, `component_types`, `services`, `workplans`, `incidents`, `collections`, `rides`, each a list of objects whose field names match `master`'s table columns (`bike_id`, `bike_name`, `component_name`, `component_type`, `installation_status`, `service_status`, `lifetime_status`, `service_next`, `lifetime_remaining`, `service_next_days`, `lifetime_remaining_days`, …) plus a display-only `trigger` (`distance`, `time`, `both`, or null).
 
 - [ ] **Step 1:** Write the handover skeleton from `.handovers/TEMPLATE.md`, status "In progress", with the spec and plan linked and the PR #387 approval of the spec recorded (2026-11-18).
 - [ ] **Step 2:** Write the dataset, built on the synthetic bikes in `tests/fixtures/dataset.py` (Road bike, Gravel bike, Old commuter). It must contain:
   - Road bike active with 24 installed components covering every service and lifetime status, including at least 2 exceeded, 3 due, 2 Not defined, and 1 overdue by days with more than 1,000 km left (`trigger: "time"`);
+  - component types with `mandatory` and `max_quantity` (master's columns), set so Road bike has one compliance issue: one mandatory type missing (master's `process_bike_compliance_report` counts missing mandatory types and types over their max quantity);
   - one component named `Kjede Shimano CN-HG701 11-delt «Grønn» bakhjul æøå 2026` (longer than 50 characters);
   - 3 spare components (Not installed), 4 retired;
   - Gravel bike active with 2 collections (a wheelset and a drivetrain);
   - Old commuter retired, and one new bike `Empty frame` with no components;
   - 2 workplans (one with 3 planned services across 2 components, one completed), 3 planned services outside workplans, 6 completed services;
   - 2 open incidents (one naming only the bike, one naming 2 components), 1 resolved;
-  - 10 rides on Road bike.
+  - 10 rides on Road bike and 5 on Gravel bike, so Stats has more than one bike to compare.
 - [ ] **Step 3: Check the dataset**
 
 Run: `python3 -I -c "import json;d=json.load(open('docs/design/prototype-data.json'));c=d['components'];print(sorted({x['service_status'] for x in c}|{x['lifetime_status'] for x in c}), sorted({x['installation_status'] for x in c}), max(len(x['component_name']) for x in c))"`
@@ -78,12 +80,12 @@ git commit -m "Start the Stage 2 handover and the prototype dataset"
 **Interfaces:**
 - Produces: one table with columns `ID | Old behaviour | Where on master | New design | State | Note`. `ID` is `P-001`, `P-002`, …; `State` is one of `open`, `covered`, `dropped`, `browser-only`. Later tasks change `New design` (canvas name and artboard) and `State`.
 
-- [ ] **Step 1:** Walk `master` (`git show master:frontend/templates/<file>`, `master:frontend/static/js/main.js`, `master:backend/main.py`). Write one row per user-visible behaviour of every page (11), every modal (20) and every POST route.
+- [ ] **Step 1:** Walk `master` (`git show master:frontend/templates/<file>`, `master:frontend/static/js/main.js`, `master:backend/main.py`). Write one row per user-visible behaviour of every page (11), every modal (20), every POST route (19), and the two GET routes that change data (`/refresh_all_bikes`, `/refresh_rides/{mode}`).
 - [ ] **Step 2:** Add the seed rows the spec names: the Stage 1 handover list "Stage 2 parity checklist", #37, #128, #145, workplan due date required, empty optional fields accepted on uninstall. Mark the spec's decided drops `dropped` with the reason (submit-issue link, database path, load time, retired components and expected cost on the bike page, emoji). Leave the Config button order settings `open` with the note "probably dropped, decide in Task 9".
 - [ ] **Step 3:** For every validation in `main.js` that the server does not check, add a row with `State` `browser-only`. Post the list as a comment on #386.
 - [ ] **Step 4: Check coverage**
 
-Run: `for f in $(git ls-tree --name-only master frontend/templates/ | xargs -n1 basename); do grep -q "$f" docs/design/parity-checklist.md || echo "missing $f"; done; for r in $(git show master:backend/main.py | grep -oP '@app\.post\("\K[^"]+'); do grep -q "$r" docs/design/parity-checklist.md || echo "missing $r"; done`
+Run: `for f in $(git ls-tree --name-only master frontend/templates/ | xargs -n1 basename); do grep -q "$f" docs/design/parity-checklist.md || echo "missing $f"; done; for r in $(git show master:backend/main.py | grep -oP '@app\.(get|post)\("\K[^"]+' | grep -vx '/health'); do grep -q "$r" docs/design/parity-checklist.md || echo "missing $r"; done`
 Expected: no output.
 
 - [ ] **Step 5:** Record in the handover: row count, browser-only count, the #386 comment link.
@@ -103,10 +105,11 @@ git commit -m "Add the Stage 2 parity inventory" -m "Refs #386"
 - Scratch: the design system's `project/` folder
 
 **Interfaces:**
-- Produces: a Design System artifact titled `Velo Supervisor 2000`, holding `tokens.json`, a one-paragraph `README.md` and the cover. Colour token names, used by every later task: `surface`, `surface-raised`, `ink`, `ink-muted`, `line`, `accent`, `on-accent`, `accent-tint`, and per status `status-ok`, `status-due`, `status-exceeded`, `status-undefined`, `status-retired`, each with a `-tint` partner (badge background). Radius tokens `radius-sm`, `radius-md`, `radius-lg`; one font family token `sans`.
-- Produces: `contrast_ratio(a: str, b: str) -> float` (WCAG 2.1 relative luminance, hex input), `check(tokens: dict) -> list[str]` (one message per failing pair, formatted `"<fg>/<bg>: <ratio> < <minimum>"`, plus `"missing <name>"` for a token named in `PAIRS` but absent; empty when all pass), and `PAIRS: list[tuple[str, str, float]]` in `scripts/design/check_tokens.py`; `main()` reads a path argument, prints failures, exits 1 on any.
-- `PAIRS`: `ink`/`surface` 4.5, `ink`/`surface-raised` 4.5, `ink-muted`/`surface` 4.5, `on-accent`/`accent` 4.5, `accent`/`surface` 3.0, and `status-X`/`status-X-tint` 4.5 for each of the five statuses. Plus: `status-ok`, `status-due` and `status-exceeded` pairwise at least 1.3, so they differ in lightness.
-- Status mapping, fixed for every canvas: OK → `status-ok`; Due for service and Due for replacement → `status-due`; Service interval exceeded and Lifetime exceeded → `status-exceeded`; Not defined → `status-undefined`; Retired → `status-retired`. Installed and Not installed use neutral badges (`ink-muted` on `surface-raised`). The badge label always names the exact status, so the shared colour never hides which one it is.
+- Produces: a Design System artifact titled `Velo Supervisor 2000`, holding `tokens.json`, a one-paragraph `README.md` and the cover. Colour token names, used by every later task: `surface`, `surface-raised`, `ink`, `ink-muted`, `line` (dividers only; control borders and focus rings use `ink-muted` and `accent`, which meet 3:1), `accent`, `on-accent`, `accent-tint` (a background for `ink` text, such as a selected row or tab), and per status `status-ok`, `status-due`, `status-exceeded`, `status-undefined`, `status-retired`, each with a `-tint` partner (badge background). Radius tokens `radius-sm`, `radius-md`, `radius-lg`; one font family token `sans`.
+- Produces: `contrast_ratio(a: str, b: str) -> float` (WCAG 2.1 relative luminance, hex input), `check(tokens: dict) -> list[str]` (one message per failing pair, formatted `"<fg>/<bg>: <ratio> < <minimum>"`, plus `"missing <name>"` for a token named in `PAIRS` but absent; empty when all pass; a token's value is either a string or `{"light": …}`, and an alias `"{other-token}"` is resolved, as the design system allows both), and `PAIRS: list[tuple[str, str, float]]` in `scripts/design/check_tokens.py`; `main()` reads a path argument, prints failures, exits 1 on any.
+- `PAIRS`: `ink`/`surface` 4.5, `ink`/`surface-raised` 4.5, `ink`/`accent-tint` 4.5, `ink-muted`/`surface` 4.5, `ink-muted`/`surface-raised` 4.5, `on-accent`/`accent` 4.5, `accent`/`surface` 3.0, and `status-X`/`status-X-tint` 4.5 for each of the five statuses. Also in `PAIRS`: `status-ok`/`status-due`, `status-ok`/`status-exceeded` and `status-due`/`status-exceeded` at 1.3, so they differ in lightness.
+- Status mapping, fixed for every canvas: OK → `status-ok`; Due for service and Due for replacement → `status-due`; Service interval exceeded and Lifetime exceeded → `status-exceeded`; Not defined → `status-undefined`; Retired → `status-retired`. Each of the five also has its own Lucide icon, named in the README (spec, profile item 1: lightness and icon, not hue alone). Installed and Not installed use neutral badges (`ink-muted` on `surface-raised`). The badge label always names the exact status, so the shared colour never hides which one it is.
+- *My call:* a retired component shows the Retired badge, and its service and lifetime statuses in neutral. `master` keeps computing them (the production copy has 122 retired components at "Service interval exceeded"), and showing them in the warning colour would look like work to do.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -124,6 +127,10 @@ def test_check_passes_valid_profile():
 def test_status_colours_must_differ_in_lightness():
     tokens = tokens_with(**{"status-ok": "#1a7f37", "status-due": "#1b7f38"})
     assert any("status-ok/status-due" in m for m in check(tokens))
+
+def test_check_resolves_alias():
+    tokens = tokens_with(**{"on-accent": "{surface}"})
+    assert not any("on-accent" in m for m in check(tokens))
 ```
 
 `tokens_with(**overrides)` builds a minimal valid `tokens.json` dict in the design system's list shape (`{"color": {"themes": [{"id": "light"}], "tokens": [{"name", "value": {"light": hex}}]}}`).
@@ -164,7 +171,8 @@ git commit -m "Record the chosen Stage 2 visual direction"
 - Consumes: the chosen direction (Task 4).
 - Produces: a Design canvas `VS2000 Bike`. Phone and desktop artboards for:
   - the bike list (active first, retired after) and the bike switcher;
-  - the Bike top section and every lower list (components, services, workplans, incidents, collections, rides). Tapping a count in the top (for example "3 due service") opens that list filtered. The bike's collections show as shortcuts in the top;
+  - the Bike top section and every lower list (components, services, workplans, incidents, collections, rides). Tapping a count in the top (for example "3 due service") opens that list filtered; the compliance count shows which type is missing or over its maximum. The bike's collections show as shortcuts in the top;
+  - the phone bottom bar: `Service` and `Install`, each opening its sheet, and `⋯` for the rest (spec, Actions), shown on the bike and inside a component view, where it acts on that component;
   - the component item view, including a retired component. On phone the top shrinks to a slim bar inside the item;
   - empty states for `Empty frame`;
   - the menu drawer.
@@ -172,8 +180,9 @@ git commit -m "Record the chosen Stage 2 visual direction"
   - Log service: complete a planned one, or log a new one;
   - Plan service on 2 components into a new workplan (#384), and 2 services on one component in one workplan (#362);
   - quick swap;
+  - install a spare component on the bike;
   - collection status change;
-  - the selection bar with Plan, Log and Uninstall;
+  - the selection bar with Plan, Log and Uninstall, with nothing preselected that the user did not tick (#365);
   - refused input (future service date) with its inline message;
   - the confirm dialog for bulk uninstall;
   - a success toast;
@@ -181,7 +190,7 @@ git commit -m "Record the chosen Stage 2 visual direction"
 
 - [ ] **Step 1:** Build the canvas and write its URL into the handover.
 - [ ] **Step 2:** Check that every artboard and flow in the list above exists in both phone and desktop. Check that the retired component offers no service actions and says why (Review Focus 5).
-- [ ] **Step 3:** For bulk Log service and bulk Uninstall on a selection, check `business_logic.py` on `dev`. For each operation the backend lacks, open an issue (Global Constraints) and link it from the flow artboard.
+- [ ] **Step 3:** For bulk Log service and bulk Uninstall on a selection, check `src/velo_supervisor/business_logic.py` on `dev`. For each operation the backend lacks, open an issue (Global Constraints) and link it from the flow artboard.
 - [ ] **Step 4:** Update the parity checklist: rows these artboards cover become `covered`, with canvas and artboard named.
 - [ ] **Step 5:** The user approves. Record the approval and date in the handover.
 - [ ] **Step 6: Commit**
@@ -231,16 +240,19 @@ Every canvas in this phase uses the design system. Where a canvas needs a buildi
 **Produces:** a Design canvas `VS2000 Inventory`. Phone and desktop artboards for:
 - the Inventory top section;
 - every list, with its filter, search and sort (components including spares and retired, services, workplans, incidents, collections);
-- Back returning to a filtered list with its filters kept (#128).
+- Back returning to a filtered list with its filters kept (#128);
+- the component view opened from Inventory.
 
 - [ ] **Step 1:** Build the canvas and write its URL into the handover. The long name and the Not defined components show in the component list.
-- [ ] **Step 2:** Update the parity checklist rows these artboards cover.
-- [ ] **Step 3:** The user approves. Record it in the handover. Commit.
+- [ ] **Step 2:** Check the component view here differs from Task 5's only in the top section (anti-goal: an item view looks the same from Bike and Inventory).
+- [ ] **Step 3:** Update the parity checklist rows these artboards cover.
+- [ ] **Step 4:** The user approves. Record it in the handover. Commit.
 
 ### Task 8: Item views
 
 **Produces:** a Design canvas `VS2000 Item views`. Phone and desktop artboards for:
 - the service, workplan, incident and collection views, each with its links both ways (spec, Services, incidents and workplans);
+- editing a service from its view;
 - the workplan's progress ring and its "expected replacement cost";
 - completing a workplan with its linked incidents closed;
 - creating an incident (bike only, components only, both), and the inline message when neither is named (#386).
@@ -281,9 +293,15 @@ One view (the workplan) is drawn once in Bike scope and once in Inventory scope,
 - [ ] **Step 1: Write the failing test**
 
 ```python
+import json
+from pathlib import Path
+
+from design.check_tokens import check
+
+TOKENS = Path(__file__).resolve().parents[2] / "docs" / "design" / "tokens.json"
+
 def test_profile_tokens_pass_contrast():
-    tokens = json.loads(Path("docs/design/tokens.json").read_text())
-    assert check(tokens) == []
+    assert check(json.loads(TOKENS.read_text())) == []
 ```
 
 - [ ] **Step 2:** Run `uv run pytest tests/design_profile/test_profile_tokens.py -q`. Expected: FAIL (file missing).
@@ -292,7 +310,7 @@ def test_profile_tokens_pass_contrast():
 - [ ] **Step 5:** Export one PNG per approved artboard into `docs/design/screens/`, named `<page>-<view>-<phone|desktop>.png`. Use the canvas export when it offers per-artboard PNGs. Otherwise ask the user first, then capture each artboard at its size with Claude in Chrome. Check that every artboard in the handover's canvases has a file.
 - [ ] **Step 6:** Update the docs:
   - the roadmap's Stage 2 status line, linking the handover;
-  - CLAUDE.md: where the profile lives, that UI work follows `docs/design/`, and that the repo is the source of truth;
+  - CLAUDE.md: where the profile lives, that UI work follows `docs/design/`, and that the repo is the source of truth. The "Code Style, Frontend" lines (Bootstrap utility classes only, small incremental UI changes) get a note that they apply to the current app until Stage 5; Stage 3 decides what replaces them;
   - `ux-designer.md`: follow `docs/design/`, no Bootstrap-first, no copying old templates;
   - `fullstack-developer.md`: build pages from `docs/design/` and the screens.
 - [ ] **Step 7:** Complete the handover: set its status to "Complete", list the canvases with their approval dates, the issues opened, the decisions, and next steps for Stage 3 (the URL shapes and libraries the design assumes).
